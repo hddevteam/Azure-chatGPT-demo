@@ -36,8 +36,9 @@ input[type="submit"] {
 }
 
 pre {
-    background-color: #f4f4f4;
-    border: 1px solid #ddd;
+    background-color: #000;
+    border: 1px solid #000;
+    color:azure;
     border-radius: 3px;
     font-family: 'Courier New', Courier, monospace;
     font-size: 14px;
