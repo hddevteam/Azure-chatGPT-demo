@@ -1,5 +1,14 @@
+@media screen and (max-width: 480px) {  
+    .chat-container {  
+      padding: 10px;  
+    }  
+    textarea {  
+      width: 100%;  
+    }  
+  }  
 #chat-container {
-    width: 600px;
+    max-width: 900px;
+    width: 90%;
     margin: 0 auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -17,8 +26,9 @@
     background-color: #e6f2ff;
 }
 
-input[type="text"] {
-    width: 80%;
+textarea {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
     box-sizing: border-box;
@@ -26,7 +36,7 @@ input[type="text"] {
     border-radius: 4px;
 }
 
-input[type="submit"] {
+button {
     background-color: #4CAF50;
     color: white;
     padding: 12px 20px;
