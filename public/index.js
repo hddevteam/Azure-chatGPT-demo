@@ -7,6 +7,7 @@ const messagesContainer = document.getElementById('messages');
 const messageForm = document.getElementById('message-form');
 const messageInput = document.getElementById('message-input');
 
+
 // 发送消息到API
 async function sendMessage(message) {
     addMessage('user', message);
@@ -40,15 +41,19 @@ async function sendMessage(message) {
     } else {
         // 添加回复到prompt
         prompts.push("<|im_start|>assistant\n" + data + "\n<|im_end|>\n");
-        //if the prompts is too long, then we need to remove the first prompt from the prompts array
-        if (prompts.length > 4) {
+        //if the prompts is too long, then we need to remove 2th prompt from the prompts array, and add the promptImpersonate to the first prompts array
+        if (prompts.length > 6) {
             prompts.shift();
+            prompts.shift();
+            prompts.unshift(promptImpersonate);
         }
-        
+
     }
     addMessage('bot', data);
-    
 }
+
+// create a function to clear the content in the messages container and also clear the prompts array, also add the promptImpersonate to the prompts array
+
 
 // 添加消息到消息容器
 function addMessage(sender, message) {

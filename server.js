@@ -37,7 +37,7 @@ app.post('/api/gpt', async (req, res) => {
         },
         data: JSON.stringify({
             prompt: prompt,
-            temperature: 0.5,
+            temperature: 0.7,
             top_p: 0.95,
             frequency_penalty: 0,
             presence_penalty: 0,
