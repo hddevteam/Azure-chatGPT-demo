@@ -64,7 +64,8 @@ async function sendMessage(message) {
 // create a function to clear the content in the messages container,
 // and also clear the prompts array, also add the promptImpersonate to the prompts array
 function clearMessage() {
-    messagesContainer.innerHTML = '';
+    messagesContainer.innerHTML = ''; 
+    messageInput.value = '';
     prompts = [];
     prompts.push({ "role": "system", "content": promptImpersonate });
 }
