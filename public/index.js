@@ -1,7 +1,7 @@
-let promptImpersonate = "<|im_start|>system\nYou are an AI assistant that helps people find information.\n<|im_end|>\n";
+let promptImpersonate = "You are an AI assistant that helps people find information.";
 let prompts = [];
 // add the promptImpersonate to the prompts array last so that it is the last prompt
-prompts.push(promptImpersonate);
+prompts.push({ "role": "system", "content": promptImpersonate });
 
 const messagesContainer = document.getElementById('messages');
 const messageForm = document.getElementById('message-form');
@@ -11,9 +11,9 @@ const messageInput = document.getElementById('message-input');
 // 发送消息到API
 async function sendMessage(message) {
     addMessage('user', message);
-    let userPrompt = "<|im_start|>user\n" + message + "\n<|im_end|>\n";
-    prompts.push(userPrompt);
-    const promptText = prompts.join('');
+
+    prompts.push({ role: "user", content: message });
+    const promptText = JSON.stringify(prompts);
     console.log(promptText);
 
     messageInput.value = '';
@@ -40,12 +40,12 @@ async function sendMessage(message) {
         data = "AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。";
     } else {
         // 添加回复到prompt
-        prompts.push("<|im_start|>assistant\n" + data + "\n<|im_end|>\n");
+        prompts.push({ role: "assistant", content: data });
         //if the prompts is too long, then we need to remove 2th prompt from the prompts array, and add the promptImpersonate to the first prompts array
         if (prompts.length > 6) {
             prompts.shift();
             prompts.shift();
-            prompts.unshift(promptImpersonate);
+            prompts.unshift({ role: "system", content: promptImpersonate });
         }
 
     }
@@ -72,10 +72,9 @@ function addMessage(sender, message) {
                 message = message.replace(block, pre.outerHTML);
             });
         }
-        messageElement.innerHTML = message;
-    } else {
-        messageElement.innerText = message;
     }
+    const formattedMessage = message.replace(/\n/g, '<br>');
+    messageElement.innerHTML = formattedMessage;
 
     messagesContainer.appendChild(messageElement);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
