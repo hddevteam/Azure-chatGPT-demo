@@ -10,6 +10,13 @@ const messageInput = document.getElementById('message-input');
 
 // 发送消息到API
 async function sendMessage(message) {
+
+    // if the message is 'clear', then we need to clear the content in the messages container
+    if (message === 'clear') {
+        clearMessage();
+        return;
+    }
+
     addMessage('user', message);
 
     prompts.push({ role: "user", content: message });
@@ -27,6 +34,7 @@ async function sendMessage(message) {
         body: JSON.stringify({ prompt: promptText })
     });
 
+    // check if the response is ok
     if (!response.ok) {
         addMessage('bot', 'Error generating response.');
         return;
@@ -41,7 +49,8 @@ async function sendMessage(message) {
     } else {
         // 添加回复到prompt
         prompts.push({ role: "assistant", content: data });
-        //if the prompts is too long, then we need to remove 2th prompt from the prompts array, and add the promptImpersonate to the first prompts array
+        //if the prompts is too long, then we need to remove 2th prompt from the prompts array, 
+        // and add the promptImpersonate to the first prompts array
         if (prompts.length > 6) {
             prompts.shift();
             prompts.shift();
@@ -52,8 +61,13 @@ async function sendMessage(message) {
     addMessage('bot', data);
 }
 
-// create a function to clear the content in the messages container and also clear the prompts array, also add the promptImpersonate to the prompts array
-
+// create a function to clear the content in the messages container,
+// and also clear the prompts array, also add the promptImpersonate to the prompts array
+function clearMessage() {
+    messagesContainer.innerHTML = '';
+    prompts = [];
+    prompts.push({ "role": "system", "content": promptImpersonate });
+}
 
 // 添加消息到消息容器
 function addMessage(sender, message) {
