@@ -12,7 +12,7 @@ You may use this code to learn how to use Azure OpenAI API to develop your chatG
 
 API_KEY=yourapikey
 
-API_URL=API_URL=https://yourendpoint/openai/deployments/gpt35turbo/chat/completions?api-version=2023-03-15-preview
+API_URL=https://yourendpoint/openai/deployments/gpt35turbo/chat/completions?api-version=2023-03-15-preview
 
 ## Run command in the terminal
     npm install
