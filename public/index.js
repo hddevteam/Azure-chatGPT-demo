@@ -1,101 +1,79 @@
-let promptImpersonate = "You are an AI assistant that helps people find information.";
-let prompts = [];
-// add the promptImpersonate to the prompts array last so that it is the last prompt
-prompts.push({ "role": "system", "content": promptImpersonate });
+const promptImpersonate = 'You are an AI assistant that helps people find information.';
+const prompts = [{ role: 'system', content: promptImpersonate }];
 
 const messagesContainer = document.getElementById('messages');
 const messageForm = document.getElementById('message-form');
 const messageInput = document.getElementById('message-input');
 
+// Clear message input
+const clearMessage = () => {
+    messagesContainer.innerHTML = '';
+    messageInput.value = '';
+    prompts.splice(0, prompts.length, { role: 'system', content: promptImpersonate });
+};
 
-// 发送消息到API
-async function sendMessage(message) {
+// Add message to DOM
+const addMessage = (sender, message) => {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.classList.add(`${sender}-message`);
+    const codeBlocks = message.match(/```(\w+)?\n([\s\S]+?)\n```/g);
+    if (codeBlocks) {
+        codeBlocks.forEach((block) => {
+            const code = block.replace(/```(\w+)?\n([\s\S]+?)\n```/, '$2');
+            const pre = document.createElement('pre');
+            const codeElement = document.createElement('code');
+            codeElement.innerText = code;
+            pre.appendChild(codeElement);
+            message = message.replace(block, pre.outerHTML);
+        });
+    }
+    messageElement.innerHTML = message.replace(/\n/g, '<br>');
+    messagesContainer.appendChild(messageElement);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+};
 
-    // if the message is 'clear', then we need to clear the content in the messages container
+// Send message on button click
+const sendMessage = async (message = '') => {
     if (message === 'clear') {
         clearMessage();
         return;
     }
-
     addMessage('user', message);
-
-    prompts.push({ role: "user", content: message });
+    prompts.push({ role: 'user', content: message });
     const promptText = JSON.stringify(prompts);
-    console.log(promptText);
-
     messageInput.value = '';
-
-    // 发送请求到API
-    const response = await fetch('/api/gpt', {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ prompt: promptText })
-    });
-
-    // check if the response is ok
-    if (!response.ok) {
-        addMessage('bot', 'Error generating response.');
-        return;
-    }
-
-    let data = await response.text();
-    console.log(data);
-    //if the data string is '' or null, then we need to remove the last prompt from the prompts array
-    if (data === '' || data === null) {
-        prompts.pop();
-        data = "AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。";
-    } else {
-        // 添加回复到prompt
-        prompts.push({ role: "assistant", content: data });
-        //if the prompts is too long, then we need to remove 2th prompt from the prompts array, 
-        // and add the promptImpersonate to the first prompts array
-        if (prompts.length > 6) {
-            prompts.shift();
-            prompts.shift();
-            prompts.unshift({ role: "system", content: promptImpersonate });
+    try {
+        const response = await fetch('/api/gpt', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: promptText }),
+        });
+        if (!response.ok) {
+            throw new Error('Error generating response.');
         }
+        let data = await response.text();
+        
+        // If no response, pop last prompt and send a message
+        if (!data) {
+            prompts.pop();
+            data = 'AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。';
+        } else {
+            prompts.push({ role: 'assistant', content: data });
 
-    }
-    addMessage('bot', data);
-}
-
-// create a function to clear the content in the messages container,
-// and also clear the prompts array, also add the promptImpersonate to the prompts array
-function clearMessage() {
-    messagesContainer.innerHTML = ''; 
-    messageInput.value = '';
-    prompts = [];
-    prompts.push({ "role": "system", "content": promptImpersonate });
-}
-
-// 添加消息到消息容器
-function addMessage(sender, message) {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message');
-    messageElement.classList.add(`${sender}-message`);
-    if (message.includes('```')) {
-        const codeBlocks = message.match(/```(\w+)?\n([\s\S]+?)\n```/g);
-        if (codeBlocks) {
-            codeBlocks.forEach((block) => {
-                const code = block.replace(/```(\w+)?\n([\s\S]+?)\n```/, '$2');
-                const pre = document.createElement('pre');
-                const codeElement = document.createElement('code');
-                codeElement.innerText = code;
-                pre.appendChild(codeElement);
-                message = message.replace(block, pre.outerHTML);
-            });
+            // If too many prompts, pop first two prompts and send a message
+            if (prompts.length > 6) {
+                prompts.splice(1, 2);
+                prompts[0] = { role: 'system', content: promptImpersonate };
+            }
         }
+        addMessage('bot', data);
+    } catch (error) {
+        addMessage('bot', error.message);
     }
-    const formattedMessage = message.replace(/\n/g, '<br>');
-    messageElement.innerHTML = formattedMessage;
+};
 
-    messagesContainer.appendChild(messageElement);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
-// 发送消息
+// Send message on form submit
 messageForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const message = messageInput.value.trim();
