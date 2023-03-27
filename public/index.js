@@ -1,10 +1,10 @@
 const promptImpersonate = 'You are an AI assistant that helps people find information.';
-const prompts = [{ role: 'system', content: promptImpersonate }];
-
-const messagesContainer = document.getElementById('messages');
-const messageForm = document.getElementById('message-form');
-const messageInput = document.getElementById('message-input');
-
+const messagesContainer = document.querySelector('#messages');
+const messageForm = document.querySelector('#message-form');
+const messageInput = document.querySelector('#message-input');
+const tokensSpan = document.querySelector('#tokens');  
+let tokens = 0
+let prompts = [{ role: 'system', content: promptImpersonate }];
 // Clear message input
 const clearMessage = () => {
     messagesContainer.innerHTML = '';
@@ -45,29 +45,30 @@ const sendMessage = async (message = '') => {
     messageInput.value = '';
     try {
         const response = await fetch('/api/gpt', {
-            method: 'post',
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt: promptText }),
         });
         if (!response.ok) {
             throw new Error('Error generating response.');
         }
-        let data = await response.text();
-        
+        const data = await response.json();
+        console.log(data);
         // If no response, pop last prompt and send a message
         if (!data) {
             prompts.pop();
-            data = 'AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。';
+            message = 'AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。';
         } else {
-            prompts.push({ role: 'assistant', content: data });
-
+            prompts.push({ role: 'assistant', content: data.message });
+            tokens += data.totalTokens;
+            tokensSpan.textContent = tokens;
             // If too many prompts, pop first two prompts and send a message
             if (prompts.length > 6) {
                 prompts.splice(1, 2);
                 prompts[0] = { role: 'system', content: promptImpersonate };
             }
         }
-        addMessage('bot', data);
+        addMessage('bot', data.message);
     } catch (error) {
         addMessage('bot', error.message);
     }

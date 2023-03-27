@@ -1,61 +1,62 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const app = express();
-
-// Use body-parser middleware to parse request body
-app.use(bodyParser.json());
-
-app.use(express.static('public'));
-
-const port = process.env.PORT || 3000;
-
-app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-});
-
 const axios = require('axios');
 require('dotenv').config();
 
+const app = express();
+const port = process.env.PORT || 3000;
+const apiKey = process.env.API_KEY;
+const apiUrl = process.env.API_URL;
+
+app.use(bodyParser.json());
+app.use(express.static('public'));
+
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});
+
 app.post('/api/gpt', async (req, res) => {
+  const prompt = JSON.parse(req.body.prompt);
 
-    const prompt = JSON.parse(req.body.prompt);
-    console.log('prompt', prompt);
-    const apiKey = process.env.API_KEY;
-    const apiUrl = process.env.API_URL;
+  // Check for valid prompt
+  if (!prompt || !prompt.length) {
+    console.error('Invalid prompt');
+    return res.status(400).send('Invalid prompt');
+  }
 
-    // Check for valid prompt
-    if (!prompt || !prompt.length) {
-        console.error('Invalid prompt');
-        res.status(400).send('Invalid prompt');
-        return;
-    }
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'api-key': apiKey,
+    },
+    data: {
+      messages: prompt,
+      temperature: 0.7,
+      top_p: 0.95,
+      frequency_penalty: 0,
+      presence_penalty: 0,
+      max_tokens: 800,
+      stop: null,
+    },
+  };
 
-    const options = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "api-key": apiKey
-        },
-        data: {
-            "messages": prompt,
-            "temperature": 0.7,
-            "top_p": 0.95,
-            "frequency_penalty": 0,
-            "presence_penalty": 0,
-            "max_tokens": 800,
-            "stop": null
-        }
-    };
+  try {
+    // Send request to API endpoint
+    const response = await axios(apiUrl, options);
+    const { data } = response;
 
-    try {
-        console.log('sending request');
-        console.log(options.data);
-        const response = await axios(apiUrl, options);
-        const { data } = response;
-        // console.log(data);
-        res.send(data.choices[0].message.content);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-    }
+    // Get message content and total tokens from response
+    const message = data.choices[0].message.content;
+    const totalTokens = data.usage.total_tokens;
+
+    // Create response object
+    const responseObj = { message, totalTokens };
+
+    // Send response
+    res.send(responseObj);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
 });

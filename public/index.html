@@ -3,6 +3,7 @@
 
 <head>
   <title>ChatGPT Demo</title>
+
   <link rel="stylesheet" href="main.css">
 </head>
 
@@ -11,11 +12,20 @@
     <h1>ChatGPT Demo</h1>
     <div id="messages"></div>
   </div>
-  <form id="message-form">
-    <textarea id="message-input" name="message" autocomplete="off" placeholder="Ask me anyting..."></textarea>
-    <button type="submit">Send</button>
-  </form>
+  <div class="message-input-container">
+    <div class="mini-toolbar-container">
+      <div class="mini-toolbar">
+        <i class="fas fa-info-circle" ></i><span id="tokens"></span>tokens
+        <!-- <span id="setup"><i class="fas fa-cog"></i>setup<span> -->
+      </div>
+    </div>
+    <form id="message-form">
+      <textarea id="message-input" name="message" autocomplete="off" placeholder="Ask me anything..."></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </div>
 </body>
 <script src="index.js"></script>
+<script src="https://kit.fontawesome.com/be011bd8b4.js" crossorigin="anonymous"></script>
 
 </html>
