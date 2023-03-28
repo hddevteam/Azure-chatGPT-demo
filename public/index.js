@@ -11,23 +11,14 @@ const profiles = [
     { name: "Code Interpreter", description: "I would like you to serve as a code interpreter, elucidate the syntax and the semantics of the code."}
 ]
 
+
+
 // Add message to DOM
 const addMessage = (sender, message) => {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message');
     messageElement.classList.add(`${sender}-message`);
-    const codeBlocks = message.match(/```(\w+)?\n([\s\S]+?)\n```/g);
-    if (codeBlocks) {
-        codeBlocks.forEach((block) => {
-            const code = block.replace(/```(\w+)?\n([\s\S]+?)\n```/, '$2');
-            const pre = document.createElement('pre');
-            const codeElement = document.createElement('code');
-            codeElement.innerText = code;
-            pre.appendChild(codeElement);
-            message = message.replace(block, pre.outerHTML);
-        });
-    }
-    messageElement.innerText = message;
+    messageElement.innerHTML = marked.parse(message);
     messagesContainer.appendChild(messageElement);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 };
@@ -71,6 +62,7 @@ const sendMessage = async (message = '') => {
     addMessage('user', message);
     prompts.push({ role: 'user', content: message });
     const promptText = JSON.stringify(prompts);
+    console.log(promptText);
     messageInput.value = '';
     try {
         const response = await fetch('/api/gpt', {

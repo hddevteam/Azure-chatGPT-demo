@@ -106,6 +106,10 @@ button:hover {
 .bot-message {
     background-color: #e6f2ff;
     text-align: left;
+    margin-left: 20px;
+}
+.bot-message ol {
+    margin-left: 20px;
 }
 
 pre {
@@ -122,6 +126,8 @@ pre {
 
 code {
     font-family: 'Courier New', Courier, monospace;
+    background-color: #000;
+    font-size: 12px;
     padding: 2px 4px;
     border-radius: 3px;
     color: antiquewhite;
