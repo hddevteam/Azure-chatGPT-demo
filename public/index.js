@@ -2,15 +2,14 @@ const promptImpersonate = 'You are an AI assistant that helps people find inform
 const messagesContainer = document.querySelector('#messages');
 const messageForm = document.querySelector('#message-form');
 const messageInput = document.querySelector('#message-input');
-const tokensSpan = document.querySelector('#tokens');  
-let tokens = 0
-let prompts = [{ role: 'system', content: promptImpersonate }];
-// Clear message input
-const clearMessage = () => {
-    messagesContainer.innerHTML = '';
-    messageInput.value = '';
-    prompts.splice(0, prompts.length, { role: 'system', content: promptImpersonate });
-};
+const tokensSpan = document.querySelector('#tokens');
+const profiles = [
+    { name: "AI", description: "You are an AI assistant that helps people find information." },
+    { name: "Designer", description: "I want you to act as a UX/UI developer. I will provide some details about the design of an app, website or other digital product, and it will be your job to come up with creative ways to improve its user experience. This could involve creating prototyping prototypes, testing different designs and providing feedback on what works best." },
+    { name: "Writer", description: "As a writing improvement assistant, your task is to improve the spelling, grammar, clarity, concision, and overall readability of the text provided, while breaking down long sentences, reducing repetition, and providing suggestions for improvement. Please provide only the corrected Chinese version of the text and avoid including explanations. " },
+    { name: "Reviewer", description: "I want you to act as a commit message generator. I will provide you with information about the task and the prefix for the task code, and I would like you to generate an appropriate commit message using the conventional commit format. Do not write any explanations or other words, just reply with the commit message." },
+    { name: "Code Interpreter", description: "I would like you to serve as a code interpreter, elucidate the syntax and the semantics of the code."}
+]
 
 // Add message to DOM
 const addMessage = (sender, message) => {
@@ -28,10 +27,40 @@ const addMessage = (sender, message) => {
             message = message.replace(block, pre.outerHTML);
         });
     }
-    messageElement.innerHTML = message.replace(/\n/g, '<br>');
+    messageElement.innerText = message;
     messagesContainer.appendChild(messageElement);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 };
+
+let tokens = 0
+let prompts = [{ role: 'system', content: promptImpersonate }];
+addMessage('system', promptImpersonate);
+// 获取所有列表项  
+var menuItems = document.querySelectorAll('div#menu ul li');
+
+// 为每个列表项添加点击事件侦听器  
+menuItems.forEach(function (item) {
+    item.addEventListener('click', function () {
+        // 获取与该列表项关联的 profile 数据  
+        var profileName = item.getAttribute('data-profile');
+        var profile = profiles.find(function (p) { return p.name === profileName; });
+        // 显示 profile 数据  
+        addMessage('system', profile.description);
+        // 清空 prompts 数组
+        prompts.splice(0, prompts.length);
+        prompts.push({ role: 'system', content: profile.description });
+    });
+});
+
+
+// Clear message input
+const clearMessage = () => {
+    messagesContainer.innerHTML = '';
+    messageInput.value = '';
+    prompts.splice(0, prompts.length, { role: 'system', content: promptImpersonate });
+};
+
+
 
 // Send message on button click
 const sendMessage = async (message = '') => {
