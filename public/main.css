@@ -114,11 +114,14 @@ button:hover {
 }
 
 pre {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 13px;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #000;
+    white-space: pre-wrap;
+    width: 100%;
+    font-size: 14px;
     line-height: 1.5;
     padding: 10px;
-    overflow-x: auto;
+    /* overflow-x: auto; */
 }
 
 code {
