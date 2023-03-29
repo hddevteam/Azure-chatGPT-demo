@@ -8,7 +8,7 @@ const profiles = [
     { name: "Designer", description: "I want you to act as a UX/UI developer. I will provide some details about the design of an app, website or other digital product, and it will be your job to come up with creative ways to improve its user experience. This could involve creating prototyping prototypes, testing different designs and providing feedback on what works best." },
     { name: "Writer", description: "As a writing improvement assistant, your task is to improve the spelling, grammar, clarity, concision, and overall readability of the text provided, while breaking down long sentences, reducing repetition, and providing suggestions for improvement. Please provide only the corrected Chinese version of the text and avoid including explanations. " },
     { name: "Reviewer", description: "I want you to act as a commit message generator. I will provide you with information about the task and the prefix for the task code, and I would like you to generate an appropriate commit message using the conventional commit format. Do not write any explanations or other words, just reply with the commit message." },
-    { name: "Code Interpreter", description: "I would like you to serve as a code interpreter, elucidate the syntax and the semantics of the code."}
+    { name: "Code Interpreter", description: "I would like you to serve as a code interpreter, elucidate the syntax and the semantics of the code." }
 ]
 
 
@@ -18,7 +18,14 @@ const addMessage = (sender, message) => {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message');
     messageElement.classList.add(`${sender}-message`);
-    messageElement.innerHTML = marked.parse(message);
+    //if send is user
+    if (sender === 'user') {
+        const pre = document.createElement('pre');
+        pre.innerText = message;
+        messageElement.appendChild(pre);
+    } else {
+        messageElement.innerHTML = marked.parse(message);
+    }
     messagesContainer.appendChild(messageElement);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 };

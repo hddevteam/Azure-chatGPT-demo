@@ -101,6 +101,7 @@ button:hover {
 .user-message {
     background-color: #f2f2f2;
     text-align: left;
+    word-wrap: ;
 }
 
 .bot-message {
@@ -113,12 +114,8 @@ button:hover {
 }
 
 pre {
-    background-color: #000;
-    border: 1px solid #000;
-    color: azure;
-    border-radius: 5px;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.5;
     padding: 10px;
     overflow-x: auto;
