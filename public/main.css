@@ -1,11 +1,11 @@
 * {
     box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f8f8;
 }
 
@@ -70,13 +70,13 @@ textarea:focus {
 
 button {
     height: 40px;
+    width: 80px;
     background-color: #4CAF50;
     color: #fff;
     border: none;
     border-radius: 5px;
     font-size: 16px;
     font-weight: bold;
-    padding: 12px 20px;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
 }
@@ -101,7 +101,6 @@ button:hover {
 .user-message {
     background-color: #f2f2f2;
     text-align: left;
-    word-wrap: ;
 }
 
 .bot-message {
@@ -113,22 +112,16 @@ button:hover {
     margin-left: 20px;
 }
 
-pre {
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #000;
-    white-space: pre-wrap;
-    width: 100%;
-    font-size: 14px;
-    line-height: 1.5;
-    padding: 10px;
-    /* overflow-x: auto; */
+.bot-message pre {
+    background-color: #000;
+    padding:5px;
 }
 
 code {
     font-family: 'Courier New', Courier, monospace;
     background-color: #000;
     font-size: 12px;
-    padding: 2px 4px;
+    padding: 2px;
     border-radius: 3px;
     color: antiquewhite;
 }
