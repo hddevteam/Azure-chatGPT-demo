@@ -81,8 +81,17 @@ const clearMessage = () => {
 
 // Send message on button click
 const sendMessage = async (message = '') => {
-    if (message === 'clear') {
+    if (message === '/clear') {
         clearMessage();
+        return;
+    }
+    // if message look like: /system: xxx, then send xxx as system message
+    if (message.startsWith('/system')) {
+        message = message.replace('/system', '');
+        addMessage('system', message);
+        prompts.splice(0, prompts.length);
+        prompts.push({ role: 'system', content: message });
+        sendMessage('Hi!');
         return;
     }
     addMessage('user', message);
