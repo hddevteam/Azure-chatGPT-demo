@@ -7,6 +7,27 @@ const app = express();
 const port = process.env.PORT || 3000;
 const apiKey = process.env.API_KEY;
 const apiUrl = process.env.API_URL;
+const promptRepo = process.env.PROMPT_REPO_URL;
+
+// if promptRepo is not set, use local prompts.json
+if (!promptRepo) {
+  const prompts = require('./public/prompts.json');
+  app.get('/api/prompt_repo', (req, res) => {
+    res.send(prompts);
+  });
+} else {
+  // when client request /api/prompt return json object from promptRepo
+  app.get('/api/prompt_repo', async (req, res) => {
+    try {
+      const response = await axios.get(promptRepo);
+      const { data } = response;
+      res.send(data);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+}
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -60,3 +81,4 @@ app.post('/api/gpt', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+

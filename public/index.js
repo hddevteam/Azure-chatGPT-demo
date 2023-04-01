@@ -3,15 +3,50 @@ const messagesContainer = document.querySelector('#messages');
 const messageForm = document.querySelector('#message-form');
 const messageInput = document.querySelector('#message-input');
 const tokensSpan = document.querySelector('#tokens');
-const profiles = [
-    { name: "AI", description: "You are an AI assistant that helps people find information." },
-    { name: "Designer", description: "I want you to act as a UX/UI developer. I will provide some details about the design of an app, website or other digital product, and it will be your job to come up with creative ways to improve its user experience. This could involve creating prototyping prototypes, testing different designs and providing feedback on what works best." },
-    { name: "Writer", description: "As a writing improvement assistant, your task is to improve the spelling, grammar, clarity, concision, and overall readability of the text provided, while breaking down long sentences, reducing repetition, and providing suggestions for improvement. Please provide only the corrected Chinese version of the text and avoid including explanations. " },
-    { name: "Reviewer", description: "I want you to act as a commit message generator. I will provide you with information about the task and the prefix for the task code, and I would like you to generate an appropriate commit message using the conventional commit format. Do not write any explanations or other words, just reply with the commit message." },
-    { name: "Code Interpreter", description: "I would like you to serve as a code interpreter, elucidate the syntax and the semantics of the code." },
-    { name: "Spoken English Coach", description: "I want you to act as a spoken English teacher and improver. I will speak to you in English and you will reply to me in English to practice my spoken English. I want you to keep your reply neat, limiting the reply to 100 words. I want you to strictly correct my grammar mistakes, typos, and factual errors. I want you to ask me a question in your reply. Now let's start practicing, you could ask me a question first. Remember, I want you to strictly correct my grammar mistakes, typos, and factual errors." }
-]
 
+// first load prompt repo from /api/prompt_repo it looks like this:
+// [  
+//     {  
+//       "name": "AI",  
+//       "icon": "fa-robot",  
+//       "displayName": "AI",  
+//       "prompt": "You are an AI assistant that helps people find information."  
+//     }
+//...]
+// get the profile data
+// then generate menu items from it to menu_list
+// and add click event listener 
+// to each menu item
+// when click, get the profile data
+const menuList = document.querySelector('#menu-list');
+fetch('/api/prompt_repo')
+    .then(response => response.json())
+    .then(data => {
+        const profiles = data;
+        data.forEach(item => {
+            let li = document.createElement('li');
+            li.dataset.profile = item.name;
+            let icon = document.createElement('i');
+            icon.className = `fas ${item.icon}`;
+            let span = document.createElement('span');
+            span.textContent = item.displayName;
+            li.appendChild(icon);
+            li.appendChild(span);
+            menuList.appendChild(li);
+            //add click event listener
+            li.addEventListener('click', function () {
+                // 获取与该列表项关联的 profile 数据  
+                var profileName = this.getAttribute('data-profile');
+                var profile = profiles.find(function (p) { return p.name === profileName; });
+                // 显示 profile 数据  
+                addMessage('system', profile.prompt);
+                // 清空 prompts 数组
+                prompts.splice(0, prompts.length);
+                prompts.push({ role: 'system', content: profile.prompt });
+                sendMessage('Hi!');
+            });
+        });
+    });
 
 
 // Add message to DOM
@@ -34,22 +69,6 @@ const addMessage = (sender, message) => {
 let tokens = 0
 let prompts = [{ role: 'system', content: promptImpersonate }];
 addMessage('system', promptImpersonate);
-// 获取所有列表项  
-var menuItems = document.querySelectorAll('div#menu ul li');
-
-// 为每个列表项添加点击事件侦听器  
-menuItems.forEach(function (item) {
-    item.addEventListener('click', function () {
-        // 获取与该列表项关联的 profile 数据  
-        var profileName = item.getAttribute('data-profile');
-        var profile = profiles.find(function (p) { return p.name === profileName; });
-        // 显示 profile 数据  
-        addMessage('system', profile.description);
-        // 清空 prompts 数组
-        prompts.splice(0, prompts.length);
-        prompts.push({ role: 'system', content: profile.description });
-    });
-});
 
 
 // Clear message input
@@ -58,7 +77,6 @@ const clearMessage = () => {
     messageInput.value = '';
     prompts.splice(0, prompts.length, { role: 'system', content: promptImpersonate });
 };
-
 
 
 // Send message on button click
