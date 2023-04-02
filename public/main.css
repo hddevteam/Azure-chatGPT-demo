@@ -10,6 +10,7 @@ body {
 }
 
 #chat-container {
+    display: flex;
     position: relative;
     height: calc(100vh - 120px);
     /* 70px is the height of message-form */
@@ -22,6 +23,35 @@ body {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
+#header {
+    display: flex;
+    width: 80%;
+    height: fit-content;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 {
+    margin: 20px;
+    width: 50%;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+#ai-profile {
+    background-color: #424141;
+    padding: 5px;
+    color: #e6f2ff;
+    border-radius: 5px;
+    margin: 20px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 50%;
+    width: fit-content;
+}
+
 #messages {
     position: absolute;
     top: 50px;
@@ -31,19 +61,6 @@ body {
     overflow-x: hidden;
     padding: 10px;
 }
-
-header {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-h1 {
-    margin: 20px;
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-}
-
 
 .message {
     padding: 10px;
@@ -257,18 +274,36 @@ i {
         margin: 0;
         border: 0;
         box-shadow: 0;
-
     }
 
     h1 {
         margin: 0em;
         padding: 0.5em;
         font-size: 1em;
+        width: 50%;
     }
-    
+
+    #header {
+        display: flex;
+        height: 3em;
+        width: 100%;
+        margin-right: 3em;
+        margin-bottom: 1em;
+        padding: 1em;
+
+    }
+
+    #ai-profile {
+        padding: 0.3em;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .message {
         padding: 1em;
-        margin-bottom: 1em;
+        margin-bottom: 0.5em;
         margin-right: 3em;
         border-radius: 0.5em;
     }
@@ -277,22 +312,25 @@ i {
         width: warp-content;
     }
 
+    #menu li {
+        margin-bottom: 1em;
+    }
+
     #menu-header i,
     #menu li i {
-        margin: 0px;
+        margin: 0;
     }
 
     #menu-header span,
     #menu-list li span {
-        margin: 0px;
+        margin: 0;
         display: none;
     }
 
-
-
     #messages {
         width: 100%;
-        top: 2em;
+        top: 2.7em;
+        padding: 1em;
     }
 
     #message-input {
@@ -304,8 +342,6 @@ i {
         height: auto;
         padding: 5px;
     }
-
-
 
     .mini-toolbar {
         max-width: 200px;
@@ -327,11 +363,8 @@ i {
 }
 
 /* iPad Layout */
-@media only screen 
-  and (min-device-width: 768px) 
-  and (max-device-width: 1024px) 
-  and (-webkit-min-device-pixel-ratio: 1) {
-    
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 1) {
+
     /* Move message input container to top */
     .message-input-container {
         position: absolute;
@@ -346,5 +379,5 @@ i {
         max-width: 900px;
         width: 90%;
     }
-    
+
 }

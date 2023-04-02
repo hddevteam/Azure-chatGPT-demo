@@ -1,4 +1,5 @@
 const promptImpersonate = 'You are an AI assistant that helps people find information.';
+const aiProfile = document.querySelector('#ai-profile');
 const messagesContainer = document.querySelector('#messages');
 const messageForm = document.querySelector('#message-form');
 const messageInput = document.querySelector('#message-input');
@@ -38,6 +39,8 @@ fetch('/api/prompt_repo')
                 // 获取与该列表项关联的 profile 数据  
                 var profileName = this.getAttribute('data-profile');
                 var profile = profiles.find(function (p) { return p.name === profileName; });
+                // 设置 profile 图标和名称
+                aiProfile.innerHTML = `<i class="fas ${profile.icon}"></i> ${profile.displayName}`;
                 // 显示 profile 数据  
                 addMessage('system', profile.prompt);
                 // 清空 prompts 数组
