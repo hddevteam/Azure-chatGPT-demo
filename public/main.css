@@ -310,3 +310,26 @@ i {
         font-size: 12px;
     }
 }
+
+/* iPad Layout */
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (-webkit-min-device-pixel-ratio: 1) {
+    
+    /* Move message input container to top */
+    .message-input-container {
+        position: absolute;
+        bottom: 4em;
+        width: 100%;
+    }
+
+    #chat-container {
+        position: relative;
+        height: calc(100vh - 120px - 7em);
+        /* 70px is the height of message-form */
+        max-width: 900px;
+        width: 90%;
+    }
+    
+}
