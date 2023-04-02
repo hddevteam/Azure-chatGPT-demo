@@ -247,10 +247,22 @@ i {
     cursor: pointer;
 }
 
+/* for the mobile devices */
 @media screen and (max-width: 768px) {
 
+    #chat-container {
+        padding: 0;
+        height: calc(100vh - 200px);
+        width: 100%;
+        margin: 0;
+        border: 0;
+        box-shadow: 0;
+
+    }
+
     h1 {
-        margin: 0.5em;
+        margin: 0em;
+        padding: 0.5em;
         font-size: 1em;
     }
     
@@ -276,10 +288,7 @@ i {
         display: none;
     }
 
-    #chat-container {
-        height: calc(100vh - 200px);
-        width: 95%;
-    }
+
 
     #messages {
         width: 100%;
@@ -296,9 +305,7 @@ i {
         padding: 5px;
     }
 
-    button {
-        width: 60px;
-    }
+
 
     .mini-toolbar {
         max-width: 200px;
@@ -308,6 +315,14 @@ i {
     .mini-toolbar span {
         margin-right: 5px;
         font-size: 12px;
+    }
+
+    button {
+        width: fit-content;
+        padding: 0.5em;
+        margin-left: 0.5em;
+        border-radius: 0.5em;
+        font-size: 1em;
     }
 }
 
