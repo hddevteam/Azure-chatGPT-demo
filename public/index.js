@@ -3,7 +3,7 @@ const messagesContainer = document.querySelector('#messages');
 const messageForm = document.querySelector('#message-form');
 const messageInput = document.querySelector('#message-input');
 const tokensSpan = document.querySelector('#tokens');
-
+const max_tokens = 4000;
 // first load prompt repo from /api/prompt_repo it looks like this:
 // [  
 //     {  
@@ -43,7 +43,6 @@ fetch('/api/prompt_repo')
                 // 清空 prompts 数组
                 prompts.splice(0, prompts.length);
                 prompts.push({ role: 'system', content: profile.prompt });
-                sendMessage('Hi!');
             });
         });
     });
@@ -116,10 +115,10 @@ const sendMessage = async (message = '') => {
             message = 'AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。';
         } else {
             prompts.push({ role: 'assistant', content: data.message });
-            tokens += data.totalTokens;
+            tokens = data.totalTokens;
             tokensSpan.textContent = tokens;
-            // If too many prompts, pop first two prompts
-            if (prompts.length > 6) {
+            // If tokens are over 80% of max_tokens, remove the first round conversation
+            if (tokens > max_tokens*0.8) {
                 prompts.splice(1, 2);
                 prompts[0] = { role: 'system', content: promptImpersonate };
             }

@@ -69,10 +69,12 @@ app.post('/api/gpt', async (req, res) => {
 
     // Get message content and total tokens from response
     const message = data.choices[0].message.content;
+    console.log(data.usage)
     const totalTokens = data.usage.total_tokens;
 
     // Create response object
     const responseObj = { message, totalTokens };
+    console.log(responseObj);
 
     // Send response
     res.send(responseObj);
