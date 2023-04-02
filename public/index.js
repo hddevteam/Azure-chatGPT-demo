@@ -118,7 +118,7 @@ const sendMessage = async (message = '') => {
             prompts.push({ role: 'assistant', content: data.message });
             tokens += data.totalTokens;
             tokensSpan.textContent = tokens;
-            // If too many prompts, pop first two prompts and send a message
+            // If too many prompts, pop first two prompts
             if (prompts.length > 6) {
                 prompts.splice(1, 2);
                 prompts[0] = { role: 'system', content: promptImpersonate };

@@ -45,46 +45,6 @@ h1 {
 }
 
 
-#message-input {
-    flex: 1;
-    max-width: 900px;
-    margin-right: 10px;
-}
-
-textarea {
-    resize: none;
-    height: 60px;
-    padding: 12px 20px;
-    margin-bottom: 10px;
-    font-size: 16px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    border: 2px solid #eee;
-    border-radius: 5px;
-    background-color: #f5f5f5;
-    transition: border-color 0.2s ease-in-out;
-}
-
-textarea:focus {
-    border-color: #4CAF50;
-}
-
-button {
-    height: 40px;
-    width: 80px;
-    background-color: #4CAF50;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-}
-
-button:hover {
-    background-color: #3e8e41;
-}
-
 .message {
     padding: 10px;
     margin-bottom: 10px;
@@ -138,6 +98,35 @@ code {
     bottom: 0;
     left: 0;
     width: 100%;
+    z-index: 9999;
+    /* 保证在IOS上显示在最上层 */
+    overflow: hidden;
+    /* 修复IOS下底部按钮被遮挡问题 */
+}
+
+#message-input {
+    flex: 1;
+    max-width: 900px;
+    margin-right: 10px;
+    padding-right: 50px;
+    /* 修复IOS下输入框内字体与边框重叠问题 */
+}
+
+textarea {
+    resize: none;
+    height: 60px;
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    border: 2px solid #eee;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    transition: border-color 0.2s ease-in-out;
+}
+
+textarea:focus {
+    border-color: #4CAF50;
 }
 
 .mini-toolbar-container {
@@ -171,6 +160,23 @@ code {
     box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
 }
 
+button {
+    height: 40px;
+    width: 80px;
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+    background-color: #3e8e41;
+}
+
 i {
     margin-right: 5px;
 }
@@ -180,7 +186,8 @@ i {
     top: 0;
     right: 0;
     padding: 10px;
-    width: 150px;
+    width: wrap-content;
+    max-width: 150px;
     height: 100%;
     background-color: #f1f1f1;
     border-left: 1px solid #ccc;
@@ -206,6 +213,10 @@ i {
     font-size: 18px;
     font-weight: bold;
     color: #333;
+}
+
+#menu-list {
+    -webkit-overflow-scrolling: touch;
 }
 
 #menu ul {
@@ -234,4 +245,68 @@ i {
 #menu li:hover {
     background-color: #cae4ff;
     cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+
+    h1 {
+        margin: 0.5em;
+        font-size: 1em;
+    }
+    
+    .message {
+        padding: 1em;
+        margin-bottom: 1em;
+        margin-right: 3em;
+        border-radius: 0.5em;
+    }
+
+    #menu {
+        width: warp-content;
+    }
+
+    #menu-header i,
+    #menu li i {
+        margin: 0px;
+    }
+
+    #menu-header span,
+    #menu-list li span {
+        margin: 0px;
+        display: none;
+    }
+
+    #chat-container {
+        height: calc(100vh - 200px);
+        width: 95%;
+    }
+
+    #messages {
+        width: 100%;
+        top: 2em;
+    }
+
+    #message-input {
+        max-width: 100%;
+        margin-right: 0px;
+    }
+
+    #message-form {
+        height: auto;
+        padding: 5px;
+    }
+
+    button {
+        width: 60px;
+    }
+
+    .mini-toolbar {
+        max-width: 200px;
+        font-size: 12px;
+    }
+
+    .mini-toolbar span {
+        margin-right: 5px;
+        font-size: 12px;
+    }
 }
