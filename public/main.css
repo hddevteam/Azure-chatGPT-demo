@@ -25,8 +25,8 @@ body {
 
 #header {
     display: flex;
-    width: 80%;
-    height: fit-content;
+    width: 82%;
+    height: 60px;
     justify-content: space-between;
     align-items: center;
 }
@@ -56,7 +56,7 @@ h1 {
     position: absolute;
     top: 50px;
     bottom: 0;
-    width: 80%;
+    width: 82%;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px;
@@ -202,7 +202,6 @@ i {
     position: absolute;
     top: 0;
     right: 0;
-    padding: 10px;
     width: wrap-content;
     max-width: 150px;
     height: 100%;
@@ -217,19 +216,20 @@ i {
     align-items: center;
     margin-bottom: 10px;
     padding: 10px 0;
+    color: #333;
     border-bottom: 1px solid #ccc;
 }
 
 #menu-header i {
     font-size: 20px;
+    padding: 5px;
+    padding-left: 10px;
     margin-right: 10px;
-    color: #333;
 }
 
 #menu-header span {
     font-size: 18px;
     font-weight: bold;
-    color: #333;
 }
 
 #menu-list {
@@ -246,21 +246,23 @@ i {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+    padding: 5px;
+    padding-left: 10px;
+    color: #333;
 }
 
 #menu li i {
     font-size: 16px;
     margin-right: 10px;
-    color: #333;
 }
 
 #menu li span {
     font-size: 14px;
-    color: #333;
 }
 
 #menu li:hover {
-    background-color: #cae4ff;
+    background-color: #424141;
+    color: #e6f2ff;
     cursor: pointer;
 }
 
@@ -328,14 +330,14 @@ i {
     }
 
     .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    border-radius: 5px;
-    max-width: 500px;
-    text-align: center;
-}
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        border-radius: 5px;
+        max-width: 500px;
+        text-align: center;
+    }
 
     #chat-container {
         padding: 0;
@@ -357,7 +359,7 @@ i {
         display: flex;
         height: 3em;
         width: 100%;
-        margin-right: 3em;
+        margin-right: 2em;
         margin-bottom: 1em;
         padding: 1em;
 
@@ -374,8 +376,11 @@ i {
     .message {
         padding: 1em;
         margin-bottom: 0.5em;
-        margin-right: 3em;
+        margin-right: 2em;
         border-radius: 0.5em;
+    }
+    #menu-header {
+        justify-content: center;
     }
 
     #menu {
@@ -389,6 +394,8 @@ i {
     #menu-header i,
     #menu li i {
         margin: 0;
+        font-size: 1em;
+        padding: 0.2em;
     }
 
     #menu-header span,

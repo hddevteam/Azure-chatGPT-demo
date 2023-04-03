@@ -95,7 +95,7 @@ const sendMessage = async (message = '') => {
         } else {
             prompts.push({ role: 'assistant', content: data.message });
             tokens = data.totalTokens;
-            tokensSpan.textContent = tokens;
+            tokensSpan.textContent = `${tokens} tokens`;
             // If tokens are over 80% of max_tokens, remove the first round conversation
             if (tokens > max_tokens * 0.8) {
                 prompts.splice(1, 2);
@@ -154,6 +154,7 @@ window.addEventListener('click', function (event) {
         modal.style.display = 'none';
     }
 });
+
 
 // render menu list from data
 function renderMenuList(data) {
