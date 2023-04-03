@@ -122,7 +122,6 @@ messageInput.focus();
 // 获取模态对话框元素和触发器元素
 const modal = document.querySelector('.modal');
 const usernameLabel = document.querySelector('#username-label');
-
 const userForm = document.querySelector('#user-form');
 const usernameInput = document.querySelector('#username-input');
 
@@ -148,12 +147,12 @@ usernameLabel.addEventListener('click', function () {
     modal.style.display = 'block';
 });
 
-// 当用户点击模态对话框之外的区域时隐藏模态对话框
-window.addEventListener('click', function (event) {
+// 当点击模态对话框外部时关闭模态对话框
+document.addEventListener('click', function(event) {
     if (event.target == modal) {
-        modal.style.display = 'none';
-    }
-});
+        modal.style.display = "none";
+      }
+  });
 
 
 // render menu list from data
