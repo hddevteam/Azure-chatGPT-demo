@@ -28,13 +28,23 @@
   <div class="message-input-container">
     <div class="mini-toolbar-container">
       <div class="mini-toolbar">
-        <i class="fas fa-info-circle"></i><span id="tokens"></span>tokens
+        <span id="user"><i class="fas fa-user-circle"></i><span id="username-label">Guest</span></span>
+        <i class="fas fa-info-circle"></i><span id="tokens">tokens</span>
       </div>
     </div>
     <form id="message-form">
       <textarea id="message-input" name="message" autocomplete="off" placeholder="Ask me anything..."></textarea>
       <button type="submit">Send</button>
     </form>
+  </div>
+  <div class="modal">
+    <div class="modal-content">
+      <form id="user-form">
+        <label for="username-input">Username:</label>
+        <input type="password" id="username-input" name="username">
+        <button type="submit">Submit</button>
+      </form>
+    </div>
   </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

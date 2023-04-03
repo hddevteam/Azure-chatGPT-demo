@@ -7,21 +7,38 @@ const app = express();
 const port = process.env.PORT || 3000;
 const apiKey = process.env.API_KEY;
 const apiUrl = process.env.API_URL;
-const promptRepo = process.env.PROMPT_REPO_URL;
+// 获取PROMPT_REPO_URLS环境变量
+const promptRepo = JSON.parse(process.env.PROMPT_REPO_URLS);
+var profiles = require('./public/prompts.json');
 
 // if promptRepo is not set, use local prompts.json
 if (!promptRepo) {
-  const prompts = require('./public/prompts.json');
+  let username = "guest";
   app.get('/api/prompt_repo', (req, res) => {
-    res.send(prompts);
+    res.send({username, profiles});
   });
 } else {
   // when client request /api/prompt return json object from promptRepo
   app.get('/api/prompt_repo', async (req, res) => {
     try {
-      const response = await axios.get(promptRepo);
-      const { data } = response;
-      res.send(data);
+      let username;
+      // from query string get username
+      if (req.query.username) {
+        username = req.query.username;
+      }
+      // 如果用户名在promptRepoUrls对象中，则返回对应的prompt_repo_url
+      if (promptRepo[username]) {
+        repoUrl = promptRepo[username];
+      } else {
+        username = "guest"
+        repoUrl = promptRepo[username];
+      }
+      const response = await axios.get(repoUrl);
+      profiles = response.data;
+      //return json object data and username in json object
+      const responseObj = { username, profiles};
+      // console.log(username)
+      res.send(responseObj);
     } catch (error) {
       console.error(error);
       res.status(500).send('Internal Server Error');

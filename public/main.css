@@ -115,7 +115,7 @@ code {
     bottom: 0;
     left: 0;
     width: 100%;
-    z-index: 9999;
+    z-index: 999;
     /* 保证在IOS上显示在最上层 */
     overflow: hidden;
     /* 修复IOS下底部按钮被遮挡问题 */
@@ -264,8 +264,78 @@ i {
     cursor: pointer;
 }
 
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 5px;
+    max-width: 500px;
+    text-align: center;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.modal-content label {
+    margin-bottom: 10px;
+}
+
+.modal-content input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.modal-content button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.modal-content button:hover {
+    background-color: #3e8e41;
+}
+
+
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
+
+    .modal-content {
+        margin: 25% auto;
+        width: 100%;
+    }
+
+    .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 5px;
+    max-width: 500px;
+    text-align: center;
+}
 
     #chat-container {
         padding: 0;
@@ -353,7 +423,7 @@ i {
         font-size: 12px;
     }
 
-    button {
+    #message-form button {
         width: fit-content;
         padding: 0.5em;
         margin-left: 0.5em;

@@ -23,31 +23,7 @@ const menuList = document.querySelector('#menu-list');
 fetch('/api/prompt_repo')
     .then(response => response.json())
     .then(data => {
-        const profiles = data;
-        data.forEach(item => {
-            let li = document.createElement('li');
-            li.dataset.profile = item.name;
-            let icon = document.createElement('i');
-            icon.className = `fas ${item.icon}`;
-            let span = document.createElement('span');
-            span.textContent = item.displayName;
-            li.appendChild(icon);
-            li.appendChild(span);
-            menuList.appendChild(li);
-            //add click event listener
-            li.addEventListener('click', function () {
-                // 获取与该列表项关联的 profile 数据  
-                var profileName = this.getAttribute('data-profile');
-                var profile = profiles.find(function (p) { return p.name === profileName; });
-                // 设置 profile 图标和名称
-                aiProfile.innerHTML = `<i class="fas ${profile.icon}"></i> ${profile.displayName}`;
-                // 显示 profile 数据  
-                addMessage('system', profile.prompt);
-                // 清空 prompts 数组
-                prompts.splice(0, prompts.length);
-                prompts.push({ role: 'system', content: profile.prompt });
-            });
-        });
+        renderMenuList(data);
     });
 
 
@@ -121,7 +97,7 @@ const sendMessage = async (message = '') => {
             tokens = data.totalTokens;
             tokensSpan.textContent = tokens;
             // If tokens are over 80% of max_tokens, remove the first round conversation
-            if (tokens > max_tokens*0.8) {
+            if (tokens > max_tokens * 0.8) {
                 prompts.splice(1, 2);
                 prompts[0] = { role: 'system', content: promptImpersonate };
             }
@@ -142,3 +118,72 @@ messageForm.addEventListener('submit', (event) => {
 });
 
 messageInput.focus();
+
+// 获取模态对话框元素和触发器元素
+const modal = document.querySelector('.modal');
+const usernameLabel = document.querySelector('#username-label');
+
+const userForm = document.querySelector('#user-form');
+const usernameInput = document.querySelector('#username-input');
+
+// request /api/prompt_repo build queryString to transfer usernameInput value as username to server
+// it will return a json object with username and a data array
+// output the data array and the username in console
+userForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const username = usernameInput.value.trim();
+    modal.style.display = 'none';
+    if (username) {
+        fetch(`/api/prompt_repo?username=${username}`)
+            .then(response => response.json())
+            .then(data => {
+                renderMenuList(data);
+            });
+    }
+});
+
+
+// 当点击触发器时显示模态对话框
+usernameLabel.addEventListener('click', function () {
+    modal.style.display = 'block';
+});
+
+// 当用户点击模态对话框之外的区域时隐藏模态对话框
+window.addEventListener('click', function (event) {
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+});
+
+// render menu list from data
+function renderMenuList(data) {
+    const profiles = data.profiles;
+    //empty menu list
+    menuList.innerHTML = '';
+    usernameLabel.textContent = data.username;
+    //add menu items
+    profiles.forEach(item => {
+        let li = document.createElement('li');
+        li.dataset.profile = item.name;
+        let icon = document.createElement('i');
+        icon.className = `fas ${item.icon}`;
+        let span = document.createElement('span');
+        span.textContent = item.displayName;
+        li.appendChild(icon);
+        li.appendChild(span);
+        menuList.appendChild(li);
+        //add click event listener
+        li.addEventListener('click', function () {
+            // 获取与该列表项关联的 profile 数据  
+            var profileName = this.getAttribute('data-profile');
+            var profile = profiles.find(function (p) { return p.name === profileName; });
+            // 设置 profile 图标和名称
+            aiProfile.innerHTML = `<i class="fas ${profile.icon}"></i> ${profile.displayName}`;
+            // 显示 profile 数据  
+            addMessage('system', profile.prompt);
+            // 清空 prompts 数组
+            prompts.splice(0, prompts.length);
+            prompts.push({ role: 'system', content: profile.prompt });
+        });
+    });
+}
