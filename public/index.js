@@ -10,6 +10,31 @@ const modal = document.querySelector('.modal');
 const usernameLabel = document.querySelector('#username-label');
 const userForm = document.querySelector('#user-form');
 const usernameInput = document.querySelector('#username-input');
+
+// get tts container element
+const ttsContainer = document.querySelector('#tts-container');
+ttsContainer.style.display = 'none';
+
+const practiceMode = document.querySelector('#practice-mode');
+var ttsPracticeMode = false;
+// add click event listener to practiceMode
+practiceMode.addEventListener('click', () => {
+    const practiceModeIcon = document.querySelector('#practice-mode-icon');
+    // if ttsPracticeMode is false, then set it to true
+    if (!ttsPracticeMode) {
+        ttsPracticeMode = true;
+        practiceMode.innerText = 'Practice Mode: On';
+        practiceModeIcon.classList.remove('fa-volume-off');
+        practiceModeIcon.classList.add('fa-volume-up');
+    } else {
+        ttsPracticeMode = false;
+        practiceMode.innerText = 'Practice Mode: Off';
+        practiceModeIcon.classList.remove('fa-volume-up');
+        practiceModeIcon.classList.add('fa-volume-off');
+    }
+});
+
+
 const max_tokens = 4000;
 var currentProfile = null;
 
@@ -55,19 +80,29 @@ const addMessage = (sender, message) => {
         const speakerElement = document.createElement('i');
         speakerElement.classList.add('message-speaker');
         speakerElement.classList.add('fas');
-        speakerElement.classList.add('fa-volume-mute');
+        speakerElement.classList.add('fa-volume-off');
         //add message to speakerElement dataset
         speakerElement.dataset.message = message;
         messageElement.appendChild(speakerElement);
+    } else {
+        // if ttsContainer is display, then hide it
+        if (ttsContainer.style.display === 'inline-block') {
+            ttsContainer.style.display = 'none';
+        }
     }
-
     messagesContainer.appendChild(messageElement);
-
-    //select all message speaker 
     attachMessageSpeakerEvent();
 
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    //if ttsPracticeMode and sender is bot,select last message-speaker and click it
+    if (ttsPracticeMode && sender === 'bot') {
+        const messageSpeaker = document.querySelectorAll('.message-speaker');
+        const lastSpeaker = messageSpeaker[messageSpeaker.length - 1];
+        if (lastSpeaker) {
+            lastSpeaker.click();
+        }
+    }
 
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
 };
 
@@ -97,7 +132,6 @@ const sendMessage = async (message = '') => {
         addMessage('system', message);
         prompts.splice(0, prompts.length);
         prompts.push({ role: 'system', content: message });
-        sendMessage('Hi!');
         return;
     }
     addMessage('user', message);
@@ -178,7 +212,7 @@ document.addEventListener('click', function (event) {
     }
 });
 
-
+// add click event listener to each message speaker icon
 function attachMessageSpeakerEvent() {
     const messageSpeakers = document.querySelectorAll('.message-speaker');
     //add click event listener to each speaker
@@ -190,7 +224,7 @@ function attachMessageSpeakerEvent() {
             }
             //change the speaker icon from fa-volume-mute to fa-volume-up
             const toggleSpeakerIcon = () => {
-                speaker.classList.toggle('fa-volume-mute');
+                speaker.classList.toggle('fa-volume-off');
                 speaker.classList.toggle('fa-volume-up');
             };
             toggleSpeakerIcon();
@@ -223,41 +257,6 @@ function attachMessageSpeakerEvent() {
     });
 }
 
-function generateTTSSpeaker(message) {
-    const speakerElement = document.createElement('i');
-    speakerElement.classList.add('message-speaker');
-    speakerElement.classList.add('fas');
-    speakerElement.classList.add('fa-volume-mute');
-    //add message to speakerElement dataset
-    speakerElement.dataset.message = message;
-    //select all message speaker and add click event listener to play tts
-    const messageSpeakers = document.querySelectorAll('i.message-speaker');
-    messageSpeakers.forEach(speaker => {
-        speaker.addEventListener('click', () => {
-            //change the speaker icon from fa-volume-mute to fa-volume-up
-            speaker.classList.toggle('fa-volume-mute');
-            speaker.classList.toggle('fa-volume-up');
-
-            //get message from speakerElement dataset
-            const message = speaker.dataset.message;
-            const url = `/api/tts?message=${encodeURIComponent(message)}`;
-            fetch(url)
-                .then(response => response.blob())
-                .then(blob => {
-                    console.log('ready to play...');
-                    const audio = new Audio();
-                    audio.src = URL.createObjectURL(blob);
-                    audio.play();
-                    // after playing, change the speaker icon from fa-volume-up to fa-volume-mute
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        });
-    });
-    return speakerElement;
-}
-
 // render menu list from data
 function renderMenuList(data) {
     const profiles = data.profiles;
@@ -280,6 +279,13 @@ function renderMenuList(data) {
             // 获取与该列表项关联的 profile 数据  
             var profileName = this.getAttribute('data-profile');
             currentProfile = profiles.find(function (p) { return p.name === profileName; });
+            if (currentProfile && currentProfile.tts === 'enabled') {
+                // if ttsContainer is not display, then display it
+                ttsContainer.style.display = 'inline-block';
+            } else {
+                // if ttsContainer is display, then hide it
+                ttsContainer.style.display = 'none';
+            }
             // 设置 profile 图标和名称
             aiProfile.innerHTML = `<i class="fas ${currentProfile.icon}"></i> ${currentProfile.displayName}`;
             // 显示 profile 数据  
