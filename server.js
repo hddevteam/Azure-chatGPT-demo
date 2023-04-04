@@ -7,15 +7,26 @@ const app = express();
 const port = process.env.PORT || 3000;
 const apiKey = process.env.API_KEY;
 const apiUrl = process.env.API_URL;
-// 获取PROMPT_REPO_URLS环境变量
-const promptRepo = JSON.parse(process.env.PROMPT_REPO_URLS);
+var promptRepo = null;
+var azureTTS = null;
+
+// check if PROMPT_REPO_URLS is set in .env file
+if (process.env.PROMPT_REPO_URLS) {
+  promptRepo = JSON.parse(process.env.PROMPT_REPO_URLS);
+}
+
+// check if AZURE_TTS is set in .env file
+if (process.env.AZURE_TTS) {
+  azureTTS = JSON.parse(process.env.AZURE_TTS);
+}
+
 var profiles = require('./public/prompts.json');
 
 // if promptRepo is not set, use local prompts.json
 if (!promptRepo) {
   let username = "guest";
   app.get('/api/prompt_repo', (req, res) => {
-    res.send({username, profiles});
+    res.send({ username, profiles });
   });
 } else {
   // when client request /api/prompt return json object from promptRepo
@@ -36,7 +47,7 @@ if (!promptRepo) {
       const response = await axios.get(repoUrl);
       profiles = response.data;
       //return json object data and username in json object
-      const responseObj = { username, profiles};
+      const responseObj = { username, profiles };
       // console.log(username)
       res.send(responseObj);
     } catch (error) {
@@ -52,6 +63,45 @@ app.use(express.static('public'));
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+
+//get message from client then send to azure tts api send back the buffer to client
+app.get('/api/tts', (req, res) => {
+  const message = req.query.message;
+  const subscriptionKey = azureTTS.subscriptionKey;
+  const endpoint = azureTTS.endpoint;
+
+  const url = `${endpoint}/cognitiveservices/v1`;
+
+  const headers = new Headers({
+    'Content-Type': 'application/ssml+xml',
+    'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
+    'Ocp-Apim-Subscription-Key': subscriptionKey
+  });
+
+  const body = `<speak version='1.0' xml:lang='en-US'>
+                  <voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyNeural'>
+                    ${message}
+                  </voice>
+                </speak>`;
+
+  fetch(url, {
+    method: 'POST',
+    headers: headers,
+    body: body
+  })
+    .then(response => response.arrayBuffer()) // convert response to ArrayBuffer
+    .then(arrayBuffer => { // send ArrayBuffer as response
+      res.set({
+        'Content-Type': 'audio/mpeg',
+        'Content-Length': arrayBuffer.byteLength
+      });
+      res.send(Buffer.from(arrayBuffer)); // convert ArrayBuffer to Buffer
+    })
+    .catch(error => {
+      console.error(error);
+    });
+});
+
 
 app.post('/api/gpt', async (req, res) => {
   const prompt = JSON.parse(req.body.prompt);
@@ -70,7 +120,7 @@ app.post('/api/gpt', async (req, res) => {
     },
     data: {
       messages: prompt,
-      temperature: 0.7,
+      temperature: 0.8,
       top_p: 0.95,
       frequency_penalty: 0,
       presence_penalty: 0,

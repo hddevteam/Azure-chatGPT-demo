@@ -320,6 +320,10 @@ i {
     background-color: #3e8e41;
 }
 
+.message-speaker {
+    cursor: pointer;
+}
+
 
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
@@ -379,6 +383,7 @@ i {
         margin-right: 2em;
         border-radius: 0.5em;
     }
+
     #menu-header {
         justify-content: center;
     }
@@ -429,6 +434,7 @@ i {
         margin-right: 5px;
         font-size: 12px;
     }
+
 
     #message-form button {
         width: fit-content;

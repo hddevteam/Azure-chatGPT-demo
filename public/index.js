@@ -4,7 +4,15 @@ const messagesContainer = document.querySelector('#messages');
 const messageForm = document.querySelector('#message-form');
 const messageInput = document.querySelector('#message-input');
 const tokensSpan = document.querySelector('#tokens');
+
+// 获取模态对话框元素和触发器元素
+const modal = document.querySelector('.modal');
+const usernameLabel = document.querySelector('#username-label');
+const userForm = document.querySelector('#user-form');
+const usernameInput = document.querySelector('#username-input');
 const max_tokens = 4000;
+var currentProfile = null;
+
 // first load prompt repo from /api/prompt_repo it looks like this:
 // [  
 //     {  
@@ -40,9 +48,29 @@ const addMessage = (sender, message) => {
     } else {
         messageElement.innerHTML = marked.parse(message);
     }
+
+    //check if current profile.tts is exist and value with "enabled"
+    if (currentProfile && currentProfile.tts === 'enabled') {
+        //create speaker icon
+        const speakerElement = document.createElement('i');
+        speakerElement.classList.add('message-speaker');
+        speakerElement.classList.add('fas');
+        speakerElement.classList.add('fa-volume-mute');
+        //add message to speakerElement dataset
+        speakerElement.dataset.message = message;
+        messageElement.appendChild(speakerElement);
+    }
+
     messagesContainer.appendChild(messageElement);
+
+    //select all message speaker 
+    attachMessageSpeakerEvent();
+
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+
 };
+
 
 let tokens = 0
 let prompts = [{ role: 'system', content: promptImpersonate }];
@@ -119,11 +147,7 @@ messageForm.addEventListener('submit', (event) => {
 
 messageInput.focus();
 
-// 获取模态对话框元素和触发器元素
-const modal = document.querySelector('.modal');
-const usernameLabel = document.querySelector('#username-label');
-const userForm = document.querySelector('#user-form');
-const usernameInput = document.querySelector('#username-input');
+
 
 // request /api/prompt_repo build queryString to transfer usernameInput value as username to server
 // it will return a json object with username and a data array
@@ -148,12 +172,91 @@ usernameLabel.addEventListener('click', function () {
 });
 
 // 当点击模态对话框外部时关闭模态对话框
-document.addEventListener('click', function(event) {
+document.addEventListener('click', function (event) {
     if (event.target == modal) {
         modal.style.display = "none";
-      }
-  });
+    }
+});
 
+
+function attachMessageSpeakerEvent() {
+    const messageSpeakers = document.querySelectorAll('.message-speaker');
+    //add click event listener to each speaker
+    messageSpeakers.forEach(speaker => {
+        speaker.addEventListener('click', () => {
+            //prevent user from clicking the speaker icon multiple times
+            if (speaker.classList.contains('fa-volume-up')) {
+                return;
+            }
+            //change the speaker icon from fa-volume-mute to fa-volume-up
+            const toggleSpeakerIcon = () => {
+                speaker.classList.toggle('fa-volume-mute');
+                speaker.classList.toggle('fa-volume-up');
+            };
+            toggleSpeakerIcon();
+            //get message from speakerElement dataset
+            const message = speaker.dataset.message;
+            const url = `/api/tts?message=${encodeURIComponent(message)}`;
+            fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    console.log('ready to play...');
+                    const audio = new Audio();
+                    audio.src = URL.createObjectURL(blob);
+
+                    //check if the audio is finished playing or failed to play
+                    audio.onerror = () => {
+                        toggleSpeakerIcon();
+                        console.error('Error playing audio.');
+                    };
+                    audio.onended = () => {
+                        toggleSpeakerIcon();
+                    };
+                    audio.play();
+                })
+                .catch(error => {
+                    console.error(error);
+                    toggleSpeakerIcon();
+
+                });
+        });
+    });
+}
+
+function generateTTSSpeaker(message) {
+    const speakerElement = document.createElement('i');
+    speakerElement.classList.add('message-speaker');
+    speakerElement.classList.add('fas');
+    speakerElement.classList.add('fa-volume-mute');
+    //add message to speakerElement dataset
+    speakerElement.dataset.message = message;
+    //select all message speaker and add click event listener to play tts
+    const messageSpeakers = document.querySelectorAll('i.message-speaker');
+    messageSpeakers.forEach(speaker => {
+        speaker.addEventListener('click', () => {
+            //change the speaker icon from fa-volume-mute to fa-volume-up
+            speaker.classList.toggle('fa-volume-mute');
+            speaker.classList.toggle('fa-volume-up');
+
+            //get message from speakerElement dataset
+            const message = speaker.dataset.message;
+            const url = `/api/tts?message=${encodeURIComponent(message)}`;
+            fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    console.log('ready to play...');
+                    const audio = new Audio();
+                    audio.src = URL.createObjectURL(blob);
+                    audio.play();
+                    // after playing, change the speaker icon from fa-volume-up to fa-volume-mute
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        });
+    });
+    return speakerElement;
+}
 
 // render menu list from data
 function renderMenuList(data) {
@@ -176,14 +279,14 @@ function renderMenuList(data) {
         li.addEventListener('click', function () {
             // 获取与该列表项关联的 profile 数据  
             var profileName = this.getAttribute('data-profile');
-            var profile = profiles.find(function (p) { return p.name === profileName; });
+            currentProfile = profiles.find(function (p) { return p.name === profileName; });
             // 设置 profile 图标和名称
-            aiProfile.innerHTML = `<i class="fas ${profile.icon}"></i> ${profile.displayName}`;
+            aiProfile.innerHTML = `<i class="fas ${currentProfile.icon}"></i> ${currentProfile.displayName}`;
             // 显示 profile 数据  
-            addMessage('system', profile.prompt);
+            addMessage('system', currentProfile.prompt);
             // 清空 prompts 数组
             prompts.splice(0, prompts.length);
-            prompts.push({ role: 'system', content: profile.prompt });
+            prompts.push({ role: 'system', content: currentProfile.prompt });
         });
     });
 }
