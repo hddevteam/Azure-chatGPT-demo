@@ -285,6 +285,12 @@ const sendMessage = async (message = '') => {
     const promptText = JSON.stringify(prompts);
     console.log(promptText);
     messageInput.value = '';
+    
+    // if practice mode is on then messageInput get focus
+    if (ttsPracticeMode) {
+        messageInput.focus();
+    }
+
     try {
         const response = await fetch('/api/gpt', {
             method: 'POST',
@@ -379,6 +385,7 @@ function renderMenuList(data) {
             // 获取与该列表项关联的 profile 数据  
             var profileName = this.getAttribute('data-profile');
             currentProfile = profiles.find(function (p) { return p.name === profileName; });
+            // 如果当前 profile 的 tts 属性为 enabled，则显示 ttsContainer
             if (currentProfile && currentProfile.tts === 'enabled') {
                 // if ttsContainer is not display, then display it
                 ttsContainer.style.display = 'inline-block';
