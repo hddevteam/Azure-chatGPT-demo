@@ -4,6 +4,7 @@ const messagesContainer = document.querySelector('#messages');
 const messageForm = document.querySelector('#message-form');
 const messageInput = document.querySelector('#message-input');
 const tokensSpan = document.querySelector('#tokens');
+const exportExcel = document.querySelector('#export-excel');
 
 // 获取模态对话框元素和触发器元素
 const modal = document.querySelector('.modal');
@@ -40,8 +41,55 @@ practiceMode.addEventListener('click', () => {
             speakerElement.classList.add('fa-volume-off');
         });
     }
-
 });
+
+// add click event listener to exportExcel
+exportExcel.addEventListener('click', () => {
+    // get all the messages
+    const messages = document.querySelectorAll('.message');
+    // get the conversion from each message element's data-message attribute
+    const conversions = [];
+    messages.forEach(message => {
+        conversions.push({ sender: message.dataset.sender, message: message.dataset.message });
+    });
+
+    // convert the conversion array to csv string
+    const convertToCSV = (objArray) => {
+        var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+        var str = '';
+
+        for (var i = 0; i < array.length; i++) {
+            var line = '';
+            for (var index in array[i]) {
+                if (line != '') line += ',';
+                line += '"' + array[i][index].replace(/"/g, '""') + '"';
+            }
+            str += line + '\r\n';
+        }
+
+        return str;
+    }
+
+    csv = convertToCSV(conversions);
+
+    // create a hidden link element
+    const link = document.createElement('a');
+    link.style.display = 'none';
+    // set the href attribute to the csv string
+    link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
+    // set the download attribute to the file name
+    // set file name to azure_gpt_conversations + current date time
+    const date = new Date();
+    const fileName = 'azure_gpt_conversations_' + date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '_' + date.getHours() + '-' + date.getMinutes() + '.csv';
+    link.setAttribute('download', fileName);
+    // append the link element to the body
+    document.body.appendChild(link);
+    // click the link element
+    link.click();
+    // remove the link element from the body
+    document.body.removeChild(link);
+});
+
 
 const showToast = (message) => {
     var toast = document.getElementById("toast");
@@ -84,6 +132,7 @@ const addMessage = (sender, message) => {
     messageElement.classList.add('message');
     messageElement.classList.add(`${sender}-message`);
     messageElement.dataset.message = message;
+    messageElement.dataset.sender = sender;
 
     //if send is user
     if (sender === 'user') {
@@ -153,7 +202,7 @@ const attachMessageCopyEvent = (messageCopy) => {
             const textElement = document.createElement('textarea');
             textElement.innerHTML = message;
             message = textElement.value;
-            
+
             return message;
         }
     });
@@ -285,7 +334,7 @@ const sendMessage = async (message = '') => {
     const promptText = JSON.stringify(prompts);
     console.log(promptText);
     messageInput.value = '';
-    
+
     // if practice mode is on then messageInput get focus
     if (ttsPracticeMode) {
         messageInput.focus();
