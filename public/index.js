@@ -31,7 +31,16 @@ practiceMode.addEventListener('click', () => {
         practiceMode.innerText = 'Practice Mode: Off';
         practiceModeIcon.classList.remove('fa-volume-up');
         practiceModeIcon.classList.add('fa-volume-off');
+
+        // reset all the speaker icon to fas fa-volume-off
+        // so that if the speaker is broken, it will can be clicked again
+        const speakerElements = document.querySelectorAll('.message-speaker');
+        speakerElements.forEach(speakerElement => {
+            speakerElement.classList.remove('fa-volume-up');
+            speakerElement.classList.add('fa-volume-off');
+        });
     }
+
 });
 
 
@@ -65,6 +74,7 @@ const addMessage = (sender, message) => {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message');
     messageElement.classList.add(`${sender}-message`);
+
     //if send is user
     if (sender === 'user') {
         const pre = document.createElement('pre');
@@ -73,6 +83,15 @@ const addMessage = (sender, message) => {
     } else {
         messageElement.innerHTML = marked.parse(message);
     }
+    //add a copy icon to message with class message-copy and fas fa-copy
+    const copyElement = document.createElement('i');
+    copyElement.classList.add('message-copy');
+    copyElement.classList.add('fas');
+    copyElement.classList.add('fa-copy');
+    //add message to copyElement dataset
+    copyElement.dataset.message = message;
+    messageElement.appendChild(copyElement);
+
 
     //check if current profile.tts is exist and value with "enabled"
     if (currentProfile && currentProfile.tts === 'enabled') {
@@ -91,12 +110,12 @@ const addMessage = (sender, message) => {
         }
     }
     messagesContainer.appendChild(messageElement);
-    attachMessageSpeakerEvent();
+    const messageSpeakers = document.querySelectorAll('.message-speaker');
+    const lastSpeaker = messageSpeakers[messageSpeakers.length - 1];
+    attachMessageSpeakerEvent(lastSpeaker);
 
     //if ttsPracticeMode and sender is bot,select last message-speaker and click it
     if (ttsPracticeMode && sender === 'bot') {
-        const messageSpeaker = document.querySelectorAll('.message-speaker');
-        const lastSpeaker = messageSpeaker[messageSpeaker.length - 1];
         if (lastSpeaker) {
             lastSpeaker.click();
         }
@@ -212,49 +231,86 @@ document.addEventListener('click', function (event) {
     }
 });
 
-// add click event listener to each message speaker icon
-function attachMessageSpeakerEvent() {
-    const messageSpeakers = document.querySelectorAll('.message-speaker');
-    //add click event listener to each speaker
-    messageSpeakers.forEach(speaker => {
-        speaker.addEventListener('click', () => {
-            //prevent user from clicking the speaker icon multiple times
-            if (speaker.classList.contains('fa-volume-up')) {
-                return;
-            }
-            //change the speaker icon from fa-volume-mute to fa-volume-up
-            const toggleSpeakerIcon = () => {
-                speaker.classList.toggle('fa-volume-off');
-                speaker.classList.toggle('fa-volume-up');
-            };
-            toggleSpeakerIcon();
-            //get message from speakerElement dataset
-            const message = speaker.dataset.message;
-            const url = `/api/tts?message=${encodeURIComponent(message)}`;
-            fetch(url)
-                .then(response => response.blob())
-                .then(blob => {
-                    console.log('ready to play...');
-                    const audio = new Audio();
-                    audio.src = URL.createObjectURL(blob);
+function attachMessageSpeakerEvent(speaker) {
+    //if speaker is null, return
+    if (!speaker) {
+        return;
+    }
 
-                    //check if the audio is finished playing or failed to play
-                    audio.onerror = () => {
-                        toggleSpeakerIcon();
-                        console.error('Error playing audio.');
-                    };
-                    audio.onended = () => {
-                        toggleSpeakerIcon();
-                    };
-                    audio.play();
-                })
-                .catch(error => {
-                    console.error(error);
-                    toggleSpeakerIcon();
+    speaker.addEventListener('click', async () => {
+        //prevent user from clicking the speaker icon multiple times
+        if (speaker.classList.contains('fa-volume-up')) {
+            return;
+        }
+        //get message from speakerElement dataset
+        const message = speaker.dataset.message;
+        // 调用函数将文本变量分成最多100个单词的句子集合数组
+        let sentenceArr = splitMessage(message);
+        console.log(sentenceArr);
+        // 循环播放句子集合中的每个句子
+        for (let sentence of sentenceArr) {
+            await playMessage(sentence, speaker);
+        }
 
-                });
-        });
     });
+
+    // 定义函数将文本变量分成最多100个单词的句子集合数组
+    function splitMessage(message) {
+        let sentenceArr = [];
+        let words = message.split(" ");
+        let sentence = "";
+        let i = 0;
+        while (i < words.length) {
+            // 将单词逐一添加到当前句子中
+            if (sentence.length === 0) {
+                sentence = words[i];
+            } else {
+                sentence = sentence + " " + words[i];
+            }
+            i++;
+            // 如果当前句子的单词数达到100个或到达文本结尾，则添加到句子集合中，并清空当前句子
+            if (sentence.split(" ").length === 100 || i === words.length) {
+                sentenceArr.push(sentence);
+                sentence = "";
+            }
+        }
+        return sentenceArr;
+    }
+
+    // play the message with tts
+    async function playMessage(message, speaker) {
+        //change the speaker icon from fa-volume-mute to fa-volume-up
+        const toggleSpeakerIcon = () => {
+            speaker.classList.toggle('fa-volume-off');
+            speaker.classList.toggle('fa-volume-up');
+        };
+        toggleSpeakerIcon();
+        try {
+            const url = `/api/tts?message=${encodeURIComponent(message)}`;
+            const response = await fetch(url);
+            const blob = await response.blob();
+            console.log('ready to play...');
+            const audio = new Audio();
+            audio.src = URL.createObjectURL(blob);
+            await new Promise(resolve => {
+                //check if the audio is finished playing or failed to play
+                audio.onerror = () => {
+                    toggleSpeakerIcon();
+                    console.error('Error playing audio.');
+                    resolve();
+                };
+                audio.onended = () => {
+                    toggleSpeakerIcon();
+                    resolve();
+                };
+                audio.play();
+            });
+        } catch (error) {
+            toggleSpeakerIcon();
+            console.error(error);
+        }
+
+    }
 }
 
 // render menu list from data
