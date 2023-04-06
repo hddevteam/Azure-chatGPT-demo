@@ -224,7 +224,7 @@ const attachMessageSpeakerEvent = (speaker) => {
     if (!speaker) {
         return;
     }
-
+    const audio = new Audio();
     speaker.addEventListener('click', async () => {
         //prevent user from clicking the speaker icon multiple times
         if (speaker.classList.contains('fa-volume-up')) {
@@ -242,7 +242,7 @@ const attachMessageSpeakerEvent = (speaker) => {
 
     });
 
-    // 定义函数将文本变量分成最多100个单词的句子集合数组
+    // 定义函数将文本变量分成最多160个单词的句子集合数组
     function splitMessage(message) {
         let sentenceArr = [];
         let words = message.split(" ");
@@ -256,8 +256,8 @@ const attachMessageSpeakerEvent = (speaker) => {
                 sentence = sentence + " " + words[i];
             }
             i++;
-            // 如果当前句子的单词数达到100个或到达文本结尾，则添加到句子集合中，并清空当前句子
-            if (sentence.split(" ").length === 100 || i === words.length) {
+            // 如果当前句子的单词数达到160个或到达文本结尾，则添加到句子集合中，并清空当前句子
+            if (sentence.split(" ").length === 160 || i === words.length) {
                 sentenceArr.push(sentence);
                 sentence = "";
             }
@@ -278,7 +278,6 @@ const attachMessageSpeakerEvent = (speaker) => {
             const response = await fetch(url);
             const blob = await response.blob();
             console.log('ready to play...');
-            const audio = new Audio();
             audio.src = URL.createObjectURL(blob);
             await new Promise(resolve => {
                 //check if the audio is finished playing or failed to play
