@@ -79,11 +79,10 @@ app.get('/api/tts', (req, res) => {
   });
 
   const body = `<speak version='1.0' xml:lang='en-US'>
-                  <voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyNeural'>
-                    ${message}
+                  <voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyNeural' style='friendly'>
+                      ${message}
                   </voice>
                 </speak>`;
-
   fetch(url, {
     method: 'POST',
     headers: headers,
