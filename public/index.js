@@ -175,17 +175,16 @@ const addMessage = (sender, message) => {
     const lastSpeaker = messageSpeakers[messageSpeakers.length - 1];
     attachMessageSpeakerEvent(lastSpeaker);
 
+    // Determine if the message should be played automatically
+    const autoPlay = ttsPracticeMode && sender === 'bot';
+    if (autoPlay) {
+        playMessage(lastSpeaker);
+    }
+
     // find the last message-copy and add click event listener to it
     const messageCopies = document.querySelectorAll('.message-copy');
     const lastCopy = messageCopies[messageCopies.length - 1];
     attachMessageCopyEvent(lastCopy);
-
-    //if ttsPracticeMode and sender is bot,select last message-speaker and click it
-    if (ttsPracticeMode && sender === 'bot') {
-        if (lastSpeaker) {
-            lastSpeaker.click();
-        }
-    }
 
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -224,80 +223,106 @@ const attachMessageSpeakerEvent = (speaker) => {
     if (!speaker) {
         return;
     }
-    const audio = new Audio();
     speaker.addEventListener('click', async () => {
-        //prevent user from clicking the speaker icon multiple times
-        if (speaker.classList.contains('fa-volume-up')) {
-            return;
-        }
-        //get message from parent element dataset message attribute
-        const message = speaker.parentElement.parentElement.dataset.message;
-        // 调用函数将文本变量分成最多100个单词的句子集合数组
-        let sentenceArr = splitMessage(message);
-        console.log(sentenceArr);
-        // 循环播放句子集合中的每个句子
-        for (let sentence of sentenceArr) {
-            await playMessage(sentence, speaker);
-        }
-
+        await playMessage(speaker);
     });
+}
 
-    // 定义函数将文本变量分成最多160个单词的句子集合数组
-    function splitMessage(message) {
-        let sentenceArr = [];
-        let words = message.split(" ");
-        let sentence = "";
-        let i = 0;
-        while (i < words.length) {
-            // 将单词逐一添加到当前句子中
-            if (sentence.length === 0) {
-                sentence = words[i];
-            } else {
-                sentence = sentence + " " + words[i];
-            }
-            i++;
-            // 如果当前句子的单词数达到160个或到达文本结尾，则添加到句子集合中，并清空当前句子
-            if (sentence.split(" ").length === 160 || i === words.length) {
-                sentenceArr.push(sentence);
-                sentence = "";
-            }
+// 定义函数将文本变量分成最多160个单词的句子集合数组
+function splitMessage(message) {
+    let sentenceArr = [];
+    let words = message.split(" ");
+    let sentence = "";
+    let i = 0;
+    while (i < words.length) {
+        // 将单词逐一添加到当前句子中
+        if (sentence.length === 0) {
+            sentence = words[i];
+        } else {
+            sentence = sentence + " " + words[i];
         }
-        return sentenceArr;
+        i++;
+        // 如果当前句子的单词数达到160个或到达文本结尾，则添加到句子集合中，并清空当前句子
+        if (sentence.split(" ").length === 160 || i === words.length) {
+            sentenceArr.push(sentence);
+            sentence = "";
+        }
     }
+    return sentenceArr;
+}
 
-    // play the message with tts
-    async function playMessage(message, speaker) {
-        //change the speaker icon from fa-volume-mute to fa-volume-up
-        const toggleSpeakerIcon = () => {
-            speaker.classList.toggle('fa-volume-off');
-            speaker.classList.toggle('fa-volume-up');
+const audio = new Audio();
+var currentPlayingSpeaker; // Add this variable to keep track of the current playing speaker
+const toggleSpeakerIcon = (speaker) => {
+    speaker.classList.toggle('fa-volume-off');
+    speaker.classList.toggle('fa-volume-up');
+};
+const playAudio = async (speaker) => {
+    return new Promise((resolve, reject) => {
+        audio.onerror = () => {
+            toggleSpeakerIcon(speaker);
+            currentPlayingSpeaker = null;
+            console.error('Error playing audio.');
+            resolve();
         };
-        toggleSpeakerIcon();
-        try {
-            const url = `/api/tts?message=${encodeURIComponent(message)}`;
-            const response = await fetch(url);
-            const blob = await response.blob();
-            console.log('ready to play...');
-            audio.src = URL.createObjectURL(blob);
-            await new Promise(resolve => {
-                //check if the audio is finished playing or failed to play
-                audio.onerror = () => {
-                    toggleSpeakerIcon();
-                    console.error('Error playing audio.');
-                    resolve();
-                };
-                audio.onended = () => {
-                    toggleSpeakerIcon();
-                    resolve();
-                };
-                audio.play();
-            });
-        } catch (error) {
-            toggleSpeakerIcon();
-            console.error(error);
-        }
+        audio.onended = () => {
+            toggleSpeakerIcon(speaker);
+            currentPlayingSpeaker = null;
+            resolve();
+        };
+        audio.onabort = () => {
+            console.error('Audio play aborted.');
+            resolve();
+        };
+        audio.play();
+    });
+};
 
+// play the message with tts
+async function playMessage(speaker) {
+    // if the speaker is playing, stop it and return
+    if (speaker.classList.contains('fa-volume-up')) {
+        //if the audio is playing, stop it
+        audio.pause();
+        toggleSpeakerIcon(speaker);
+        currentPlayingSpeaker = null;
+        return;
     }
+    // If there is a speaker currently playing, stop it and reset its icon
+    if (currentPlayingSpeaker && currentPlayingSpeaker !== speaker) {
+        audio.pause();
+        toggleSpeakerIcon(currentPlayingSpeaker); // Reset the icon of the previous speaker
+    }
+
+    // Update the currentPlayingSpeaker variable
+    currentPlayingSpeaker = speaker;
+
+    //get message from parent element dataset message attribute
+    const message = speaker.parentElement.parentElement.dataset.message;
+    let sentenceArr = splitMessage(message);
+    console.log(sentenceArr);
+
+    // 循环播放句子集合中的每个句子
+    const playSentences = async () => {
+        for (let sentence of sentenceArr) {
+            toggleSpeakerIcon(speaker);
+            try {
+                const url = `/api/tts?message=${encodeURIComponent(sentence)}`;
+                const response = await fetch(url);
+                const blob = await response.blob();
+                console.log('ready to play...');
+                audio.src = URL.createObjectURL(blob);
+                await playAudio(speaker);
+            } catch (error) {
+                toggleSpeakerIcon(speaker);
+                console.error(error);
+            }
+        }
+    };
+
+    // 使用Promise.all确保异步操作完成
+    await Promise.all([playSentences()]);
+
 }
 
 
