@@ -27,7 +27,7 @@ This is a demo chatGPT website built with nodejs and Azure OpenAI gpt-35-turbo (
         - Azure AZURE_TTS is a JSON object that contains the subscriptionKey and the endpoint of the Azure Text-to-Speech service.
 
         ```console
-        AZURE_TTS=AZURE_TTS={"subscriptionKey":"your subscription key","endpoint":"your endpoint"}
+        AZURE_TTS={"subscriptionKey":"your subscription key","endpoint":"your endpoint"}
         ```
 
 
