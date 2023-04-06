@@ -422,7 +422,7 @@ function renderMenuList(data) {
         let li = document.createElement('li');
         li.dataset.profile = item.name;
         let icon = document.createElement('i');
-        icon.className = `fas ${item.icon}`;
+        icon.className = `${item.icon}`;
         let span = document.createElement('span');
         span.textContent = item.displayName;
         li.appendChild(icon);
@@ -442,7 +442,7 @@ function renderMenuList(data) {
                 ttsContainer.style.display = 'none';
             }
             // 设置 profile 图标和名称
-            aiProfile.innerHTML = `<i class="fas ${currentProfile.icon}"></i> ${currentProfile.displayName}`;
+            aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
             // 显示 profile 数据  
             addMessage('system', currentProfile.prompt);
             // 清空 prompts 数组
