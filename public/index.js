@@ -17,22 +17,15 @@ const ttsContainer = document.querySelector('#tts-container');
 ttsContainer.style.display = 'none';
 
 const practiceMode = document.querySelector('#practice-mode');
+const practiceModeIcon = document.querySelector('#practice-mode-icon');
 var ttsPracticeMode = false; // practice mode is off by default
 // add click event listener to practiceMode
 practiceMode.addEventListener('click', () => {
-    const practiceModeIcon = document.querySelector('#practice-mode-icon');
     // if ttsPracticeMode is false, then set it to true
     if (!ttsPracticeMode) {
-        ttsPracticeMode = true;
-        practiceMode.innerText = 'Practice Mode: On';
-        practiceModeIcon.classList.remove('fa-volume-off');
-        practiceModeIcon.classList.add('fa-volume-up');
+        turnOnPracticeMode();
     } else {
-        ttsPracticeMode = false;
-        practiceMode.innerText = 'Practice Mode: Off';
-        practiceModeIcon.classList.remove('fa-volume-up');
-        practiceModeIcon.classList.add('fa-volume-off');
-
+        turnOffPracticeMode();
         // reset all the speaker icon to fas fa-volume-off
         // so that if the speaker is broken, it will can be clicked again
         const speakerElements = document.querySelectorAll('.message-speaker');
@@ -226,6 +219,20 @@ const attachMessageSpeakerEvent = (speaker) => {
     speaker.addEventListener('click', async () => {
         await playMessage(speaker);
     });
+}
+
+const turnOnPracticeMode = () => {
+    ttsPracticeMode = true;
+    practiceMode.innerText = 'Practice Mode: On';
+    practiceModeIcon.classList.remove('fa-volume-off');
+    practiceModeIcon.classList.add('fa-volume-up');
+}
+
+const turnOffPracticeMode = () => {
+    ttsPracticeMode = false;
+    practiceMode.innerText = 'Practice Mode: Off';
+    practiceModeIcon.classList.remove('fa-volume-up');
+    practiceModeIcon.classList.add('fa-volume-off');
 }
 
 // 定义函数将文本变量分成最多160个单词的句子集合数组
@@ -456,7 +463,7 @@ function renderMenuList(data) {
         //add click event listener
         li.addEventListener('click', function () {
             // reset practice mode
-            ttsPracticeMode = false;
+            turnOffPracticeMode();
             // 获取与该列表项关联的 profile 数据  
             var profileName = this.getAttribute('data-profile');
             currentProfile = profiles.find(function (p) { return p.name === profileName; });
