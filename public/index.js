@@ -1,4 +1,3 @@
-const promptImpersonate = 'You are an AI assistant that helps people find information.';
 const aiProfile = document.querySelector('#ai-profile');
 const messagesContainer = document.querySelector('#messages');
 const messageForm = document.querySelector('#message-form');
@@ -93,10 +92,6 @@ const showToast = (message) => {
     }, 3000); // 3 秒后隐藏 Toast
 }
 
-
-const max_tokens = 4000;
-var currentProfile = null;
-
 // first load prompt repo from /api/prompt_repo it looks like this:
 // [  
 //     {  
@@ -112,10 +107,19 @@ var currentProfile = null;
 // to each menu item
 // when click, get the profile data
 const menuList = document.querySelector('#menu-list');
+let tokens = 0
+let prompts = [];
+const max_tokens = 4000;
+var currentProfile = null;
+
+
 fetch('/api/prompt_repo')
     .then(response => response.json())
     .then(data => {
         renderMenuList(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
     });
 
 
@@ -199,7 +203,6 @@ const attachMessageCopyEvent = (messageCopy) => {
         }
     });
 
-    // 添加事件监听器
     clipboard.on('success', function (e) {
         showToast('copied successful');
     });
@@ -235,21 +238,21 @@ const turnOffPracticeMode = () => {
     practiceModeIcon.classList.add('fa-volume-off');
 }
 
-// 定义函数将文本变量分成最多160个单词的句子集合数组
+// split message into sentences chunks with max 160 words each
 function splitMessage(message) {
     let sentenceArr = [];
     let words = message.split(" ");
     let sentence = "";
     let i = 0;
     while (i < words.length) {
-        // 将单词逐一添加到当前句子中
+        // if current sentence is empty, then add the first word to it
         if (sentence.length === 0) {
             sentence = words[i];
         } else {
             sentence = sentence + " " + words[i];
         }
         i++;
-        // 如果当前句子的单词数达到160个或到达文本结尾，则添加到句子集合中，并清空当前句子
+        // if current sentence is 160 words or it is the last word, then add it to sentenceArr
         if (sentence.split(" ").length === 160 || i === words.length) {
             sentenceArr.push(sentence);
             sentence = "";
@@ -309,7 +312,7 @@ async function playMessage(speaker) {
     let sentenceArr = splitMessage(message);
     console.log(sentenceArr);
 
-    // 循环播放句子集合中的每个句子
+    // play sentences chunk one by one
     const playSentences = async () => {
         for (let sentence of sentenceArr) {
             toggleSpeakerIcon(speaker);
@@ -332,17 +335,11 @@ async function playMessage(speaker) {
 
 }
 
-
-let tokens = 0
-let prompts = [{ role: 'system', content: promptImpersonate }];
-addMessage('system', promptImpersonate);
-
-
 // Clear message input
 const clearMessage = () => {
     messagesContainer.innerHTML = '';
     messageInput.value = '';
-    prompts.splice(0, prompts.length, { role: 'system', content: promptImpersonate });
+    prompts.splice(0, prompts.length, { role: 'system', content: currentProfile.prompt });
 };
 
 
@@ -393,7 +390,7 @@ const sendMessage = async (message = '') => {
             // If tokens are over 80% of max_tokens, remove the first round conversation
             if (tokens > max_tokens * 0.8) {
                 prompts.splice(1, 2);
-                prompts[0] = { role: 'system', content: promptImpersonate };
+                prompts[0] = { role: 'system', content: currentProfile.prompt };
             }
         }
         addMessage('bot', data.message);
@@ -409,12 +406,11 @@ messageForm.addEventListener('submit', (event) => {
     if (message) {
         sendMessage(message);
     }
+    messageInput.focus();
 });
 
-messageInput.focus();
 
-
-
+var currentUsername = '';
 // request /api/prompt_repo build queryString to transfer usernameInput value as username to server
 // it will return a json object with username and a data array
 // output the data array and the username in console
@@ -427,28 +423,38 @@ userForm.addEventListener('submit', (event) => {
             .then(response => response.json())
             .then(data => {
                 renderMenuList(data);
+                //practice mode will be off when user submit the username
+                turnOffPracticeMode();
             });
     }
 });
 
-// 当点击触发器时显示模态对话框
+// popup the modal when user click the username label
 usernameLabel.addEventListener('click', function () {
     modal.style.display = 'block';
 });
 
-// 当点击模态对话框外部时关闭模态对话框
+// close the modal when user click the close button
 document.addEventListener('click', function (event) {
     if (event.target == modal) {
         modal.style.display = "none";
     }
 });
 
+
 // render menu list from data
+// it only happens when user submit the username or the page is loaded
 function renderMenuList(data) {
     const profiles = data.profiles;
-    //empty menu list
+    currentProfile = profiles[0]; // set currentProfile to the first profile
+    prompts.push({ role: 'system', content: currentProfile.prompt });
+    addMessage('system', currentProfile.prompt);
+    
+    //empty menu list and add username
     menuList.innerHTML = '';
-    usernameLabel.textContent = data.username;
+    currentUsername = data.username;
+    usernameLabel.textContent = currentUsername;
+    
     //add menu items
     profiles.forEach(item => {
         let li = document.createElement('li');
@@ -464,7 +470,7 @@ function renderMenuList(data) {
         li.addEventListener('click', function () {
             // reset practice mode
             turnOffPracticeMode();
-            // 获取与该列表项关联的 profile 数据  
+            // change currentProfile
             var profileName = this.getAttribute('data-profile');
             currentProfile = profiles.find(function (p) { return p.name === profileName; });
             // 如果当前 profile 的 tts 属性为 enabled，则显示 ttsContainer
