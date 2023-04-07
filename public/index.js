@@ -173,7 +173,7 @@ const addMessage = (sender, message) => {
     attachMessageSpeakerEvent(lastSpeaker);
 
     // Determine if the message should be played automatically
-    const autoPlay = ttsPracticeMode && sender === 'bot';
+    const autoPlay = ttsPracticeMode && sender === 'assistant';
     if (autoPlay) {
         playMessage(lastSpeaker);
     }
@@ -184,7 +184,6 @@ const addMessage = (sender, message) => {
     attachMessageCopyEvent(lastCopy);
 
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
 };
 
 // implement attachMessageCopyEvent function
@@ -359,6 +358,7 @@ const sendMessage = async (message = '') => {
     }
     addMessage('user', message);
     prompts.push({ role: 'user', content: message });
+    saveCurrentProfileMessages();
     const promptText = JSON.stringify(prompts);
     console.log(promptText);
     messageInput.value = '';
@@ -393,9 +393,10 @@ const sendMessage = async (message = '') => {
                 prompts[0] = { role: 'system', content: currentProfile.prompt };
             }
         }
-        addMessage('bot', data.message);
+        addMessage('assistant', data.message);
+        saveCurrentProfileMessages();
     } catch (error) {
-        addMessage('bot', error.message);
+        addMessage('assistant', error.message);
     }
 };
 
@@ -441,20 +442,47 @@ document.addEventListener('click', function (event) {
     }
 });
 
+// save the current message content to local storage by username and profile name
+const saveCurrentProfileMessages = () => {
+    const messages = document.querySelectorAll('.message');
+    const savedMessages = [];
+    messages.forEach(message => {
+        // only save user and assistant messages
+        if (message.dataset.sender === 'user' || message.dataset.sender === 'assistant') {
+            savedMessages.push({ role: message.dataset.sender, content: message.dataset.message });
+        }
+    });
+    localStorage.setItem(currentUsername + '_' + currentProfile.name, JSON.stringify(savedMessages));
+};
 
 // render menu list from data
 // it only happens when user submit the username or the page is loaded
 function renderMenuList(data) {
     const profiles = data.profiles;
+    currentUsername = data.username;
+    usernameLabel.textContent = currentUsername;
     currentProfile = profiles[0]; // set currentProfile to the first profile
     prompts.push({ role: 'system', content: currentProfile.prompt });
     addMessage('system', currentProfile.prompt);
-    
-    //empty menu list and add username
+
+    // read saved messages from local storage for current profile and current username
+    const savedMessages = JSON.parse(localStorage.getItem(currentUsername + '_' + currentProfile.name) || '[]');
+    savedMessages.forEach(message => {
+        addMessage(message.role, message.content);
+    });
+
+    // load last 2 messages(max) from savedMessages to prompts: sender => role, message => content
+    if (savedMessages.length > 2) {
+        prompts.push(savedMessages[savedMessages.length - 2]);
+        prompts.push(savedMessages[savedMessages.length - 1]);
+    } else if
+        (savedMessages.length > 0) {
+        prompts.push(savedMessages[savedMessages.length - 1]);
+    }
+
+    //empty menu list
     menuList.innerHTML = '';
-    currentUsername = data.username;
-    usernameLabel.textContent = currentUsername;
-    
+
     //add menu items
     profiles.forEach(item => {
         let li = document.createElement('li');
@@ -483,11 +511,25 @@ function renderMenuList(data) {
             }
             // 设置 profile 图标和名称
             aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
-            // 显示 profile 数据  
-            addMessage('system', currentProfile.prompt);
+            messagesContainer.innerHTML = '';
             // 清空 prompts 数组
             prompts.splice(0, prompts.length);
             prompts.push({ role: 'system', content: currentProfile.prompt });
+            addMessage('system', currentProfile.prompt);
+            // read saved messages from local storage for current profile and current username
+            const savedMessages = JSON.parse(localStorage.getItem(currentUsername + '_' + currentProfile.name) || '[]');
+            savedMessages.forEach(message => {
+                addMessage(message.role, message.content);
+            });
+
+            // load last 2 messages(max) from savedMessages to prompts: sender => role, message => content
+            if (savedMessages.length > 2) {
+                prompts.push(savedMessages[savedMessages.length - 2]);
+                prompts.push(savedMessages[savedMessages.length - 1]);
+            } else if
+                (savedMessages.length > 0) {
+                prompts.push(savedMessages[savedMessages.length - 1]);
+            }
         });
     });
 }

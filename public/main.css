@@ -80,13 +80,13 @@ h1 {
     text-align: left;
 }
 
-.bot-message {
+.assistant-message {
     background-color: #e6f2ff;
     text-align: left;
     margin-left: 20px;
 }
 
-.bot-message ol {
+.assistant-message ol {
     margin-left: 20px;
 }
 
@@ -94,7 +94,7 @@ h1 {
     white-space: pre-wrap;
 }
 
-.bot-message pre {
+.assistant-message pre {
     background-color: #000;
     color: white;
     padding: 5px;
