@@ -17,7 +17,7 @@ const ttsContainer = document.querySelector('#tts-container');
 ttsContainer.style.display = 'none';
 
 const practiceMode = document.querySelector('#practice-mode');
-var ttsPracticeMode = false;
+var ttsPracticeMode = false; // practice mode is off by default
 // add click event listener to practiceMode
 practiceMode.addEventListener('click', () => {
     const practiceModeIcon = document.querySelector('#practice-mode-icon');
@@ -455,6 +455,8 @@ function renderMenuList(data) {
         menuList.appendChild(li);
         //add click event listener
         li.addEventListener('click', function () {
+            // reset practice mode
+            ttsPracticeMode = false;
             // 获取与该列表项关联的 profile 数据  
             var profileName = this.getAttribute('data-profile');
             currentProfile = profiles.find(function (p) { return p.name === profileName; });
