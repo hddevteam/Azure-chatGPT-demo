@@ -173,25 +173,24 @@ const addMessage = (sender, message, messageId, isActive = true) => {
             }
         });
 
+        //add fa-times icon to message with class message-delete and fas fa-trash
+        const deleteElement = document.createElement('i');
+        deleteElement.classList.add('message-delete');
+        deleteElement.classList.add('fas');
+        deleteElement.classList.add('fa-times');
+        messageElement.appendChild(deleteElement);
+        //add onclick event listener to deleteElement
+        deleteElement.addEventListener('click', () => {
+            // get the message id from messageElement's dataset
+            const messageId = messageElement.dataset.messageId;
+            deleteMessage(messageId);
+        });
+
         if (isActive) {
             // if message is not active, add inactive class to messageElement and conversationElement
             messageElement.classList.add('active');
         }
     }
-
-
-    //add fa-trash icon to message with class message-delete and fas fa-trash
-    const deleteElement = document.createElement('i');
-    deleteElement.classList.add('message-delete');
-    deleteElement.classList.add('fas');
-    deleteElement.classList.add('fa-times');
-    messageElement.appendChild(deleteElement);
-    //add onclick event listener to deleteElement
-    deleteElement.addEventListener('click', () => {
-        // get the message id from messageElement's dataset
-        const messageId = messageElement.dataset.messageId;
-        deleteMessage(messageId);
-    });
 
     //if send is user
     if (sender === 'user') {
@@ -272,7 +271,6 @@ const attachMessageCopyEvent = (messageCopy) => {
             const textElement = document.createElement('textarea');
             textElement.innerHTML = message;
             message = textElement.value;
-
             return message;
         }
     });
@@ -280,11 +278,9 @@ const attachMessageCopyEvent = (messageCopy) => {
     clipboard.on('success', function (e) {
         showToast('copied successful');
     });
-
     clipboard.on('error', function (e) {
         showToast('copied failed');
     });
-
 };
 
 
