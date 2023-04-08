@@ -135,7 +135,7 @@ fetch('/api/prompt_repo')
 
 
 // Add message to DOM
-const addMessage = (sender, message, messageId) => {
+const addMessage = (sender, message, messageId, isActive = true) => {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message');
     messageElement.classList.add(`${sender}-message`);
@@ -145,26 +145,29 @@ const addMessage = (sender, message, messageId) => {
 
     //add fa-comments icon to message with class message-conversation and fas fa-comments
     const conversationElement = document.createElement('i');
-    conversationElement.classList.add('message-conversation');
     conversationElement.classList.add('fas');
     conversationElement.classList.add('fa-quote-left');
     messageElement.appendChild(conversationElement);
 
     // if sender is not system
-    if (sender !== 'system') {
-        //add fa-trash icon to message with class message-delete and fas fa-trash
-        const deleteElement = document.createElement('i');
-        deleteElement.classList.add('message-delete');
-        deleteElement.classList.add('fas');
-        deleteElement.classList.add('fa-times');
-        messageElement.appendChild(deleteElement);
-        //add onclick event listener to deleteElement
-        deleteElement.addEventListener('click', () => {
-            // get the message id from messageElement's dataset
-            const messageId = messageElement.dataset.messageId;
-            deleteMessage(messageId);
-        });
+    if (sender !== 'system' && !isActive) {
+        conversationElement.classList.add('inactive');
+        messageElement.classList.add('inactive');
     }
+
+    //add fa-trash icon to message with class message-delete and fas fa-trash
+    const deleteElement = document.createElement('i');
+    deleteElement.classList.add('message-delete');
+    deleteElement.classList.add('fas');
+    deleteElement.classList.add('fa-times');
+    messageElement.appendChild(deleteElement);
+    //add onclick event listener to deleteElement
+    deleteElement.addEventListener('click', () => {
+        // get the message id from messageElement's dataset
+        const messageId = messageElement.dataset.messageId;
+        deleteMessage(messageId);
+    });
+
 
     //if send is user
     if (sender === 'user') {
@@ -172,11 +175,8 @@ const addMessage = (sender, message, messageId) => {
         pre.innerText = message;
         messageElement.appendChild(pre);
     } else {
-        // 将 Markdown 文本转换为 HTML
         const messageHtml = marked.parse(message);
-        // 创建一个新的 DOM 元素
         const messageHtmlElement = document.createElement('div');
-        // 将生成的 HTML 设置为新元素的 innerHTML
         messageHtmlElement.innerHTML = messageHtml;
         messageElement.appendChild(messageHtmlElement);
     }
@@ -226,6 +226,7 @@ const addMessage = (sender, message, messageId) => {
 
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 };
+
 
 // implement deleteMessage function
 const deleteMessage = (messageId) => {
@@ -438,27 +439,41 @@ const sendMessage = async (message = '') => {
             throw new Error('Error generating response.');
         }
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         // If no response, pop last prompt and send a message
         if (!data) {
-            prompts.pop();
-            message = 'AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。';
+            messageId = generateId();
+            const content = 'AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。';
+            prompts.push({ role: 'assistant', content: content, messageId: messageId });
+            addMessage('assistant', content, messageId, false);
         } else {
-            prompts.push({ role: 'assistant', content: data.message });
+            messageId = generateId();
+            prompts.push({ role: 'assistant', content: data.message, messageId: messageId });
+            addMessage('assistant', data.message, messageId);
             tokens = data.totalTokens;
             tokensSpan.textContent = `${tokens} tokens`;
             // If tokens are over 80% of max_tokens, remove the first round conversation
             if (tokens > max_tokens * 0.8) {
-                prompts.splice(1, 2);
-                prompts[0] = { role: 'system', content: currentProfile.prompt };
+                const removedPrompts = prompts.splice(1, 2);
+                removedPrompts.forEach((p) => {
+                    inactiveMessage(p.messageId);
+                });
+                prompts[0] = { role: 'system', content: currentProfile.prompt, messageId: generateId() };
             }
         }
-        let messageId = generateId();
-        addMessage('assistant', data.message, messageId);
         saveCurrentProfileMessages();
     } catch (error) {
         let messageId = generateId();
-        addMessage('assistant', error.message, messageId);
+        addMessage('assistant', error.message, messageId, false);
+    }
+};
+
+const inactiveMessage = (messageId) => {
+    const message = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (message) {
+        const quoteIcon = message.querySelector('fa-quote-left');
+        message.classList.add('inactive');
+        quoteIcon.classList.add('inactive');
     }
 };
 
@@ -534,18 +549,16 @@ function renderMenuList(data) {
 
     // read saved messages from local storage for current profile and current username
     const savedMessages = JSON.parse(localStorage.getItem(currentUsername + '_' + currentProfile.name) || '[]');
-    savedMessages.forEach(message => {
-        addMessage(message.role, message.content, message.messageId);
+    // add saved messages to the message list and load last 2 messages(max) to prompts
+    savedMessages.forEach((message, index) => {
+        let isActive = false;
+        if (index >= savedMessages.length - 2) {
+            prompts.push(message);
+            isActive = true;
+        }
+        addMessage(message.role, message.content, message.messageId, isActive);
     });
 
-    // load last 2 messages(max) from savedMessages
-    if (savedMessages.length > 2) {
-        prompts.push(savedMessages[savedMessages.length - 2]);
-        prompts.push(savedMessages[savedMessages.length - 1]);
-    } else if
-        (savedMessages.length > 0) {
-        prompts.push(savedMessages[savedMessages.length - 1]);
-    }
 
     //empty menu list
     menuList.innerHTML = '';
@@ -586,18 +599,15 @@ function renderMenuList(data) {
             addMessage('system', currentProfile.prompt, messageId);
             // read saved messages from local storage for current profile and current username
             const savedMessages = JSON.parse(localStorage.getItem(currentUsername + '_' + currentProfile.name) || '[]');
-            savedMessages.forEach(message => {
-                addMessage(message.role, message.content, message.messageId);
+            // add saved messages to the message list and load last 2 messages(max) to prompts
+            savedMessages.forEach((message, index) => {
+                let isActive = false;
+                if (index >= savedMessages.length - 2) {
+                    prompts.push(message);
+                    isActive = true;
+                }
+                addMessage(message.role, message.content, message.messageId, isActive);
             });
-
-            // load last 2 messages(max) from savedMessages to prompts: sender => role, message => content
-            if (savedMessages.length > 2) {
-                prompts.push(savedMessages[savedMessages.length - 2]);
-                prompts.push(savedMessages[savedMessages.length - 1]);
-            } else if
-                (savedMessages.length > 0) {
-                prompts.push(savedMessages[savedMessages.length - 1]);
-            }
         });
     });
 }

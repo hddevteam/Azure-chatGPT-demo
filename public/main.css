@@ -70,8 +70,6 @@ h1 {
     border-radius: 0.5em;
 }
 
-
-
 .system-message {
     background-color: #424141;
     color: #e6f2ff;
@@ -79,49 +77,67 @@ h1 {
 }
 
 .user-message {
-    background-color: #f2f2f2;
+    background-color: #e0e0e0;
+    color: #333333;
     text-align: left;
 }
 
+.user-message.inactive {
+    background-color: #f2f2f2;
+    color: #333333;
+}
+
 .assistant-message {
-    background-color: #e6f2ff;
+    background-color: #c4d7ff;
+    color: #333333;
     text-align: left;
     margin-left: 20px;
+}
+
+.assistant-message.inactive {
+    background-color: #e6f2ff;
+    color: #333333;
 }
 
 /* Quote icon styles */
 .system-message .fa-quote-left,
 .user-message .fa-quote-left,
 .assistant-message .fa-quote-left {
-  position: absolute;
-  font-size: 1.5em;
+    position: absolute;
+    font-size: 1.5em;
 }
 
 .system-message .fa-quote-left {
-  top: -0.3em;
-  left: -0.1em;
+    top: -0.3em;
+    left: -0.1em;
 }
 
-.user-message .fa-quote-left,
+.user-message .fa-quote-left {
+    top: 0em;
+    left: 0em;
+    font-size: 1em;
+    color: #4d4d4d;
+}
+
 .assistant-message .fa-quote-left {
-  top: 0em;
-  left: 0em;
-  font-size: 1em;
-  color: #666;
+    top: 0em;
+    left: 0em;
+    font-size: 1em;
+    color: #4d4d4d;
 }
 
-.fa-quote-left.active {
-  color: #666;
+.fa-quote-left.inactive {
+    color: #fff;
 }
 
 /* Window close icon styles */
 .fa-times {
-  position: absolute;
-  top: 0.1em;
-  right: -0.1em;
-  font-size: 1em;
-  color: #fff;
-  cursor: pointer;
+    position: absolute;
+    top: 0.1em;
+    right: -0.1em;
+    font-size: 1em;
+    color: #fff;
+    cursor: pointer;
 }
 
 .assistant-message ol {
@@ -364,6 +380,7 @@ i {
     justify-content: flex-end;
     margin-bottom: 0.5em;
 }
+
 .top-icon-group i {
     font-size: smaller;
     opacity: 0.5;
@@ -393,6 +410,7 @@ i {
 .message-copy {
     cursor: pointer;
 }
+
 
 
 /* for the mobile devices */
