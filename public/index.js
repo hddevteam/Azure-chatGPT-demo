@@ -497,13 +497,15 @@ document.addEventListener('click', function (event) {
 const saveCurrentProfileMessages = () => {
     const messages = document.querySelectorAll('.message');
     const savedMessages = [];
+    let undefinedMessageId = generateId();
     messages.forEach(message => {
         // only save user and assistant messages
         if (message.dataset.sender === 'user' || message.dataset.sender === 'assistant') {
-            if (message.dataset.messageid = 'undefined') {
-                message.dataset.messageid = generateId();
+            if (message.dataset.messageId === 'undefined') {
+                savedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: undefinedMessageId });
+            } else {
+                savedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: message.dataset.messageId });
             }
-            savedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: message.dataset.messageid });
         }
     });
     localStorage.setItem(currentUsername + '_' + currentProfile.name, JSON.stringify(savedMessages));
