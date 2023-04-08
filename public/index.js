@@ -5,6 +5,17 @@ const messageInput = document.querySelector('#message-input');
 const tokensSpan = document.querySelector('#tokens');
 const exportExcel = document.querySelector('#export-excel');
 
+// get and set page title and header h1 text from /api/app-name
+const pageTitle = document.querySelector('title');
+const headerH1 = document.querySelector('#header h1');
+// /api/app-name will return the app name from .env file
+fetch('/api/app_name')
+    .then(response => response.text())
+    .then(appName => {
+        pageTitle.innerText = appName;
+        headerH1.innerText = appName;
+    });
+
 // 获取模态对话框元素和触发器元素
 const modal = document.querySelector('.modal');
 const usernameLabel = document.querySelector('#username-label');

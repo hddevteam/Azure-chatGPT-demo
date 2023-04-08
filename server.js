@@ -64,6 +64,16 @@ app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
 
+//return app name from .env file, if not set, return "Azure chatGPT Demo"
+app.get('/api/app_name', (req, res) => {
+  if (!process.env.APP_NAME) {
+    res.send("Azure chatGPT Demo");
+  } else {
+    res.send(process.env.APP_NAME);
+  }
+});
+
+
 //get message from client then send to azure tts api send back the buffer to client
 app.get('/api/tts', (req, res) => {
   const message = req.query.message;
