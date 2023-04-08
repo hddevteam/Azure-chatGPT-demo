@@ -76,35 +76,33 @@ h1 {
     text-align: left;
 }
 
-.user-message {
+.user-message.active {
     background-color: #e0e0e0;
     color: #333333;
     text-align: left;
 }
 
-.user-message.inactive {
+.user-message {
     background-color: #f2f2f2;
     color: #333333;
 }
 
-.assistant-message {
+.assistant-message.active {
     background-color: #c4d7ff;
+}
+
+.assistant-message {
+    background-color: #e6f2ff;
     color: #333333;
     text-align: left;
     margin-left: 20px;
 }
 
-.assistant-message.inactive {
-    background-color: #e6f2ff;
-    color: #333333;
-}
-
 /* Quote icon styles */
-.system-message .fa-quote-left,
 .user-message .fa-quote-left,
 .assistant-message .fa-quote-left {
     position: absolute;
-    font-size: 1.5em;
+    cursor: pointer;
 }
 
 .system-message .fa-quote-left {
@@ -112,21 +110,18 @@ h1 {
     left: -0.1em;
 }
 
-.user-message .fa-quote-left {
-    top: 0em;
-    left: 0em;
-    font-size: 1em;
+.user-message.active .fa-quote-left {
     color: #4d4d4d;
 }
 
-.assistant-message .fa-quote-left {
-    top: 0em;
-    left: 0em;
-    font-size: 1em;
+.assistant-message.active .fa-quote-left {
     color: #4d4d4d;
 }
 
-.fa-quote-left.inactive {
+.fa-quote-left {
+    top: 0em;
+    left: 0em;
+    font-size: 1em;
     color: #fff;
 }
 

@@ -143,17 +143,42 @@ const addMessage = (sender, message, messageId, isActive = true) => {
     messageElement.dataset.sender = sender;
     messageElement.dataset.messageId = messageId;
 
-    //add fa-comments icon to message with class message-conversation and fas fa-comments
-    const conversationElement = document.createElement('i');
-    conversationElement.classList.add('fas');
-    conversationElement.classList.add('fa-quote-left');
-    messageElement.appendChild(conversationElement);
-
     // if sender is not system
-    if (sender !== 'system' && !isActive) {
-        conversationElement.classList.add('inactive');
-        messageElement.classList.add('inactive');
+    if (sender !== 'system') {
+        //add fa-comments icon to message with class message-conversation and fas fa-comments
+        const conversationElement = document.createElement('i');
+        conversationElement.classList.add('fas');
+        conversationElement.classList.add('fa-quote-left');
+        messageElement.appendChild(conversationElement);
+        //add onclick event listener to conversationElement
+        conversationElement.addEventListener('click', () => {
+            // check if the element has class active
+            if (messageElement.classList.contains('active')) {
+                // if it has, remove the inactive class
+                messageElement.classList.remove('active');
+                // remove the message frmo prompts by message id
+                messageId = messageElement.dataset.messageId;
+                prompts = prompts.filter(prompt => prompt.messageId !== messageId);
+            }
+            else {
+                // if it doesn't, add the inactive class
+                messageElement.classList.add('active');
+                // clear prompts except index 0
+                prompts = prompts.slice(0, 1);
+                // add  all the active message to prompts
+                const activeMessages = document.querySelectorAll('.message.active');
+                activeMessages.forEach(activeMessage => {
+                    prompts.push({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
+                });
+            }
+        });
+
+        if (isActive) {
+            // if message is not active, add inactive class to messageElement and conversationElement
+            messageElement.classList.add('active');
+        }
     }
+
 
     //add fa-trash icon to message with class message-delete and fas fa-trash
     const deleteElement = document.createElement('i');
@@ -167,7 +192,6 @@ const addMessage = (sender, message, messageId, isActive = true) => {
         const messageId = messageElement.dataset.messageId;
         deleteMessage(messageId);
     });
-
 
     //if send is user
     if (sender === 'user') {
@@ -471,9 +495,7 @@ const sendMessage = async (message = '') => {
 const inactiveMessage = (messageId) => {
     const message = document.querySelector(`[data-message-id="${messageId}"]`);
     if (message) {
-        const quoteIcon = message.querySelector('fa-quote-left');
-        message.classList.add('inactive');
-        quoteIcon.classList.add('inactive');
+        message.classList.remove('active');
     }
 };
 
