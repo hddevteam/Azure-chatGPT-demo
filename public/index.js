@@ -316,8 +316,8 @@ const turnOffPracticeMode = () => {
     practiceModeIcon.classList.add('fa-volume-off');
 }
 
-const voiceInputContainer = document.getElementById('voice-input-container');
-const voiceInputButton = document.getElementById('voice-input-button');
+const voiceInputContainer = document.querySelector('#voice-input-container');
+const voiceInputButton = document.querySelector('#voice-input-button');
 // disable the voice input
 const disableVoiceInput = () => {
     // if voice button is active, click it to stop the recognition
@@ -339,33 +339,55 @@ function enableVoiceInput() {
         recognition.lang = 'en-US';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
+        recognition.continuous = false;
+        let isRecognitionWorking = false;
 
         voiceInputButton.addEventListener('click', function () {
-            if (!voiceInputButton.classList.contains('voice-input-active')) {
+            if (!isRecognitionWorking) {
+                if (!audio.paused) {
+                    showToast('Please stop the audio first');
+                    return;
+                }
+                recognition.start();
+                isRecognitionWorking = true;
                 voiceInputButton.classList.add('voice-input-active');
-                // Stop any ongoing recognition session and start a new one
-                recognition.stop();
-                setTimeout(() => {
-                    recognition.start();
-                }, 100);                
             } else {
-                // Stop recognition and change the button style
-                recognition.stop();
+                // stop the recognition, don't touch redudant code below.
                 voiceInputButton.classList.remove('voice-input-active');
+                isRecognitionWorking = false;
+                recognition.abort();
+                // check if is ios safari or macos safari
+                if (navigator.userAgent.match(/(iPod|iPhone|iPad)/) || navigator.userAgent.match(/(Macintosh)/)) {
+                    // showToast('safari detected')
+                    recognition.start();
+                }
+                // showToast('abort triggered');
+                recognition.abort();
+
             }
         });
 
+        recognition.addEventListener('speechend', () => {
+            recognition.stop(); // Stop recognition and change the button style
+            // showToast('speechend stop triggered');
+        });
         recognition.addEventListener('result', function (event) {
-            voiceInputButton.classList.remove('voice-input-active');
             const transcript = event.results[0][0].transcript;
             messageInput.value += transcript;
+            // showToast('result triggered');
         });
-
         recognition.addEventListener('end', function () {
-            voiceInputButton.classList.remove('voice-input-active');
             // If the recognition ended due to an error, display an alert
             if (recognition.error) {
                 showToast(`Speech recognition error: ${recognition.error}`);
+            }
+            // showToast('end triggered');
+
+            // check if client is not （ios safari or macos safari）
+            if (!navigator.userAgent.match(/(iPod|iPhone|iPad)/) && !navigator.userAgent.match(/(Macintosh)/)) {
+                // showToast('not safari detected')
+                voiceInputButton.classList.remove('voice-input-active');
+                isRecognitionWorking = false;
             }
         });
     }
