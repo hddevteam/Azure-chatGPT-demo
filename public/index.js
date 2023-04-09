@@ -143,6 +143,29 @@ const addMessage = (sender, message, messageId, isActive = true) => {
     messageElement.dataset.sender = sender;
     messageElement.dataset.messageId = messageId;
 
+    function toggleActiveMessage(event) {
+        // Get the messageElement based on event type
+        const messageElement = event.type === 'dblclick' ? event.currentTarget : event.currentTarget.parentElement;
+        // check if the element has class active
+        if (messageElement.classList.contains('active')) {
+            // if it has, remove the inactive class
+            messageElement.classList.remove('active');
+            // remove the message frmo prompts by message id
+            messageId = messageElement.dataset.messageId;
+            prompts = prompts.filter(prompt => prompt.messageId !== messageId);
+        }
+        else {
+            // if it doesn't, add the inactive class
+            messageElement.classList.add('active');
+            // clear prompts except index 0
+            prompts = prompts.slice(0, 1);
+            // add  all the active message to prompts
+            const activeMessages = document.querySelectorAll('.message.active');
+            activeMessages.forEach(activeMessage => {
+                prompts.push({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
+            });
+        }
+    }
     // if sender is not system
     if (sender !== 'system') {
         //add fa-comments icon to message with class message-conversation and fas fa-comments
@@ -150,28 +173,10 @@ const addMessage = (sender, message, messageId, isActive = true) => {
         conversationElement.classList.add('fas');
         conversationElement.classList.add('fa-quote-left');
         messageElement.appendChild(conversationElement);
+
         //add onclick event listener to conversationElement
-        conversationElement.addEventListener('click', () => {
-            // check if the element has class active
-            if (messageElement.classList.contains('active')) {
-                // if it has, remove the inactive class
-                messageElement.classList.remove('active');
-                // remove the message frmo prompts by message id
-                messageId = messageElement.dataset.messageId;
-                prompts = prompts.filter(prompt => prompt.messageId !== messageId);
-            }
-            else {
-                // if it doesn't, add the inactive class
-                messageElement.classList.add('active');
-                // clear prompts except index 0
-                prompts = prompts.slice(0, 1);
-                // add  all the active message to prompts
-                const activeMessages = document.querySelectorAll('.message.active');
-                activeMessages.forEach(activeMessage => {
-                    prompts.push({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
-                });
-            }
-        });
+        conversationElement.addEventListener('click', toggleActiveMessage);
+        messageElement.addEventListener('dblclick', toggleActiveMessage);
 
         //add fa-times icon to message with class message-delete and fas fa-trash
         const deleteElement = document.createElement('i');
@@ -413,11 +418,11 @@ const generateId = () => {
 const clearMessage = () => {
     // clear mssages in DOM except the first message
     messagesContainer.innerHTML = '';
-    prompts.splice(1, prompts.length-1);
+    prompts.splice(1, prompts.length - 1);
     addMessage(prompts[0].role, prompts[0].content, prompts[0].messageId);
     saveCurrentProfileMessages();
     messageInput.value = '';
-    
+
 };
 
 
