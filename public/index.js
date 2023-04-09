@@ -409,11 +409,15 @@ const generateId = () => {
     return Math.random().toString(36).slice(2, 10);
 };
 
-// Clear message input
+// Clear message input except the first message
 const clearMessage = () => {
+    // clear mssages in DOM except the first message
     messagesContainer.innerHTML = '';
+    prompts.splice(1, prompts.length-1);
+    addMessage(prompts[0].role, prompts[0].content, prompts[0].messageId);
+    saveCurrentProfileMessages();
     messageInput.value = '';
-    prompts.splice(0, prompts.length, { role: 'system', content: currentProfile.prompt });
+    
 };
 
 
