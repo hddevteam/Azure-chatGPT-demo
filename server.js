@@ -7,6 +7,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const apiKey = process.env.API_KEY;
 const apiUrl = process.env.API_URL;
+
 var promptRepo = null;
 var azureTTS = null;
 
@@ -60,9 +61,6 @@ if (!promptRepo) {
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
 
 //return app name from .env file, if not set, return "Azure chatGPT Demo"
 app.get('/api/app_name', (req, res) => {
@@ -160,3 +158,61 @@ app.post('/api/gpt', async (req, res) => {
   }
 });
 
+/* Profile API */
+
+const createProfileManager  = require('./profile.js');
+const profileManager = createProfileManager('.data/demo.json');
+
+// return all profile content
+app.get('/profiles', async (req, res) => {
+  const profiles = await profileManager.readProfiles();
+  res.json(profiles);
+});
+
+// add new profile
+app.post('/profiles', async (req, res) => {
+  const newProfile = req.body;
+  const profiles = await profileManager.readProfiles();
+  profiles.push(newProfile);
+  await profileManager.writeProfiles(profiles);
+  res.status(201).json(newProfile);
+});
+
+// update profile by name
+app.put('/profiles/:name', async (req, res) => {
+  const updatedProfile = req.body;
+  const profiles = await profileManager.readProfiles();
+  const index = profiles.findIndex((p) => p.name === req.params.name);
+
+  if (index === -1) {
+    res.status(404).send('Profile not found');
+  } else {
+    profiles[index] = updatedProfile;
+    await profileManager.writeProfiles(profiles);
+    res.status(200).json(updatedProfile);
+  }
+});
+
+// delete profile by name
+app.delete('/profiles/:name', async (req, res) => {
+  const profiles = await profileManager.readProfiles();
+  const index = profiles.findIndex((p) => p.name === req.params.name);
+
+  if (index === -1) {
+    res.status(404).send('Profile not found');
+  } else {
+    const deletedProfile = profiles.splice(index, 1);
+    await profileManager.writeProfiles(profiles);
+    res.status(200).json(deletedProfile);
+  }
+});
+
+
+let server;
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
+
+module.exports = app;
