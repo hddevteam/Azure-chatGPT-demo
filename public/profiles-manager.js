@@ -1,3 +1,6 @@
+//get currentUsername from localStorage
+const getCurrentUsername = () => { return localStorage.getItem('currentUsername') || 'guest' };
+
 $(function () {
     // Fetch profiles from server and display on page
     fetchProfiles();
@@ -10,7 +13,7 @@ $(function () {
 
 function fetchProfiles() {
     // Fetch profiles from server, replace the URL with your API endpoint
-    fetch("/profiles")
+    fetch("/profiles?username=" + getCurrentUsername())
         .then(response => response.json())
         .then(data => displayProfiles(data));
 }
@@ -63,7 +66,7 @@ function displayProfiles(profiles) {
         const name = $(this).parent().find("h5").text();
 
         // Delete profile using API, replace the URL with your API endpoint
-        fetch(`/profiles/${name}`, {
+        fetch(`/profiles/${name}?username=${getCurrentUsername()}`, {
             method: "DELETE"
         })
             .then(response => response.json())
@@ -84,7 +87,8 @@ function displayProfiles(profiles) {
         };
 
         // Send data to server, replace the URL with your API endpoint
-        fetch(`/profiles/${oldName}`, {
+        // send currentUsername as username in the query string
+        fetch(`/profiles/${oldName}?username=${getCurrentUsername()}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -116,7 +120,7 @@ function saveProfile() {
     };
 
     // Send data to server, replace the URL with your API endpoint
-    fetch("/profiles", {
+    fetch(`/profiles?username=${getCurrentUsername()}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
