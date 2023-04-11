@@ -151,7 +151,7 @@ h1 {
 }
 
 code {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: Consolas, Monaco, Menlo, 'Courier New', monospace;
     background-color: #000;
     font-size: 12px;
     padding: 2px;
