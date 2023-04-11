@@ -1,15 +1,10 @@
 // profile.js
-
 const fs = require('fs-extra');
 const path = require('path');
 const defaultProfiles = require('./public/prompts.json');
 
 const createProfileManager = async (dataFile) => {
   const dataFilePath = path.join(__dirname, dataFile);
-
-  // ensure data directory exists
-  const dataDirPath = path.dirname(dataFilePath);
-  await fs.ensureDir(dataDirPath);
 
   // ensure data file exists
   await fs.ensureFile(dataFilePath);
@@ -19,6 +14,7 @@ const createProfileManager = async (dataFile) => {
   if (isNewFile) {
     await fs.writeFile(dataFilePath, JSON.stringify(defaultProfiles, null, 2), 'utf-8');
   }
+
 
   const readProfiles = async () => {
     try {
