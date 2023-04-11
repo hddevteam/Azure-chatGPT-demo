@@ -1,9 +1,9 @@
-$(document).ready(function () {
+$(function () {
     // Fetch profiles from server and display on page
     fetchProfiles();
 
     // Save profile button event
-    $("#save-profile").click(function () {
+    $("#save-profile").on("click", function () {
         saveProfile();
     });
 });
@@ -19,26 +19,26 @@ function displayProfiles(profiles) {
     let output = "";
     profiles.forEach(profile => {
         output += `
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="card-title">
-                                <h5>${profile.name}</h5>
-                                <i class="${profile.icon}"></i>
-                            </div>
-                            <p class="card-text">${profile.displayName}</p>
-                            <p class="card-text">${profile.prompt}</p>
-                            <button class="btn btn-primary edit-profile" data-toggle="modal" data-target="#profile-modal">Edit</button>
-                            <button class="btn btn-danger delete-profile">Delete</button>
-                        </div>
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h5>${profile.name}</h5>
+                        <i class="${profile.icon}"></i>
                     </div>
-                </div>`;
+                    <p class="card-text">${profile.displayName}</p>
+                    <p class="card-text">${profile.prompt}</p>
+                    <button class="btn btn-primary edit-profile" data-bs-toggle="modal" data-bs-target="#profile-modal">Edit</button>
+                    <button class="btn btn-danger delete-profile">Delete</button>
+                </div>
+            </div>
+        </div>`;
     });
 
     $("#profile-list").html(output);
 
     // Add event listeners for edit and delete buttons
-    $(".edit-profile").click(function () {
+    $("#profile-list").on("click", ".edit-profile", function () {
         // Get profile details from card
         const name = $(this).parent().find("h5").text();
         const icon = $(this).parent().find("i").attr("class");
@@ -53,12 +53,12 @@ function displayProfiles(profiles) {
         $("#tts").val("disabled");
 
         // Change Save button to Update
-        $("#save-profile").off("click").text("Update").click(function () {
+        $("#save-profile").off("click").text("Update").on("click", function () {
             updateProfile(name);
         });
     });
 
-    $(".delete-profile").click(function () {
+    $(".profile-list").on("click", ".delete-profile", function () {
         // Get profile name from card
         const name = $(this).parent().find("h5").text();
 
@@ -99,7 +99,7 @@ function displayProfiles(profiles) {
 
         // Clear form and restore Save button functionality
         $("#profile-form")[0].reset();
-        $("#save-profile").off("click").text("Save").click(function () {
+        $("#save-profile").off("click").text("Save").on("click", function () {
             saveProfile();
         });
     }
