@@ -16,9 +16,6 @@ if (process.env.AZURE_TTS) {
   azureTTS = JSON.parse(process.env.AZURE_TTS);
 }
 
-
-
-
 //return app name from .env file, if not set, return "Azure chatGPT Demo"
 app.get('/api/app_name', (req, res) => {
   if (!process.env.APP_NAME) {
