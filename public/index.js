@@ -648,7 +648,10 @@ const saveCurrentProfileMessages = () => {
 function renderMenuList(data) {
     const profiles = data.profiles;
     currentUsername = data.username;
+    // save current username to local storage
+    localStorage.setItem('currentUsername', currentUsername);
     usernameLabel.textContent = currentUsername;
+    messagesContainer.innerHTML = '';
     currentProfile = profiles[0]; // set currentProfile to the first profile
     let messageId = generateId();
     prompts.push({ role: 'system', content: currentProfile.prompt, messageId: messageId });
