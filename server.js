@@ -1,65 +1,22 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000;
 const apiKey = process.env.API_KEY;
 const apiUrl = process.env.API_URL;
 
-var promptRepo = null;
-var azureTTS = null;
+app.use(bodyParser.json());
+app.use(express.static('public'));
 
-// check if PROMPT_REPO_URLS is set in .env file
-if (process.env.PROMPT_REPO_URLS) {
-  promptRepo = JSON.parse(process.env.PROMPT_REPO_URLS);
-}
+var azureTTS = null;
 
 // check if AZURE_TTS is set in .env file
 if (process.env.AZURE_TTS) {
   azureTTS = JSON.parse(process.env.AZURE_TTS);
 }
 
-var profiles = require('./public/prompts.json');
 
-// if promptRepo is not set, use local prompts.json
-if (!promptRepo) {
-  let username = "guest";
-  app.get('/api/prompt_repo', (req, res) => {
-    res.send({ username, profiles });
-  });
-} else {
-  // when client request /api/prompt return json object from promptRepo
-  app.get('/api/prompt_repo', async (req, res) => {
-    try {
-      let username;
-      // from query string get username
-      if (req.query.username) {
-        username = req.query.username;
-      }
-      // 如果用户名在promptRepoUrls对象中，则返回对应的prompt_repo_url
-      if (promptRepo[username]) {
-        repoUrl = promptRepo[username];
-      } else {
-        username = "guest"
-        repoUrl = promptRepo[username];
-      }
-      const response = await axios.get(repoUrl);
-      profiles = response.data;
-      //return json object data and username in json object
-      const responseObj = { username, profiles };
-      // console.log(username)
-      res.send(responseObj);
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('Internal Server Error');
-    }
-  });
-}
-
-app.use(bodyParser.json());
-app.use(express.static('public'));
 
 
 //return app name from .env file, if not set, return "Azure chatGPT Demo"
@@ -119,6 +76,8 @@ app.post('/api/gpt', async (req, res) => {
     return res.status(400).send('Invalid prompt');
   }
 
+  const axios = require('axios');
+
   const options = {
     method: 'POST',
     headers: {
@@ -158,61 +117,133 @@ app.post('/api/gpt', async (req, res) => {
   }
 });
 
-/* Profile API */
+const createProfileManager = require('./profile.js');
+const userNames = Object.keys(JSON.parse(process.env.PROMPT_REPO_URLS));
+const profileManagers = userNames.reduce((managers, username) => {
+  managers[username] = createProfileManager(`.data/${username}.json`);
+  return managers;
+}, {});
 
-const createProfileManager  = require('./profile.js');
-const profileManager = createProfileManager('.data/demo.json');
-
-// return all profile content
-app.get('/profiles', async (req, res) => {
-  const profiles = await profileManager.readProfiles();
-  res.json(profiles);
-});
-
-// add new profile
-app.post('/profiles', async (req, res) => {
-  const newProfile = req.body;
-  const profiles = await profileManager.readProfiles();
-  profiles.push(newProfile);
-  await profileManager.writeProfiles(profiles);
-  res.status(201).json(newProfile);
-});
-
-// update profile by name
-app.put('/profiles/:name', async (req, res) => {
-  const updatedProfile = req.body;
-  const profiles = await profileManager.readProfiles();
-  const index = profiles.findIndex((p) => p.name === req.params.name);
-
-  if (index === -1) {
-    res.status(404).send('Profile not found');
-  } else {
-    profiles[index] = updatedProfile;
-    await profileManager.writeProfiles(profiles);
-    res.status(200).json(updatedProfile);
-  }
-});
-
-// delete profile by name
-app.delete('/profiles/:name', async (req, res) => {
-  const profiles = await profileManager.readProfiles();
-  const index = profiles.findIndex((p) => p.name === req.params.name);
-
-  if (index === -1) {
-    res.status(404).send('Profile not found');
-  } else {
-    const deletedProfile = profiles.splice(index, 1);
-    await profileManager.writeProfiles(profiles);
-    res.status(200).json(deletedProfile);
-  }
-});
-
-
-let server;
-if (process.env.NODE_ENV !== 'test') {
-  server = app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
+function sanitizeUsername(username) {
+  const sanitizedUsername = username.replace(/[^\w.-]/g, '_').substring(0, 100);
+  return sanitizedUsername;
 }
 
-module.exports = app;
+function isGuestUser(username) {
+  return username === 'guest';
+}
+
+async function getProfileManager(username) {
+  if (!profileManagers[username]) {
+    profileManagers[username] = createProfileManager(`.data/${username}.json`);
+  }
+
+  return profileManagers[username];
+}
+
+function handleApiError(res, error) {
+  console.error(error);
+  res.status(500).send('Internal Server Error');
+}
+
+app.get('/api/prompt_repo', async (req, res) => {
+  try {
+    let username = req.query.username || "guest";
+
+    if (!userNames.includes(username)) {
+      username = "guest";
+    }
+
+    const profileManager = await getProfileManager(username);
+    const profiles = await profileManager.readProfiles();
+    const responseObj = { username, profiles };
+    res.send(responseObj);
+  } catch (error) {
+    handleApiError(res, error);
+  }
+});
+
+app.get('/profiles', async (req, res) => {
+  try {
+    const username = sanitizeUsername(req.query.username || "guest");
+    const profileManager = await getProfileManager(username);
+    const profiles = await profileManager.readProfiles();
+    res.json(profiles);
+  } catch (error) {
+    handleApiError(res, error);
+  }
+});
+
+app.post('/profiles', async (req, res) => {
+  try {
+    const username = sanitizeUsername(req.query.username || "guest");
+
+    if (isGuestUser(username)) {
+      return res.status(403).send('Guest user cannot modify profiles');
+    }
+
+    const profileManager = await getProfileManager(username);
+    const newProfile = req.body;
+    const profiles = await profileManager.readProfiles();
+    profiles.push(newProfile);
+    await profileManager.writeProfiles(profiles);
+    res.status(201).json(newProfile);
+  } catch (error) {
+    handleApiError(res, error);
+  }
+});
+
+app.put('/profiles/:name', async (req, res) => {
+  try {
+    const username = sanitizeUsername(req.query.username || "guest");
+
+    if (isGuestUser(username)) {
+      return res.status(403).send('Guest user cannot modify profiles');
+    }
+
+    const profileManager = await getProfileManager(username);
+    const updatedProfile = req.body;
+    const profiles = await profileManager.readProfiles();
+    const index = profiles.findIndex((p) => p.name === req.params.name);
+
+    if (index === -1) {
+      res.status(404).send('Profile not found');
+    } else {
+      profiles[index] = updatedProfile;
+      await profileManager.writeProfiles(profiles);
+      res.status(200).json(updatedProfile);
+    }
+  } catch (error) {
+    handleApiError(res, error);
+  }
+});
+
+app.delete('/profiles/:name', async (req, res) => {
+  try {
+    const username = sanitizeUsername(req.query.username || "guest");
+
+    if (isGuestUser(username)) {
+      return res.status(403).send('Guest user cannot modify profiles');
+    }
+
+    const profileManager = await getProfileManager(username);
+    const profiles = await profileManager.readProfiles();
+    const index = profiles.findIndex((p) => p.name === req.params.name);
+
+    if (index === -1) {
+      res.status(404).send('Profile not found');
+    } else {
+      const deletedProfile = profiles.splice(index, 1);
+      await profileManager.writeProfiles(profiles);
+      res.status(200).json(deletedProfile);
+    }
+  } catch (error) {
+    handleApiError(res, error);
+  }
+});
+
+const server = app.listen(3000, () => console.log('Server is running'));
+
+const close = () => server.close();
+
+module.exports = { app, close };

@@ -1,90 +1,74 @@
-// tests/profile.test.js
-const axios = require('axios');
-const http = require('http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const { app, close } = require('../server');
 
-const app = require('../server.js');
-const baseURL = 'http://localhost:3000';
+chai.use(chaiHttp);
+chai.should();
 
-// 在测试开始前启动 Express 服务器
-let server;
-beforeAll(async () => {
-  server = http.createServer(app);
-  await new Promise((resolve) => server.listen(3000, resolve));
-});
+describe('Profiles API', () => {
+  const demoUsername = 'demo';
+  const exampleProfile = {
+    name: 'AI',
+    icon: 'fas fa-robot',
+    displayName: 'AI',
+    prompt: 'You are an AI assistant that helps people find information.'
+  };
 
-// 在测试结束后关闭服务器
-afterAll(async () => {
-  await new Promise((resolve) => server.close(resolve));
-});
-
-// 定义一个辅助函数，用于清空文件中的数据
-const clearProfiles = async () => {
-  const profiles = await axios.get(`${baseURL}/profiles`);
-  for (const profile of profiles.data) {
-    await axios.delete(`${baseURL}/profiles/${profile.name}`);
-  }
-};
-
-describe('Profile API', () => {
-  beforeEach(async () => {
-    // 在每个测试用例执行前清空数据
-    await clearProfiles();
+  describe('GET /profiles', () => {
+    it('should return an array of profiles', async () => {
+      const res = await chai.request(app).get('/profiles').query({ username: demoUsername });
+      res.should.have.status(200);
+      res.body.should.be.a('array');
+    });
   });
 
-  test('GET /profiles should return an empty array', async () => {
-    const response = await axios.get(`${baseURL}/profiles`);
-    expect(response.data).toEqual([]);
+  describe('POST /profiles', () => {
+    it('should create a new profile and return it', async () => {
+      const res = await chai
+        .request(app)
+        .post('/profiles')
+        .query({ username: demoUsername })
+        .send(exampleProfile);
+      res.should.have.status(201);
+      res.body.should.be.a('object');
+      res.body.should.deep.equal(exampleProfile);
+    });
   });
 
-  test('POST /profiles should create a new profile', async () => {
-    const newProfile = {
-      name: 'Spoken English Coach',
-      icon: 'fas fa-comment',
-      displayName: 'Spoken English Coach',
-      prompt: 'I want you to act as a spoken English teacher and improver.',
-      tts: 'enabled',
-    };
-    const response = await axios.post(`${baseURL}/profiles`, newProfile);
-    expect(response.data).toEqual(newProfile);
-
-    const profiles = await axios.get(`${baseURL}/profiles`);
-    expect(profiles.data).toContainEqual(newProfile);
+  describe('PUT /profiles/:name', () => {
+    it('should update an existing profile and return it', async () => {
+      const updatedProfile = { ...exampleProfile, icon: 'fas fa-new-icon' };
+      const res = await chai
+        .request(app)
+        .put(`/profiles/${exampleProfile.name}`)
+        .query({ username: demoUsername })
+        .send(updatedProfile);
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.deep.equal(updatedProfile);
+    });
   });
 
-  test('PUT /profiles/:name should update an existing profile', async () => {
-    const newProfile = {
-      name: 'Spoken English Coach',
-      icon: 'fas fa-comment',
-      displayName: 'Spoken English Coach',
-      prompt: 'I want you to act as a spoken English teacher and improver.',
-      tts: 'enabled',
-    };
-    const updatedProfile = {
-      name: 'Spoken English Coach',
-      icon: 'fas fa-comment',
-      displayName: 'Advanced Spoken English Coach',
-      prompt: 'I want you to act as an advanced spoken English teacher and improver.',
-      tts: 'enabled',
-    };
-    await axios.post(`${baseURL}/profiles`, newProfile);
-    await axios.put(`${baseURL}/profiles/${newProfile.name}`, updatedProfile);
+  describe('DELETE /profiles/:name', () => {
+    // 在删除之前，将配置文件恢复到原始状态
+    before(async () => {
+      await chai
+        .request(app)
+        .put(`/profiles/${exampleProfile.name}`)
+        .query({ username: demoUsername })
+        .send(exampleProfile);
+    });
 
-    const profiles = await axios.get(`${baseURL}/profiles`);
-    expect(profiles.data).toContainEqual(updatedProfile);
-  });
-
-  test('DELETE /profiles/:name should delete an existing profile', async () => {
-    const newProfile = {
-      name: 'Spoken English Coach',
-      icon: 'fas fa-comment',
-      displayName: 'Spoken English Coach',
-      prompt: 'I want you to act as a spoken English teacher and improver.',
-      tts: 'enabled',
-    };
-    await axios.post(`${baseURL}/profiles`, newProfile);
-    await axios.delete(`${baseURL}/profiles/${newProfile.name}`);
-
-    const profiles = await axios.get(`${baseURL}/profiles`);
-    expect(profiles.data).not.toContainEqual(newProfile);
+    it('should delete an existing profile and return it', async () => {
+      const res = await chai
+        .request(app)
+        .delete(`/profiles/${exampleProfile.name}`)
+        .query({ username: demoUsername });
+      res.should.have.status(200);
+      res.body.should.be.a('array');
+      res.body[0].should.deep.equal(exampleProfile);
+    });
   });
 });
+
+after(() => close());
