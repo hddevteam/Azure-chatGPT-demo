@@ -126,8 +126,8 @@ let prompts = [];
 const max_tokens = 4000;
 var currentProfile = null;
 
-
-fetch('/api/prompt_repo')
+currentUsername = localStorage.getItem('currentUsername') || 'guest'
+fetch(`/api/prompt_repo?username=${currentUsername}`)
     .then(response => response.json())
     .then(data => {
         renderMenuList(data);
@@ -595,7 +595,6 @@ messageForm.addEventListener('submit', (event) => {
 });
 
 
-var currentUsername = '';
 // request /api/prompt_repo build queryString to transfer usernameInput value as username to server
 // it will return a json object with username and a data array
 // output the data array and the username in console
