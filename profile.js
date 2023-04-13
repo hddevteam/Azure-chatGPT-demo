@@ -28,7 +28,8 @@ const createProfileManager = async (dataFile) => {
 
   const writeProfiles = async (profiles) => {
     try {
-      const data = JSON.stringify(profiles, null, 2);
+      sortedProfiles = getSortProfiles(profiles)
+      const data = JSON.stringify(sortedProfiles, null, 2);
       await fs.writeFile(dataFilePath, data, 'utf-8');
     } catch (error) {
       console.error('Error writing profiles:', error);
@@ -40,5 +41,32 @@ const createProfileManager = async (dataFile) => {
     writeProfiles,
   };
 };
+
+function getSortProfiles(profiles) {
+  // 将具有sortedIndex的对象和没有的分开
+  const withSortedIndex = profiles.filter(profile => 'sortedIndex' in profile);
+  const withoutSortedIndex = profiles.filter(profile => !('sortedIndex' in profile));
+
+  // 根据sortedIndex数字值排序
+  withSortedIndex.sort((a, b) => parseInt(a.sortedIndex) - parseInt(b.sortedIndex));
+
+  // 重置sortedIndex为从1开始的递增序列
+  let nextIndex = 1;
+  withSortedIndex.forEach(profile => {
+    profile.sortedIndex = nextIndex.toString();
+    nextIndex++;
+  });
+
+  // 为没有sortedIndex的对象添加sortedIndex值
+  withoutSortedIndex.forEach(profile => {
+    profile.sortedIndex = nextIndex.toString();
+    nextIndex++;
+  });
+  
+  sortedProfiles = [...withSortedIndex, ...withoutSortedIndex]
+
+  // 合并两个数组并返回结果
+  return sortedProfiles;
+}
 
 module.exports = createProfileManager;

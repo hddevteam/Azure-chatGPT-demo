@@ -1,4 +1,4 @@
-//get currentUsername from localStorage
+
 const getCurrentUsername = () => { return localStorage.getItem('currentUsername') || 'guest' };
 
 $(function () {
@@ -31,13 +31,13 @@ function displayProfiles(profiles) {
                     </div>
                     <p class="card-text">${profile.displayName}</p>
                     <p class="card-text">${profile.prompt}</p>
+                    <p class="card-text">Sorted Index: ${profile.sortedIndex}</p>
                     <button class="btn btn-primary edit-profile" data-bs-toggle="modal" data-bs-target="#profile-modal">Edit</button>
                     <button class="btn btn-danger delete-profile">Delete</button>
                 </div>
             </div>
         </div>`;
     });
-
     $("#profile-list").html(output);
 
     // Add event listeners for edit and delete buttons
@@ -47,6 +47,7 @@ function displayProfiles(profiles) {
         const icon = $(this).parent().find("i").attr("class");
         const displayName = $(this).parent().find("p.card-text").eq(0).text();
         const prompt = $(this).parent().find("p.card-text").eq(1).text();
+        const sortedIndex = $(this).parent().find("p.card-text").eq(2).text().split(': ')[1];
 
         // Set form fields with profile data
         $("#name").val(name);
@@ -54,6 +55,7 @@ function displayProfiles(profiles) {
         $("#displayName").val(displayName);
         $("#prompt").val(prompt);
         $("#tts").val("disabled");
+        $("#sortedIndex").val(sortedIndex);
 
         // Change Save button to Update
         $("#save-profile").off("click").text("Update").on("click", function () {
@@ -61,7 +63,7 @@ function displayProfiles(profiles) {
         });
     });
 
-    $(".profile-list").on("click", ".delete-profile", function () {
+    $("#profile-list").on("click", ".delete-profile", function () {
         // Get profile name from card
         const name = $(this).parent().find("h5").text();
 
@@ -83,7 +85,8 @@ function displayProfiles(profiles) {
             icon: $("#icon").val(),
             displayName: $("#displayName").val(),
             prompt: $("#prompt").val(),
-            tts: $("#tts").val()
+            tts: $("#tts").val(),
+            sortedIndex: $("#sortedIndex").val()
         };
 
         // Send data to server, replace the URL with your API endpoint

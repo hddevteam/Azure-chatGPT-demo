@@ -153,7 +153,8 @@ app.get('/api/prompt_repo', async (req, res) => {
 
     const profileManager = await getProfileManager(username);
     const profiles = await profileManager.readProfiles();
-    const responseObj = { username, profiles };
+
+    const responseObj = { username, profiles: profiles };
     res.send(responseObj);
   } catch (error) {
     handleApiError(res, error);
@@ -165,6 +166,7 @@ app.get('/profiles', async (req, res) => {
     const username = sanitizeUsername(req.query.username || "guest");
     const profileManager = await getProfileManager(username);
     const profiles = await profileManager.readProfiles();
+
     res.json(profiles);
   } catch (error) {
     handleApiError(res, error);
@@ -239,8 +241,7 @@ app.delete('/profiles/:name', async (req, res) => {
   }
 });
 
+
 const server = app.listen(process.env.PORT || 3000, () => console.log('Server is running'));
-
 const close = () => server.close();
-
 module.exports = { app, close };
