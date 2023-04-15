@@ -191,6 +191,11 @@ textarea {
     transition: border-color 0.2s ease-in-out;
 }
 
+#menu-header a{
+    text-decoration: none;
+    color: #333;
+}
+
 textarea:focus {
     border-color: #4CAF50;
 }
