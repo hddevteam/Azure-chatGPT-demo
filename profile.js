@@ -48,7 +48,7 @@ function getSortProfiles(profiles) {
   const withoutSortedIndex = profiles.filter(profile => !('sortedIndex' in profile));
 
   // 根据sortedIndex数字值排序
-  withSortedIndex.sort((a, b) => parseInt(a.sortedIndex) - parseInt(b.sortedIndex));
+  withSortedIndex.sort((a, b) => parseFloat(a.sortedIndex) - parseFloat(b.sortedIndex));
 
   // 重置sortedIndex为从1开始的递增序列
   let nextIndex = 1;
