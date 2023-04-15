@@ -105,3 +105,4 @@ dist
 
 # Local database
 .data/
+.vscode/launch.json
