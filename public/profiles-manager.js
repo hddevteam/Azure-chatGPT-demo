@@ -99,6 +99,11 @@ function displayProfiles(profiles) {
             sortedIndex: $("#sortedIndex").val()
         };
 
+        //if display name is empty, set it to the name
+        if (updatedProfile.displayName === "") {
+            updatedProfile.displayName = updatedProfile.name;
+        }
+
         // Send data to server, replace the URL with your API endpoint
         // send currentUsername as username in the query string
         fetch(`/profiles/${oldName}?username=${getCurrentUsername()}`, {
@@ -131,6 +136,11 @@ function saveProfile() {
         prompt: $("#prompt").val(),
         tts: $("#tts").val()
     };
+
+    //if display name is empty, set it to the name
+    if (newProfile.displayName === "") {
+        newProfile.displayName = newProfile.name;
+    }
 
     // Send data to server, replace the URL with your API endpoint
     fetch(`/profiles?username=${getCurrentUsername()}`, {
