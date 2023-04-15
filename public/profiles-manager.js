@@ -1,6 +1,9 @@
 
 const getCurrentUsername = () => { return localStorage.getItem('currentUsername') || 'guest' };
 
+
+
+
 $(function () {
     // Fetch profiles from server and display on page
     fetchProfiles();
@@ -8,6 +11,11 @@ $(function () {
     // Save profile button event
     $("#save-profile").on("click", function () {
         saveProfile();
+    });
+
+    $('#icon').on('change', function() {
+        const iconClass = $(this).val();  
+        $('#icon-preview').attr('class', iconClass);
     });
 });
 
@@ -51,6 +59,8 @@ function displayProfiles(profiles) {
 
         // Set form fields with profile data
         $("#name").val(name);
+        //populate the icon preview
+        $("#icon-preview").attr("class", icon);
         $("#icon").val(icon);
         $("#displayName").val(displayName);
         $("#prompt").val(prompt);
