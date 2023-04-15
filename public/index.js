@@ -263,6 +263,8 @@ const addMessage = (sender, message, messageId, isActive = true) => {
 const deleteMessage = (messageId) => {
     // remove message from DOM and also from prompt array by message id 
     const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+    // update input value to messageElement's data-message
+    messageInput.value = messageElement.dataset.message;
     messageElement.remove();
     prompts = prompts.filter(prompt => prompt.messageId !== messageId);
     saveCurrentProfileMessages();
