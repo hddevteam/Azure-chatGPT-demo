@@ -1,9 +1,6 @@
 
 const getCurrentUsername = () => { return localStorage.getItem('currentUsername') || 'guest' };
 
-
-
-
 $(function () {
     // Fetch profiles from server and display on page
     fetchProfiles();
@@ -134,7 +131,8 @@ function saveProfile() {
         icon: $("#icon").val(),
         displayName: $("#displayName").val(),
         prompt: $("#prompt").val(),
-        tts: $("#tts").val()
+        tts: $("#tts").val(),
+        sortedIndex: $("#sortedIndex").val()
     };
 
     //if display name is empty, set it to the name
