@@ -1,7 +1,22 @@
 
 const getCurrentUsername = () => { return localStorage.getItem('currentUsername') || 'guest' };
+const showAlert = (type, message) => {
+    var alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    $("#alert-container").html(alertHtml);
+}
+
 
 $(function () {
+    // if currentUsername is guest, show warning alert
+    if (getCurrentUsername() === 'guest') {
+        showAlert('warning', 'You are currently logged in as guest. You can not edit the profile.');
+    }
+
     // Fetch profiles from server and display on page
     fetchProfiles();
 
@@ -10,8 +25,8 @@ $(function () {
         saveProfile();
     });
 
-    $('#icon').on('change', function() {
-        const iconClass = $(this).val();  
+    $('#icon').on('change', function () {
+        const iconClass = $(this).val();
         $('#icon-preview').attr('class', iconClass);
     });
 });

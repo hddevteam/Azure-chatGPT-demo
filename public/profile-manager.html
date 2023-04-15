@@ -15,10 +15,12 @@
 
 <body>
     <div class="container">
-        <h2 class="text-center mt-5">Profile Manager</h2><button class="btn btn-primary mt-3" data-bs-toggle="modal"
-            data-bs-target="#profile-modal">Add Profile</button>
+        <h2 class="text-center mt-5">Profile Manager</h2>
+        <div id="alert-container">
+        </div>
+        <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#profile-modal">Add
+            Profile</button>
         <div id="profile-list" class="row mt-5"></div>
-
     </div>
 
     <!-- Profile Modal -->
@@ -37,8 +39,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="icon" class="form-label">Icon</label>
-                            <input type="text" class="form-control" id="icon" required><i
-                            id="icon-preview"></i>
+                            <input type="text" class="form-control" id="icon" required><i id="icon-preview"></i>
                         </div>
                         <div class="mb-3">
                             <label for="displayName" class="form-label">Display Name</label>
