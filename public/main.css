@@ -170,6 +170,24 @@ code {
     /* 修复IOS下底部按钮被遮挡问题 */
 }
 
+#sliderContainer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+}
+
+#minValue, #maxValue {
+    margin: 0 5px;
+}
+
+#currentValue {
+    background-color: #f1c40f;
+    padding: 3px 6px;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
 #message-input {
     flex: 1;
     max-width: 900px;
@@ -191,7 +209,7 @@ textarea {
     transition: border-color 0.2s ease-in-out;
 }
 
-#menu-header a{
+#menu-header a {
     text-decoration: none;
     color: #333;
 }
@@ -243,6 +261,7 @@ textarea:focus {
     font-size: 24px;
     cursor: pointer;
 }
+
 .voice-input-active i {
     color: #4CAF50;
     animation: breathing 2s infinite;

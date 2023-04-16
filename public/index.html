@@ -20,18 +20,25 @@
     <div id="menu">
       <div id="menu-header">
         <a href="profile-manager.html" target="_blank"><i class="fas fa-list"></i>
-        <span>AI Actor</span></a>
+          <span>AI Actor</span></a>
       </div>
       <ul id="menu-list">
       </ul>
     </div>
   </div>
   <div class="message-input-container">
+    <div id="sliderContainer">
+      <div id="currentValue">0</div>
+      <label id="minValue" for="slider">0</label>
+      <input type="range" id="slider" min="0" max="100" step="1" value="0" disabled>
+      <label id="maxValue" for="slider">100</label>
+  </div>
     <div class="mini-toolbar-container">
       <div class="mini-toolbar">
         <span id="tts-container"><i id="practice-mode-icon" class="fas fa-volume-off"></i><span
             id="practice-mode">Practice Mode: Off</span></span><span id="user"><i class="fas fa-user-circle"></i><span
-            id="username-label">Guest</span></span><i class="fas fa-file-excel"></i><span id="export-excel">Export</span>
+            id="username-label">Guest</span></span><i class="fas fa-file-excel"></i><span
+          id="export-excel">Export</span>
         <i class="fas fa-info-circle"></i><span id="tokens">tokens</span>
       </div>
     </div>

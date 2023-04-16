@@ -1,3 +1,98 @@
+class Prompts {
+    constructor() {
+        this.data = [];
+        this.onLengthChange = null;
+    }
+    /**
+     * Adds a prompt to the data array
+     * @param {*} prompt - The prompt to add {messageId, role, content}
+     */
+    addPrompt(prompt) {
+        this.data.push(prompt);
+        this.notifyLengthChange();
+    }
+
+    notifyLengthChange() {
+        if (this.onLengthChange) {
+            this.onLengthChange(this.data.length);
+        }
+    }
+
+    /**
+     * Removes a prompt from the data array based on the messageId
+     * @param {String} messageId - The id of the prompt to remove
+     */
+    removePrompt(messageId) {
+        this.data = this.data.filter(prompt => prompt.messageId !== messageId);
+        this.notifyLengthChange();
+    }
+
+    /**
+     * Removes all prompts from the data array
+     */
+    clear() {
+        this.data.splice(0, this.data.length);
+        this.notifyLengthChange();
+    }
+
+    /**
+     * Removes all prompts from the data array except the first prompt
+     * @returns - The removed prompts
+     */
+    clearExceptFirst() {
+        this.data = this.data.slice(0, 1);
+        this.notifyLengthChange();
+    }
+
+    /**
+     * Removes a range of prompts from the data array based on the startIndex and deleteCount
+     * @param {*} startIndex - The index of the prompt to start removing
+     * @param {*} deleteCount - The number of prompts to remove
+     * @returns - The removed prompts
+     */
+    removeRange(startIndex, deleteCount) {
+        const removedItems = this.data.splice(startIndex, deleteCount);
+        this.notifyLengthChange();
+        return removedItems;
+    }
+
+    /**
+     * get the prompts array as a string
+     * @returns - The prompts array as a string
+     */
+    getPromptText() {
+        return JSON.stringify(this.data.map((p) => {
+            return { role: p.role, content: p.content };
+        }));
+    }
+
+    /**
+     * update the first prompt's content
+     * @param {*} newPrompt - The new prompt content
+     */
+    updateFirstPrompt(newPrompt) {
+        this.data[0] = newPrompt;
+        this.notifyLengthChange();
+    }
+
+}
+
+let prompts = new Prompts();
+prompts.onLengthChange = function (newLength) {
+    slider.value = newLength;
+    currentValue.textContent = newLength;
+};
+const slider = document.getElementById("slider");
+const currentValue = document.getElementById("currentValue");
+
+slider.addEventListener("input", function () {
+    currentValue.textContent = slider.value;
+    // when slider value change, update the prompts array to include more or less messages in the messages
+
+
+});
+
+
 const aiProfile = document.querySelector('#ai-profile');
 const messagesContainer = document.querySelector('#messages');
 const messageForm = document.querySelector('#message-form');
@@ -106,23 +201,8 @@ const showToast = (message) => {
     }, 3000); // 3 秒后隐藏 Toast
 }
 
-// first load prompt repo from /api/prompt_repo it looks like this:
-// [  
-//     {  
-//       "name": "AI",  
-//       "icon": "fa-robot",  
-//       "displayName": "AI",  
-//       "prompt": "You are an AI assistant that helps people find information."  
-//     }
-//...]
-// get the profile data
-// then generate menu items from it to menu_list
-// and add click event listener 
-// to each menu item
-// when click, get the profile data
 const menuList = document.querySelector('#menu-list');
 let tokens = 0
-let prompts = [];
 const max_tokens = 4000;
 var currentProfile = null;
 
@@ -155,17 +235,17 @@ const addMessage = (sender, message, messageId, isActive = true) => {
             messageElement.classList.remove('active');
             // remove the message frmo prompts by message id
             messageId = messageElement.dataset.messageId;
-            prompts = prompts.filter(prompt => prompt.messageId !== messageId);
+            prompts.removePrompt(messageId);
         }
         else {
             // if it doesn't, add the inactive class
             messageElement.classList.add('active');
             // clear prompts except index 0
-            prompts = prompts.slice(0, 1);
+            prompts.clearExceptFirst();
             // add  all the active message to prompts
             const activeMessages = document.querySelectorAll('.message.active');
             activeMessages.forEach(activeMessage => {
-                prompts.push({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
+                prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
             });
         }
     }
@@ -258,7 +338,6 @@ const addMessage = (sender, message, messageId, isActive = true) => {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 };
 
-
 // implement deleteMessage function
 const deleteMessage = (messageId) => {
     // remove message from DOM and also from prompt array by message id 
@@ -266,7 +345,7 @@ const deleteMessage = (messageId) => {
     // update input value to messageElement's data-message
     messageInput.value = messageElement.dataset.message;
     messageElement.remove();
-    prompts = prompts.filter(prompt => prompt.messageId !== messageId);
+    prompts.removePrompt(messageId);
     saveCurrentProfileMessages();
 }
 
@@ -500,7 +579,7 @@ const generateId = () => {
 const clearMessage = () => {
     // clear mssages in DOM except the first message
     messagesContainer.innerHTML = '';
-    prompts.splice(1, prompts.length - 1);
+    prompts.clearExceptFirst();
     addMessage(prompts[0].role, prompts[0].content, prompts[0].messageId);
     saveCurrentProfileMessages();
     messageInput.value = '';
@@ -519,18 +598,16 @@ const sendMessage = async (message = '') => {
         message = message.replace('/system', '');
         let messageId = generateId();
         addMessage('system', message, messageId);
-        prompts.splice(0, prompts.length);
-        prompts.push({ role: 'system', content: message, messageId: messageId });
+        prompts.clearPrompts();
+        prompts.addPrompt({ role: 'system', content: message, messageId: messageId });
         return;
     }
     let messageId = generateId();
     addMessage('user', message, messageId);
-    prompts.push({ role: 'user', content: message, messageId: messageId });
+    prompts.addPrompt({ role: 'user', content: message, messageId: messageId });
     saveCurrentProfileMessages();
     // join prompts except the messageId field to a string
-    const promptText = JSON.stringify(prompts.map((p) => {
-        return { role: p.role, content: p.content };
-    }));
+    const promptText = prompts.getPromptText();
 
     console.log(promptText);
     messageInput.value = '';
@@ -555,21 +632,21 @@ const sendMessage = async (message = '') => {
         if (!data) {
             messageId = generateId();
             const content = 'AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。';
-            prompts.push({ role: 'assistant', content: content, messageId: messageId });
+            prompts.addPrompt({ role: 'assistant', content: content, messageId: messageId });
             addMessage('assistant', content, messageId, false);
         } else {
             messageId = generateId();
-            prompts.push({ role: 'assistant', content: data.message, messageId: messageId });
+            prompts.addPrompt({ role: 'assistant', content: data.message, messageId: messageId });
             addMessage('assistant', data.message, messageId);
             tokens = data.totalTokens;
             tokensSpan.textContent = `${tokens} tokens`;
             // If tokens are over 80% of max_tokens, remove the first round conversation
             if (tokens > max_tokens * 0.8) {
-                const removedPrompts = prompts.splice(1, 2);
+                const removedPrompts = prompts.removeRange(1, 2);
                 removedPrompts.forEach((p) => {
                     inactiveMessage(p.messageId);
                 });
-                prompts[0] = { role: 'system', content: currentProfile.prompt, messageId: generateId() };
+                prompts.updateFirstPrompt({ role: 'system', content: currentProfile.prompt, messageId: generateId() });
             }
         }
         saveCurrentProfileMessages();
@@ -655,7 +732,7 @@ function renderMenuList(data) {
     messagesContainer.innerHTML = '';
     currentProfile = profiles[0]; // set currentProfile to the first profile
     let messageId = generateId();
-    prompts.push({ role: 'system', content: currentProfile.prompt, messageId: messageId });
+    prompts.addPrompt({ role: 'system', content: currentProfile.prompt, messageId: messageId });
     addMessage('system', currentProfile.prompt, messageId);
 
     // read saved messages from local storage for current profile and current username
@@ -664,7 +741,7 @@ function renderMenuList(data) {
     savedMessages.forEach((message, index) => {
         let isActive = false;
         if (index >= savedMessages.length - 2) {
-            prompts.push(message);
+            prompts.addPrompt(message);
             isActive = true;
         }
         addMessage(message.role, message.content, message.messageId, isActive);
@@ -706,9 +783,9 @@ function renderMenuList(data) {
             aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
             messagesContainer.innerHTML = '';
             // 清空 prompts 数组
-            prompts.splice(0, prompts.length);
+            prompts.clear();
             let messageId = generateId();
-            prompts.push({ role: 'system', content: currentProfile.prompt, messageId: messageId });
+            prompts.addPrompt({ role: 'system', content: currentProfile.prompt, messageId: messageId });
             addMessage('system', currentProfile.prompt, messageId);
             // read saved messages from local storage for current profile and current username
             const savedMessages = JSON.parse(localStorage.getItem(currentUsername + '_' + currentProfile.name) || '[]');
@@ -716,7 +793,7 @@ function renderMenuList(data) {
             savedMessages.forEach((message, index) => {
                 let isActive = false;
                 if (index >= savedMessages.length - 2) {
-                    prompts.push(message);
+                    prompts.addPrompt(message);
                     isActive = true;
                 }
                 addMessage(message.role, message.content, message.messageId, isActive);
