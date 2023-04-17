@@ -175,14 +175,17 @@ code {
     justify-content: flex-end;
     align-items: center;
     position: relative;
+    margin-bottom: 0.5em;
 }
 
-#minValue, #maxValue {
+#maxValue {
     margin: 0 5px;
 }
 
+
 #currentValue {
-    background-color: #f1c40f;
+    background-color: #4CAF50;
+    color: white;
     padding: 3px 6px;
     border-radius: 5px;
     margin-right: 5px;

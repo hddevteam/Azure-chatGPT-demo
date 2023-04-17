@@ -78,17 +78,39 @@ class Prompts {
 }
 
 let prompts = new Prompts();
-prompts.onLengthChange = function (newLength) {
-    slider.value = newLength;
-    currentValue.textContent = newLength;
-};
+
 const slider = document.getElementById("slider");
 const currentValue = document.getElementById("currentValue");
+prompts.onLengthChange = function (newLength) {
+    slider.value = newLength - 1;
+    currentValue.textContent = newLength - 1;
+};
 
 slider.addEventListener("input", function () {
-    currentValue.textContent = slider.value;
-    // when slider value change, update the prompts array to include more or less messages in the messages
+    const messages = document.querySelectorAll('.message');
+    const sliderValue = parseInt(slider.value, 10);
+    currentValue.textContent = sliderValue;
 
+    messages.forEach((messageElement, index) => {
+        if (index >= messages.length - sliderValue) {
+            messageElement.classList.add('active');
+        } else {
+            messageElement.classList.remove('active');
+        }
+    });
+
+    // save current onLengthChange callback
+    const originalOnLengthChange = prompts.onLengthChange;
+    prompts.onLengthChange = null;
+
+    prompts.clearExceptFirst();
+    const activeMessages = document.querySelectorAll('.message.active');
+    activeMessages.forEach(activeMessage => {
+        prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
+    });
+    
+    // restore onLengthChange callback
+    prompts.onLengthChange = originalOnLengthChange;
 
 });
 
@@ -336,6 +358,10 @@ const addMessage = (sender, message, messageId, isActive = true) => {
     attachMessageCopyEvent(lastCopy);
 
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // update slider max value
+    slider.max = Math.max(0, document.querySelectorAll('.message').length - 1);
+    document.querySelector('#maxValue').textContent = slider.max;
 };
 
 // implement deleteMessage function
@@ -347,6 +373,10 @@ const deleteMessage = (messageId) => {
     messageElement.remove();
     prompts.removePrompt(messageId);
     saveCurrentProfileMessages();
+
+    // update slider max value
+    slider.max = Math.max(0, document.querySelectorAll('.message').length - 1);
+    document.querySelector('#maxValue').textContent = slider.max;
 }
 
 // implement attachMessageCopyEvent function
