@@ -108,7 +108,7 @@ slider.addEventListener("input", function () {
     activeMessages.forEach(activeMessage => {
         prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
     });
-    
+
     // restore onLengthChange callback
     prompts.onLengthChange = originalOnLengthChange;
 
@@ -662,12 +662,12 @@ const sendMessage = async (message = '') => {
         if (!data) {
             messageId = generateId();
             const content = 'AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。';
-            prompts.addPrompt({ role: 'assistant', content: content, messageId: messageId });
             addMessage('assistant', content, messageId, false);
+            prompts.addPrompt({ role: 'assistant', content: content, messageId: messageId });
         } else {
             messageId = generateId();
-            prompts.addPrompt({ role: 'assistant', content: data.message, messageId: messageId });
             addMessage('assistant', data.message, messageId);
+            prompts.addPrompt({ role: 'assistant', content: data.message, messageId: messageId });
             tokens = data.totalTokens;
             tokensSpan.textContent = `${tokens} tokens`;
             // If tokens are over 80% of max_tokens, remove the first round conversation
