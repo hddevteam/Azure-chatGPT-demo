@@ -27,18 +27,19 @@
     </div>
   </div>
   <div class="message-input-container">
-    <div id="sliderContainer">
-      <div id="currentValue">0</div>
-      <input type="range" id="slider" min="0" max="100" step="1" value="0">
-      <label id="maxValue" for="slider">100</label>
-  </div>
+    
     <div class="mini-toolbar-container">
       <div class="mini-toolbar">
+        <span id="sliderContainer">
+          <span id="currentValue">0</span>
+          <input type="range" id="slider" min="0" max="2" value="2" step="1">
+          <label id="maxValue" for="slider">2</label>
+        </span>
         <span id="tts-container"><i id="practice-mode-icon" class="fas fa-volume-off"></i><span
-            id="practice-mode">Practice Mode: Off</span></span><span id="user"><i class="fas fa-user-circle"></i><span
+            id="practice-mode">Manual</span></span><span id="user"><i class="fas fa-user-circle"></i><span
             id="username-label">Guest</span></span><i class="fas fa-file-excel"></i><span
           id="export-excel">Export</span>
-        <i class="fas fa-info-circle"></i><span id="tokens">tokens</span>
+        <i class="fas fa-info-circle"></i><span id="tokens"></span>
       </div>
     </div>
     <form id="message-form">

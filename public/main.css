@@ -159,33 +159,31 @@ code {
     color: antiquewhite;
 }
 
+#menu-header a {
+    text-decoration: none;
+    color: #333;
+}
+
 .message-input-container {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
     z-index: 999;
-    /* 保证在IOS上显示在最上层 */
     overflow: hidden;
-    /* 修复IOS下底部按钮被遮挡问题 */
 }
 
 #sliderContainer {
-    display: flex;
-    justify-content: flex-end;
     align-items: center;
-    position: relative;
-    margin-bottom: 0.5em;
 }
 
-#maxValue {
+/* #maxValue {
     margin: 0 5px;
-}
-
+} */
 
 #currentValue {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #fff;
+    color: #333;
     padding: 3px 6px;
     border-radius: 5px;
     margin-right: 5px;
@@ -196,7 +194,6 @@ code {
     max-width: 900px;
     margin-right: 10px;
     padding-right: 50px;
-    /* 修复IOS下输入框内字体与边框重叠问题 */
 }
 
 textarea {
@@ -212,10 +209,7 @@ textarea {
     transition: border-color 0.2s ease-in-out;
 }
 
-#menu-header a {
-    text-decoration: none;
-    color: #333;
-}
+
 
 textarea:focus {
     border-color: #4CAF50;
@@ -523,6 +517,7 @@ i {
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
 
     .message {
         padding: 1em;

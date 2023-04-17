@@ -415,14 +415,14 @@ const attachMessageSpeakerEvent = (speaker) => {
 
 const turnOnPracticeMode = () => {
     ttsPracticeMode = true;
-    practiceMode.innerText = 'Practice Mode: On';
+    practiceMode.innerText = 'Auto';
     practiceModeIcon.classList.remove('fa-volume-off');
     practiceModeIcon.classList.add('fa-volume-up');
 }
 
 const turnOffPracticeMode = () => {
     ttsPracticeMode = false;
-    practiceMode.innerText = 'Practice Mode: Off';
+    practiceMode.innerText = 'Manual';
     practiceModeIcon.classList.remove('fa-volume-up');
     practiceModeIcon.classList.add('fa-volume-off');
 }
@@ -669,7 +669,7 @@ const sendMessage = async (message = '') => {
             addMessage('assistant', data.message, messageId);
             prompts.addPrompt({ role: 'assistant', content: data.message, messageId: messageId });
             tokens = data.totalTokens;
-            tokensSpan.textContent = `${tokens} tokens`;
+            tokensSpan.textContent = `${tokens}t`;
             // If tokens are over 80% of max_tokens, remove the first round conversation
             if (tokens > max_tokens * 0.8) {
                 const removedPrompts = prompts.removeRange(1, 2);
