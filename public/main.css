@@ -12,8 +12,8 @@ body {
 #chat-container {
     display: flex;
     position: relative;
-    height: calc(100vh - 120px);
-    /* 70px is the height of message-form */
+    height: calc(100vh - 180px);
+    /* 180px is the height of message-form */
     max-width: 900px;
     width: 90%;
     margin: 20px auto;
@@ -193,14 +193,12 @@ code {
     flex: 1;
     max-width: 900px;
     margin-right: 10px;
-    padding-right: 50px;
 }
 
 textarea {
     resize: none;
-    height: 60px;
-    padding: 12px 20px;
-    margin-bottom: 10px;
+    height: 100%;
+    padding: 12px;
     font-size: 16px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     border: 2px solid #eee;
@@ -237,13 +235,13 @@ textarea:focus {
 
 
 #message-form {
-    height: 80px;
+    height: 150px;
     background-color: #333;
     padding: 10px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
 }
 
@@ -287,7 +285,7 @@ textarea:focus {
 
 button {
     height: 40px;
-    width: 80px;
+    width: 60px;
     background-color: #4CAF50;
     color: #fff;
     border: none;
@@ -316,6 +314,8 @@ i {
     background-color: #f1f1f1;
     border-left: 1px solid #ccc;
     border-radius: 0 5px 5px 0;
+    overflow-y: auto;
+    padding-bottom: 30px;
 }
 
 #menu-header {
@@ -486,7 +486,7 @@ i {
 
     #chat-container {
         padding: 0;
-        height: calc(100vh - 200px);
+        height: calc(100vh - 250px);
         width: 100%;
         margin: 0;
         border: 0;
@@ -563,7 +563,7 @@ i {
     }
 
     #message-form {
-        height: auto;
+        height: 120px;
         padding: 5px;
     }
 
@@ -598,7 +598,7 @@ i {
 
     #chat-container {
         position: relative;
-        height: calc(100vh - 120px - 7em);
+        height: calc(100vh - 300px);
         /* 70px is the height of message-form */
         max-width: 900px;
         width: 90%;

@@ -20,6 +20,7 @@ const handleSuccess = (stream) => {
 
     recorder.onstart = () => {
         console.log('Recorder started');
+        showToast('Recording started... please limit your message to 60 seconds.')
         dataChunks = [];
         voiceInputButton.classList.add("voice-input-active");
     };
@@ -45,9 +46,14 @@ const handleSuccess = (stream) => {
         });
 
         const text = await response.text();
-        showToast(text);
-        const messageInput = document.querySelector('#message-input');
-        messageInput.value = text;
+        //check response status, if not 200, show error message
+        if (!response.ok) {
+            showToast('Error: ' + text);
+        }
+        else {
+            const messageInput = document.querySelector('#message-input');
+            messageInput.value = text;
+        }
 
         // Add click event listener to start recording again
         voiceInputButton.addEventListener("click", startRecording, { once: true });
