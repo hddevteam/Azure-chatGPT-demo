@@ -105,4 +105,6 @@ dist
 
 # Local database
 .data/
+.audio/
 .vscode/launch.json
+failed_audio/

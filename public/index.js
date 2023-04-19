@@ -151,9 +151,6 @@ practiceMode.addEventListener('click', () => {
     // if ttsPracticeMode is false, then set it to true
     if (!ttsPracticeMode) {
         turnOnPracticeMode();
-
-        enableVoiceInput();
-
     } else {
         turnOffPracticeMode();
         // reset all the speaker icon to fas fa-volume-off
@@ -425,83 +422,6 @@ const turnOffPracticeMode = () => {
     practiceMode.innerText = 'Manual';
     practiceModeIcon.classList.remove('fa-volume-up');
     practiceModeIcon.classList.add('fa-volume-off');
-}
-
-const voiceInputContainer = document.querySelector('#voice-input-container');
-const voiceInputButton = document.querySelector('#voice-input-button');
-// disable the voice input
-const disableVoiceInput = () => {
-    // if voice button is active, click it to stop the recognition
-    if (voiceInputButton.classList.contains('voice-input-active')) {
-        voiceInputButton.click();
-    }
-    // hide the voice input button
-    voiceInputContainer.style.display = 'none';
-}
-
-
-function enableVoiceInput() {
-
-    if ('webkitSpeechRecognition' in window && practiceMode) {
-        // Show the voice input button if browser supports speech recognition and practice mode is enabled
-        voiceInputContainer.style.display = 'block';
-
-        const recognition = new webkitSpeechRecognition();
-        recognition.lang = 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-        recognition.continuous = false;
-        let isRecognitionWorking = false;
-
-        voiceInputButton.addEventListener('click', function () {
-            if (!isRecognitionWorking) {
-                if (!audio.paused) {
-                    showToast('Please stop the audio first');
-                    return;
-                }
-                recognition.start();
-                isRecognitionWorking = true;
-                voiceInputButton.classList.add('voice-input-active');
-            } else {
-                // stop the recognition, don't touch redudant code below.
-                voiceInputButton.classList.remove('voice-input-active');
-                isRecognitionWorking = false;
-                recognition.abort();
-                // check if is ios safari or macos safari
-                if (navigator.userAgent.match(/(iPod|iPhone|iPad)/) || navigator.userAgent.match(/(Macintosh)/)) {
-                    // showToast('safari detected')
-                    recognition.start();
-                }
-                // showToast('abort triggered');
-                recognition.abort();
-
-            }
-        });
-
-        recognition.addEventListener('speechend', () => {
-            recognition.stop(); // Stop recognition and change the button style
-            // showToast('speechend stop triggered');
-        });
-        recognition.addEventListener('result', function (event) {
-            const transcript = event.results[0][0].transcript;
-            messageInput.value += transcript;
-            // showToast('result triggered');
-        });
-        recognition.addEventListener('end', function () {
-            // If the recognition ended due to an error, display an alert
-            if (recognition.error) {
-                showToast(`Speech recognition error: ${recognition.error}`);
-            }
-            // showToast('end triggered');
-
-            // check if client is not （ios safari or macos safari）
-            if (!navigator.userAgent.match(/(iPod|iPhone|iPad)/) && !navigator.userAgent.match(/(Macintosh)/)) {
-                // showToast('not safari detected')
-                voiceInputButton.classList.remove('voice-input-active');
-                isRecognitionWorking = false;
-            }
-        });
-    }
 }
 
 // split message into sentences chunks with max 160 words each
@@ -803,11 +723,9 @@ function renderMenuList(data) {
             if (currentProfile && currentProfile.tts === 'enabled') {
                 // if ttsContainer is not display, then display it
                 ttsContainer.style.display = 'inline-block';
-                enableVoiceInput(); // enable voice input
             } else {
                 // if ttsContainer is display, then hide it
                 ttsContainer.style.display = 'none';
-                disableVoiceInput(); // disable voice input
             }
             // 设置 profile 图标和名称
             aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;

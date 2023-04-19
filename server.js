@@ -63,6 +63,55 @@ app.get('/api/tts', (req, res) => {
     });
 });
 
+const fs = require('fs-extra');
+fs.ensureDirSync('./failed_audio');
+const multer = require('multer');
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './failed_audio');
+  },
+  filename: function (req, file, cb) {
+    cb(null, `audio_${Date.now()}.wav`);
+  },
+});
+const upload = multer({ storage: storage });
+
+app.post('/speech-to-text', upload.single('file'), async (req, res) => {
+
+  const subscriptionKey = azureTTS.subscriptionKey;
+  const filePath = req.file.path;
+
+  // Read the uploaded file
+  const buffer = fs.readFileSync(filePath);
+
+  try {
+
+    // TODO: language code should be dynamic
+    const speechResponse = await fetch('https://eastus.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Ocp-Apim-Subscription-Key': subscriptionKey,
+        'Content-Type': 'audio/wav; codecs=audio/pcm; samplerate=16000'
+      },
+      body: buffer
+    });
+
+    const speechResult = await speechResponse.json();
+    console.log(speechResult);
+    if (speechResult.RecognitionStatus === 'Success') {
+      const text = speechResult.DisplayText;
+      res.send(text);
+      fs.unlinkSync(filePath);
+    } else {
+      res.status(400).send('Speech recognition failed');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal server error');
+  } 
+});
+
 
 app.post('/api/gpt', async (req, res) => {
   const prompt = JSON.parse(req.body.prompt);
