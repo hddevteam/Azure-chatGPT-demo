@@ -27,7 +27,7 @@
     </div>
   </div>
   <div class="message-input-container">
-    
+
     <div class="mini-toolbar-container">
       <div class="mini-toolbar">
         <span id="sliderContainer">
@@ -37,18 +37,21 @@
         </span>
         <span id="tts-container"><i id="practice-mode-icon" class="fas fa-volume-off"></i><span
             id="practice-mode">Manual</span></span><span id="user"><i class="fas fa-user-circle"></i><span
-            id="username-label">Guest</span></span><i class="fas fa-file-excel"></i><span
-          id="export-excel">csv</span>
+            id="username-label">Guest</span></span><i class="fas fa-file-excel"></i><span id="export-excel">csv</span>
         <i class="fas fa-info-circle"></i><span id="tokens"></span>
       </div>
     </div>
     <form id="message-form">
-      <textarea id="message-input" name="message" autocomplete="off" placeholder="Ask me anything..." tabindex="1"></textarea>
-      <div id="voice-input-container" style="display: none;">
-        <button id="voice-input-button" type="button"><i class="fas fa-microphone" aria-hidden="true"></i></button>
+      <div id="input-container">
+        <textarea id="message-input" name="message" autocomplete="off" placeholder="Ask me anything..."
+          tabindex="1"></textarea>
+        <div id="voice-input-container">
+          <button id="voice-input-button" type="button"><i class="fas fa-microphone" aria-hidden="true"></i></button>
+        </div>
+        <button type="submit" tabindex="2"><i class="fas fa-paper-plane"></i></button>
       </div>
-      <button type="submit" tabindex="2"><i class="fas fa-paper-plane"></i></button>
     </form>
+
   </div>
   <div class="modal">
     <div class="modal-content">
@@ -68,4 +71,5 @@
 <script src="encoderWorker.umd.js"></script>
 <script src="input-audio.js"></script>
 <script src="index.js"></script>
+
 </html>

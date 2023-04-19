@@ -1,5 +1,3 @@
-const voiceInputContainer = document.querySelector('#voice-input-container');
-voiceInputContainer.style.display = 'block';
 const voiceInputButton = document.querySelector('#voice-input-button');
 
 const workerOptions = {
