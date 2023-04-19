@@ -419,7 +419,7 @@ const turnOnPracticeMode = () => {
 
 const turnOffPracticeMode = () => {
     ttsPracticeMode = false;
-    practiceMode.innerText = 'Manual';
+    practiceMode.innerText = 'Man.';
     practiceModeIcon.classList.remove('fa-volume-up');
     practiceModeIcon.classList.add('fa-volume-off');
 }
