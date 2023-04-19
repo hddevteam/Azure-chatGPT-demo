@@ -5,7 +5,12 @@ const workerOptions = {
     WebMOpusEncoderWasmPath: 'WebMOpusEncoder.wasm'
 };
 
-const handleSuccess = (stream) => {
+let recorder;
+let dataChunks = [];
+
+async function startRecording() {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+
     const sampleRate = 16000;
     let options = {
         audioBitsPerSecond: sampleRate * 16, // 16 bits per sample
@@ -13,8 +18,7 @@ const handleSuccess = (stream) => {
     };
 
     window.MediaRecorder = OpusMediaRecorder;
-    let recorder = new MediaRecorder(stream, options, workerOptions);
-    let dataChunks = [];
+    recorder = new MediaRecorder(stream, options, workerOptions);
 
     recorder.onstart = () => {
         console.log('Recorder started');
@@ -30,6 +34,11 @@ const handleSuccess = (stream) => {
 
     recorder.onstop = async () => {
         console.log('Recorder stopped');
+        // Stop all audio tracks to release the resources
+        stream.getAudioTracks().forEach((track) => track.stop());
+
+        showToast('Processing audio... please wait.')
+
         voiceInputButton.classList.remove("voice-input-active");
 
         let audioBlob = new Blob(dataChunks, { type: recorder.mimeType });
@@ -61,22 +70,15 @@ const handleSuccess = (stream) => {
         console.log('Recorder encounters error:' + e.message);
     };
 
-    async function startRecording() {
-        recorder.start();
-        // Add click event listener to stop recording
-        voiceInputButton.addEventListener("click", stopRecording, { once: true });
-    }
+    recorder.start();
+    // Add click event listener to stop recording
+    voiceInputButton.addEventListener("click", stopRecording, { once: true });
+}
 
-    async function stopRecording() {
-        recorder.stop();
-        // Remove click event listener for stop recording
-        voiceInputButton.removeEventListener("click", stopRecording);
-    }
+async function stopRecording() {
+    recorder.stop();
+    // Remove click event listener for stop recording
+    voiceInputButton.removeEventListener("click", stopRecording);
+}
 
-    voiceInputButton.addEventListener("click", startRecording, { once: true });
-};
-
-
-navigator.mediaDevices
-    .getUserMedia({ audio: true, video: false })
-    .then(handleSuccess);
+voiceInputButton.addEventListener("click", startRecording, { once: true });
