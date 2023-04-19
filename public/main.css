@@ -194,7 +194,7 @@ textarea {
     width: 100%;
     height: 100%;
     padding: 12px;
-    padding-right: 30px;
+    padding-right: 60px;
     font-size: 16px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     border: 2px solid #eee;
@@ -251,7 +251,7 @@ textarea:focus {
 #voice-input-button,
 #message-form button[type="submit"] {
   position: absolute;
-  right:8px;
+  right:18px;
 }
 
 #message-form button[type="submit"] {
