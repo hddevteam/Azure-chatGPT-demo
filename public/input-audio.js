@@ -47,7 +47,7 @@ async function startRecording() {
         const formData = new FormData();
         formData.append('file', audioBlob);
 
-        const response = await fetch('/speech-to-text', {
+        const response = await fetch('/auto-speech-to-text', {
             method: 'POST',
             body: formData,
         });
@@ -59,7 +59,7 @@ async function startRecording() {
         }
         else {
             const messageInput = document.querySelector('#message-input');
-            messageInput.value = text;
+            messageInput.value += text;
         }
 
         // Add click event listener to start recording again

@@ -75,6 +75,33 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
+const SpeechSDK = require('microsoft-cognitiveservices-speech-sdk');
+app.post('/auto-speech-to-text', upload.single('file'), async (req, res) => {
+  const subscriptionKey = azureTTS.subscriptionKey;
+  const serviceRegion = 'eastus'; // You can change this to match your region
+  const filePath = req.file.path;
+  const audioConfig = SpeechSDK.AudioConfig.fromWavFileInput(fs.readFileSync(filePath));
+  const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(subscriptionKey, serviceRegion);
+
+  const autoDetectSourceLanguageConfig = SpeechSDK.AutoDetectSourceLanguageConfig.fromLanguages(['en-US', 'zh-CN']);
+
+  var speechRecognizer = SpeechSDK.SpeechRecognizer.FromConfig(speechConfig, autoDetectSourceLanguageConfig, audioConfig);
+  speechRecognizer.recognizeOnceAsync((result) => {
+    if (result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
+      const languageDetectionResult = SpeechSDK.AutoDetectSourceLanguageResult.fromResult(result);
+      res.send(result.text);
+    } else {
+      res.status(400).send('Speech recognition failed');
+    }
+    console.log(result);
+    fs.unlinkSync(filePath);
+    speechRecognizer.close();
+  }, (error) => {
+    console.error('Error:', error);
+    res.status(500).send('Internal server error');
+    fs.unlinkSync(filePath);
+  });
+});
 
 app.post('/speech-to-text', upload.single('file'), async (req, res) => {
 
@@ -92,7 +119,7 @@ app.post('/speech-to-text', upload.single('file'), async (req, res) => {
       headers: {
         'Accept': 'application/json',
         'Ocp-Apim-Subscription-Key': subscriptionKey,
-        'Content-Type': 'audio/wav; codecs=audio/pcm; samplerate=16000'
+        'Content-Type': 'audio/wav;'
       },
       body: buffer
     });
@@ -109,7 +136,7 @@ app.post('/speech-to-text', upload.single('file'), async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('Internal server error');
-  } 
+  }
 });
 
 
