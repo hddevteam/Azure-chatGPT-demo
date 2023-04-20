@@ -260,7 +260,6 @@ textarea:focus {
     font-size: 24px;
     cursor: pointer;
     border: 2px solid #555;
-    border-radius: 50%;
 }
 
 #voice-input-button.voice-input-active {
@@ -296,7 +295,7 @@ textarea:focus {
 
 button {
     height: 40px;
-    width: 60px;
+    width: 40px;
     background-color: #4CAF50;
     color: #fff;
     border: none;
