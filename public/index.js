@@ -79,6 +79,7 @@ class Prompts {
 
 let prompts = new Prompts();
 
+
 const slider = document.getElementById("slider");
 const currentValue = document.getElementById("currentValue");
 prompts.onLengthChange = function (newLength) {
@@ -119,6 +120,11 @@ const aiProfile = document.querySelector('#ai-profile');
 const messagesContainer = document.querySelector('#messages');
 const messageForm = document.querySelector('#message-form');
 const messageInput = document.querySelector('#message-input');
+const clearInput = document.getElementById("clear-input");
+clearInput.addEventListener("click", function () {
+    messageInput.value = "";
+});
+
 const tokensSpan = document.querySelector('#tokens');
 const exportExcel = document.querySelector('#export-excel');
 
@@ -190,7 +196,7 @@ exportExcel.addEventListener('click', () => {
         return str;
     }
 
-    csv = convertToCSV(conversions);
+    let csv = convertToCSV(conversions);
 
     // create a hidden link element
     const link = document.createElement('a');
