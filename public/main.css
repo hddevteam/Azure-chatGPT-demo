@@ -485,6 +485,7 @@ i {
         width: 100%;
     }
 
+
     .modal-content {
         background-color: #fefefe;
         margin: 15% auto;
@@ -588,7 +589,6 @@ i {
         font-size: 12px;
     }
 
-
     #message-form button {
         width: fit-content;
         padding: 0.5em;
@@ -596,6 +596,11 @@ i {
         border-radius: 0.5em;
         font-size: 1em;
     }
+
+    input#slider {
+        width: 80px;
+    }
+
 }
 
 /* iPad Layout */
