@@ -129,7 +129,7 @@ h1 {
 .fa-times {
     position: absolute;
     top: 0.1em;
-    right: -0.1em;
+    right: 0.1em;
     font-size: 1em;
     color: #fff;
     cursor: pointer;
@@ -177,10 +177,6 @@ code {
     align-items: center;
 }
 
-/* #maxValue {
-    margin: 0 5px;
-} */
-
 #currentValue {
     background-color: #fff;
     color: #333;
@@ -202,8 +198,6 @@ textarea {
     background-color: #f5f5f5;
     transition: border-color 0.2s ease-in-out;
 }
-
-
 
 textarea:focus {
     border-color: #4CAF50;
@@ -250,48 +244,54 @@ textarea:focus {
 
 #voice-input-button,
 #message-form button[type="submit"] {
-  position: absolute;
-  right:18px;
+    position: absolute;
+    right: 18px;
 }
 
 #message-form button[type="submit"] {
     position: absolute;
     top: 8px;
-  }
+}
 
 #voice-input-button {
     bottom: 8px;
     background-color: transparent;
-    border: none;
-    color: #333;
+    color: #555;
     font-size: 24px;
     cursor: pointer;
+    border: 2px solid #555;
+    border-radius: 50%;
+}
+
+#voice-input-button.voice-input-active {
+    animation: buttonChange 2s infinite;
 }
 
 .voice-input-active i {
-    color: #4CAF50;
-    animation: breathing 2s infinite;
+    color: #fff;
 }
 
-#voice-input-button:focus {
-    outline: none;
-}
+@keyframes buttonChange {
 
-
-@keyframes breathing {
-    0% {
+    0%,
+    100% {
+        background-color: transparent;
+        color: #555;
+        border-color: #F44336;
         transform: scale(1);
     }
 
     50% {
-        transform: scale(1.5);
-    }
-
-    100% {
-        transform: scale(1);
+        background-color: #F44336;
+        color: #fff;
+        border-color: #555;
+        transform: scale(1.1);
     }
 }
 
+.mini-toolbar i {
+    margin-right: 3px;
+}
 
 
 button {
@@ -311,9 +311,7 @@ button:hover {
     background-color: #3e8e41;
 }
 
-i {
-    margin-right: 5px;
-}
+
 
 #menu {
     position: absolute;
@@ -445,17 +443,13 @@ i {
     margin-bottom: 0.5em;
 }
 
-.top-icon-group i {
-    font-size: smaller;
-    opacity: 0.5;
-}
-
-
 .icon-group {
     margin-top: 0.5em;
     display: flex;
     justify-content: space-between;
 }
+
+
 
 #toast {
     display: none;
@@ -575,7 +569,7 @@ i {
     }
 
     #message-form {
-        
+
         height: 120px;
         padding: 5px;
     }
