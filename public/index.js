@@ -1,178 +1,99 @@
-class Prompts {
-    constructor() {
-        this.data = [];
-        this.onLengthChange = null;
-    }
-    /**
-     * Adds a prompt to the data array
-     * @param {*} prompt - The prompt to add {messageId, role, content}
-     */
-    addPrompt(prompt) {
-        this.data.push(prompt);
-        this.notifyLengthChange();
-    }
+import App from "./App.js";
+import { currentUsername } from "./storage.js";
+import { getAppName, getPromptRepo } from "./api.js";
+import UIManager from "./UIManager.js";
+import { setupVoiceInput } from "./input-audio.js";
 
-    notifyLengthChange() {
-        if (this.onLengthChange) {
-            this.onLengthChange(this.data.length);
-        }
-    }
-
-    /**
-     * Removes a prompt from the data array based on the messageId
-     * @param {String} messageId - The id of the prompt to remove
-     */
-    removePrompt(messageId) {
-        this.data = this.data.filter(prompt => prompt.messageId !== messageId);
-        this.notifyLengthChange();
-    }
-
-    /**
-     * Removes all prompts from the data array
-     */
-    clear() {
-        this.data.splice(0, this.data.length);
-        this.notifyLengthChange();
-    }
-
-    /**
-     * Removes all prompts from the data array except the first prompt
-     * @returns - The removed prompts
-     */
-    clearExceptFirst() {
-        this.data = this.data.slice(0, 1);
-        this.notifyLengthChange();
-    }
-
-    /**
-     * Removes a range of prompts from the data array based on the startIndex and deleteCount
-     * @param {*} startIndex - The index of the prompt to start removing
-     * @param {*} deleteCount - The number of prompts to remove
-     * @returns - The removed prompts
-     */
-    removeRange(startIndex, deleteCount) {
-        const removedItems = this.data.splice(startIndex, deleteCount);
-        this.notifyLengthChange();
-        return removedItems;
-    }
-
-    /**
-     * get the prompts array as a string
-     * @returns - The prompts array as a string
-     */
-    getPromptText() {
-        return JSON.stringify(this.data.map((p) => {
-            return { role: p.role, content: p.content };
-        }));
-    }
-
-    /**
-     * update the first prompt's content
-     * @param {*} newPrompt - The new prompt content
-     */
-    updateFirstPrompt(newPrompt) {
-        this.data[0] = newPrompt;
-        this.notifyLengthChange();
-    }
-
-}
-
-let prompts = new Prompts();
-
+const app = new App();
+const uiManager = new UIManager(app);
 
 const slider = document.getElementById("slider");
 const currentValue = document.getElementById("currentValue");
-prompts.onLengthChange = function (newLength) {
+app.prompts.onLengthChange = function (newLength) {
     slider.value = newLength - 1;
     currentValue.textContent = newLength - 1;
 };
 
 slider.addEventListener("input", function () {
-    const messages = document.querySelectorAll('.message');
+    const messages = document.querySelectorAll(".message");
     const sliderValue = parseInt(slider.value, 10);
     currentValue.textContent = sliderValue;
 
     messages.forEach((messageElement, index) => {
         if (index >= messages.length - sliderValue) {
-            messageElement.classList.add('active');
+            messageElement.classList.add("active");
         } else {
-            messageElement.classList.remove('active');
+            messageElement.classList.remove("active");
         }
     });
 
     // save current onLengthChange callback
-    const originalOnLengthChange = prompts.onLengthChange;
-    prompts.onLengthChange = null;
+    const originalOnLengthChange = app.prompts.onLengthChange;
+    app.prompts.onLengthChange = null;
 
-    prompts.clearExceptFirst();
-    const activeMessages = document.querySelectorAll('.message.active');
+    app.prompts.clearExceptFirst();
+    const activeMessages = document.querySelectorAll(".message.active");
     activeMessages.forEach(activeMessage => {
-        prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
+        app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
     });
 
     // restore onLengthChange callback
-    prompts.onLengthChange = originalOnLengthChange;
+    app.prompts.onLengthChange = originalOnLengthChange;
 
 });
 
-
-const aiProfile = document.querySelector('#ai-profile');
-const messagesContainer = document.querySelector('#messages');
-const messageForm = document.querySelector('#message-form');
-const messageInput = document.querySelector('#message-input');
+const messageForm = document.querySelector("#message-form");
+const messageInput = document.querySelector("#message-input");
 const clearInput = document.getElementById("clear-input");
 clearInput.addEventListener("click", function () {
     messageInput.value = "";
 });
 
-const tokensSpan = document.querySelector('#tokens');
-const exportExcel = document.querySelector('#export-excel');
+const exportExcel = document.querySelector("#export-excel");
 
 // get and set page title and header h1 text from /api/app-name
-const pageTitle = document.querySelector('title');
-const headerH1 = document.querySelector('#header h1');
+const pageTitle = document.querySelector("title");
+const headerH1 = document.querySelector("#header h1");
 // /api/app-name will return the app name from .env file
-fetch('/api/app_name')
-    .then(response => response.text())
+getAppName()
     .then(appName => {
         pageTitle.innerText = appName;
         headerH1.innerText = appName;
     });
 
 // 获取模态对话框元素和触发器元素
-const modal = document.querySelector('.modal');
-const usernameLabel = document.querySelector('#username-label');
-const userForm = document.querySelector('#user-form');
-const usernameInput = document.querySelector('#username-input');
+const modal = document.querySelector(".modal");
+const usernameLabel = document.querySelector("#username-label");
+const userForm = document.querySelector("#user-form");
+const usernameInput = document.querySelector("#username-input");
 
 // get tts container element
-const ttsContainer = document.querySelector('#tts-container');
-ttsContainer.style.display = 'none';
+const ttsContainer = document.querySelector("#tts-container");
+ttsContainer.style.display = "none";
 
-const practiceMode = document.querySelector('#practice-mode');
-const practiceModeIcon = document.querySelector('#practice-mode-icon');
-var ttsPracticeMode = false; // practice mode is off by default
+const practiceMode = document.querySelector("#practice-mode");
+
 // add click event listener to practiceMode
-practiceMode.addEventListener('click', () => {
+practiceMode.addEventListener("click", () => {
     // if ttsPracticeMode is false, then set it to true
-    if (!ttsPracticeMode) {
-        turnOnPracticeMode();
+    if (!app.ttsPracticeMode) {
+        uiManager.turnOnPracticeMode();
     } else {
-        turnOffPracticeMode();
+        uiManager.turnOffPracticeMode();
         // reset all the speaker icon to fas fa-volume-off
         // so that if the speaker is broken, it will can be clicked again
-        const speakerElements = document.querySelectorAll('.message-speaker');
+        const speakerElements = document.querySelectorAll(".message-speaker");
         speakerElements.forEach(speakerElement => {
-            speakerElement.classList.remove('fa-volume-up');
-            speakerElement.classList.add('fa-volume-off');
+            speakerElement.classList.remove("fa-volume-up");
+            speakerElement.classList.add("fa-volume-off");
         });
     }
 });
 
 // add click event listener to exportExcel
-exportExcel.addEventListener('click', () => {
+exportExcel.addEventListener("click", () => {
     // get all the messages
-    const messages = document.querySelectorAll('.message');
+    const messages = document.querySelectorAll(".message");
     // get the conversion from each message element's data-message attribute
     const conversions = [];
     messages.forEach(message => {
@@ -181,33 +102,33 @@ exportExcel.addEventListener('click', () => {
 
     // convert the conversion array to csv string
     const convertToCSV = (objArray) => {
-        var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
-        var str = '';
+        var array = typeof objArray != "object" ? JSON.parse(objArray) : objArray;
+        var str = "";
 
         for (var i = 0; i < array.length; i++) {
-            var line = '';
+            var line = "";
             for (var index in array[i]) {
-                if (line != '') line += ',';
-                line += '"' + array[i][index].replace(/"/g, '""') + '"';
+                if (line != "") line += ",";
+                line += "\"" + array[i][index].replace(/"/g, "\"\"") + "\"";
             }
-            str += line + '\r\n';
+            str += line + "\r\n";
         }
 
         return str;
-    }
+    };
 
     let csv = convertToCSV(conversions);
 
     // create a hidden link element
-    const link = document.createElement('a');
-    link.style.display = 'none';
+    const link = document.createElement("a");
+    link.style.display = "none";
     // set the href attribute to the csv string
-    link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
+    link.setAttribute("href", "data:text/csv;charset=utf-8," + encodeURIComponent(csv));
     // set the download attribute to the file name
     // set file name to azure_gpt_conversations + current date time
     const date = new Date();
-    const fileName = 'azure_gpt_conversations_' + date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '_' + date.getHours() + '-' + date.getMinutes() + '.csv';
-    link.setAttribute('download', fileName);
+    const fileName = "azure_gpt_conversations_" + date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + "_" + date.getHours() + "-" + date.getMinutes() + ".csv";
+    link.setAttribute("download", fileName);
     // append the link element to the body
     document.body.appendChild(link);
     // click the link element
@@ -216,415 +137,22 @@ exportExcel.addEventListener('click', () => {
     document.body.removeChild(link);
 });
 
-
-const showToast = (message) => {
-    var toast = document.getElementById("toast");
-    toast.innerHTML = message;
-    toast.style.display = "block";
-    setTimeout(function () {
-        toast.style.display = "none";
-    }, 3000); // 3 秒后隐藏 Toast
-}
-
-const menuList = document.querySelector('#menu-list');
-let tokens = 0
-const max_tokens = 4000;
-var currentProfile = null;
-
-currentUsername = localStorage.getItem('currentUsername') || 'guest'
-fetch(`/api/prompt_repo?username=${currentUsername}`)
-    .then(response => response.json())
+// generate current user menulist and render it
+getPromptRepo(currentUsername)
     .then(data => {
-        renderMenuList(data);
+        uiManager.renderMenuList(data);
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error("Error:", error);
     });
 
-
-// Add message to DOM
-const addMessage = (sender, message, messageId, isActive = true) => {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message');
-    messageElement.classList.add(`${sender}-message`);
-    messageElement.dataset.message = message;
-    messageElement.dataset.sender = sender;
-    messageElement.dataset.messageId = messageId;
-
-    function toggleActiveMessage(event) {
-        // Get the messageElement based on event type
-        const messageElement = event.type === 'dblclick' ? event.currentTarget : event.currentTarget.parentElement;
-        // check if the element has class active
-        if (messageElement.classList.contains('active')) {
-            // if it has, remove the inactive class
-            messageElement.classList.remove('active');
-            // remove the message frmo prompts by message id
-            messageId = messageElement.dataset.messageId;
-            prompts.removePrompt(messageId);
-        }
-        else {
-            // if it doesn't, add the inactive class
-            messageElement.classList.add('active');
-            // clear prompts except index 0
-            prompts.clearExceptFirst();
-            // add  all the active message to prompts
-            const activeMessages = document.querySelectorAll('.message.active');
-            activeMessages.forEach(activeMessage => {
-                prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
-            });
-        }
-    }
-    // if sender is not system
-    if (sender !== 'system') {
-        //add fa-comments icon to message with class message-conversation and fas fa-comments
-        const conversationElement = document.createElement('i');
-        conversationElement.classList.add('fas');
-        conversationElement.classList.add('fa-quote-left');
-        messageElement.appendChild(conversationElement);
-
-        //add onclick event listener to conversationElement
-        conversationElement.addEventListener('click', toggleActiveMessage);
-        messageElement.addEventListener('dblclick', toggleActiveMessage);
-
-        //add fa-times icon to message with class message-delete and fas fa-trash
-        const deleteElement = document.createElement('i');
-        deleteElement.classList.add('message-delete');
-        deleteElement.classList.add('fas');
-        deleteElement.classList.add('fa-times');
-        messageElement.appendChild(deleteElement);
-        //add onclick event listener to deleteElement
-        deleteElement.addEventListener('click', () => {
-            // get the message id from messageElement's dataset
-            const messageId = messageElement.dataset.messageId;
-            deleteMessage(messageId);
-        });
-
-        if (isActive) {
-            // if message is not active, add inactive class to messageElement and conversationElement
-            messageElement.classList.add('active');
-        }
-    }
-
-    //if send is user
-    if (sender === 'user') {
-        const pre = document.createElement('pre');
-        pre.innerText = message;
-        messageElement.appendChild(pre);
-    } else {
-        const messageHtml = marked.parse(message);
-        const messageHtmlElement = document.createElement('div');
-        messageHtmlElement.innerHTML = messageHtml;
-        messageElement.appendChild(messageHtmlElement);
-    }
-
-    const iconGroup = document.createElement('div');
-    iconGroup.classList.add('icon-group');
-
-    //add a copy icon to message with class message-copy and fas fa-copy
-    const copyElement = document.createElement('i');
-    copyElement.classList.add('message-copy');
-    copyElement.classList.add('fas');
-    copyElement.classList.add('fa-copy');
-    //add message to copyElement dataset
-    iconGroup.appendChild(copyElement);
-
-    //check if current profile.tts is exist and value with "enabled"
-    if (currentProfile && currentProfile.tts === 'enabled') {
-        //create speaker icon
-        const speakerElement = document.createElement('i');
-        speakerElement.classList.add('message-speaker');
-        speakerElement.classList.add('fas');
-        speakerElement.classList.add('fa-volume-off');
-        iconGroup.appendChild(speakerElement);
-    } else {
-        // if ttsContainer is display, then hide it
-        if (ttsContainer.style.display === 'inline-block') {
-            ttsContainer.style.display = 'none';
-        }
-    }
-
-    messageElement.appendChild(iconGroup);
-    messagesContainer.appendChild(messageElement);
-    const messageSpeakers = document.querySelectorAll('.message-speaker');
-    const lastSpeaker = messageSpeakers[messageSpeakers.length - 1];
-    attachMessageSpeakerEvent(lastSpeaker);
-
-    // Determine if the message should be played automatically
-    const autoPlay = ttsPracticeMode && sender === 'assistant';
-    if (autoPlay) {
-        playMessage(lastSpeaker);
-    }
-
-    // find the last message-copy and add click event listener to it
-    const messageCopies = document.querySelectorAll('.message-copy');
-    const lastCopy = messageCopies[messageCopies.length - 1];
-    attachMessageCopyEvent(lastCopy);
-
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    // update slider max value
-    slider.max = Math.max(0, document.querySelectorAll('.message').length - 1);
-    document.querySelector('#maxValue').textContent = slider.max;
-};
-
-// implement deleteMessage function
-const deleteMessage = (messageId) => {
-    // remove message from DOM and also from prompt array by message id 
-    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-    // update input value to messageElement's data-message
-    messageInput.value = messageElement.dataset.message;
-    messageElement.remove();
-    prompts.removePrompt(messageId);
-    saveCurrentProfileMessages();
-
-    // update slider max value
-    slider.max = Math.max(0, document.querySelectorAll('.message').length - 1);
-    document.querySelector('#maxValue').textContent = slider.max;
-}
-
-// implement attachMessageCopyEvent function
-const attachMessageCopyEvent = (messageCopy) => {
-    // 实例化clipboard.js
-    var clipboard = new ClipboardJS(messageCopy, {
-        text: function (trigger) {
-            // 获取爷爷节点的data-message属性内容
-            var message = trigger.parentNode.parentNode.getAttribute('data-message');
-            //convert the html escape characters to normal characters
-            const textElement = document.createElement('textarea');
-            textElement.innerHTML = message;
-            message = textElement.value;
-            return message;
-        }
-    });
-
-    clipboard.on('success', function (e) {
-        showToast('copied successful');
-    });
-    clipboard.on('error', function (e) {
-        showToast('copied failed');
-    });
-};
-
-
-// attach speaker event to message speaker
-const attachMessageSpeakerEvent = (speaker) => {
-    if (!speaker) {
-        return;
-    }
-    speaker.addEventListener('click', async () => {
-        await playMessage(speaker);
-    });
-}
-
-const turnOnPracticeMode = () => {
-    ttsPracticeMode = true;
-    practiceMode.innerText = 'Auto';
-    practiceModeIcon.classList.remove('fa-volume-off');
-    practiceModeIcon.classList.add('fa-volume-up');
-}
-
-const turnOffPracticeMode = () => {
-    ttsPracticeMode = false;
-    practiceMode.innerText = 'Man.';
-    practiceModeIcon.classList.remove('fa-volume-up');
-    practiceModeIcon.classList.add('fa-volume-off');
-}
-
-// split message into sentences chunks with max 160 words each
-function splitMessage(message) {
-    let sentenceArr = [];
-    let words = message.split(" ");
-    let sentence = "";
-    let i = 0;
-    while (i < words.length) {
-        // if current sentence is empty, then add the first word to it
-        if (sentence.length === 0) {
-            sentence = words[i];
-        } else {
-            sentence = sentence + " " + words[i];
-        }
-        i++;
-        // if current sentence is 160 words or it is the last word, then add it to sentenceArr
-        if (sentence.split(" ").length === 160 || i === words.length) {
-            sentenceArr.push(sentence);
-            sentence = "";
-        }
-    }
-    return sentenceArr;
-}
-
-const audio = new Audio();
-var currentPlayingSpeaker; // Add this variable to keep track of the current playing speaker
-const toggleSpeakerIcon = (speaker) => {
-    speaker.classList.toggle('fa-volume-off');
-    speaker.classList.toggle('fa-volume-up');
-};
-const playAudio = async (speaker) => {
-    return new Promise((resolve, reject) => {
-        audio.onerror = () => {
-            toggleSpeakerIcon(speaker);
-            currentPlayingSpeaker = null;
-            console.error('Error playing audio.');
-            resolve();
-        };
-        audio.onended = () => {
-            toggleSpeakerIcon(speaker);
-            currentPlayingSpeaker = null;
-            resolve();
-        };
-        audio.onabort = () => {
-            console.error('Audio play aborted.');
-            resolve();
-        };
-        audio.play();
-    });
-};
-
-// play the message with tts
-async function playMessage(speaker) {
-    // if the speaker is playing, stop it and return
-    if (speaker.classList.contains('fa-volume-up')) {
-        //if the audio is playing, stop it
-        audio.pause();
-        toggleSpeakerIcon(speaker);
-        currentPlayingSpeaker = null;
-        return;
-    }
-    // If there is a speaker currently playing, stop it and reset its icon
-    if (currentPlayingSpeaker && currentPlayingSpeaker !== speaker) {
-        audio.pause();
-        toggleSpeakerIcon(currentPlayingSpeaker); // Reset the icon of the previous speaker
-    }
-
-    // Update the currentPlayingSpeaker variable
-    currentPlayingSpeaker = speaker;
-
-    //get message from parent element dataset message attribute
-    const message = speaker.parentElement.parentElement.dataset.message;
-    let sentenceArr = splitMessage(message);
-    console.log(sentenceArr);
-
-    // play sentences chunk one by one
-    const playSentences = async () => {
-        for (let sentence of sentenceArr) {
-            toggleSpeakerIcon(speaker);
-            try {
-                const url = `/api/tts?message=${encodeURIComponent(sentence)}`;
-                const response = await fetch(url);
-                const blob = await response.blob();
-                console.log('ready to play...');
-                audio.src = URL.createObjectURL(blob);
-                await playAudio(speaker);
-            } catch (error) {
-                toggleSpeakerIcon(speaker);
-                console.error(error);
-            }
-        }
-    };
-
-    // 使用Promise.all确保异步操作完成
-    await Promise.all([playSentences()]);
-
-}
-// generate unique id
-const generateId = () => {
-    return Math.random().toString(36).slice(2, 10);
-};
-
-// Clear message input except the first message
-const clearMessage = () => {
-    // clear mssages in DOM except the first message
-    messagesContainer.innerHTML = '';
-    prompts.clearExceptFirst();
-    addMessage(prompts[0].role, prompts[0].content, prompts[0].messageId);
-    saveCurrentProfileMessages();
-    messageInput.value = '';
-
-};
-
-
-// Send message on button click
-const sendMessage = async (message = '') => {
-    if (message === '/clear') {
-        clearMessage();
-        return;
-    }
-    // if message look like: /system: xxx, then send xxx as system message
-    if (message.startsWith('/system')) {
-        message = message.replace('/system', '');
-        let messageId = generateId();
-        addMessage('system', message, messageId);
-        prompts.clearPrompts();
-        prompts.addPrompt({ role: 'system', content: message, messageId: messageId });
-        return;
-    }
-    let messageId = generateId();
-    addMessage('user', message, messageId);
-    prompts.addPrompt({ role: 'user', content: message, messageId: messageId });
-    saveCurrentProfileMessages();
-    // join prompts except the messageId field to a string
-    const promptText = prompts.getPromptText();
-
-    console.log(promptText);
-    messageInput.value = '';
-
-    // if practice mode is on then messageInput get focus
-    if (ttsPracticeMode) {
-        messageInput.focus();
-    }
-
-    try {
-        const response = await fetch('/api/gpt', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: promptText }),
-        });
-        if (!response.ok) {
-            throw new Error('Error generating response.');
-        }
-        const data = await response.json();
-        // console.log(data);
-        // If no response, pop last prompt and send a message
-        if (!data) {
-            messageId = generateId();
-            const content = 'AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。';
-            addMessage('assistant', content, messageId, false);
-            prompts.addPrompt({ role: 'assistant', content: content, messageId: messageId });
-        } else {
-            messageId = generateId();
-            addMessage('assistant', data.message, messageId);
-            prompts.addPrompt({ role: 'assistant', content: data.message, messageId: messageId });
-            tokens = data.totalTokens;
-            tokensSpan.textContent = `${tokens}t`;
-            // If tokens are over 80% of max_tokens, remove the first round conversation
-            if (tokens > max_tokens * 0.8) {
-                const removedPrompts = prompts.removeRange(1, 2);
-                removedPrompts.forEach((p) => {
-                    inactiveMessage(p.messageId);
-                });
-                prompts.updateFirstPrompt({ role: 'system', content: currentProfile.prompt, messageId: generateId() });
-            }
-        }
-        saveCurrentProfileMessages();
-    } catch (error) {
-        let messageId = generateId();
-        addMessage('assistant', error.message, messageId, false);
-    }
-};
-
-const inactiveMessage = (messageId) => {
-    const message = document.querySelector(`[data-message-id="${messageId}"]`);
-    if (message) {
-        message.classList.remove('active');
-    }
-};
 
 // Send message on form submit
-messageForm.addEventListener('submit', (event) => {
+messageForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const message = messageInput.value.trim();
     if (message) {
-        sendMessage(message);
+        uiManager.sendMessage(message);
     }
     messageInput.focus();
 });
@@ -633,125 +161,31 @@ messageForm.addEventListener('submit', (event) => {
 // request /api/prompt_repo build queryString to transfer usernameInput value as username to server
 // it will return a json object with username and a data array
 // output the data array and the username in console
-userForm.addEventListener('submit', (event) => {
+userForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const username = usernameInput.value.trim();
-    modal.style.display = 'none';
+    modal.style.display = "none";
     if (username) {
-        fetch(`/api/prompt_repo?username=${username}`)
-            .then(response => response.json())
+        getPromptRepo(username)
             .then(data => {
-                renderMenuList(data);
+                uiManager.renderMenuList(data);
                 //practice mode will be off when user submit the username
-                turnOffPracticeMode();
+                uiManager.turnOffPracticeMode();
             });
     }
 });
 
 // popup the modal when user click the username label
-usernameLabel.addEventListener('click', function () {
-    modal.style.display = 'block';
+usernameLabel.addEventListener("click", function () {
+    modal.style.display = "block";
 });
 
 // close the modal when user click the close button
-document.addEventListener('click', function (event) {
+document.addEventListener("click", function (event) {
     if (event.target == modal) {
         modal.style.display = "none";
     }
 });
 
-// save the current message content to local storage by username and profile name
-const saveCurrentProfileMessages = () => {
-    const messages = document.querySelectorAll('.message');
-    const savedMessages = [];
-    messages.forEach(message => {
-        // only save user and assistant messages
-        if (message.dataset.sender === 'user' || message.dataset.sender === 'assistant') {
-            if (message.dataset.messageId === 'undefined') {
-                savedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: generateId() });
-            } else {
-                savedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: message.dataset.messageId });
-            }
-        }
-    });
-    localStorage.setItem(currentUsername + '_' + currentProfile.name, JSON.stringify(savedMessages));
-};
 
-// render menu list from data
-// it only happens when user submit the username or the page is loaded
-function renderMenuList(data) {
-    const profiles = data.profiles;
-    currentUsername = data.username;
-    // save current username to local storage
-    localStorage.setItem('currentUsername', currentUsername);
-    usernameLabel.textContent = currentUsername;
-    messagesContainer.innerHTML = '';
-    currentProfile = profiles[0]; // set currentProfile to the first profile
-    let messageId = generateId();
-    prompts.addPrompt({ role: 'system', content: currentProfile.prompt, messageId: messageId });
-    addMessage('system', currentProfile.prompt, messageId);
-
-    // read saved messages from local storage for current profile and current username
-    const savedMessages = JSON.parse(localStorage.getItem(currentUsername + '_' + currentProfile.name) || '[]');
-    // add saved messages to the message list and load last 2 messages(max) to prompts
-    savedMessages.forEach((message, index) => {
-        let isActive = false;
-        if (index >= savedMessages.length - 2) {
-            prompts.addPrompt(message);
-            isActive = true;
-        }
-        addMessage(message.role, message.content, message.messageId, isActive);
-    });
-
-
-    //empty menu list
-    menuList.innerHTML = '';
-
-    //add menu items
-    profiles.forEach(item => {
-        let li = document.createElement('li');
-        li.dataset.profile = item.name;
-        let icon = document.createElement('i');
-        icon.className = `${item.icon}`;
-        let span = document.createElement('span');
-        span.textContent = item.displayName;
-        li.appendChild(icon);
-        li.appendChild(span);
-        menuList.appendChild(li);
-        //add click event listener
-        li.addEventListener('click', function () {
-            // reset practice mode
-            turnOffPracticeMode();
-            // change currentProfile
-            var profileName = this.getAttribute('data-profile');
-            currentProfile = profiles.find(function (p) { return p.name === profileName; });
-            // 如果当前 profile 的 tts 属性为 enabled，则显示 ttsContainer
-            if (currentProfile && currentProfile.tts === 'enabled') {
-                // if ttsContainer is not display, then display it
-                ttsContainer.style.display = 'inline-block';
-            } else {
-                // if ttsContainer is display, then hide it
-                ttsContainer.style.display = 'none';
-            }
-            // 设置 profile 图标和名称
-            aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
-            messagesContainer.innerHTML = '';
-            // 清空 prompts 数组
-            prompts.clear();
-            let messageId = generateId();
-            prompts.addPrompt({ role: 'system', content: currentProfile.prompt, messageId: messageId });
-            addMessage('system', currentProfile.prompt, messageId);
-            // read saved messages from local storage for current profile and current username
-            const savedMessages = JSON.parse(localStorage.getItem(currentUsername + '_' + currentProfile.name) || '[]');
-            // add saved messages to the message list and load last 2 messages(max) to prompts
-            savedMessages.forEach((message, index) => {
-                let isActive = false;
-                if (index >= savedMessages.length - 2) {
-                    prompts.addPrompt(message);
-                    isActive = true;
-                }
-                addMessage(message.role, message.content, message.messageId, isActive);
-            });
-        });
-    });
-}
+setupVoiceInput(uiManager);

@@ -1,5 +1,6 @@
+/* eslint-disable no-undef */
 
-const getCurrentUsername = () => { return localStorage.getItem('currentUsername') || 'guest' };
+const getCurrentUsername = () => { return localStorage.getItem("currentUsername") || "guest"; };
 const showAlert = (type, message) => {
     var alertHtml = `
         <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -8,13 +9,13 @@ const showAlert = (type, message) => {
         </div>
     `;
     $("#alert-container").html(alertHtml);
-}
+};
 
 
 $(function () {
     // if currentUsername is guest, show warning alert
-    if (getCurrentUsername() === 'guest') {
-        showAlert('warning', 'You are currently logged in as guest. You can not edit the profile.');
+    if (getCurrentUsername() === "guest") {
+        showAlert("warning", "You are currently logged in as guest. You can not edit the profile.");
     }
 
     // Fetch profiles from server and display on page
@@ -25,9 +26,9 @@ $(function () {
         saveProfile();
     });
 
-    $('#icon').on('change', function () {
+    $("#icon").on("change", function () {
         const iconClass = $(this).val();
-        $('#icon-preview').attr('class', iconClass);
+        $("#icon-preview").attr("class", iconClass);
     });
 });
 
@@ -67,7 +68,7 @@ function displayProfiles(profiles) {
         const icon = $(this).parent().find("i").attr("class");
         const displayName = $(this).parent().find("p.card-text").eq(0).text();
         const prompt = $(this).parent().find("p.card-text").eq(1).text();
-        const sortedIndex = $(this).parent().find("p.card-text").eq(2).text().split(': ')[1];
+        const sortedIndex = $(this).parent().find("p.card-text").eq(2).text().split(": ")[1];
 
         // Set form fields with profile data
         $("#name").val(name);
