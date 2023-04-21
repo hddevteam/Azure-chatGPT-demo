@@ -55,11 +55,13 @@ h1 {
 #messages {
     position: absolute;
     top: 50px;
-    bottom: 0;
+    bottom: 30px;
     width: 82%;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #bbb transparent;
 }
 
 .message {
@@ -196,16 +198,38 @@ textarea {
     border-radius: 5px;
     background-color: #f5f5f5;
     transition: border-color 0.2s ease-in-out;
+    overflow: auto;
 }
 
-textarea:focus {
-    border-color: #4CAF50;
+/* Custom scrollbar for Webkit browsers */
+#messages::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
+    width: 4px;
+    background-color: transparent;
+}
+
+#messages::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb {
+    background-color: #bbb;
+    border-radius: 4px;
+}
+
+#messages::-webkit-scrollbar-thumb::hover,
+textarea::-webkit-scrollbar-thumb:hover {
+    background-color: #999;
+    cursor: default;
+}
+
+/* Custom scrollbar for Firefox */
+textarea {
+    scrollbar-width: thin;
+    scrollbar-color: #bbb transparent;
 }
 
 #clear-input {
     position: absolute;
-    left: 5px;
-    top: 5px;
+    right: 10px;
+    bottom: 10px;
     font-size: 1 em;
     color: #ccc;
     cursor: pointer;
@@ -250,10 +274,10 @@ textarea:focus {
     max-width: 900px;
 }
 
-#voice-input-button,
+
 #message-form button[type="submit"] {
     position: absolute;
-    right: 18px;
+    right: 10px;
 }
 
 #message-form button[type="submit"] {
@@ -262,12 +286,20 @@ textarea:focus {
 }
 
 #voice-input-button {
-    bottom: 8px;
-    background-color: transparent;
-    color: #555;
-    font-size: 24px;
+    position: absolute;
+    top: -48px;
+    height: 38px;
+    left: 5px;
+    color: #fff;
+    background-color: #4CAF50;
+    font-size: 20px;
     cursor: pointer;
-    border: 2px solid #555;
+    border-radius: 5px 5px 0 0;
+    transition: background-color 0.2s ease-in-out;
+}
+
+#voice-input-button:hover {
+    background-color: #3e8e41;
 }
 
 #voice-input-button.voice-input-active {
@@ -278,21 +310,21 @@ textarea:focus {
     color: #fff;
 }
 
+/* #voice-input-button:hover {
+    animation: buttonChange 2s infinite;
+} */
+
 @keyframes buttonChange {
 
     0%,
     100% {
-        background-color: transparent;
-        color: #555;
-        border-color: #F44336;
-        transform: scale(1);
+        background-color: rgba(255, 0, 0, 0.3);
+        color: #000;
     }
 
     50% {
         background-color: #F44336;
         color: #fff;
-        border-color: #555;
-        transform: scale(1.1);
     }
 }
 
@@ -481,10 +513,17 @@ button:hover {
 
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
+
+    #voice-input-button {
+        top: -43px;
+
+    }
+
     .modal-content {
         margin: 25% auto;
         width: 100%;
     }
+
     .modal-content {
         background-color: #fefefe;
         margin: 15% auto;
@@ -497,7 +536,7 @@ button:hover {
 
     #chat-container {
         padding: 0;
-        height: calc(100vh - 250px);
+        height: calc(100vh - 150px);
         width: 100%;
         margin: 0;
         border: 0;
@@ -565,6 +604,7 @@ button:hover {
     #messages {
         width: 100%;
         top: 2.7em;
+        bottom: 1em;
         padding: 1em;
     }
 
@@ -588,18 +628,18 @@ button:hover {
         font-size: 12px;
     }
 
-    #message-form button {
-        width: fit-content;
-        padding: 0.5em;
-        margin-left: 0.5em;
-        border-radius: 0.5em;
-        font-size: 1em;
-    }
-
     input#slider {
         width: 80px;
     }
 
+}
+
+/* for high resolution mobile devices such as iPhone */
+@media screen and (min-resolution: 2dppx) {
+
+    #chat-container {
+        height: calc(100vh - 250px);
+    }
 }
 
 /* iPad Layout */
