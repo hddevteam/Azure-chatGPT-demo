@@ -191,7 +191,7 @@ textarea {
     resize: none;
     width: 100%;
     height: 100%;
-    padding: 12px 60px 14px 16px;
+    padding: 10px 50px 10px 10px;
     font-size: 16px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     border: 2px solid #eee;
@@ -228,9 +228,9 @@ textarea {
 
 #clear-input {
     position: absolute;
-    right: 10px;
-    bottom: 10px;
-    font-size: 1 em;
+    right: 5px;
+    bottom: 5px;
+    font-size: 1em;
     color: #ccc;
     cursor: pointer;
 }
@@ -277,12 +277,12 @@ textarea {
 
 #message-form button[type="submit"] {
     position: absolute;
-    right: 10px;
+    right: 5px;
 }
 
 #message-form button[type="submit"] {
     position: absolute;
-    top: 8px;
+    top: 5px;
 }
 
 #voice-input-button {
@@ -514,10 +514,54 @@ button:hover {
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
 
-    #voice-input-button {
-        top: -43px;
-
+    #clear-input {
+        left: 5px;
+        top: -25px;
+        bottom: unset;
+        right: unset;
     }
+
+    textarea {
+        max-width: 100%;
+        margin-right: 0px;
+        padding: 5px 45px 5px 5px;
+        border-radius: 5px 5px 0px 0px;
+    }
+
+    #message-form {
+        height: 120px;
+        padding: 5px;
+    }
+
+    #input-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .text-input-container {
+        display: flex;
+        align-items: center;
+    }
+
+    #message-input {
+        flex-grow: 1;
+    }
+
+    #voice-input-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    #voice-input-button {
+        height: fit-content;
+        font-size: 15px;
+        width: 100% !important;
+        position: static !important;
+        border-radius: 0px 0px 5px 5px;
+    }
+
 
     .modal-content {
         margin: 25% auto;
@@ -606,17 +650,6 @@ button:hover {
         top: 2.7em;
         bottom: 1em;
         padding: 1em;
-    }
-
-    #message-input {
-        max-width: 100%;
-        margin-right: 0px;
-    }
-
-    #message-form {
-
-        height: 120px;
-        padding: 5px;
     }
 
     .mini-toolbar {
