@@ -154,7 +154,6 @@ messageForm.addEventListener("submit", (event) => {
     if (message) {
         uiManager.sendMessage(message);
     }
-    messageInput.focus();
 });
 
 
