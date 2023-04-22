@@ -137,10 +137,6 @@ i.message-delete.fa-times {
     cursor: pointer;
 }
 
-.assistant-message ol {
-    margin-left: 20px;
-}
-
 .user-message pre {
     white-space: pre-wrap;
 }
