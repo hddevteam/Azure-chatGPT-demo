@@ -17,6 +17,7 @@ export function setupVoiceInput(uiManager) {
     let dataChunks = [];
 
     async function startRecording() {
+        uiManager.showToast("Device is warming up... please wait.");
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
 
         const sampleRate = 16000;
@@ -30,7 +31,7 @@ export function setupVoiceInput(uiManager) {
 
         recorder.onstart = () => {
             console.log("Recorder started");
-            uiManager.showToast("Recording started... please limit your message to 60 seconds.");
+            uiManager.showToast("Recording started....");
             dataChunks = [];
             voiceInputButton.classList.add("voice-input-active");
         };
