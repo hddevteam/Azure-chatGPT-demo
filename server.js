@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const express = require("express");
 const bodyParser = require("body-parser");
 require("dotenv").config();
@@ -18,7 +19,7 @@ if (process.env.AZURE_TTS) {
 }
 
 //return app name from .env file, if not set, return "Azure chatGPT Demo"
-app.get("/api/app_name", (req, res) => {
+app.get("/api/app_name", (_req, res) => {
     if (!process.env.APP_NAME) {
         res.send("Azure chatGPT Demo");
     } else {
@@ -68,10 +69,10 @@ const fs = require("fs-extra");
 fs.ensureDirSync("./failed_audio");
 const multer = require("multer");
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination: function (_req, _file, cb) {
         cb(null, "./failed_audio");
     },
-    filename: function (req, file, cb) {
+    filename: function (_req, _file, cb) {
         cb(null, `audio_${Date.now()}.wav`);
     },
 });
@@ -87,20 +88,49 @@ app.post("/auto-speech-to-text", upload.single("file"), async (req, res) => {
     const autoDetectSourceLanguageConfig = SpeechSDK.AutoDetectSourceLanguageConfig.fromLanguages(["en-US", "zh-CN"]);
 
     var speechRecognizer = SpeechSDK.SpeechRecognizer.FromConfig(speechConfig, autoDetectSourceLanguageConfig, audioConfig);
-    speechRecognizer.recognizeOnceAsync((result) => {
-        if (result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
-            res.send(result.text);
-        } else {
-            res.status(400).send("Speech recognition failed");
+
+    let recognizedText = "";
+
+    // Add event listeners
+    speechRecognizer.recognizing = (_sender, event) => {
+        console.log(`Recognizing: ${event.result.text}`);
+    };
+
+    speechRecognizer.recognized = (_sender, event) => {
+        if (event.result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
+            recognizedText += event.result.text;
         }
-        console.log(result);
+    };
+
+    speechRecognizer.canceled = (_sender, event) => {
+        if (event.errorCode !== 0) {
+            console.error(`Canceled: ${JSON.stringify(event)}`);
+            res.status(400).send("Speech recognition failed");
+        } else {
+            console.log("Reached the end of input data");
+        }
         fs.unlinkSync(filePath);
         speechRecognizer.close();
-    }, (error) => {
-        console.error("Error:", error);
-        res.status(500).send("Internal server error");
+    };
+
+    speechRecognizer.sessionStopped = (_sender, _event) => {
+        console.log("Session stopped");
+        res.send(recognizedText);
         fs.unlinkSync(filePath);
-    });
+        speechRecognizer.close();
+    };
+
+    // Start continuous recognition
+    speechRecognizer.startContinuousRecognitionAsync(
+        () => {
+            console.log("Recognition started");
+        },
+        (error) => {
+            console.error("Error:", error);
+            res.status(500).send("Internal server error");
+            fs.unlinkSync(filePath);
+        }
+    );
 });
 
 app.post("/speech-to-text", upload.single("file"), async (req, res) => {
@@ -169,7 +199,7 @@ app.post("/api/gpt", async (req, res) => {
     };
 
     try {
-    // Send request to API endpoint
+        // Send request to API endpoint
         const response = await axios(apiUrl, options);
         const { data } = response;
 
