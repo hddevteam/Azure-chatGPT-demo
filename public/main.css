@@ -493,7 +493,8 @@ button:hover {
 #toast {
     display: none;
     position: fixed;
-    bottom: 20%;
+    width: 80vw;
+    bottom: 25%;
     left: 50%;
     opacity: 0.5;
     transform: translateX(-50%);
@@ -502,14 +503,13 @@ button:hover {
     color: #fff;
     border-radius: 5px;
     z-index: 9999;
+    max-width: max-content;
 }
 
 .message-speaker,
 .message-copy {
     cursor: pointer;
 }
-
-
 
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
@@ -619,6 +619,18 @@ button:hover {
         margin-right: 2em;
         border-radius: 0.5em;
     }
+
+    .message ol,
+    .message ul {
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+
+    .message li {
+        margin-bottom: 0.5em;
+        margin-left: 2em;
+    }
+
 
     #menu-header {
         justify-content: center;
