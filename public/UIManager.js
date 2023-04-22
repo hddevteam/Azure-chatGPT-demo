@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { currentUsername, setCurrentUsername } from "./storage.js";
+import { setCurrentUsername, getCurrentUsername, getCurrentProfile, setCurrentProfile } from "./storage.js";
 import { getGpt, getTts } from "./api.js";
 
 class UIManager {
@@ -19,7 +19,7 @@ class UIManager {
         toast.style.display = "block";
         setTimeout(function () {
             toast.style.display = "none";
-        }, 3000); 
+        }, 3000);
     }
 
     // attach speaker event to message speaker
@@ -138,7 +138,7 @@ class UIManager {
         iconGroup.appendChild(copyElement);
 
         //check if current profile.tts is exist and value with "enabled"
-        if (this.app.currentProfile && this.app.currentProfile.tts === "enabled") {
+        if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
             //create speaker icon
             const speakerElement = document.createElement("i");
             speakerElement.classList.add("message-speaker");
@@ -193,7 +193,7 @@ class UIManager {
                 return message;
             }
         });
-        
+
         const self = this;
         clipboard.on("success", function () {
             self.showToast("copied successful");
@@ -239,7 +239,7 @@ class UIManager {
                 }
             }
         });
-        localStorage.setItem(currentUsername + "_" + this.app.currentProfile.name, JSON.stringify(savedMessages));
+        localStorage.setItem(getCurrentUsername() + "_" + getCurrentProfile().name, JSON.stringify(savedMessages));
     }
 
     // Clear message input except the first message
@@ -326,19 +326,23 @@ class UIManager {
     renderMenuList(data) {
         const profiles = data.profiles;
         setCurrentUsername(data.username);
-        // save current username to local storage
-        localStorage.setItem("currentUsername", currentUsername);
         const usernameLabel = document.querySelector("#username-label");
-        usernameLabel.textContent = currentUsername;
+        usernameLabel.textContent = getCurrentUsername();
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.innerHTML = "";
-        this.app.currentProfile = profiles[0]; // set currentProfile to the first profile
+        // Get currentProfile from storage.js if available, otherwise set it to the first profile
+        const savedCurrentProfile = getCurrentProfile();
+        if (savedCurrentProfile) {
+            setCurrentProfile(savedCurrentProfile);
+        } else {
+            setCurrentProfile(profiles[0]);
+        }
         let messageId = this.generateId();
-        this.app.prompts.addPrompt({ role: "system", content: this.app.currentProfile.prompt, messageId: messageId });
-        this.addMessage("system", this.app.currentProfile.prompt, messageId);
+        this.app.prompts.addPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: messageId });
+        this.addMessage("system", getCurrentProfile().prompt, messageId);
 
         // read saved messages from local storage for current profile and current username
-        const savedMessages = JSON.parse(localStorage.getItem(currentUsername + "_" + this.app.currentProfile.name) || "[]");
+        const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
         // add saved messages to the message list and load last 2 messages(max) to prompts
         savedMessages.forEach((message, index) => {
             let isActive = false;
@@ -351,6 +355,8 @@ class UIManager {
         //empty menu list
         const menuList = document.querySelector("#menu-list");
         menuList.innerHTML = "";
+        const aiProfile = document.querySelector("#ai-profile");
+        aiProfile.innerHTML = `<i class="${getCurrentProfile().icon}"></i> ${getCurrentProfile().displayName}`;
         //add menu items
         profiles.forEach(item => {
             let li = document.createElement("li");
@@ -370,10 +376,10 @@ class UIManager {
                 self.turnOffPracticeMode();
                 // change currentProfile
                 var profileName = this.getAttribute("data-profile");
-                self.app.setCurrentProfile(profiles.find(function (p) { return p.name === profileName; }));
+                setCurrentProfile(profiles.find(function (p) { return p.name === profileName; }));
                 // 如果当前 profile 的 tts 属性为 enabled，则显示 ttsContainer
                 const ttsContainer = document.querySelector("#tts-container");
-                if (self.app.currentProfile && self.app.currentProfile.tts === "enabled") {
+                if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
                     // if ttsContainer is not display, then display it
                     ttsContainer.style.display = "inline-block";
                 } else {
@@ -382,15 +388,15 @@ class UIManager {
                 }
                 // 设置 profile 图标和名称
                 const aiProfile = document.querySelector("#ai-profile");
-                aiProfile.innerHTML = `<i class="${self.app.currentProfile.icon}"></i> ${self.app.currentProfile.displayName}`;
+                aiProfile.innerHTML = `<i class="${getCurrentProfile().icon}"></i> ${getCurrentProfile().displayName}`;
                 messagesContainer.innerHTML = "";
                 // 清空 prompts 数组
                 self.app.prompts.clear();
                 let messageId = self.generateId();
-                self.app.prompts.addPrompt({ role: "system", content: self.app.currentProfile.prompt, messageId: messageId });
-                self.addMessage("system", self.app.currentProfile.prompt, messageId);
+                self.app.prompts.addPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: messageId });
+                self.addMessage("system", getCurrentProfile().prompt, messageId);
                 // read saved messages from local storage for current profile and current username
-                const savedMessages = JSON.parse(localStorage.getItem(currentUsername + "_" + self.app.currentProfile.name) || "[]");
+                const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
                 // add saved messages to the message list and load last 2 messages(max) to prompts
                 savedMessages.forEach((message, index) => {
                     let isActive = false;

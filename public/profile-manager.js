@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
-
-const getCurrentUsername = () => { return localStorage.getItem("currentUsername") || "guest"; };
+import { getCurrentUsername } from "./storage.js";
 const showAlert = (type, message) => {
     var alertHtml = `
         <div class="alert alert-${type} alert-dismissible fade show" role="alert">

@@ -1,5 +1,5 @@
 import App from "./App.js";
-import { currentUsername } from "./storage.js";
+import { getCurrentUsername } from "./storage.js";
 import { getAppName, getPromptRepo } from "./api.js";
 import UIManager from "./UIManager.js";
 import { setupVoiceInput } from "./input-audio.js";
@@ -138,7 +138,7 @@ exportExcel.addEventListener("click", () => {
 });
 
 // generate current user menulist and render it
-getPromptRepo(currentUsername)
+getPromptRepo(getCurrentUsername())
     .then(data => {
         uiManager.renderMenuList(data);
     })
