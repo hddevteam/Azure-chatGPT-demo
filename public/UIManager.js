@@ -2,6 +2,7 @@
 import { setCurrentUsername, getCurrentUsername, getCurrentProfile, setCurrentProfile } from "./storage.js";
 import { getGpt, getTts } from "./api.js";
 
+// purpose to manage the ui interaction of the app
 class UIManager {
 
     constructor(app) {
