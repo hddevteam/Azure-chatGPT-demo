@@ -1,4 +1,4 @@
-// This file is used by the client-side code to make requests to the server.
+// purpose: client-side code to make requests to the server side api.
 
 // get app name
 export async function getAppName() {

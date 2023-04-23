@@ -1,4 +1,7 @@
 /* eslint-disable no-undef */
+
+// purpose: to manage the ai profiles(system prompt) of current user
+
 import { getCurrentUsername } from "./storage.js";
 const showAlert = (type, message) => {
     var alertHtml = `

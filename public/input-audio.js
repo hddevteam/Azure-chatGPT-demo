@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-// This file is used to setup the voice input button on the chat page
+// purpose: to setup the voice input and handle it on the chat page
 import { getStt } from "./api.js";
 
 

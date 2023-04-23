@@ -1,3 +1,5 @@
+// purpose: entry point of the application. It is responsible for creating the App object and passing it to the UIManager object. It also contains the event listeners for the message form and the modal form.
+
 import App from "./App.js";
 import { getCurrentUsername } from "./storage.js";
 import { getAppName, getPromptRepo } from "./api.js";

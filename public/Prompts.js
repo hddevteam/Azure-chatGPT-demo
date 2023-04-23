@@ -1,3 +1,5 @@
+// purpose: to manage the prompts of current conversation
+
 class Prompts {
     constructor() {
         this.data = [];
