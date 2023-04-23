@@ -206,32 +206,32 @@ textarea {
     background-color: #f5f5f5;
     transition: border-color 0.2s ease-in-out;
     overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #bbb transparent;
 }
 
 /* Custom scrollbar for Webkit browsers */
+#menu::-webkit-scrollbar,
 #messages::-webkit-scrollbar,
 textarea::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
     background-color: transparent;
 }
 
+#menu::-webkit-scrollbar-thumb,
 #messages::-webkit-scrollbar-thumb,
 textarea::-webkit-scrollbar-thumb {
     background-color: #bbb;
-    border-radius: 4px;
+    border-radius: 6px;
 }
 
+#menu::-webkit-scrollbar-thumb::hover,
 #messages::-webkit-scrollbar-thumb::hover,
 textarea::-webkit-scrollbar-thumb:hover {
     background-color: #999;
     cursor: default;
 }
 
-/* Custom scrollbar for Firefox */
-textarea {
-    scrollbar-width: thin;
-    scrollbar-color: #bbb transparent;
-}
 
 #clear-input {
     position: absolute;
@@ -372,6 +372,8 @@ button:hover {
     border-radius: 0 5px 5px 0;
     overflow-y: auto;
     padding-bottom: 30px;
+    scrollbar-width: thin;
+    scrollbar-color: #bbb transparent;
 }
 
 #menu-header {
@@ -408,9 +410,9 @@ button:hover {
 #menu li {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
     padding: 5px;
     padding-left: 10px;
+    margin-bottom: 5px;
     color: #333;
 }
 
@@ -421,6 +423,7 @@ button:hover {
 
 #menu li span {
     font-size: 14px;
+    line-height: 120%;
 }
 
 #menu li:hover {
