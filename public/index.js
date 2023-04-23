@@ -187,5 +187,53 @@ document.addEventListener("click", function (event) {
     }
 });
 
+// handle the click event on the ai profile
+function handleProfileClick() {
+    const aiProfile = document.getElementById("ai-profile");
+    aiProfile.removeEventListener("click", handleClick);
+
+    if (window.innerWidth <= 768) {
+        aiProfile.addEventListener("click", handleClick);
+    } else {
+        // if menu is invisible, then set it to visible
+        const menu = document.getElementById("menu");
+        const isVisible = menu.getAttribute("data-visible") === "true";
+        if (!isVisible) {
+            menu.style.display = "block";
+            menu.setAttribute("data-visible", true);
+        }
+    }
+
+}
+
+// handle the click event on the ai profile
+function handleClick(event) {
+    event.stopPropagation();
+    toggleMenu();
+}
+
+document.addEventListener("DOMContentLoaded", handleProfileClick);
+window.addEventListener("resize", handleProfileClick);
+
+// toggle the menu when user click the ai profile
+function toggleMenu() {
+    const menu = document.getElementById("menu");
+    const isVisible = menu.getAttribute("data-visible") === "true";
+
+    menu.style.display = isVisible ? "none" : "block";
+    menu.setAttribute("data-visible", !isVisible);
+
+    if (!isVisible) {
+        document.addEventListener("click", function hideMenuOnOutsideClick(event) {
+            const aiProfile = document.getElementById("ai-profile");
+
+            if (event.target !== menu && event.target !== aiProfile && !aiProfile.contains(event.target)) {
+                menu.style.display = "none";
+                menu.setAttribute("data-visible", false);
+                document.removeEventListener("click", hideMenuOnOutsideClick);
+            }
+        });
+    }
+}
 
 setupVoiceInput(uiManager);

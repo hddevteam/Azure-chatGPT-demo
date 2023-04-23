@@ -360,6 +360,7 @@ button:hover {
 
 
 #menu {
+    display: block;
     position: absolute;
     top: 0;
     right: 0;
@@ -376,7 +377,6 @@ button:hover {
 #menu-header {
     display: flex;
     justify-content: left;
-    align-items: center;
     margin-bottom: 10px;
     padding: 10px 0;
     color: #333;
@@ -605,7 +605,6 @@ button:hover {
         display: flex;
         height: 3em;
         width: 100%;
-        margin-right: 2em;
         margin-bottom: 1em;
         padding: 1em;
 
@@ -613,17 +612,26 @@ button:hover {
 
     #ai-profile {
         padding: 0.3em;
+        display: inline-block;
         margin: 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        cursor: pointer;
+        background-color: #4CAF50;
+        transition: background-color 0.2s ease-in-out;
+        color: #fff;
+    }
+
+    #ai-profile:hover {
+        background-color: #3e8e41;
     }
 
 
     .message {
         padding: 1em;
         margin-bottom: 0.5em;
-        margin-right: 2em;
+        margin-right: 0;
         border-radius: 0.5em;
     }
 
@@ -638,22 +646,33 @@ button:hover {
         margin-left: 2em;
     }
 
-
-    #menu-header {
-        justify-content: center;
-    }
-
     #menu {
-        width: warp-content;
+        display: none;
+        position: fixed;
+        top: 2.7em;
+        right: 1em;
+        border-radius: 0;
+        z-index: 99;
+        height: calc(80vh);
+        width: 250px;
+        background-color: #FFFFFF;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow-y: auto;
     }
 
     #menu li {
-        margin-bottom: 1em;
+        margin-bottom: 0.5em;
+    }
+
+    #menu-header {
+        padding: 5px;
+        padding-left: 10px;
     }
 
     #menu-header i,
     #menu li i {
-        margin: 0;
+        margin: 0 0.5em 0 0;
         font-size: 1em;
         padding: 0.2em;
     }
@@ -661,7 +680,9 @@ button:hover {
     #menu-header span,
     #menu-list li span {
         margin: 0;
-        display: none;
+        padding: 0;
+        font-size: medium;
+        font-weight: normal;
     }
 
     #messages {
