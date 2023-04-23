@@ -651,14 +651,16 @@ button:hover {
         position: fixed;
         top: 2.7em;
         right: 1em;
-        border-radius: 0;
-        z-index: 99;
-        height: calc(80vh);
-        width: 250px;
+        border-radius: 0.5em;
+        width: 70vw;
+        max-width: max-content;
         background-color: #FFFFFF;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         overflow-y: auto;
+        height: calc(75vh);
+        max-height: max-content;
+        z-index: 9999;
     }
 
     #menu li {
@@ -668,6 +670,7 @@ button:hover {
     #menu-header {
         padding: 5px;
         padding-left: 10px;
+        margin-bottom: 0.5em;
     }
 
     #menu-header i,
@@ -677,12 +680,15 @@ button:hover {
         padding: 0.2em;
     }
 
-    #menu-header span,
+    #menu-header span
+    {
+        font-size: 1em;
+        font-weight: normal;
+    }
+
     #menu-list li span {
         margin: 0;
         padding: 0;
-        font-size: medium;
-        font-weight: normal;
     }
 
     #messages {

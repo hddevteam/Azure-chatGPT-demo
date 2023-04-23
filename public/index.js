@@ -192,21 +192,25 @@ document.addEventListener("click", function (event) {
 // handle the click event on the ai profile
 function handleProfileClick() {
     const aiProfile = document.getElementById("ai-profile");
+    const menu = document.getElementById("menu");
+
+    // Remove the click event listener from ai-profile
     aiProfile.removeEventListener("click", handleClick);
 
     if (window.innerWidth <= 768) {
+        // Add the click event listener to ai-profile for smaller screens
         aiProfile.addEventListener("click", handleClick);
-    } else {
-        // if menu is invisible, then set it to visible
-        const menu = document.getElementById("menu");
-        const isVisible = menu.getAttribute("data-visible") === "true";
-        if (!isVisible) {
-            menu.style.display = "block";
-            menu.setAttribute("data-visible", true);
-        }
-    }
 
+        // Make sure the menu is hidden initially on smaller screens
+        menu.style.display = "none";
+        menu.setAttribute("data-visible", false);
+    } else {
+        // Make the menu visible and remove the click event listener for larger screens
+        menu.style.display = "block";
+        menu.setAttribute("data-visible", true);
+    }
 }
+
 
 // handle the click event on the ai profile
 function handleClick(event) {
