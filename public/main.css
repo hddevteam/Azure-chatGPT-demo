@@ -72,6 +72,17 @@ h1 {
     border-radius: 0.5em;
 }
 
+.message ol,
+.message ul {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.message li {
+    margin-bottom: 0.5em;
+    margin-left: 2em;
+}
+
 .system-message {
     background-color: #424141;
     color: #e6f2ff;
