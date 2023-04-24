@@ -300,7 +300,7 @@ class UIManager {
                     removedPrompts.forEach((p) => {
                         this.inactiveMessage(p.messageId);
                     });
-                    this.app.prompts.updateFirstPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: generateId() });
+                    this.app.prompts.updateFirstPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: this.generateId() });
                 }
             }
             this.saveCurrentProfileMessages();
