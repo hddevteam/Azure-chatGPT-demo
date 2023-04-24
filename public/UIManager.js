@@ -146,12 +146,6 @@ class UIManager {
             speakerElement.classList.add("fas");
             speakerElement.classList.add("fa-volume-off");
             iconGroup.appendChild(speakerElement);
-        } else {
-            const ttsContainer = document.querySelector("#tts-container");
-            // if ttsContainer is display, then hide it
-            if (ttsContainer.style.display === "inline-block") {
-                ttsContainer.style.display = "none";
-            }
         }
 
         messageElement.appendChild(iconGroup);
@@ -282,11 +276,6 @@ class UIManager {
         const messageInput = document.querySelector("#message-input");
         messageInput.value = "";
 
-        // if practice mode is on then messageInput get focus
-        if (this.app.ttsPracticeMode) {
-            messageInput.focus();
-        }
-
         try {
             const data = await getGpt(promptText);
             // console.log(data);
@@ -341,6 +330,7 @@ class UIManager {
         let messageId = this.generateId();
         this.app.prompts.addPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: messageId });
         this.addMessage("system", getCurrentProfile().prompt, messageId);
+        this.setupPracticeMode();
 
         // read saved messages from local storage for current profile and current username
         const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
@@ -379,14 +369,7 @@ class UIManager {
                 var profileName = this.getAttribute("data-profile");
                 setCurrentProfile(profiles.find(function (p) { return p.name === profileName; }));
                 // 如果当前 profile 的 tts 属性为 enabled，则显示 ttsContainer
-                const ttsContainer = document.querySelector("#tts-container");
-                if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
-                    // if ttsContainer is not display, then display it
-                    ttsContainer.style.display = "inline-block";
-                } else {
-                    // if ttsContainer is display, then hide it
-                    ttsContainer.style.display = "none";
-                }
+                self.setupPracticeMode();
                 // 设置 profile 图标和名称
                 const aiProfile = document.querySelector("#ai-profile");
                 aiProfile.innerHTML = `<i class="${getCurrentProfile().icon}"></i> ${getCurrentProfile().displayName}`;
@@ -409,6 +392,17 @@ class UIManager {
                 });
             });
         });
+    }
+
+    setupPracticeMode() {
+        const ttsContainer = document.querySelector("#tts-container");
+        if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
+            // if ttsContainer is not display, then display it
+            ttsContainer.style.display = "inline-block";
+        } else {
+            // if ttsContainer is display, then hide it
+            ttsContainer.style.display = "none";
+        }
     }
 
     // split message into sentences chunks with max 160 words each
