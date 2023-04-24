@@ -4,7 +4,7 @@ Welcome to chatGPTdemo, a fascinating demo website built with Node.js and Azure 
 
 ## 🌟 Features
 
-![chatGPTdemo](./demo-mobile.png)
+![chatGPTdemo](./demo.png)
 
 - Easy-to-use chat interface
 - Customizable AI character role
