@@ -36,7 +36,7 @@ export async function getTts(message) {
 export async function getStt(audioBlob) {
     const formData = new FormData();
     formData.append("file", audioBlob);
-    const response = await fetch("/auto-speech-to-text", {
+    const response = await fetch("/api/auto-speech-to-text", {
         method: "POST",
         body: formData,
     });

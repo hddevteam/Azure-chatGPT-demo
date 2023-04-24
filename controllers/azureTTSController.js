@@ -1,7 +1,5 @@
 /* eslint-disable no-unused-vars */
 
-
-
 const fs = require("fs-extra");
 fs.ensureDirSync("./failed_audio");
 var azureTTS = null;

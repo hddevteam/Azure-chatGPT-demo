@@ -36,7 +36,7 @@ $(function () {
 
 function fetchProfiles() {
     // Fetch profiles from server, replace the URL with your API endpoint
-    fetch("/profiles?username=" + getCurrentUsername())
+    fetch("/api/profiles?username=" + getCurrentUsername())
         .then(response => response.json())
         .then(data => displayProfiles(data));
 }
@@ -93,7 +93,7 @@ function displayProfiles(profiles) {
         const name = $(this).parent().find("h5").text();
 
         // Delete profile using API, replace the URL with your API endpoint
-        fetch(`/profiles/${name}?username=${getCurrentUsername()}`, {
+        fetch(`/api/profiles/${name}?username=${getCurrentUsername()}`, {
             method: "DELETE"
         })
             .then(response => response.json())
@@ -121,7 +121,7 @@ function displayProfiles(profiles) {
 
         // Send data to server, replace the URL with your API endpoint
         // send currentUsername as username in the query string
-        fetch(`/profiles/${oldName}?username=${getCurrentUsername()}`, {
+        fetch(`/api/profiles/${oldName}?username=${getCurrentUsername()}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -159,7 +159,7 @@ function saveProfile() {
     }
 
     // Send data to server, replace the URL with your API endpoint
-    fetch(`/profiles?username=${getCurrentUsername()}`, {
+    fetch(`/api/profiles?username=${getCurrentUsername()}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
