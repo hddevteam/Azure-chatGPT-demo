@@ -289,7 +289,7 @@ class UIManager {
                 messageId = this.generateId();
                 this.addMessage("assistant", data.message, messageId);
                 this.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId });
-                const max_tokens = 4000;
+                const max_tokens = 6000;
                 const tokens = data.totalTokens;
 
                 const tokensSpan = document.querySelector("#tokens");
@@ -300,7 +300,7 @@ class UIManager {
                     removedPrompts.forEach((p) => {
                         this.inactiveMessage(p.messageId);
                     });
-                    this.app.prompts.updateFirstPrompt({ role: "system", content: this.app.currentProfile.prompt, messageId: generateId() });
+                    this.app.prompts.updateFirstPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: generateId() });
                 }
             }
             this.saveCurrentProfileMessages();
