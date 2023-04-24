@@ -213,12 +213,12 @@ class UIManager {
         document.querySelector("#maxValue").textContent = slider.max;
     }
 
-    inactiveMessage = (messageId) => {
+    inactiveMessage(messageId) {
         const message = document.querySelector(`[data-message-id="${messageId}"]`);
         if (message) {
             message.classList.remove("active");
         }
-    };
+    }
 
     // save the current message content to local storage by username and profile name
     saveCurrentProfileMessages() {
@@ -298,7 +298,7 @@ class UIManager {
                 if (tokens > max_tokens * 0.8) {
                     const removedPrompts = this.app.prompts.removeRange(1, 2);
                     removedPrompts.forEach((p) => {
-                        inactiveMessage(p.messageId);
+                        this.inactiveMessage(p.messageId);
                     });
                     this.app.prompts.updateFirstPrompt({ role: "system", content: this.app.currentProfile.prompt, messageId: generateId() });
                 }
