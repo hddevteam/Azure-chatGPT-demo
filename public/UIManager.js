@@ -94,7 +94,7 @@ class UIManager {
 
             //add onclick event listener to conversationElement
             conversationElement.addEventListener("click", toggleActiveMessage);
-            messageElement.addEventListener("dblclick", toggleActiveMessage);
+            // messageElement.addEventListener("dblclick", toggleActiveMessage);
 
             //add fa-times icon to message with class message-delete and fas fa-trash
             const deleteElement = document.createElement("i");
@@ -118,14 +118,42 @@ class UIManager {
         //if send is user
         if (sender === "user") {
             const pre = document.createElement("pre");
-            pre.innerText = message;
+            pre.innerText = isActive ? message : this.getMessagePreview(message); // Set full text if active, else set preview text
             messageElement.appendChild(pre);
         } else {
             const messageHtml = marked.parse(message);
             const messageHtmlElement = document.createElement("div");
-            messageHtmlElement.innerHTML = messageHtml;
+            messageHtmlElement.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message)); // Set full text if active, else set preview text
             messageElement.appendChild(messageHtmlElement);
         }
+
+        if (!isActive) {
+            messageElement.classList.add("collapsed");
+        }
+
+        messageElement.addEventListener("click", function (event) {
+            // Check if the clicked target is an <i> element, and return early if so
+            if (event.target.tagName.toLowerCase() === "i") {
+                return;
+            }
+            const isCollapsed = this.classList.toggle("collapsed");
+            if (isCollapsed) {
+                // Show preview text when not expanded
+                if (sender === "user") {
+                    this.querySelector("pre").innerText = self.getMessagePreview(this.dataset.message);
+                } else {
+                    this.querySelector("div").innerHTML = marked.parse(self.getMessagePreview(this.dataset.message));
+                }
+
+            } else {
+                // Show full message when expanded
+                if (sender === "user") {
+                    this.querySelector("pre").innerText = this.dataset.message;
+                } else {
+                    this.querySelector("div").innerHTML = marked.parse(this.dataset.message);
+                }
+            }
+        });
 
         const iconGroup = document.createElement("div");
         iconGroup.classList.add("icon-group");
@@ -168,10 +196,20 @@ class UIManager {
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
+
         // update slider max value
         // eslint-disable-next-line no-undef
         slider.max = Math.max(0, document.querySelectorAll(".message").length - 1);
         document.querySelector("#maxValue").textContent = slider.max;
+    }
+
+    getMessagePreview(message) {
+        const maxLength = 50;
+        let previewText = message.replace(/\n/g, " ");
+        if (previewText.length > maxLength) {
+            return previewText.substring(0, maxLength - 3) + "...";
+        }
+        return previewText;
     }
 
     // implement attachMessageCopyEvent function

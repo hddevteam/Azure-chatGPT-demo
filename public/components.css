@@ -255,6 +255,10 @@ i.message-delete.fa-times {
     justify-content: space-between;
 }
 
+.message.collapsed .icon-group {
+    display: none;
+}
+
 /* Custom scrollbar for Webkit browsers */
 #menu::-webkit-scrollbar,
 #messages::-webkit-scrollbar,
