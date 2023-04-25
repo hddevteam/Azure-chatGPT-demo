@@ -1,0 +1,216 @@
+/* for the mobile devices */
+@media screen and (max-width: 768px) {
+
+    #menu {
+        display: none;
+        position: fixed;
+        top: 2.7em;
+        right: 1em;
+        border-radius: 0.5em;
+        width: 70vw;
+        max-width: max-content;
+        background-color: #FFFFFF;
+        box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow-y: auto;
+        height: calc(75vh);
+        max-height: max-content;
+        z-index: 9999;
+    }
+
+    #menu li {
+        margin-bottom: 0.5em;
+    }
+
+    #menu-header {
+        padding: 5px;
+        padding-left: 10px;
+        margin-bottom: 0.5em;
+    }
+
+    #menu-header i,
+    #menu li i {
+        margin: 0 0.5em 0 0;
+        font-size: 1em;
+        padding: 0.2em;
+    }
+
+    #menu-header span {
+        font-size: 1em;
+        font-weight: normal;
+    }
+
+    #menu-list li span {
+        margin: 0;
+        padding: 0;
+    }
+
+    #chat-container {
+        padding: 0;
+        height: calc(100vh - 150px);
+        width: 100%;
+        margin: 0;
+        border: 0;
+        box-shadow: 0;
+    }
+
+    h1 {
+        margin: 0em;
+        padding: 0.5em;
+        font-size: 1em;
+        width: 50%;
+    }
+
+    #header {
+        display: flex;
+        height: 3em;
+        width: 100%;
+        margin-bottom: 1em;
+        padding: 1em;
+
+    }
+
+    #ai-profile {
+        padding: 0.3em;
+        display: inline-block;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        background-color: #4CAF50;
+        transition: background-color 0.2s ease-in-out;
+        color: #fff;
+    }
+
+    #ai-profile:hover {
+        background-color: #3e8e41;
+    }
+
+
+    .message {
+        padding: 1em;
+        margin-bottom: 0.5em;
+        margin-right: 0;
+        border-radius: 0.5em;
+    }
+
+    .message ol,
+    .message ul {
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+
+    .message li {
+        margin-bottom: 0.5em;
+        margin-left: 2em;
+    }
+
+    #messages {
+        width: 100%;
+        top: 2.7em;
+        bottom: 1em;
+        padding: 1em;
+    }
+
+    .mini-toolbar {
+        font-size: 12px;
+    }
+
+    .mini-toolbar span {
+        margin-right: 5px;
+        font-size: 12px;
+    }
+
+    #clear-input {
+        left: 5px;
+        top: -25px;
+        bottom: unset;
+        right: unset;
+    }
+
+    textarea {
+        max-width: 100%;
+        margin-right: 0px;
+        padding: 5px 45px 5px 5px;
+        border-radius: 5px 5px 0px 0px;
+    }
+
+    #message-form {
+        height: 120px;
+        padding: 5px;
+    }
+
+    #input-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .text-input-container {
+        display: flex;
+        align-items: center;
+    }
+
+    #message-input {
+        flex-grow: 1;
+    }
+
+    #voice-input-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    #voice-input-button {
+        height: fit-content;
+        font-size: 15px;
+        width: 100% !important;
+        position: static !important;
+        border-radius: 0px 0px 5px 5px;
+    }
+
+
+    .modal-content {
+        margin: 25% auto;
+        width: 100%;
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        border-radius: 5px;
+        max-width: 500px;
+        text-align: center;
+    }
+
+}
+
+/* for high resolution mobile devices such as iPhone */
+@media screen and (min-resolution: 2dppx) {
+
+    #chat-container {
+        height: calc(100vh - 250px);
+    }
+}
+
+/* iPad Layout */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 1) {
+
+    #chat-container {
+        position: relative;
+        height: calc(100vh - 300px);
+        /* 70px is the height of message-form */
+        max-width: 900px;
+        width: 90%;
+    }
+
+    .message-input-container {
+        position: absolute;
+        bottom: 4em;
+        width: 100%;
+    }
+
+}
