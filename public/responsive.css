@@ -170,6 +170,10 @@
         border-radius: 0px 0px 5px 5px;
     }
 
+    #csv-container {
+        display: none;
+    }
+
 
     .modal-content {
         margin: 25% auto;
