@@ -160,6 +160,31 @@ class UIManager {
         });
     }
 
+    // Add this method to attach a retry message event listener
+    attachRetryMessageEventListener(retryElement, messageId) {
+        retryElement.addEventListener("click", async () => {
+            await this.retryMessage(messageId);
+        });
+    }
+
+    // Add this method to create a retry element
+    createRetryElement() {
+        const retryElement = document.createElement("i");
+        retryElement.className = "fas fa-sync-alt message-retry";
+        return retryElement;
+    }
+
+    // Add this method to handle retrying a message
+    async retryMessage(messageId) {
+        const messageElem = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (messageElem) {
+            const messageContent = messageElem.dataset.message;
+            this.app.prompts.removePrompt(messageId);
+            messageElem.classList.remove("active");
+            await this.sendMessage(messageContent);
+        }
+    }
+
     // Add message to DOM
     addMessage(sender, message, messageId, isActive = true) {
         const messageElement = this.createMessageElement(sender, messageId, isActive);
@@ -228,6 +253,13 @@ class UIManager {
 
         const copyElement = this.createCopyElement();
         iconGroup.appendChild(copyElement);
+
+        if (sender === "user") {
+            const retryElement = this.createRetryElement();
+            iconGroup.appendChild(retryElement);
+            this.attachRetryMessageEventListener(retryElement, messageId);
+        }
+
 
         if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
             const speakerElement = this.createSpeakerElement();
