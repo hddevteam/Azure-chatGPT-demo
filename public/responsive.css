@@ -123,16 +123,15 @@
     }
 
     #clear-input {
-        left: 10px;
-        top: -25px;
+        right: 10px;
+        top: 10px;
         bottom: unset;
-        right: unset;
     }
 
     textarea {
         max-width: 100%;
         margin-right: 0px;
-        padding: 5px 45px 5px 5px;
+        padding: 5px 10px 5px 5px;
         border-radius: 5px 5px 0px 0px;
     }
 
@@ -153,11 +152,27 @@
     }
 
     #message-input {
-        flex-grow: 1;
+        width: 100%;
+    }
+
+    button[type="submit"] {
+        height: fit-content;
+        font-size: 25px;
+        width: 100% !important;
+        position: static !important;
+        border-radius: 0px 0px 5px 0px;
+    }
+
+    .button-row {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row;
+        width: 100%;
     }
 
     #voice-input-container {
         width: 100%;
+
         display: flex;
         justify-content: center;
     }
@@ -167,7 +182,7 @@
         font-size: 25px;
         width: 100% !important;
         position: static !important;
-        border-radius: 0px 0px 5px 5px;
+        border-radius: 0px 0px 0px 5px;
     }
 
     #csv-container {
