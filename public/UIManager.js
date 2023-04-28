@@ -131,26 +131,40 @@ class UIManager {
             messageElement.classList.add("collapsed");
         }
 
-        messageElement.addEventListener("click", function (event) {
-            // Check if the clicked target is an <i> element, and return early if so
-            if (event.target.tagName.toLowerCase() === "i") {
-                return;
-            }
-            const isCollapsed = this.classList.toggle("collapsed");
-            if (isCollapsed) {
-                // Show preview text when not expanded
-                if (sender === "user") {
-                    this.querySelector("pre").innerText = self.getMessagePreview(this.dataset.message);
-                } else {
-                    this.querySelector("div").innerHTML = marked.parse(self.getMessagePreview(this.dataset.message));
+        let mouseDownTime;
+        messageElement.addEventListener("mousedown", function (event) {
+            // Record the time when the mousedown event is triggered
+            mouseDownTime = new Date().getTime();
+        });
+
+        messageElement.addEventListener("mouseup", function (event) {
+            // Calculate the time difference between mousedown and mouseup events
+            const timeDifference = new Date().getTime() - mouseDownTime;
+            const clickThreshold = 150; // Threshold value for detecting click vs drag
+
+            // If the time difference is less than the threshold, treat it as a click event
+            if (timeDifference < clickThreshold) {
+                // Check if the clicked target is an <i> element, and return early if so
+                if (event.target.tagName.toLowerCase() === "i") {
+                    return;
                 }
 
-            } else {
-                // Show full message when expanded
-                if (sender === "user") {
-                    this.querySelector("pre").innerText = this.dataset.message;
+                const isExpanded = this.classList.toggle("expanded");
+
+                if (isExpanded) {
+                    // Show full message when expanded
+                    if (sender === "user") {
+                        this.querySelector("pre").innerText = this.dataset.message;
+                    } else {
+                        this.querySelector("div").innerHTML = marked.parse(this.dataset.message);
+                    }
                 } else {
-                    this.querySelector("div").innerHTML = marked.parse(this.dataset.message);
+                    // Show preview text when not expanded
+                    if (sender === "user") {
+                        this.querySelector("pre").innerText = self.getMessagePreview(this.dataset.message);
+                    } else {
+                        this.querySelector("div").innerHTML = marked.parse(self.getMessagePreview(this.dataset.message));
+                    }
                 }
             }
         });
