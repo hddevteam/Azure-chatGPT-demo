@@ -52,84 +52,136 @@ class UIManager {
         this.app.setTtsPracticeMode(false);
     }
 
-    // Add message to DOM
-    addMessage(sender, message, messageId, isActive = true) {
+    // Create a new method for creating the conversation element
+    createConversationElement() {
+        const conversationElement = document.createElement("i");
+        conversationElement.classList.add("fas");
+        conversationElement.classList.add("fa-quote-left");
+        return conversationElement;
+    }
+
+    // Create a new method for creating the delete element
+    createDeleteElement() {
+        const deleteElement = document.createElement("i");
+        deleteElement.classList.add("message-delete");
+        deleteElement.classList.add("fas");
+        deleteElement.classList.add("fa-times");
+        return deleteElement;
+    }
+
+    // Create a new method for creating the icon group
+    createIconGroup() {
+        const iconGroup = document.createElement("div");
+        iconGroup.classList.add("icon-group");
+        return iconGroup;
+    }
+
+    // Create a new method for creating the copy element
+    createCopyElement() {
+        const copyElement = document.createElement("i");
+        copyElement.classList.add("message-copy");
+        copyElement.classList.add("fas");
+        copyElement.classList.add("fa-copy");
+        return copyElement;
+    }
+
+    // Create a new method for creating the speaker element
+    createSpeakerElement() {
+        const speakerElement = document.createElement("i");
+        speakerElement.classList.add("message-speaker");
+        speakerElement.classList.add("fas");
+        speakerElement.classList.add("fa-volume-off");
+        return speakerElement;
+    }
+
+    // Create a new method for creating the message element
+    createMessageElement(sender, messageId, isActive) {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message");
         messageElement.classList.add(`${sender}-message`);
-        messageElement.dataset.message = message;
         messageElement.dataset.sender = sender;
         messageElement.dataset.messageId = messageId;
-        const self = this;
-        function toggleActiveMessage(event) {
-            // Get the messageElement based on event type
-            const messageElement = event.type === "dblclick" ? event.currentTarget : event.currentTarget.parentElement;
-            // check if the element has class active
-            if (messageElement.classList.contains("active")) {
-                // if it has, remove the inactive class
-                messageElement.classList.remove("active");
-                // remove the message frmo prompts by message id
-                messageId = messageElement.dataset.messageId;
-                self.app.prompts.removePrompt(messageId);
-            }
-            else {
-                // if it doesn't, add the inactive class
-                messageElement.classList.add("active");
-                // clear prompts except index 0
-                self.app.prompts.clearExceptFirst();
-                // add  all the active message to prompts
-                const activeMessages = document.querySelectorAll(".message.active");
-                activeMessages.forEach(activeMessage => {
-                    self.app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
-                });
-            }
-        }
-        // if sender is not system
-        if (sender !== "system") {
-            //add fa-comments icon to message with class message-conversation and fas fa-comments
-            const conversationElement = document.createElement("i");
-            conversationElement.classList.add("fas");
-            conversationElement.classList.add("fa-quote-left");
-            messageElement.appendChild(conversationElement);
 
-            //add onclick event listener to conversationElement
-            conversationElement.addEventListener("click", toggleActiveMessage);
-            // messageElement.addEventListener("dblclick", toggleActiveMessage);
-
-            //add fa-times icon to message with class message-delete and fas fa-trash
-            const deleteElement = document.createElement("i");
-            deleteElement.classList.add("message-delete");
-            deleteElement.classList.add("fas");
-            deleteElement.classList.add("fa-times");
-            messageElement.appendChild(deleteElement);
-            //add onclick event listener to deleteElement
-            deleteElement.addEventListener("click", () => {
-                // get the message id from messageElement's dataset
-                const messageId = messageElement.dataset.messageId;
-                this.deleteMessage(messageId);
-            });
-
-            if (isActive) {
-                // if message is not active, add inactive class to messageElement and conversationElement
-                messageElement.classList.add("active");
-            }
+        if (isActive) {
+            messageElement.classList.add("active");
         }
 
-        //if send is user
+        return messageElement;
+    }
+
+    // Create a new method for creating the message content element
+    createMessageContentElement(sender, message, isActive) {
         if (sender === "user") {
             const pre = document.createElement("pre");
             pre.innerText = isActive ? message : this.getMessagePreview(message); // Set full text if active, else set preview text
-            messageElement.appendChild(pre);
+            return pre;
         } else {
             const messageHtml = marked.parse(message);
             const messageHtmlElement = document.createElement("div");
             messageHtmlElement.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message)); // Set full text if active, else set preview text
-            messageElement.appendChild(messageHtmlElement);
+            return messageHtmlElement;
         }
+    }
+
+    toggleActiveMessage(event) {
+        // Get the messageElement based on event type
+        const messageElement = event.type === "dblclick" ? event.currentTarget : event.currentTarget.parentElement;
+
+        // check if the element has class active
+        if (messageElement.classList.contains("active")) {
+            // if it has, remove the inactive class
+            messageElement.classList.remove("active");
+            // remove the message frmo prompts by message id
+            const messageId = messageElement.dataset.messageId;
+            this.app.prompts.removePrompt(messageId);
+        } else {
+            // if it doesn't, add the inactive class
+            messageElement.classList.add("active");
+            // clear prompts except index 0
+            this.app.prompts.clearExceptFirst();
+            // add all the active messages to prompts
+            const activeMessages = document.querySelectorAll(".message.active");
+            activeMessages.forEach(activeMessage => {
+                this.app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
+            });
+        }
+    }
+
+    // Create a new method for attaching a toggle active message event listener
+    attachToggleActiveMessageEventListener(element) {
+        element.addEventListener("click", this.toggleActiveMessage.bind(this));
+    }
+
+    // Create a new method for attaching a delete message event listener
+    attachDeleteMessageEventListener(element) {
+        element.addEventListener("click", () => {
+            const messageId = element.parentElement.dataset.messageId;
+            this.deleteMessage(messageId);
+        });
+    }
+
+    // Add message to DOM
+    addMessage(sender, message, messageId, isActive = true) {
+        const messageElement = this.createMessageElement(sender, messageId, isActive);
+        messageElement.dataset.message = message;
+
+        if (sender !== "system") {
+            const conversationElement = this.createConversationElement();
+            messageElement.appendChild(conversationElement);
+            this.attachToggleActiveMessageEventListener(conversationElement);
+
+            const deleteElement = this.createDeleteElement();
+            messageElement.appendChild(deleteElement);
+            this.attachDeleteMessageEventListener(deleteElement);
+        }
+
+        const messageContentElement = this.createMessageContentElement(sender, message, isActive);
+        messageElement.appendChild(messageContentElement);
 
         if (!isActive) {
             messageElement.classList.add("collapsed");
         }
+
 
         let mouseDownTime;
         messageElement.addEventListener("mousedown", function (event) {
@@ -137,7 +189,10 @@ class UIManager {
             mouseDownTime = new Date().getTime();
         });
 
-        messageElement.addEventListener("mouseup", function (event) {
+
+        const messageElem = messageElement; // Add this line to save the reference to messageElement
+
+        messageElement.addEventListener("mouseup", (event) => {
             // Calculate the time difference between mousedown and mouseup events
             const timeDifference = new Date().getTime() - mouseDownTime;
             const clickThreshold = 150; // Threshold value for detecting click vs drag
@@ -149,72 +204,59 @@ class UIManager {
                     return;
                 }
 
-                const isExpanded = this.classList.toggle("expanded");
+                const isCollapsed = messageElem.classList.toggle("collapsed"); // Use messageElem instead of this and toggle "collapsed" class
 
-                if (isExpanded) {
+                if (!isCollapsed) {
                     // Show full message when expanded
                     if (sender === "user") {
-                        this.querySelector("pre").innerText = this.dataset.message;
+                        messageElem.querySelector("pre").innerText = messageElem.dataset.message;
                     } else {
-                        this.querySelector("div").innerHTML = marked.parse(this.dataset.message);
+                        messageElem.querySelector("div").innerHTML = marked.parse(messageElem.dataset.message);
                     }
                 } else {
-                    // Show preview text when not expanded
+                    // Show preview text when collapsed
                     if (sender === "user") {
-                        this.querySelector("pre").innerText = self.getMessagePreview(this.dataset.message);
+                        messageElem.querySelector("pre").innerText = this.getMessagePreview(messageElem.dataset.message);
                     } else {
-                        this.querySelector("div").innerHTML = marked.parse(self.getMessagePreview(this.dataset.message));
+                        messageElem.querySelector("div").innerHTML = marked.parse(this.getMessagePreview(messageElem.dataset.message));
                     }
                 }
             }
         });
 
-        const iconGroup = document.createElement("div");
-        iconGroup.classList.add("icon-group");
+        const iconGroup = this.createIconGroup();
 
-        //add a copy icon to message with class message-copy and fas fa-copy
-        const copyElement = document.createElement("i");
-        copyElement.classList.add("message-copy");
-        copyElement.classList.add("fas");
-        copyElement.classList.add("fa-copy");
-        //add message to copyElement dataset
+        const copyElement = this.createCopyElement();
         iconGroup.appendChild(copyElement);
 
-        //check if current profile.tts is exist and value with "enabled"
         if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
-            //create speaker icon
-            const speakerElement = document.createElement("i");
-            speakerElement.classList.add("message-speaker");
-            speakerElement.classList.add("fas");
-            speakerElement.classList.add("fa-volume-off");
+            const speakerElement = this.createSpeakerElement();
             iconGroup.appendChild(speakerElement);
         }
 
         messageElement.appendChild(iconGroup);
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.appendChild(messageElement);
+
         const messageSpeakers = document.querySelectorAll(".message-speaker");
         const lastSpeaker = messageSpeakers[messageSpeakers.length - 1];
         this.attachMessageSpeakerEvent(lastSpeaker);
 
-        // Determine if the message should be played automatically
         const autoPlay = this.app.ttsPracticeMode && sender === "assistant";
         if (autoPlay) {
             this.playMessage(lastSpeaker);
         }
 
-        // find the last message-copy and add click event listener to it
         const messageCopies = document.querySelectorAll(".message-copy");
         const lastCopy = messageCopies[messageCopies.length - 1];
         this.attachMessageCopyEvent(lastCopy);
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-
-        // update slider max value
         // eslint-disable-next-line no-undef
         slider.max = Math.max(0, document.querySelectorAll(".message").length - 1);
         document.querySelector("#maxValue").textContent = slider.max;
+
     }
 
     getMessagePreview(message) {
