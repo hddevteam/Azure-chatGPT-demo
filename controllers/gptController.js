@@ -1,5 +1,15 @@
-const apiKey = process.env.API_KEY;
-const apiUrl = process.env.API_URL;
+//if DEV_MODE is not set then set it to true, else set it to eval(DEV_MODE)
+const devMode = process.env.DEV_MODE ? eval(process.env.DEV_MODE) : false;
+//if not devMode then use process.env.API_URL as apiUrl and process.env.API_KEY as apiKey
+//else use process.env.API_URL_DEV as apiUrl and process.env.API_KEY_DEV as apiKey
+let apiKey, apiUrl;
+if(devMode){
+    apiKey = process.env.API_KEY_DEV;
+    apiUrl = process.env.API_URL_DEV;
+}else{
+    apiKey = process.env.API_KEY;
+    apiUrl = process.env.API_URL;
+}
 
 exports.generateResponse = async (req, res) => {
     const prompt = JSON.parse(req.body.prompt);
