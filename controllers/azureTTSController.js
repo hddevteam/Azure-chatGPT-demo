@@ -110,7 +110,11 @@ exports.getMultiLangTextToSpeech = async (req, res) => {
     };
 
     try {
+        console.log("Sending request to Azure TTS API");
+        console.log("SSML: ", ssml);
         const response = await axios.post(url, ssml, { headers, responseType: "arraybuffer" });
+        console.log("Received response from Azure TTS API");
+        console.log("Response data: ", response.data);
         res.set({
             "Content-Type": "audio/mpeg",
             "Content-Length": response.data.byteLength
