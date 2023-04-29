@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import { setCurrentUsername, getCurrentUsername, getCurrentProfile, setCurrentProfile } from "./storage.js";
 import { getGpt, getTts } from "./api.js";

@@ -3,6 +3,7 @@
 const fs = require("fs-extra");
 fs.ensureDirSync("./failed_audio");
 var azureTTS = null;
+const axios = require("axios");
 
 // check if AZURE_TTS is set in .env file
 if (process.env.AZURE_TTS) {
@@ -57,6 +58,67 @@ exports.getTextToSpeech = async (req, res) => {
         .catch(error => {
             console.error(error);
         });
+
+};
+
+function getVoiceAttributes(language) {
+    if (language === "en-US") {
+        return {
+            name: "en-US-JennyNeural",
+            gender: "Female",
+            style: "friendly"
+        };
+    } else if (language === "zh-CN") {
+        return {
+            name: "zh-CN-XiaoxuanNeural",
+            gender: "Female",
+            style: "friendly"
+        };
+    } else {
+        return {
+            name: "en-US-JennyNeural",
+            gender: "Female",
+            style: "friendly"
+        };
+    }
+}
+
+const { detectFirstLanguage } = require("../services/languageDetection");
+exports.getMultiLangTextToSpeech = async (req, res) => {
+    // Get message from client then send to Azure TTS API and send back the buffer to client
+    const message = req.query.message;
+
+    // Detect the first language in the message
+    const language = await detectFirstLanguage(message);
+    const voiceAttributes = getVoiceAttributes(language);
+
+    // Generate SSML with a single voice element based on the detected language
+    const ssml = `<speak version='1.0' xml:lang='${language}'>
+                   <voice xml:lang='${language}' xml:gender='${voiceAttributes.gender}' name='${voiceAttributes.name}' style='${voiceAttributes.style}'>
+                     ${message}
+                   </voice>
+               </speak>`;
+
+    const subscriptionKey = azureTTS.subscriptionKey;
+    const endpoint = azureTTS.endpoint;
+    const url = `${endpoint}/cognitiveservices/v1`;
+
+    const headers = {
+        "Content-Type": "application/ssml+xml",
+        "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3",
+        "Ocp-Apim-Subscription-Key": subscriptionKey
+    };
+
+    try {
+        const response = await axios.post(url, ssml, { headers, responseType: "arraybuffer" });
+        res.set({
+            "Content-Type": "audio/mpeg",
+            "Content-Length": response.data.byteLength
+        });
+        res.send(Buffer.from(response.data));
+    } catch (error) {
+        console.error(error);
+    }
 
 };
 
