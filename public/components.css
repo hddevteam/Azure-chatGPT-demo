@@ -244,8 +244,7 @@ i.message-delete.fa-times {
     white-space: pre-wrap;
 }
 
-.message-speaker,
-.message-copy {
+.icon-group i{
     cursor: pointer;
 }
 
