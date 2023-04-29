@@ -87,6 +87,7 @@ const { detectFirstLanguage } = require("../services/languageDetection");
 exports.getMultiLangTextToSpeech = async (req, res) => {
     // Get message from client then send to Azure TTS API and send back the buffer to client
     const message = req.query.message;
+    console.log("Message: ", message);
 
     // Detect the first language in the message
     const language = await detectFirstLanguage(message);
