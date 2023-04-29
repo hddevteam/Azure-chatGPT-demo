@@ -8,7 +8,7 @@ const applicationController = require("./controllers/applicationController");
 
 router.get("/app_name", applicationController.getAppName);
 // router.get("/tts", azureTTSController.getTextToSpeech);
-router.get("/tts", azureTTSController.getMultiLangTextToSpeech);
+router.post("/tts", azureTTSController.getMultiLangTextToSpeech);
 
 router.post("/auto-speech-to-text", azureTTSController.uploadMiddleware, azureTTSController.autoSpeechToText);
 router.post("/speech-to-text", azureTTSController.uploadMiddleware, azureTTSController.speechToText);

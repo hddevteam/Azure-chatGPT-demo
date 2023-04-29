@@ -86,7 +86,7 @@ function getVoiceAttributes(language) {
 const { detectFirstLanguage } = require("../services/languageDetection");
 exports.getMultiLangTextToSpeech = async (req, res) => {
     // Get message from client then send to Azure TTS API and send back the buffer to client
-    const message = req.query.message;
+    const message = req.body.message;
     console.log("Message: ", message);
 
     // Detect the first language in the message
@@ -115,7 +115,7 @@ exports.getMultiLangTextToSpeech = async (req, res) => {
         console.log("SSML: ", ssml);
         const response = await axios.post(url, ssml, { headers, responseType: "arraybuffer" });
         console.log("Received response from Azure TTS API");
-        console.log("Response data: ", response.data);
+        console.log("Response data: ", response.data.byteLength);
         res.set({
             "Content-Type": "audio/mpeg",
             "Content-Length": response.data.byteLength

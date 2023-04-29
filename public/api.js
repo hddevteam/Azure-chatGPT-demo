@@ -27,8 +27,14 @@ export async function getGpt(promptText) {
 
 // get tts response
 export async function getTts(message) {
-    const url = `/api/tts?message=${encodeURIComponent(message)}`;
-    const response = await fetch(url);
+    const url = "/api/tts";
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message }),
+    });
     return await response.blob();
 }
 
@@ -40,5 +46,5 @@ export async function getStt(audioBlob) {
         method: "POST",
         body: formData,
     });
-    return  response;
+    return response;
 }
