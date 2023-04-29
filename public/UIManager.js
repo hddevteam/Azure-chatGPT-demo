@@ -532,28 +532,7 @@ class UIManager {
         }
     }
 
-    // split message into sentences chunks with max 160 words each
-    splitMessage(message) {
-        let sentenceArr = [];
-        let words = message.split(" ");
-        let sentence = "";
-        let i = 0;
-        while (i < words.length) {
-            // if current sentence is empty, then add the first word to it
-            if (sentence.length === 0) {
-                sentence = words[i];
-            } else {
-                sentence = sentence + " " + words[i];
-            }
-            i++;
-            // if current sentence is 160 words or it is the last word, then add it to sentenceArr
-            if (sentence.split(" ").length === 160 || i === words.length) {
-                sentenceArr.push(sentence);
-                sentence = "";
-            }
-        }
-        return sentenceArr;
-    }
+
 
 
     toggleSpeakerIcon(speaker) {
@@ -568,7 +547,6 @@ class UIManager {
                 this.app.currentPlayingSpeaker = null;
                 console.error("Error playing audio.");
                 reject(new Error("Error playing audio."));
-                resolve();
             };
             this.app.audio.onended = () => {
                 this.toggleSpeakerIcon(speaker);
@@ -604,29 +582,18 @@ class UIManager {
 
         //get message from parent element dataset message attribute
         const message = speaker.parentElement.parentElement.dataset.message;
-        let sentenceArr = this.splitMessage(message);
-        console.log(sentenceArr);
 
-        // play sentences chunk one by one
-        const playSentences = async () => {
-            for (let sentence of sentenceArr) {
-                this.toggleSpeakerIcon(speaker);
-                try {
-                    const blob = await getTts(sentence);
-                    console.log("ready to play...");
-                    this.app.audio.src = URL.createObjectURL(blob);
-                    await this.playAudio(speaker);
-                } catch (error) {
-                    this.toggleSpeakerIcon(speaker);
-                    console.error(error);
-                }
-            }
-        };
-
-        // 使用Promise.all确保异步操作完成
-        await Promise.all([playSentences()]);
+        try {
+            this.toggleSpeakerIcon(speaker);
+            const blob = await getTts(message);
+            console.log("ready to play...");
+            this.app.audio.src = URL.createObjectURL(blob);
+            await this.playAudio(speaker);
+        } catch (error) {
+            this.toggleSpeakerIcon(speaker);
+            console.error(error);
+        }
     }
-
 }
 
 export default UIManager;

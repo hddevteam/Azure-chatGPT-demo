@@ -115,6 +115,7 @@ exports.getMultiLangTextToSpeech = async (req, res) => {
             "Content-Type": "audio/mpeg",
             "Content-Length": response.data.byteLength
         });
+        console.log("Sending audio response");
         res.send(Buffer.from(response.data));
     } catch (error) {
         console.error(error);
