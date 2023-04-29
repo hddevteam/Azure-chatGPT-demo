@@ -1,11 +1,14 @@
 /* eslint-disable no-control-regex */
 function detectLanguage(text) {
-    const englishRegex = /[a-zA-Z]/;
-    const chineseRegex = /[\u4E00-\u9FFF]/;
+    const englishRegex = /\b[a-zA-Z]+\b/g;
+    const chineseRegex = /[\u4E00-\u9FFF]/g;
 
-    if (englishRegex.test(text)) {
+    const englishCount = (text.match(englishRegex) || []).length;
+    const chineseCount = (text.match(chineseRegex) || []).length;
+
+    if (englishCount > chineseCount) {
         return "en-US";
-    } else if (chineseRegex.test(text)) {
+    } else if (chineseCount > englishCount) {
         return "zh-CN";
     } else {
         return "unknown";
@@ -13,7 +16,7 @@ function detectLanguage(text) {
 }
 
 exports.detectFirstLanguage = async function (message) {
-    const texts = message.split(/([^\u0000-\u007F]+)/).filter(text => text.trim());
-    const firstLanguage = detectLanguage(texts[0]);
+    const sentences = message.split(/([.。!?！？])/).filter(sentence => sentence.trim());
+    const firstLanguage = detectLanguage(sentences[0]);
     return firstLanguage;
 };
