@@ -595,7 +595,7 @@ class UIManager {
         // If there is a speaker currently playing, stop it and reset its icon
         if (this.app.currentPlayingSpeaker && this.app.currentPlayingSpeaker !== speaker) {
             this.app.audio.pause();
-            this.toggleSpeakerIcon(currentPlayingSpeaker); // Reset the icon of the previous speaker
+            this.toggleSpeakerIcon(this.app.currentPlayingSpeaker); // Reset the icon of the previous speaker
         }
 
         // Update the currentPlayingSpeaker variable
