@@ -449,11 +449,12 @@ class UIManager {
         messagesContainer.innerHTML = "";
         // Get currentProfile from storage.js if available, otherwise set it to the first profile
         const savedCurrentProfile = getCurrentProfile();
-        if (savedCurrentProfile) {
-            setCurrentProfile(savedCurrentProfile);
-        } else {
-            setCurrentProfile(profiles[0]);
-        }
+        // get profile name from savedCurrentProfile then find the profile object from profiles array incase the profile object is changed
+        // then set currentProfile to the profile object
+        const currentProfileName = savedCurrentProfile ? savedCurrentProfile.name : profiles[0].name;
+        const currentProfile = profiles.find(profile => profile.name === currentProfileName);
+        setCurrentProfile(currentProfile);
+
         let messageId = this.generateId();
         this.app.prompts.addPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: messageId });
         this.addMessage("system", getCurrentProfile().prompt, messageId);
