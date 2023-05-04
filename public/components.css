@@ -380,7 +380,7 @@ textarea::-webkit-scrollbar-thumb:hover {
 }
 
 #voice-input-button:hover {
-    background-color: #FF5722;
+    background-color: #FF7043;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
 }
 
@@ -388,22 +388,36 @@ textarea::-webkit-scrollbar-thumb:hover {
     color: #fff;
 }
 
+@keyframes buttonChange {
+    0%,
+    100% {
+        background-color: #E53935;
+        color: #ffffff;
+    }
+
+    50% {
+        background-color: #000000;
+        color: #E53935;
+    }
+}
+
 #voice-input-button.voice-input-active {
     animation: buttonChange 1s infinite;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.6);
 }
 
-@keyframes buttonChange {
+#voice-input-button.voice-input-active i {
+    animation: iconChange 1s infinite;
+}
 
+@keyframes iconChange {
     0%,
     100% {
-        background-color: #ff0000;
-        color: #fff;
+        color: #ffffff;
     }
 
     50% {
-        background-color: #FF9800;
-        color: #fff;
+        color: #E53935;
     }
 }
 
