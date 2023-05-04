@@ -54,6 +54,7 @@ function displayProfiles(profiles) {
                     </div>
                     <p class="card-text">${profile.displayName}</p>
                     <p class="card-text">${profile.prompt}</p>
+                    <p class="card-text">TTS: ${profile.tts}</p>
                     <p class="card-text">Sorted Index: ${profile.sortedIndex}</p>
                     <button class="btn btn-primary edit-profile" data-bs-toggle="modal" data-bs-target="#profile-modal">Edit</button>
                     <button class="btn btn-danger delete-profile">Delete</button>
@@ -70,7 +71,8 @@ function displayProfiles(profiles) {
         const icon = $(this).parent().find("i").attr("class");
         const displayName = $(this).parent().find("p.card-text").eq(0).text();
         const prompt = $(this).parent().find("p.card-text").eq(1).text();
-        const sortedIndex = $(this).parent().find("p.card-text").eq(2).text().split(": ")[1];
+        const tts = $(this).parent().find("p.card-text").eq(2).text().split(": ")[1];
+        const sortedIndex = $(this).parent().find("p.card-text").eq(3).text().split(": ")[1];
 
         // Set form fields with profile data
         $("#name").val(name);
@@ -79,7 +81,7 @@ function displayProfiles(profiles) {
         $("#icon").val(icon);
         $("#displayName").val(displayName);
         $("#prompt").val(prompt);
-        $("#tts").val("disabled");
+        $("#tts").val(tts);
         $("#sortedIndex").val(sortedIndex);
 
         // Change Save button to Update
