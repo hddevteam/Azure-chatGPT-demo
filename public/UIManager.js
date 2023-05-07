@@ -181,8 +181,11 @@ class UIManager {
         if (messageElem) {
             const messageContent = messageElem.dataset.message;
             this.app.prompts.removePrompt(messageId);
-            messageElem.classList.remove("active");
-            await this.sendMessage(messageContent);
+            //add active class to message if it is not already active
+            if (!messageElem.classList.contains("active")) {
+                messageElem.classList.add("active");
+            }
+            await this.sendMessage(messageContent, true);
         }
     }
 
@@ -377,8 +380,7 @@ class UIManager {
 
 
     // Send message on button click
-    async sendMessage(message = "") {
-
+    async sendMessage(message = "", isRetry = false) {
         if (message === "/clear") {
             clearMessage();
             return;
@@ -392,8 +394,11 @@ class UIManager {
             this.app.prompts.addPrompt({ role: "system", content: message, messageId: messageId });
             return;
         }
+
         let messageId = this.generateId();
-        this.addMessage("user", message, messageId);
+        if (!isRetry) {
+            this.addMessage("user", message, messageId);
+        }
         this.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId });
         this.saveCurrentProfileMessages();
         // join prompts except the messageId field to a string
@@ -404,6 +409,7 @@ class UIManager {
         messageInput.value = "";
 
         try {
+            this.showToast("AI thinking...");
             const data = await getGpt(promptText);
             // console.log(data);
             // If no response, pop last prompt and send a message
