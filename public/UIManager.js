@@ -289,10 +289,19 @@ class UIManager {
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // eslint-disable-next-line no-undef
-        slider.max = Math.max(0, document.querySelectorAll(".message").length - 1);
-        document.querySelector("#maxValue").textContent = slider.max;
+        this.updateSlider();
 
+    }
+
+    updateSlider() {
+        const messageCount = document.querySelectorAll(".message").length - 1;
+        document.querySelector("#maxValue").textContent = messageCount;
+
+        const counversationCount = this.app.prompts.length - 1;
+        //slider.max will be 10 or the number of messages in the conversation, whichever is greater
+        const maxSliderValue = Math.max(10, counversationCount);
+        const slider = document.querySelector("#slider");
+        slider.max = maxSliderValue;
     }
 
     getMessagePreview(message) {
@@ -338,9 +347,7 @@ class UIManager {
         this.app.prompts.removePrompt(messageId);
         this.saveCurrentProfileMessages();
 
-        // update slider max value
-        slider.max = Math.max(0, document.querySelectorAll(".message").length - 1);
-        document.querySelector("#maxValue").textContent = slider.max;
+        this.updateSlider();
     }
 
     inactiveMessage(messageId) {

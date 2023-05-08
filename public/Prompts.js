@@ -14,6 +14,13 @@ class Prompts {
         this.notifyLengthChange();
     }
 
+    /**
+     * get prompt data length
+     */
+    get length() {
+        return this.data.length;
+    }
+
     notifyLengthChange() {
         if (this.onLengthChange) {
             this.onLengthChange(this.data.length);
