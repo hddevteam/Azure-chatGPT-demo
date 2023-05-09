@@ -448,6 +448,19 @@ class UIManager {
         });
     }
 
+    deleteMessage(messageId) {
+        // remove message from DOM and also from prompt array by message id 
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        // update input value to messageElement's data-message
+        const messageInput = document.querySelector("#message-input");
+        messageInput.value = messageElement.dataset.message;
+        messageElement.remove();
+        this.app.prompts.removePrompt(messageId);
+        this.saveCurrentProfileMessages();
+
+        this.updateSlider();
+    }
+
 
     inactiveMessage(messageId) {
         const message = document.querySelector(`[data-message-id="${messageId}"]`);
