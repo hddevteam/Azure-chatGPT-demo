@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
-import { setCurrentUsername, getCurrentUsername, getCurrentProfile, setCurrentProfile } from "./storage.js";
+import { setCurrentUsername, getCurrentUsername, getCurrentProfile, setCurrentProfile, saveMessages, getMessages } from "./storage.js";
 import { getGpt, getTts } from "./api.js";
 
 // purpose to manage the ui interaction of the app
@@ -8,6 +8,13 @@ class UIManager {
 
     constructor(app) {
         this.app = app;
+        this.messageLimit = 10;
+        const messagesContainer = document.querySelector("#messages");
+        messagesContainer.addEventListener("scroll", () => {
+            if (messagesContainer.scrollTop === 0) {
+                this.loadMoreMessages();
+            }
+        });
     }
 
     // generate unique id
@@ -293,6 +300,110 @@ class UIManager {
 
     }
 
+    // Add message to DOM
+    addMessageToTop(sender, message, messageId, isActive = true) {
+        const messageElement = this.createMessageElement(sender, messageId, isActive);
+        messageElement.dataset.message = message;
+
+        if (sender !== "system") {
+            const conversationElement = this.createConversationElement();
+            messageElement.appendChild(conversationElement);
+            this.attachToggleActiveMessageEventListener(conversationElement);
+
+            const deleteElement = this.createDeleteElement();
+            messageElement.appendChild(deleteElement);
+            this.attachDeleteMessageEventListener(deleteElement);
+        }
+
+        const messageContentElement = this.createMessageContentElement(sender, message, isActive);
+        messageElement.appendChild(messageContentElement);
+
+        if (!isActive) {
+            messageElement.classList.add("collapsed");
+        }
+
+
+        let mouseDownTime;
+        messageElement.addEventListener("mousedown", function (event) {
+            // Record the time when the mousedown event is triggered
+            mouseDownTime = new Date().getTime();
+        });
+
+
+        const messageElem = messageElement; // Add this line to save the reference to messageElement
+
+        messageElement.addEventListener("mouseup", (event) => {
+            // Calculate the time difference between mousedown and mouseup events
+            const timeDifference = new Date().getTime() - mouseDownTime;
+            const clickThreshold = 150; // Threshold value for detecting click vs drag
+
+            // If the time difference is less than the threshold, treat it as a click event
+            if (timeDifference < clickThreshold) {
+                // Check if the clicked target is an <i> element, and return early if so
+                if (event.target.tagName.toLowerCase() === "i") {
+                    return;
+                }
+
+                const isCollapsed = messageElem.classList.toggle("collapsed"); // Use messageElem instead of this and toggle "collapsed" class
+
+                if (!isCollapsed) {
+                    // Show full message when expanded
+                    if (sender === "user") {
+                        messageElem.querySelector("pre").innerText = messageElem.dataset.message;
+                    } else {
+                        messageElem.querySelector("div").innerHTML = marked.parse(messageElem.dataset.message);
+                    }
+                } else {
+                    // Show preview text when collapsed
+                    if (sender === "user") {
+                        messageElem.querySelector("pre").innerText = this.getMessagePreview(messageElem.dataset.message);
+                    } else {
+                        messageElem.querySelector("div").innerHTML = marked.parse(this.getMessagePreview(messageElem.dataset.message));
+                    }
+                }
+            }
+        });
+
+        const iconGroup = this.createIconGroup();
+
+        const copyElement = this.createCopyElement();
+        iconGroup.appendChild(copyElement);
+
+        if (sender === "user") {
+            const retryElement = this.createRetryElement();
+            iconGroup.appendChild(retryElement);
+            this.attachRetryMessageEventListener(retryElement, messageId);
+        }
+
+
+        if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
+            const speakerElement = this.createSpeakerElement();
+            iconGroup.appendChild(speakerElement);
+        }
+
+        messageElement.appendChild(iconGroup);
+        const messagesContainer = document.querySelector("#messages");
+        messagesContainer.insertBefore(messageElement, messagesContainer.firstChild.nextSibling);
+
+        const messageSpeakers = document.querySelectorAll(".message-speaker");
+        const lastSpeaker = messageSpeakers[messageSpeakers.length - 1];
+        this.attachMessageSpeakerEvent(lastSpeaker);
+
+        const autoPlay = this.app.ttsPracticeMode && sender === "assistant";
+        if (autoPlay) {
+            this.playMessage(lastSpeaker);
+        }
+
+        const messageCopies = document.querySelectorAll(".message-copy");
+        const lastCopy = messageCopies[messageCopies.length - 1];
+        this.attachMessageCopyEvent(lastCopy);
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        this.updateSlider();
+
+    }
+
     updateSlider() {
         const messageCount = document.querySelectorAll(".message").length - 1;
         document.querySelector("#maxValue").textContent = messageCount;
@@ -337,18 +448,6 @@ class UIManager {
         });
     }
 
-    deleteMessage(messageId) {
-        // remove message from DOM and also from prompt array by message id 
-        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-        // update input value to messageElement's data-message
-        const messageInput = document.querySelector("#message-input");
-        messageInput.value = messageElement.dataset.message;
-        messageElement.remove();
-        this.app.prompts.removePrompt(messageId);
-        this.saveCurrentProfileMessages();
-
-        this.updateSlider();
-    }
 
     inactiveMessage(messageId) {
         const message = document.querySelector(`[data-message-id="${messageId}"]`);
@@ -360,18 +459,25 @@ class UIManager {
     // save the current message content to local storage by username and profile name
     saveCurrentProfileMessages() {
         const messages = document.querySelectorAll(".message");
-        const savedMessages = [];
+        const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
+        const loadedMessages = [];
+
         messages.forEach(message => {
-            // only save user and assistant messages
             if (message.dataset.sender === "user" || message.dataset.sender === "assistant") {
                 if (message.dataset.messageId === "undefined") {
-                    savedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: this.generateId() });
+                    loadedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: this.generateId() });
                 } else {
-                    savedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: message.dataset.messageId });
+                    loadedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: message.dataset.messageId });
                 }
             }
         });
-        localStorage.setItem(getCurrentUsername() + "_" + getCurrentProfile().name, JSON.stringify(savedMessages));
+
+        // Merge loaded messages with saved messages
+        const updatedMessages = savedMessages.filter(savedMessage => {
+            return !loadedMessages.find(loadedMessage => loadedMessage.messageId === savedMessage.messageId);
+        }).concat(loadedMessages);
+
+        saveMessages(getCurrentUsername(), getCurrentProfile().name, updatedMessages);
     }
 
     // Clear message input except the first message
@@ -450,6 +556,29 @@ class UIManager {
         }
     }
 
+    loadMoreMessages() {
+        const messagesContainer = document.querySelector("#messages");
+
+        const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
+        const currentMessagesCount = messagesContainer.children.length;
+        const messageLimit = 10;
+        const startingIndex = savedMessages.length - currentMessagesCount - messageLimit > 0 ? savedMessages.length - currentMessagesCount - messageLimit : 0;
+
+        // Check if system prompt is already loaded
+        const systemPromptLoaded = Array.from(messagesContainer.children).some(message => message.dataset.sender === "system");
+
+        // Record the current scroll position
+        const currentScrollPosition = messagesContainer.scrollHeight - messagesContainer.scrollTop;
+        savedMessages.slice(startingIndex, savedMessages.length - currentMessagesCount).reverse().forEach((message, index) => {
+            let isActive = false;
+            this.addMessageToTop(message.role, message.content, message.messageId, isActive);
+        });
+
+
+        // Set the scroll position back to the original position after loading more messages
+        messagesContainer.scrollTop = messagesContainer.scrollHeight - currentScrollPosition;
+    }
+
 
     // render menu list from data
     // it only happens when user submit the username or the page is loaded
@@ -467,23 +596,25 @@ class UIManager {
         const currentProfileName = savedCurrentProfile ? savedCurrentProfile.name : profiles[0].name;
         const currentProfile = profiles.find(profile => profile.name === currentProfileName);
         setCurrentProfile(currentProfile);
+        this.setupPracticeMode();
 
         let messageId = this.generateId();
         this.app.prompts.addPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: messageId });
         this.addMessage("system", getCurrentProfile().prompt, messageId);
-        this.setupPracticeMode();
-
         // read saved messages from local storage for current profile and current username
-        const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
+        const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
+        const startingIndex = savedMessages.length > this.messageLimit ? savedMessages.length - this.messageLimit : 0;
         // add saved messages to the message list and load last 2 messages(max) to prompts
-        savedMessages.forEach((message, index) => {
+        savedMessages.slice(startingIndex).forEach((message, index, arr) => {
             let isActive = false;
-            if (index >= savedMessages.length - 2) {
+            if (index >= arr.length - 2) {
                 this.app.prompts.addPrompt(message);
                 isActive = true;
             }
             this.addMessage(message.role, message.content, message.messageId, isActive);
         });
+
+
         //empty menu list
         const menuList = document.querySelector("#menu-list");
         menuList.innerHTML = "";
@@ -517,15 +648,18 @@ class UIManager {
                 messagesContainer.innerHTML = "";
                 // 清空 prompts 数组
                 self.app.prompts.clear();
+
                 let messageId = self.generateId();
                 self.app.prompts.addPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: messageId });
                 self.addMessage("system", getCurrentProfile().prompt, messageId);
                 // read saved messages from local storage for current profile and current username
-                const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
+                const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
+
+                const startingIndex = savedMessages.length > self.messageLimit ? savedMessages.length - self.messageLimit : 0;
                 // add saved messages to the message list and load last 2 messages(max) to prompts
-                savedMessages.forEach((message, index) => {
+                savedMessages.slice(startingIndex).forEach((message, index, arr) => {
                     let isActive = false;
-                    if (index >= savedMessages.length - 2) {
+                    if (index >= arr.length - 2) {
                         self.app.prompts.addPrompt(message);
                         isActive = true;
                     }

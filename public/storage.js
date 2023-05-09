@@ -23,3 +23,12 @@ export function getCurrentProfile() {
 function saveCurrentUserData() {
     localStorage.setItem("currentUserData", JSON.stringify(currentUserData));
 }
+
+export function saveMessages(username, profileName, messages) {
+    localStorage.setItem(username + "_" + profileName, JSON.stringify(messages));
+}
+
+export function getMessages(username, profileName) {
+    return JSON.parse(localStorage.getItem(username + "_" + profileName) || "[]");
+}
+
