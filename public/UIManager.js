@@ -281,18 +281,16 @@ class UIManager {
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.appendChild(messageElement);
 
-        const messageSpeakers = document.querySelectorAll(".message-speaker");
-        const lastSpeaker = messageSpeakers[messageSpeakers.length - 1];
-        this.attachMessageSpeakerEvent(lastSpeaker);
+        const currentSpeaker = messageElement.querySelector(".message-speaker");
+        this.attachMessageSpeakerEvent(currentSpeaker);
 
         const autoPlay = this.app.ttsPracticeMode && sender === "assistant";
         if (autoPlay) {
-            this.playMessage(lastSpeaker);
+            this.playMessage(currentSpeaker);
         }
 
-        const messageCopies = document.querySelectorAll(".message-copy");
-        const lastCopy = messageCopies[messageCopies.length - 1];
-        this.attachMessageCopyEvent(lastCopy);
+        const currentCopy = messageElement.querySelector(".message-copy");
+        this.attachMessageCopyEvent(currentCopy);
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -385,18 +383,16 @@ class UIManager {
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.insertBefore(messageElement, messagesContainer.firstChild.nextSibling);
 
-        const messageSpeakers = document.querySelectorAll(".message-speaker");
-        const lastSpeaker = messageSpeakers[messageSpeakers.length - 1];
-        this.attachMessageSpeakerEvent(lastSpeaker);
+        const currentSpeaker = messageElement.querySelector(".message-speaker");
+        this.attachMessageSpeakerEvent(currentSpeaker);
 
         const autoPlay = this.app.ttsPracticeMode && sender === "assistant";
         if (autoPlay) {
-            this.playMessage(lastSpeaker);
+            this.playMessage(currentSpeaker);
         }
 
-        const messageCopies = document.querySelectorAll(".message-copy");
-        const lastCopy = messageCopies[messageCopies.length - 1];
-        this.attachMessageCopyEvent(lastCopy);
+        const currentCopy = messageElement.querySelector(".message-copy");
+        this.attachMessageCopyEvent(currentCopy);
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
