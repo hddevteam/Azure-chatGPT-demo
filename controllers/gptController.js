@@ -43,10 +43,10 @@ exports.generateResponse = async (req, res) => {
         // Send request to API endpoint
         const response = await axios(apiUrl, options);
         const { data } = response;
-
+        
         // Get message content and total tokens from response
-        const message = data.choices[0].message.content;
-        console.log(data.usage);
+        const message = data.choices[0].message.content||data.choices[0].finish_reason;
+        console.log(data);
         const totalTokens = data.usage.total_tokens;
 
         // Create response object
