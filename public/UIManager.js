@@ -586,8 +586,14 @@ class UIManager {
         const savedCurrentProfile = getCurrentProfile();
         // get profile name from savedCurrentProfile then find the profile object from profiles array incase the profile object is changed
         // then set currentProfile to the profile object
-        const currentProfileName = savedCurrentProfile ? savedCurrentProfile.name : profiles[0].name;
-        const currentProfile = profiles.find(profile => profile.name === currentProfileName);
+        let currentProfileName = savedCurrentProfile ? savedCurrentProfile.name : profiles[0].name;
+        let currentProfile = profiles.find(profile => profile.name === currentProfileName);
+        // if currentProfile is not found, set it to the first profile, currentProfileName is also set to the first profile name
+        if (!currentProfile) {
+            currentProfile = profiles[0];
+            currentProfileName = currentProfile.name;
+        }
+
         setCurrentProfile(currentProfile);
         this.setupPracticeMode();
 
