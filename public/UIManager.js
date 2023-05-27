@@ -623,6 +623,10 @@ class UIManager {
         profiles.forEach(item => {
             let li = document.createElement("li");
             li.dataset.profile = item.name;
+            // set current selected menu item to active
+            if (item.name === currentProfileName) {
+                li.classList.add("active");
+            }
             let icon = document.createElement("i");
             icon.className = `${item.icon}`;
             let span = document.createElement("span");
@@ -634,6 +638,12 @@ class UIManager {
             const self = this;
             //add click event listener
             li.addEventListener("click", function () {
+                // set current selected menu item to active and also remove active class from other menu items
+                const activeItem = document.querySelector("#menu-list li.active");
+                if (activeItem) {
+                    activeItem.classList.remove("active");
+                }
+                this.classList.add("active");
                 // reset practice mode
                 self.turnOffPracticeMode();
                 // change currentProfile
@@ -666,6 +676,8 @@ class UIManager {
                 });
             });
         });
+
+
     }
 
     setupPracticeMode() {

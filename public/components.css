@@ -87,13 +87,12 @@
     line-height: 120%;
 }
 
-#menu li:hover {
+#menu li:hover,
+#menu li.active {
     background-color: #424141;
     color: #e6f2ff;
     cursor: pointer;
 }
-
-
 
 h1 {
     margin: 20px;
@@ -245,7 +244,7 @@ i.message-delete.fa-times {
     white-space: pre-wrap;
 }
 
-.icon-group i{
+.icon-group i {
     cursor: pointer;
 }
 
@@ -389,6 +388,7 @@ textarea::-webkit-scrollbar-thumb:hover {
 }
 
 @keyframes buttonChange {
+
     0%,
     100% {
         background-color: #E53935;
@@ -411,6 +411,7 @@ textarea::-webkit-scrollbar-thumb:hover {
 }
 
 @keyframes iconChange {
+
     0%,
     100% {
         color: #ffffff;
