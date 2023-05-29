@@ -5,8 +5,11 @@ const azureTTSController = require("./controllers/azureTTSController");
 const gptController = require("./controllers/gptController");
 const profileController = require("./controllers/profileController");
 const applicationController = require("./controllers/applicationController");
+const dalleController = require("./controllers/dalleController");
+router.post("/text-to-image", dalleController.textToImageHandler); // text-to-image
 
 router.get("/app_name", applicationController.getAppName);
+
 // router.get("/tts", azureTTSController.getTextToSpeech);
 router.post("/tts", azureTTSController.getMultiLangTextToSpeech);
 

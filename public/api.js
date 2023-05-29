@@ -12,6 +12,23 @@ export async function getPromptRepo(username) {
     return await response.json();
 }
 
+// text to image
+export async function textToImage(caption) {
+    const response = await fetch("/api/text-to-image", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ caption }),
+    });
+
+    if (!response.ok) {
+        throw new Error("获取图像时出错，请稍后重试");
+    }
+
+    return await response.json();
+}
+
 //get gpt response
 export async function getGpt(promptText) {
     const response = await fetch("/api/gpt", {

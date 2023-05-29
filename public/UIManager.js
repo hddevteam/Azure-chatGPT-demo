@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import { setCurrentUsername, getCurrentUsername, getCurrentProfile, setCurrentProfile, saveMessages, getMessages } from "./storage.js";
-import { getGpt, getTts } from "./api.js";
+import { getGpt, getTts, textToImage } from "./api.js";
 
 // purpose to manage the ui interaction of the app
 class UIManager {
@@ -193,6 +193,32 @@ class UIManager {
                 messageElem.classList.add("active");
             }
             await this.sendMessage(messageContent, true);
+        }
+    }
+
+    //text to image
+    async generateImage(caption) {
+        try {
+            const data = await textToImage(caption);
+            const imageUrl = data.imageUrl;
+            const messageId = this.generateId();
+            // Set width and height attributes for the image
+            const thumbnailWidth = 300;
+            const thumbnailHeight = 300;
+            // Wrap the <img> tag and caption text in a <div>
+            this.addMessage(
+                "assistant",
+                `<div>
+           <img src="${imageUrl}" alt="${caption}" width="${thumbnailWidth}" height="${thumbnailHeight}" style="object-fit: contain;" />
+           <p style="margin-top: 4px;">${caption}</p>
+         </div>`,
+                messageId
+            );
+            this.saveCurrentProfileMessages();
+        } catch (error) {
+            console.error(error);
+            let messageId = this.generateId();
+            this.addMessage("assistant", error.message, messageId);
         }
     }
 
@@ -487,6 +513,7 @@ class UIManager {
 
     // Send message on button click
     async sendMessage(message = "", isRetry = false) {
+        let messageId = this.generateId();
         if (message === "/clear") {
             clearMessage();
             return;
@@ -501,7 +528,14 @@ class UIManager {
             return;
         }
 
-        let messageId = this.generateId();
+        if (message.startsWith("/image")) {
+            const imageCaption = message.replace("/image", "").trim();
+            this.addMessage("user", imageCaption, messageId);
+            this.saveCurrentProfileMessages();
+            this.generateImage(imageCaption);
+            return;
+        }
+
         if (!isRetry) {
             this.addMessage("user", message, messageId);
         }
