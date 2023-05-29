@@ -331,45 +331,29 @@ class UIManager {
         }
 
 
-        let mouseDownTime;
-        messageElement.addEventListener("mousedown", function (event) {
-            // Record the time when the mousedown event is triggered
-            mouseDownTime = new Date().getTime();
-        });
-
-
         const messageElem = messageElement; // Add this line to save the reference to messageElement
 
-        messageElement.addEventListener("mouseup", (event) => {
-            // Calculate the time difference between mousedown and mouseup events
-            const timeDifference = new Date().getTime() - mouseDownTime;
-            const clickThreshold = 150; // Threshold value for detecting click vs drag
+        messageElement.addEventListener("dblclick", (event) => { // Change to dblclick event
 
-            // If the time difference is less than the threshold, treat it as a click event
-            if (timeDifference < clickThreshold) {
-                // Check if the clicked target is an <i> element, and return early if so
-                if (event.target.tagName.toLowerCase() === "i") {
-                    return;
-                }
+            // If the time difference between the last click and this click is less than the threshold, treat it as a double click event
+            const isCollapsed = messageElem.classList.toggle("collapsed"); // Use messageElem instead of this and toggle "collapsed" class
 
-                const isCollapsed = messageElem.classList.toggle("collapsed"); // Use messageElem instead of this and toggle "collapsed" class
-
-                if (!isCollapsed) {
-                    // Show full message when expanded
-                    if (sender === "user") {
-                        messageElem.querySelector("pre").innerText = messageElem.dataset.message;
-                    } else {
-                        messageElem.querySelector("div").innerHTML = marked.parse(messageElem.dataset.message);
-                    }
+            if (!isCollapsed) {
+                // Show full message when expanded
+                if (sender === "user") {
+                    messageElem.querySelector("pre").innerText = messageElem.dataset.message;
                 } else {
-                    // Show preview text when collapsed
-                    if (sender === "user") {
-                        messageElem.querySelector("pre").innerText = this.getMessagePreview(messageElem.dataset.message);
-                    } else {
-                        messageElem.querySelector("div").innerHTML = marked.parse(this.getMessagePreview(messageElem.dataset.message));
-                    }
+                    messageElem.querySelector("div").innerHTML = marked.parse(messageElem.dataset.message);
+                }
+            } else {
+                // Show preview text when collapsed
+                if (sender === "user") {
+                    messageElem.querySelector("pre").innerText = this.getMessagePreview(messageElem.dataset.message);
+                } else {
+                    messageElem.querySelector("div").innerHTML = marked.parse(this.getMessagePreview(messageElem.dataset.message));
                 }
             }
+
         });
 
         const iconGroup = this.createIconGroup();
