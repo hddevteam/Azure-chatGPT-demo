@@ -58,6 +58,7 @@ function displayProfiles(profiles) {
                     <p class="card-text">Sorted Index: ${profile.sortedIndex}</p>
                     <button class="btn btn-primary edit-profile" data-bs-toggle="modal" data-bs-target="#profile-modal">Edit</button>
                     <button class="btn btn-danger delete-profile">Delete</button>
+                    <button class="btn btn-secondary duplicate-profile">Duplicate</button>
                 </div>
             </div>
         </div>`;
@@ -97,6 +98,40 @@ function displayProfiles(profiles) {
         // Delete profile using API, replace the URL with your API endpoint
         fetch(`/api/profiles/${name}?username=${getCurrentUsername()}`, {
             method: "DELETE"
+        })
+            .then(response => response.json())
+            .then(() => {
+                // Refresh profiles list
+                fetchProfiles();
+            });
+    });
+
+    $("#profile-list").on("click", ".duplicate-profile", function () {
+        // Get profile details from card
+        const name = $(this).parent().find("h5").text();
+        const icon = $(this).parent().find("i").attr("class");
+        const displayName = $(this).parent().find("p.card-text").eq(0).text();
+        const prompt = $(this).parent().find("p.card-text").eq(1).text();
+        const tts = $(this).parent().find("p.card-text").eq(2).text().split(": ")[1];
+        const sortedIndex = $(this).parent().find("p.card-text").eq(3).text().split(": ")[1];
+
+        // Create a new profile object with a unique name
+        const newProfile = {
+            name: `${name}-copy`,
+            icon: icon,
+            displayName: `${displayName} (Copy)`,
+            prompt: prompt,
+            tts: tts,
+            sortedIndex: sortedIndex
+        };
+
+        // Send data to server, replace the URL with your API endpoint
+        fetch(`/api/profiles?username=${getCurrentUsername()}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newProfile)
         })
             .then(response => response.json())
             .then(() => {
