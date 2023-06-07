@@ -330,8 +330,8 @@ textarea::-webkit-scrollbar-thumb:hover {
 
 #clear-input {
     position: absolute;
-    right: 5px;
-    bottom: 5px;
+    right: -20px;
+    top: 5px;
     font-size: 1em;
     color: #ccc;
     cursor: pointer;
