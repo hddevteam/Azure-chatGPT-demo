@@ -439,10 +439,21 @@ class UIManager {
     }
 
     deleteMessage(messageId) {
-        // remove message from DOM and also from prompt array by message id 
-        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-        // update input value to messageElement's data-message
+        // Get message input and check if it's empty or not
         const messageInput = document.querySelector("#message-input");
+        const isMessageInputEmpty = messageInput.value.trim() === "";
+
+        // If message input is not empty, ask for user confirmation before replacing the text
+        if (!isMessageInputEmpty) {
+            const confirmation = confirm("“The message input currently contains text. Do you want to replace the existing text with the deleted message?");
+            if (!confirmation) {
+                return;
+            }
+        }
+
+        // Remove message from DOM and also from prompt array by message id
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        // Update input value to messageElement's data-message
         messageInput.value = messageElement.dataset.message;
         messageElement.remove();
         this.app.prompts.removePrompt(messageId);
