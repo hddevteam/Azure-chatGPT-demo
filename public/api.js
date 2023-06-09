@@ -30,11 +30,11 @@ export async function textToImage(caption) {
 }
 
 //get gpt response
-export async function getGpt(promptText) {
+export async function getGpt(promptText, model) {
     const response = await fetch("/api/gpt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: promptText }),
+        body: JSON.stringify({ prompt: promptText, model: model }),
     });
     if (!response.ok) {
         throw new Error("Error generating response.");

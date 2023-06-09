@@ -545,7 +545,8 @@ class UIManager {
 
         try {
             this.showToast("AI thinking...");
-            const data = await getGpt(promptText);
+            console.log(this.app.model);
+            const data = await getGpt(promptText, this.app.model);
             // console.log(data);
             // If no response, pop last prompt and send a message
             if (!data) {

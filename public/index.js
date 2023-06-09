@@ -9,6 +9,17 @@ import { setupVoiceInput } from "./input-audio.js";
 const app = new App();
 const uiManager = new UIManager(app);
 
+const switchElement = document.getElementById("model-switch");
+const modelNameElement = document.getElementById("model-name");
+const switchOptions = { color: "#1AB394", secondaryColor: "#ED5565" };
+const modelSwitch = new Switchery(switchElement, switchOptions);
+
+switchElement.addEventListener("change", function () {
+    app.model = this.checked ? "gpt-4" : "gpt-3.5-turbo";
+    modelNameElement.textContent = this.checked ? "GPT4" : "GPT3.5";
+});
+
+
 const slider = document.getElementById("slider");
 const currentValue = document.getElementById("currentValue");
 app.prompts.onLengthChange = function (newLength) {

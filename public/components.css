@@ -352,6 +352,7 @@ textarea::-webkit-scrollbar-thumb:hover {
 
 #input-container {
     height: 100%;
+    margin-right: 20px;
     position: relative;
     flex: 1;
     max-width: 900px;
@@ -453,4 +454,8 @@ button {
 
 button:hover {
     background-color: #3e8e41;
+}
+
+.switch-container {
+    display: inline-block;
 }

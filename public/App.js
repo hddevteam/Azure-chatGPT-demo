@@ -7,6 +7,7 @@ class App {
         this.ttsPracticeMode = false;
         this.audio = new Audio();
         this.currentPlayingSpeaker = null; // Add this variable to keep track of the current playing speaker
+        this.model = "gpt-3.5-turbo";
     }
 
     setCurrentPlayingSpeaker(speaker) {
