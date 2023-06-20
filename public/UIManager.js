@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import { setCurrentUsername, getCurrentUsername, getCurrentProfile, setCurrentProfile, saveMessages, getMessages } from "./storage.js";
@@ -85,9 +86,12 @@ class UIManager {
     }
 
     // Create a new method for creating the copy element
-    createCopyElement() {
+    createCopyElement(isCodeBlock = false) {
         const copyElement = document.createElement("i");
         copyElement.classList.add("message-copy");
+        if (isCodeBlock) {
+            copyElement.classList.add("code-block-copy");
+        }
         copyElement.classList.add("fas");
         copyElement.classList.add("fa-copy");
         return copyElement;
@@ -122,13 +126,34 @@ class UIManager {
         if (sender === "user") {
             const pre = document.createElement("pre");
             pre.innerText = isActive ? message : this.getMessagePreview(message); // Set full text if active, else set preview text
-            return pre;
-        } else {
-            const messageHtml = marked.parse(message);
+            return { element: pre, codeBlocksWithCopyElements: [] };
+        } 
+        else {
             const messageHtmlElement = document.createElement("div");
-            messageHtmlElement.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message)); // Set full text if active, else set preview text
-            return messageHtmlElement;
-        }
+            const messageHtml = marked.parse(message);
+            messageHtmlElement.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message));
+            const codeBlocks = messageHtmlElement.querySelectorAll("pre code");
+            const codeBlocksWithCopyElements = []; // Create an array to store codeBlock and copyElement pairs
+        
+            for (let i = 0; i < codeBlocks.length; i++) {
+                const codeBlock = codeBlocks[i];
+                const copyElement = this.createCopyElement(true);
+        
+                const wrapper = document.createElement("div");
+                wrapper.style.position = "relative";
+                codeBlock.parentNode.insertBefore(wrapper, codeBlock);
+                wrapper.appendChild(codeBlock);
+                wrapper.appendChild(copyElement);
+                copyElement.style.position = "absolute";
+                copyElement.style.top = "0";
+                copyElement.style.right = "0";
+                copyElement.style.cursor = "pointer";
+        
+                codeBlocksWithCopyElements.push({ codeBlock, copyElement }); // Add the codeBlock and copyElement pair to the array
+            }
+        
+            return { element: messageHtmlElement, codeBlocksWithCopyElements };
+        } 
     }
 
     toggleActiveMessage(event) {
@@ -237,7 +262,7 @@ class UIManager {
             this.attachDeleteMessageEventListener(deleteElement);
         }
 
-        const messageContentElement = this.createMessageContentElement(sender, message, isActive);
+        const { element: messageContentElement, codeBlocksWithCopyElements } = this.createMessageContentElement(sender, message, isActive);
         messageElement.appendChild(messageContentElement);
 
         if (!isActive) {
@@ -299,8 +324,11 @@ class UIManager {
             this.playMessage(currentSpeaker);
         }
 
-        const currentCopy = messageElement.querySelector(".message-copy");
+        const currentCopy = messageElement.querySelector(".message-copy:not(.code-block-copy)");
         this.attachMessageCopyEvent(currentCopy);
+        codeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
+            this.attachCodeBlockCopyEvent(codeBlock, copyElement);
+        });
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -312,7 +340,6 @@ class UIManager {
     addMessageToTop(sender, message, messageId, isActive = true) {
         const messageElement = this.createMessageElement(sender, messageId, isActive);
         messageElement.dataset.message = message;
-
         if (sender !== "system") {
             const conversationElement = this.createConversationElement();
             messageElement.appendChild(conversationElement);
@@ -323,7 +350,7 @@ class UIManager {
             this.attachDeleteMessageEventListener(deleteElement);
         }
 
-        const messageContentElement = this.createMessageContentElement(sender, message, isActive);
+        const { element: messageContentElement, codeBlocksWithCopyElements } = this.createMessageContentElement(sender, message, isActive);
         messageElement.appendChild(messageContentElement);
 
         if (!isActive) {
@@ -387,6 +414,9 @@ class UIManager {
 
         const currentCopy = messageElement.querySelector(".message-copy");
         this.attachMessageCopyEvent(currentCopy);
+        codeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
+            this.attachCodeBlockCopyEvent(codeBlock, copyElement);
+        });
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -437,6 +467,27 @@ class UIManager {
             self.showToast("copied failed");
         });
     }
+
+    attachCodeBlockCopyEvent(codeBlock, copyElement) {
+        // 实例化clipboard.js
+        var clipboard = new ClipboardJS(copyElement, {
+            text: function () {
+                // 获取code元素的文本内容
+                const codeText = codeBlock.textContent;
+                console.log(codeText);
+                return codeText;
+            }
+        });
+    
+        const self = this;
+        clipboard.on("success", function () {
+            self.showToast("copied successful");
+        });
+        clipboard.on("error", function () {
+            self.showToast("copied failed");
+        });
+    }
+
 
     deleteMessage(messageId) {
         // Get message input and check if it's empty or not
