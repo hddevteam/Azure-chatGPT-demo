@@ -275,7 +275,7 @@ class UIManager {
     }
 
     // Add message to DOM
-    addMessage(sender, message, messageId, isActive = true) {
+    addMessage(sender, message, messageId, isActive = true, position = "bottom") {
         const messageElement = this.createMessageElement(sender, messageId, isActive);
         messageElement.dataset.message = message;
 
@@ -297,20 +297,19 @@ class UIManager {
             messageElement.classList.add("collapsed");
         }
 
-
-        const messageElem = messageElement; // Add this line to save the reference to messageElement
+        const messageElem = messageElement;
 
         messageElement.addEventListener("dblclick", (event) => {
             const isCollapsed = messageElem.classList.toggle("collapsed");
             const updatedMessage = isCollapsed ? this.getMessagePreview(messageElem.dataset.message) : messageElem.dataset.message;
-    
+
             // Update the message content and get the new codeBlocksWithCopyElements
             const newCodeBlocksWithCopyElements = this.setMessageContent(sender, messageElem, updatedMessage, !isCollapsed);
-    
+
             newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
                 this.attachCodeBlockCopyEvent(codeBlock, copyElement);
             });
-    
+
         });
 
         const iconGroup = this.createIconGroup();
@@ -324,7 +323,6 @@ class UIManager {
             this.attachRetryMessageEventListener(retryElement, messageId);
         }
 
-
         if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
             const speakerElement = this.createSpeakerElement();
             iconGroup.appendChild(speakerElement);
@@ -332,7 +330,12 @@ class UIManager {
 
         messageElement.appendChild(iconGroup);
         const messagesContainer = document.querySelector("#messages");
-        messagesContainer.appendChild(messageElement);
+
+        if (position === "top") {
+            messagesContainer.insertBefore(messageElement, messagesContainer.firstChild.nextSibling);
+        } else {
+            messagesContainer.appendChild(messageElement);
+        }
 
         const currentSpeaker = messageElement.querySelector(".message-speaker");
         this.attachMessageSpeakerEvent(currentSpeaker);
@@ -351,87 +354,8 @@ class UIManager {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         this.updateSlider();
-
     }
 
-    // Add message to DOM
-    addMessageToTop(sender, message, messageId, isActive = true) {
-        const messageElement = this.createMessageElement(sender, messageId, isActive);
-        messageElement.dataset.message = message;
-        if (sender !== "system") {
-            const conversationElement = this.createConversationElement();
-            messageElement.appendChild(conversationElement);
-            this.attachToggleActiveMessageEventListener(conversationElement);
-
-            const deleteElement = this.createDeleteElement();
-            messageElement.appendChild(deleteElement);
-            this.attachDeleteMessageEventListener(deleteElement);
-        }
-
-        const messageContentElement = sender === "user" ? document.createElement("pre") : document.createElement("div");
-        messageElement.appendChild(messageContentElement);
-        const codeBlocksWithCopyElements = this.setMessageContent(sender, messageElement, message, isActive);
-
-        if (!isActive) {
-            messageElement.classList.add("collapsed");
-        }
-
-
-        const messageElem = messageElement; // Add this line to save the reference to messageElement
-
-        messageElement.addEventListener("dblclick", (event) => {
-            const isCollapsed = messageElem.classList.toggle("collapsed");
-            const updatedMessage = isCollapsed ? this.getMessagePreview(messageElem.dataset.message) : messageElem.dataset.message;
-    
-            // Update the message content and get the new codeBlocksWithCopyElements
-            const newCodeBlocksWithCopyElements = this.setMessageContent(sender, messageElem, updatedMessage, !isCollapsed);
-    
-            newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
-                this.attachCodeBlockCopyEvent(codeBlock, copyElement);
-            });
-    
-        });
-
-        const iconGroup = this.createIconGroup();
-
-        const copyElement = this.createCopyElement();
-        iconGroup.appendChild(copyElement);
-
-        if (sender === "user") {
-            const retryElement = this.createRetryElement();
-            iconGroup.appendChild(retryElement);
-            this.attachRetryMessageEventListener(retryElement, messageId);
-        }
-
-
-        if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
-            const speakerElement = this.createSpeakerElement();
-            iconGroup.appendChild(speakerElement);
-        }
-
-        messageElement.appendChild(iconGroup);
-        const messagesContainer = document.querySelector("#messages");
-        messagesContainer.insertBefore(messageElement, messagesContainer.firstChild.nextSibling);
-
-        const currentSpeaker = messageElement.querySelector(".message-speaker");
-        this.attachMessageSpeakerEvent(currentSpeaker);
-
-        const autoPlay = this.app.ttsPracticeMode && sender === "assistant";
-        if (autoPlay) {
-            this.playMessage(currentSpeaker);
-        }
-
-        const currentCopy = messageElement.querySelector(".message-copy");
-        this.attachMessageCopyEvent(currentCopy);
-        codeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
-            this.attachCodeBlockCopyEvent(codeBlock, copyElement);
-        });
-
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        this.updateSlider();
-
-    }
 
     updateSlider() {
         const messageCount = document.querySelectorAll(".message").length - 1;
@@ -641,26 +565,33 @@ class UIManager {
 
     loadMoreMessages() {
         const messagesContainer = document.querySelector("#messages");
-
+    
         const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
         const currentMessagesCount = messagesContainer.children.length;
         const messageLimit = 10;
         const startingIndex = savedMessages.length - currentMessagesCount - messageLimit > 0 ? savedMessages.length - currentMessagesCount - messageLimit : 0;
-
+    
         // Check if system prompt is already loaded
         const systemPromptLoaded = Array.from(messagesContainer.children).some(message => message.dataset.sender === "system");
-
+    
         // Record the current scroll position
         const currentScrollPosition = messagesContainer.scrollHeight - messagesContainer.scrollTop;
+    
+        // Get the current list of message IDs
+        const currentMessageIds = Array.from(messagesContainer.children).map(message => message.dataset.messageId);
+    
         savedMessages.slice(startingIndex, savedMessages.length - currentMessagesCount).reverse().forEach((message, index) => {
-            let isActive = false;
-            this.addMessageToTop(message.role, message.content, message.messageId, isActive);
+            // Check if the message is already in the list
+            if (!currentMessageIds.includes(message.messageId)) {
+                let isActive = false;
+                this.addMessage(message.role, message.content, message.messageId, isActive, "top");
+            }
         });
-
-
+    
         // Set the scroll position back to the original position after loading more messages
         messagesContainer.scrollTop = messagesContainer.scrollHeight - currentScrollPosition;
     }
+    
 
 
     // render menu list from data
