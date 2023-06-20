@@ -86,12 +86,9 @@ class UIManager {
     }
 
     // Create a new method for creating the copy element
-    createCopyElement(isCodeBlock = false) {
+    createCopyElement() {
         const copyElement = document.createElement("i");
         copyElement.classList.add("message-copy");
-        if (isCodeBlock) {
-            copyElement.classList.add("code-block-copy");
-        }
         copyElement.classList.add("fas");
         copyElement.classList.add("fa-copy");
         return copyElement;
@@ -132,22 +129,20 @@ class UIManager {
             const messageHtmlElement = document.createElement("div");
             const messageHtml = marked.parse(message);
             messageHtmlElement.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message));
-            const codeBlocks = messageHtmlElement.querySelectorAll("pre code");
+            const codeBlocks = messageHtmlElement.querySelectorAll("pre > code, pre code");
             const codeBlocksWithCopyElements = []; // Create an array to store codeBlock and copyElement pairs
         
             for (let i = 0; i < codeBlocks.length; i++) {
                 const codeBlock = codeBlocks[i];
-                const copyElement = this.createCopyElement(true);
+                const copyElement = this.createCopyElement();
         
                 const wrapper = document.createElement("div");
+                wrapper.classList.add("code-block-wrapper");
                 wrapper.style.position = "relative";
                 codeBlock.parentNode.insertBefore(wrapper, codeBlock);
                 wrapper.appendChild(codeBlock);
                 wrapper.appendChild(copyElement);
-                copyElement.style.position = "absolute";
-                copyElement.style.top = "0";
-                copyElement.style.right = "0";
-                copyElement.style.cursor = "pointer";
+                copyElement.classList.add("code-block-copy");
         
                 codeBlocksWithCopyElements.push({ codeBlock, copyElement }); // Add the codeBlock and copyElement pair to the array
             }
@@ -247,6 +242,38 @@ class UIManager {
         }
     }
 
+    setMessageContent(sender, messageElem, message, isActive) {
+        let element;
+        if (sender === "user") {
+            element = messageElem.querySelector("pre");
+            element.innerText = isActive ? message : this.getMessagePreview(message);
+        } else {
+            element = messageElem.querySelector("div");
+            const messageHtml = marked.parse(message);
+            element.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message));
+        }
+    
+        const codeBlocks = element.querySelectorAll("pre > code, pre code");
+        const codeBlocksWithCopyElements = [];
+    
+        for (let i = 0; i < codeBlocks.length; i++) {
+            const codeBlock = codeBlocks[i];
+            const copyElement = this.createCopyElement();
+    
+            const wrapper = document.createElement("div");
+            wrapper.classList.add("code-block-wrapper");
+            wrapper.style.position = "relative";
+            codeBlock.parentNode.insertBefore(wrapper, codeBlock);
+            wrapper.appendChild(codeBlock);
+            wrapper.appendChild(copyElement);
+            copyElement.classList.add("code-block-copy");
+    
+            codeBlocksWithCopyElements.push({ codeBlock, copyElement });
+        }
+    
+        return codeBlocksWithCopyElements;
+    }
+
     // Add message to DOM
     addMessage(sender, message, messageId, isActive = true) {
         const messageElement = this.createMessageElement(sender, messageId, isActive);
@@ -262,8 +289,9 @@ class UIManager {
             this.attachDeleteMessageEventListener(deleteElement);
         }
 
-        const { element: messageContentElement, codeBlocksWithCopyElements } = this.createMessageContentElement(sender, message, isActive);
+        const messageContentElement = sender === "user" ? document.createElement("pre") : document.createElement("div");
         messageElement.appendChild(messageContentElement);
+        const codeBlocksWithCopyElements = this.setMessageContent(sender, messageElement, message, isActive);
 
         if (!isActive) {
             messageElement.classList.add("collapsed");
@@ -272,27 +300,17 @@ class UIManager {
 
         const messageElem = messageElement; // Add this line to save the reference to messageElement
 
-        messageElement.addEventListener("dblclick", (event) => { // Change to dblclick event
-
-            // If the time difference between the last click and this click is less than the threshold, treat it as a double click event
-            const isCollapsed = messageElem.classList.toggle("collapsed"); // Use messageElem instead of this and toggle "collapsed" class
-
-            if (!isCollapsed) {
-                // Show full message when expanded
-                if (sender === "user") {
-                    messageElem.querySelector("pre").innerText = messageElem.dataset.message;
-                } else {
-                    messageElem.querySelector("div").innerHTML = marked.parse(messageElem.dataset.message);
-                }
-            } else {
-                // Show preview text when collapsed
-                if (sender === "user") {
-                    messageElem.querySelector("pre").innerText = this.getMessagePreview(messageElem.dataset.message);
-                } else {
-                    messageElem.querySelector("div").innerHTML = marked.parse(this.getMessagePreview(messageElem.dataset.message));
-                }
-            }
-
+        messageElement.addEventListener("dblclick", (event) => {
+            const isCollapsed = messageElem.classList.toggle("collapsed");
+            const updatedMessage = isCollapsed ? this.getMessagePreview(messageElem.dataset.message) : messageElem.dataset.message;
+    
+            // Update the message content and get the new codeBlocksWithCopyElements
+            const newCodeBlocksWithCopyElements = this.setMessageContent(sender, messageElem, updatedMessage, !isCollapsed);
+    
+            newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
+                this.attachCodeBlockCopyEvent(codeBlock, copyElement);
+            });
+    
         });
 
         const iconGroup = this.createIconGroup();
@@ -350,8 +368,9 @@ class UIManager {
             this.attachDeleteMessageEventListener(deleteElement);
         }
 
-        const { element: messageContentElement, codeBlocksWithCopyElements } = this.createMessageContentElement(sender, message, isActive);
+        const messageContentElement = sender === "user" ? document.createElement("pre") : document.createElement("div");
         messageElement.appendChild(messageContentElement);
+        const codeBlocksWithCopyElements = this.setMessageContent(sender, messageElement, message, isActive);
 
         if (!isActive) {
             messageElement.classList.add("collapsed");
@@ -360,27 +379,17 @@ class UIManager {
 
         const messageElem = messageElement; // Add this line to save the reference to messageElement
 
-        messageElement.addEventListener("dblclick", (event) => { // Change to dblclick event
-
-            // If the time difference between the last click and this click is less than the threshold, treat it as a double click event
-            const isCollapsed = messageElem.classList.toggle("collapsed"); // Use messageElem instead of this and toggle "collapsed" class
-
-            if (!isCollapsed) {
-                // Show full message when expanded
-                if (sender === "user") {
-                    messageElem.querySelector("pre").innerText = messageElem.dataset.message;
-                } else {
-                    messageElem.querySelector("div").innerHTML = marked.parse(messageElem.dataset.message);
-                }
-            } else {
-                // Show preview text when collapsed
-                if (sender === "user") {
-                    messageElem.querySelector("pre").innerText = this.getMessagePreview(messageElem.dataset.message);
-                } else {
-                    messageElem.querySelector("div").innerHTML = marked.parse(this.getMessagePreview(messageElem.dataset.message));
-                }
-            }
-
+        messageElement.addEventListener("dblclick", (event) => {
+            const isCollapsed = messageElem.classList.toggle("collapsed");
+            const updatedMessage = isCollapsed ? this.getMessagePreview(messageElem.dataset.message) : messageElem.dataset.message;
+    
+            // Update the message content and get the new codeBlocksWithCopyElements
+            const newCodeBlocksWithCopyElements = this.setMessageContent(sender, messageElem, updatedMessage, !isCollapsed);
+    
+            newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
+                this.attachCodeBlockCopyEvent(codeBlock, copyElement);
+            });
+    
         });
 
         const iconGroup = this.createIconGroup();

@@ -459,3 +459,20 @@ button:hover {
 .switch-container {
     display: inline-block;
 }
+
+.code-block-wrapper {
+    position: relative;
+}
+
+.code-block-copy {
+    position:absolute;
+    color:rgba(255, 255, 255, 0.5);
+    top:0;
+    right: 0;
+    cursor: pointer;
+}
+
+.code-block-copy:hover {
+    color:rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+}
