@@ -489,10 +489,26 @@ class UIManager {
 
     }
 
+    getLastAssistantMessage() {
+        const messagesDiv = document.getElementById("messages");
+        const assistantMessages = messagesDiv.querySelectorAll(".assistant-message");
+        return assistantMessages[assistantMessages.length - 1];
+    }
+    
+    getLastLine(text) {
+        const lines = text.split("\n");
+        return lines[lines.length - 1];
+    }
 
     // Send message on button click
     async sendMessage(message = "", isRetry = false) {
         let messageId = this.generateId();
+        if (message.startsWith("/complete")) {
+            const lastMessage = this.getLastAssistantMessage();
+            const secondLastLine = this.getLastLine(lastMessage.dataset.message);
+            message = `内容没有输出完整，请从\n${secondLastLine}\n这一行开始, 向下补充余下的内容`;
+        }
+
         if (message === "/clear") {
             clearMessage();
             return;
