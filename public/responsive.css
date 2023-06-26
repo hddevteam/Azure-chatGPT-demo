@@ -47,7 +47,7 @@
 
     #chat-container {
         padding: 0;
-        height: calc(100vh - 150px);
+        min-height: calc(100vh - 150px);
         width: 100%;
         margin: 0;
         border: 0;
@@ -215,7 +215,7 @@
 @media screen and (min-resolution: 2dppx) {
 
     #chat-container {
-        height: calc(100vh - 250px);
+        min-height: calc(100vh - 130px);
     }
 }
 
@@ -224,7 +224,7 @@
 
     #chat-container {
         position: relative;
-        height: calc(100vh - 300px);
+        height: auto;
         /* 70px is the height of message-form */
         max-width: 900px;
         width: 90%;

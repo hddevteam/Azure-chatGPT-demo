@@ -1,0 +1,116 @@
+h1 {
+    margin: 20px;
+    width: 50%;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+#header {
+    display: flex;
+    width: 82%;
+    height: 60px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#chat-container {
+    display: flex;
+    position: relative;
+    max-width: 1000px;
+    width: 100%;
+    margin: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    min-height: calc(100vh - 140px); /* 设置最小高度 */
+    height: auto; /* 设置高度为auto */
+  }
+  
+
+/* menu */
+#menu {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 15%;
+    height: 100%;
+    background-color: #f1f1f1;
+    border-left: 1px solid #ccc;
+    border-radius: 0 5px 5px 0;
+    overflow-y: auto;
+    padding-bottom: 30px;
+    scrollbar-width: thin;
+    scrollbar-color: #bbb transparent;
+}
+
+/* Remove the fixed height for messages container */
+#messages {
+    position: absolute;
+    --input-height: 30px;
+    --messages-height: calc(100% - var(--input-height));
+    top: 50px;
+    bottom: var(--input-height, 30px); /* 使用变量 --input-height 作为底部值 */
+    width: 85%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #bbb transparent;
+}
+
+
+.message-input-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+#message-form {
+    height: auto; /* 修改 height 为 auto */
+    background-color: #333;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
+}
+
+#message-input {
+    resize: none;
+    width: 100%;
+    min-height: 20px; /* or the height of one line of text */
+    padding: 10px 50px 10px 10px;
+    font-size: 16px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    border: 2px solid #eee;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    transition: border-color 0.2s ease-in-out;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #bbb transparent;
+}
+
+
+#input-container {
+    height: 100%;
+    margin-right: 20px;
+    position: relative;
+    flex: 1;
+    max-width: 1000px;
+}
+
+.mini-toolbar-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: right;
+}

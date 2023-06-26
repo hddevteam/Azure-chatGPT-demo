@@ -108,3 +108,4 @@ dist
 .audio/
 .vscode/launch.json
 failed_audio/
+chat.md

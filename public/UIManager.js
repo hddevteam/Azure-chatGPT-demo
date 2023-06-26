@@ -542,6 +542,7 @@ class UIManager {
 
         const messageInput = document.querySelector("#message-input");
         messageInput.value = "";
+        this.resetInputHeight();
 
         try {
             this.showToast("AI thinking...");
@@ -789,6 +790,11 @@ class UIManager {
             this.toggleSpeakerIcon(speaker);
             console.error(error);
         }
+    }
+
+    resetInputHeight() {
+        const input = document.getElementById("message-input");
+        input.style.height = "59px"; // Set the height back to the default value
     }
 }
 
