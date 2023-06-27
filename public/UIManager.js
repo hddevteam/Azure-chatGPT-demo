@@ -16,6 +16,28 @@ class UIManager {
                 this.loadMoreMessages();
             }
         });
+        this.messageInput = document.getElementById("message-input");
+        this.messages = document.getElementById("messages");
+        this.init();
+    }
+
+    init() {
+        this.adjustInputHeight();
+        this.messageInput.addEventListener("input", () => this.adjustInputHeight());
+    }
+
+    adjustInputHeight() {
+        this.messageInput.style.height = "auto";
+        this.messageInput.style.height = `${Math.min(this.messageInput.scrollHeight-10, window.innerHeight / 2)}px`;
+
+        // Update the messages container's bottom padding
+        const inputHeight = parseInt(this.messageInput.style.height);
+        this.messages.style.bottom = `${inputHeight - 30}px`;
+    }
+
+    clearMessageInput() {
+        this.messageInput.value = "";
+        this.adjustInputHeight(); // Explicitly call adjustInputHeight after clearing the input
     }
 
     // generate unique id
@@ -124,18 +146,18 @@ class UIManager {
             const pre = document.createElement("pre");
             pre.innerText = isActive ? message : this.getMessagePreview(message); // Set full text if active, else set preview text
             return { element: pre, codeBlocksWithCopyElements: [] };
-        } 
+        }
         else {
             const messageHtmlElement = document.createElement("div");
             const messageHtml = marked.parse(message);
             messageHtmlElement.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message));
             const codeBlocks = messageHtmlElement.querySelectorAll("pre > code, pre code");
             const codeBlocksWithCopyElements = []; // Create an array to store codeBlock and copyElement pairs
-        
+
             for (let i = 0; i < codeBlocks.length; i++) {
                 const codeBlock = codeBlocks[i];
                 const copyElement = this.createCopyElement();
-        
+
                 const wrapper = document.createElement("div");
                 wrapper.classList.add("code-block-wrapper");
                 wrapper.style.position = "relative";
@@ -143,12 +165,12 @@ class UIManager {
                 wrapper.appendChild(codeBlock);
                 wrapper.appendChild(copyElement);
                 copyElement.classList.add("code-block-copy");
-        
+
                 codeBlocksWithCopyElements.push({ codeBlock, copyElement }); // Add the codeBlock and copyElement pair to the array
             }
-        
+
             return { element: messageHtmlElement, codeBlocksWithCopyElements };
-        } 
+        }
     }
 
     toggleActiveMessage(event) {
@@ -252,14 +274,14 @@ class UIManager {
             const messageHtml = marked.parse(message);
             element.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message));
         }
-    
+
         const codeBlocks = element.querySelectorAll("pre > code, pre code");
         const codeBlocksWithCopyElements = [];
-    
+
         for (let i = 0; i < codeBlocks.length; i++) {
             const codeBlock = codeBlocks[i];
             const copyElement = this.createCopyElement();
-    
+
             const wrapper = document.createElement("div");
             wrapper.classList.add("code-block-wrapper");
             wrapper.style.position = "relative";
@@ -267,10 +289,10 @@ class UIManager {
             wrapper.appendChild(codeBlock);
             wrapper.appendChild(copyElement);
             copyElement.classList.add("code-block-copy");
-    
+
             codeBlocksWithCopyElements.push({ codeBlock, copyElement });
         }
-    
+
         return codeBlocksWithCopyElements;
     }
 
@@ -411,7 +433,7 @@ class UIManager {
                 return codeText;
             }
         });
-    
+
         const self = this;
         clipboard.on("success", function () {
             self.showToast("copied successful");
@@ -494,7 +516,7 @@ class UIManager {
         const assistantMessages = messagesDiv.querySelectorAll(".assistant-message");
         return assistantMessages[assistantMessages.length - 1];
     }
-    
+
     getLastLine(text) {
         const lines = text.split("\n");
         return lines[lines.length - 1];
@@ -541,8 +563,7 @@ class UIManager {
         console.log(promptText);
 
         const messageInput = document.querySelector("#message-input");
-        messageInput.value = "";
-        this.resetInputHeight();
+        this.clearMessageInput();
 
         try {
             this.showToast("AI thinking...");
@@ -582,21 +603,21 @@ class UIManager {
 
     loadMoreMessages() {
         const messagesContainer = document.querySelector("#messages");
-    
+
         const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
         const currentMessagesCount = messagesContainer.children.length;
         const messageLimit = 10;
         const startingIndex = savedMessages.length - currentMessagesCount - messageLimit > 0 ? savedMessages.length - currentMessagesCount - messageLimit : 0;
-    
+
         // Check if system prompt is already loaded
         const systemPromptLoaded = Array.from(messagesContainer.children).some(message => message.dataset.sender === "system");
-    
+
         // Record the current scroll position
         const currentScrollPosition = messagesContainer.scrollHeight - messagesContainer.scrollTop;
-    
+
         // Get the current list of message IDs
         const currentMessageIds = Array.from(messagesContainer.children).map(message => message.dataset.messageId);
-    
+
         savedMessages.slice(startingIndex, savedMessages.length - currentMessagesCount).reverse().forEach((message, index) => {
             // Check if the message is already in the list
             if (!currentMessageIds.includes(message.messageId)) {
@@ -604,11 +625,11 @@ class UIManager {
                 this.addMessage(message.role, message.content, message.messageId, isActive, "top");
             }
         });
-    
+
         // Set the scroll position back to the original position after loading more messages
         messagesContainer.scrollTop = messagesContainer.scrollHeight - currentScrollPosition;
     }
-    
+
 
 
     // render menu list from data
@@ -790,11 +811,6 @@ class UIManager {
             this.toggleSpeakerIcon(speaker);
             console.error(error);
         }
-    }
-
-    resetInputHeight() {
-        const input = document.getElementById("message-input");
-        input.style.height = "59px"; // Set the height back to the default value
     }
 }
 

@@ -59,7 +59,7 @@ const messageForm = document.querySelector("#message-form");
 const messageInput = document.querySelector("#message-input");
 const clearInput = document.getElementById("clear-input");
 clearInput.addEventListener("click", function () {
-    messageInput.value = "";
+    uiManager.clearMessageInput();
 });
 
 const exportExcel = document.querySelector("#export-excel");
@@ -254,22 +254,3 @@ function toggleMenu() {
 }
 
 setupVoiceInput(uiManager);
-
-
-function adjustInputHeight() {
-    const input = document.getElementById("message-input");
-    const messages = document.getElementById("messages");
-    input.style.height = "auto"; // Reset the height to auto to recalculate the proper height
-    input.style.height = `${input.scrollHeight}px`;
-  
-    // Update the messages container's bottom padding
-    const inputHeight = parseInt(input.style.height);
-    messages.style.bottom = `${inputHeight-50}px`; // Add 10px to account for the padding around the input
-}
-  
-// Add an event listener to the message input
-messageInput.addEventListener("input", adjustInputHeight);
-  
-// Initialize the input height
-adjustInputHeight();
-  

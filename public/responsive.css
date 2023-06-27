@@ -215,7 +215,7 @@
 @media screen and (min-resolution: 2dppx) {
 
     #chat-container {
-        min-height: calc(100vh - 130px);
+        min-height: calc(100vh - 90px);
     }
 }
 
