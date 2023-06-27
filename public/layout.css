@@ -1,17 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
 h1 {
     margin: 20px;
     width: 50%;
     font-size: 24px;
-    font-weight: bold;
-    color: #333;
-}
+    font-family: 'Roboto';
+    font-weight: 500;
+    color: #e6f2ff;}
 
 #header {
     display: flex;
-    width: 82%;
-    height: 60px;
+    width: 85%;
+    height: 40px;
     justify-content: space-between;
     align-items: center;
+    background-color: #333; 
+    border-radius: 5px 0 0 0; 
+    padding: 0; 
 }
 
 #chat-container {
@@ -40,7 +45,7 @@ h1 {
     background-color: #f1f1f1;
     border-left: 1px solid #ccc;
     border-radius: 0 5px 5px 0;
-    overflow-y: auto;
+    overflow-y: scroll;
     padding-bottom: 30px;
     scrollbar-width: thin;
     scrollbar-color: #bbb transparent;

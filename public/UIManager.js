@@ -461,6 +461,7 @@ class UIManager {
         const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
         // Update input value to messageElement's data-message
         messageInput.value = messageElement.dataset.message;
+        this.adjustInputHeight();
         messageElement.remove();
         this.app.prompts.removePrompt(messageId);
         this.saveCurrentProfileMessages();

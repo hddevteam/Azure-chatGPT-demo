@@ -17,28 +17,30 @@
 
 #menu-header {
     display: flex;
+    width: 100%;
     justify-content: left;
     margin-bottom: 10px;
     padding: 10px 0;
     color: #333;
     border-bottom: 1px solid #ccc;
+    font-size: 20px;
+    padding: 5px;
+    margin-right: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f1f1f1;
 }
 
 #menu-header i {
     font-size: 20px;
-    padding: 5px;
-    padding-left: 10px;
     margin-right: 10px;
+    margin-left: 5px;
 }
 
 #menu-header span {
     font-size: 18px;
-    font-weight: bold;
-}
-
-#menu-header a {
-    text-decoration: none;
-    color: #333;
+    font-family: 'Roboto';
 }
 
 #menu-list {
@@ -77,18 +79,21 @@
     cursor: pointer;
 }
 
+#header a {
+    text-decoration: none;
+}
 
 #ai-profile {
-    background-color: #424141;
     padding: 5px;
     color: #e6f2ff;
-    border-radius: 5px;
     margin: 20px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
     width: 50%;
     width: fit-content;
+    background-color: #4CAF50;
+    border-radius: 5px;
 }
 
 .message {
