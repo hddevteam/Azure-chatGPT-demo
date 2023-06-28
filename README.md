@@ -52,7 +52,11 @@ Welcome to chatGPTdemo, a fascinating demo website built with Node.js and Azure 
      ```
      AZURE_TTS={"subscriptionKey":"your subscription key","endpoint":"your endpoint"}
      ```
-
+   - `API_DALLE_URL` is the endpoint of the DALL-E API service:
+     ```
+     API_DALLE_URL=yourdalleapiurl
+     ```
+     
 5. Install the necessary packages:
 
    ```
