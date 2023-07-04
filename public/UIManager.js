@@ -4,6 +4,12 @@
 import { setCurrentUsername, getCurrentUsername, getCurrentProfile, setCurrentProfile, saveMessages, getMessages } from "./storage.js";
 import { getGpt, getTts, textToImage } from "./api.js";
 
+const modelConfig = {
+    "gpt-4": 8000,
+    "gpt-3.5-turbo": 16000,
+};
+  
+
 // purpose to manage the ui interaction of the app
 class UIManager {
 
@@ -581,13 +587,14 @@ class UIManager {
                 messageId = this.generateId();
                 this.addMessage("assistant", data.message, messageId);
                 this.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId });
-                const max_tokens = 6000;
+                const max_tokens = modelConfig[this.app.model] || 8000;
+                console.log("max_tokens",max_tokens);
                 const tokens = data.totalTokens;
 
                 const tokensSpan = document.querySelector("#tokens");
                 tokensSpan.textContent = `${tokens}t`;
-                // If tokens are over 80% of max_tokens, remove the first round conversation
-                if (tokens > max_tokens * 0.8) {
+                // If tokens are over 90% of max_tokens, remove the first round conversation
+                if (tokens > max_tokens * 0.9) {
                     const removedPrompts = this.app.prompts.removeRange(1, 2);
                     removedPrompts.forEach((p) => {
                         this.inactiveMessage(p.messageId);
