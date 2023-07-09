@@ -1,4 +1,4 @@
-# chatGPTdemo for Azure OpenAI gpt-35-turbo (version 0301)/gpt4 model 🤖
+# chatGPTdemo for Azure OpenAI gpt-35-turbo/gpt4 model 🤖
 
 Welcome to chatGPTdemo, a fascinating demo website built with Node.js and Azure OpenAI gpt-35-turbo (version 0301)/gpt4 model. This project serves as a great starting point for developers who are interested in developing chatbot applications using JavaScript and Azure OpenAI API.
 
