@@ -35,8 +35,8 @@ Welcome to chatGPTdemo, a fascinating demo website built with Node.js and Azure 
    ```
    API_KEY=yourgpt35apikey
    API_URL=https://$yourendpoint/openai/deployments/$gptmodelname$/chat/completions?api-version=2023-03-15-preview
-   GPT4_API_KEY=yourgpt4apikey
-   GPT4_API_URL=https://$yourendpoint/openai/deployments/$gpt4modelname$/chat/completions?api-version=2023-03-15-preview
+   GPT_4_API_KEY=yourgpt4apikey
+   GPT_4_API_URL=https://$yourendpoint/openai/deployments/$gpt4modelname$/chat/completions?api-version=2023-03-15-preview
    ```
 
 4. (Optional) Add extra features with `PROMPT_REPO_URLS` and `AZURE_TTS`:
