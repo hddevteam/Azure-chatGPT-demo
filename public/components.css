@@ -118,8 +118,12 @@
 
 .system-message {
     background-color: #424141;
+    opacity: 0.8;
     color: #e6f2ff;
     text-align: left;
+    position: sticky;
+    z-index: 1000;
+    top: 0;
 }
 
 .user-message.active {
@@ -361,14 +365,14 @@ button:hover {
 }
 
 .code-block-copy {
-    position:absolute;
-    color:rgba(255, 255, 255, 0.5);
-    top:0;
+    position: absolute;
+    color: rgba(255, 255, 255, 0.5);
+    top: 0;
     right: 0;
     cursor: pointer;
 }
 
 .code-block-copy:hover {
-    color:rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.8);
     cursor: pointer;
 }
