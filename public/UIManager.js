@@ -16,6 +16,7 @@ class UIManager {
     constructor(app) {
         this.app = app;
         this.messageLimit = 10;
+        this.isDeleting = false;
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.addEventListener("scroll", () => {
             if (messagesContainer.scrollTop === 0) {
@@ -451,6 +452,7 @@ class UIManager {
 
 
     deleteMessage(messageId) {
+        this.isDeleting = true;
         // Get message input and check if it's empty or not
         const messageInput = document.querySelector("#message-input");
         const isMessageInputEmpty = messageInput.value.trim() === "";
@@ -473,6 +475,7 @@ class UIManager {
         this.saveCurrentProfileMessages();
 
         this.updateSlider();
+        this.isDeleting = false;
     }
 
 
@@ -610,6 +613,10 @@ class UIManager {
     }
 
     loadMoreMessages() {
+        if (this.isDeleting) {
+            return;
+        }
+        
         const messagesContainer = document.querySelector("#messages");
 
         const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
