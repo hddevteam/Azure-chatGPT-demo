@@ -472,10 +472,20 @@ class UIManager {
         this.adjustInputHeight();
         messageElement.remove();
         this.app.prompts.removePrompt(messageId);
-        this.saveCurrentProfileMessages();
+        this.deleteMessageFromStorage(messageId);
 
         this.updateSlider();
         this.isDeleting = false;
+    }
+
+    deleteMessageFromStorage(messageId) {
+        const currentUsername = getCurrentUsername();
+        const currentProfileName = getCurrentProfile().name;
+        const savedMessages = getMessages(currentUsername, currentProfileName);
+        
+        const updatedMessages = savedMessages.filter(savedMessage => savedMessage.messageId !== messageId);
+    
+        saveMessages(currentUsername, currentProfileName, updatedMessages);
     }
 
 
