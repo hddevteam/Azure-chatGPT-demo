@@ -302,6 +302,14 @@ class UIManager {
         return codeBlocksWithCopyElements;
     }
 
+    addSystemMessage(message) {
+        // 获取显示系统消息的元素
+        const systemMessageElement = document.querySelector("#system-message");
+        console.log(message);
+        systemMessageElement.innerHTML = message;
+    
+    }
+
     // Add message to DOM
     addMessage(sender, message, messageId, isActive = true, position = "bottom") {
         const messageElement = this.createMessageElement(sender, messageId, isActive);
@@ -571,7 +579,7 @@ class UIManager {
         if (message.startsWith("/system")) {
             message = message.replace("/system", "");
             let messageId = this.generateId();
-            this.addMessage("system", message, messageId);
+            this.addSystemMessage(getCurrentProfile().prompt);
             this.app.prompts.clearPrompts();
             this.app.prompts.addPrompt({ role: "system", content: message, messageId: messageId });
             return;
@@ -695,7 +703,7 @@ class UIManager {
 
         let messageId = this.generateId();
         this.app.prompts.addPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: messageId });
-        this.addMessage("system", getCurrentProfile().prompt, messageId);
+        this.addSystemMessage(getCurrentProfile().prompt);
         // read saved messages from local storage for current profile and current username
         const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
         const startingIndex = savedMessages.length > this.messageLimit ? savedMessages.length - this.messageLimit : 0;
@@ -756,7 +764,7 @@ class UIManager {
 
                 let messageId = self.generateId();
                 self.app.prompts.addPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: messageId });
-                self.addMessage("system", getCurrentProfile().prompt, messageId);
+                self.addSystemMessage(getCurrentProfile().prompt);
                 // read saved messages from local storage for current profile and current username
                 const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
 

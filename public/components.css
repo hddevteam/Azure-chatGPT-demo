@@ -175,6 +175,15 @@
     color: #fff;
 }
 
+#system-message
+{
+    padding: 10px;
+    background-color: #666;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #e6f2ff;
+}
+
 /* Window close icon styles */
 i.message-delete.fa-times {
     position: absolute;
