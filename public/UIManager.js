@@ -1,4 +1,3 @@
-/* eslint-disable linebreak-style */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import { setCurrentUsername, getCurrentUsername, getCurrentProfile, setCurrentProfile, saveMessages, getMessages } from "./storage.js";
@@ -451,15 +450,15 @@ class UIManager {
     }
 
 
-    deleteMessage(messageId) {
+    deleteMessage(messageId, isMute = false) {
         this.isDeleting = true;
         // Get message input and check if it's empty or not
         const messageInput = document.querySelector("#message-input");
         const isMessageInputEmpty = messageInput.value.trim() === "";
 
         // If message input is not empty, ask for user confirmation before replacing the text
-        if (!isMessageInputEmpty) {
-            const confirmation = confirm("“The message input currently contains text. Do you want to replace the existing text with the deleted message?");
+        if (!isMessageInputEmpty && !isMute) {
+            const confirmation = confirm("The message input currently contains text. Do you want to replace the existing text with the deleted message?");
             if (!confirmation) {
                 return;
             }
@@ -478,6 +477,18 @@ class UIManager {
         this.isDeleting = false;
     }
 
+    // delete active messages one by one from message list, prompts and local storage
+    deleteActiveMessages() {
+        const activeMessages = document.querySelectorAll(".message.active");
+        // delete active messages one by one from last to first, and dont't delete the system prompt
+        for (let i = activeMessages.length - 1; i >= 0; i--) {
+            const message = activeMessages[i];
+            if (message.dataset.sender !== "system") {
+                this.deleteMessage(message.dataset.messageId, true);
+            }
+        }
+    }
+
     deleteMessageFromStorage(messageId) {
         const currentUsername = getCurrentUsername();
         const currentProfileName = getCurrentProfile().name;
@@ -487,7 +498,6 @@ class UIManager {
     
         saveMessages(currentUsername, currentProfileName, updatedMessages);
     }
-
 
     inactiveMessage(messageId) {
         const message = document.querySelector(`[data-message-id="${messageId}"]`);

@@ -125,7 +125,13 @@ document.getElementById("md-container").addEventListener("click", () => {
     a.click();
     document.body.removeChild(a);
 });
-  
+
+document.getElementById("delete-container").addEventListener("click", () => {
+    const confirmation = confirm("Are you sure you want to delete the current active messages?");
+    if (confirmation) {
+        uiManager.deleteActiveMessages();
+    }
+});
 
 // generate current user menulist and render it
 getPromptRepo(getCurrentUsername())
