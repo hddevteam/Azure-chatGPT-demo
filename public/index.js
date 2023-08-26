@@ -62,8 +62,6 @@ clearInput.addEventListener("click", function () {
     uiManager.clearMessageInput();
 });
 
-const exportExcel = document.querySelector("#export-excel");
-
 // get and set page title and header h1 text from /api/app-name
 const pageTitle = document.querySelector("title");
 const headerH1 = document.querySelector("#header h1");
@@ -103,52 +101,31 @@ practiceMode.addEventListener("click", () => {
     }
 });
 
-// add click event listener to exportExcel
-exportExcel.addEventListener("click", () => {
-    // get all the messages
-    const messages = document.querySelectorAll(".message");
-    // get the conversion from each message element's data-message attribute
-    const conversions = [];
-    messages.forEach(message => {
-        conversions.push({ sender: message.dataset.sender, message: message.dataset.message });
+document.getElementById("md-container").addEventListener("click", () => {
+    // 获取所有活动消息
+    const activeMessages = document.querySelectorAll(".message.active");
+  
+    // 提取data-message和data-sender的值，并组合成字符串
+    let content = "";
+    activeMessages.forEach(message => {
+        const dataSender = message.getAttribute("data-sender");
+        const dataMessage = message.getAttribute("data-message");
+        content += `### ${dataSender}\n\n${dataMessage}\n\n`;
     });
-
-    // convert the conversion array to csv string
-    const convertToCSV = (objArray) => {
-        var array = typeof objArray != "object" ? JSON.parse(objArray) : objArray;
-        var str = "";
-
-        for (var i = 0; i < array.length; i++) {
-            var line = "";
-            for (var index in array[i]) {
-                if (line != "") line += ",";
-                line += "\"" + array[i][index].replace(/"/g, "\"\"") + "\"";
-            }
-            str += line + "\r\n";
-        }
-
-        return str;
-    };
-
-    let csv = convertToCSV(conversions);
-
-    // create a hidden link element
-    const link = document.createElement("a");
-    link.style.display = "none";
-    // set the href attribute to the csv string
-    link.setAttribute("href", "data:text/csv;charset=utf-8," + encodeURIComponent(csv));
-    // set the download attribute to the file name
-    // set file name to azure_gpt_conversations + current date time
-    const date = new Date();
-    const fileName = "azure_gpt_conversations_" + date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + "_" + date.getHours() + "-" + date.getMinutes() + ".csv";
-    link.setAttribute("download", fileName);
-    // append the link element to the body
-    document.body.appendChild(link);
-    // click the link element
-    link.click();
-    // remove the link element from the body
-    document.body.removeChild(link);
+  
+    // 创建一个Markdown文件并下载
+    const filename = "messages.md";
+    const contentType = "text/markdown;charset=utf-8;";
+    const a = document.createElement("a");
+    const blob = new Blob([content], { type: contentType });
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 });
+  
 
 // generate current user menulist and render it
 getPromptRepo(getCurrentUsername())
