@@ -1,8 +1,11 @@
+// public/profile-manager.js
 /* eslint-disable no-undef */
 
 // purpose: to manage the ai profiles(system prompt) of current user
 
 import { getCurrentUsername } from "./storage.js";
+import { getDefaultParams } from "./api.js";
+
 const showAlert = (type, message) => {
     var alertHtml = `
         <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -13,17 +16,23 @@ const showAlert = (type, message) => {
     $("#alert-container").html(alertHtml);
 };
 
+async function init() {
+    const defaultParams = await getDefaultParams();
+    $("#temperature").attr("placeholder", defaultParams.temperature + " (default)");
+    $("#top_p").attr("placeholder", defaultParams.top_p + " (default)");
+    $("#frequency_penalty").attr("placeholder", defaultParams.frequency_penalty + " (default)");
+    $("#presence_penalty").attr("placeholder", defaultParams.presence_penalty + " (default)");
+    $("#max_tokens").attr("placeholder", defaultParams.max_tokens + " (default)");
+}
 
 $(function () {
-    // if currentUsername is guest, show warning alert
+    init();
     if (getCurrentUsername() === "guest") {
         showAlert("warning", "You are currently logged in as guest. You can not edit the profile.");
     }
 
-    // Fetch profiles from server and display on page
     fetchProfiles();
 
-    // Save profile button event
     $("#save-profile").on("click", function () {
         saveProfile();
     });
@@ -35,7 +44,6 @@ $(function () {
 });
 
 function fetchProfiles() {
-    // Fetch profiles from server, replace the URL with your API endpoint
     fetch("/api/profiles?username=" + getCurrentUsername())
         .then(response => response.json())
         .then(data => displayProfiles(data));
@@ -56,76 +64,60 @@ function displayProfiles(profiles) {
                     <p class="card-text">${profile.prompt}</p>
                     <p class="card-text">TTS: ${profile.tts}</p>
                     <p class="card-text">Sorted Index: ${profile.sortedIndex}</p>
-                    <button class="btn btn-primary edit-profile" data-bs-toggle="modal" data-bs-target="#profile-modal">Edit</button>
-                    <button class="btn btn-danger delete-profile">Delete</button>
-                    <button class="btn btn-secondary duplicate-profile">Duplicate</button>
+                    <p class="card-text">Temperature: ${profile.temperature || "n/a"}</p>
+                    <p class="card-text">Top P: ${profile.top_p || "n/a"}</p>
+                    <p class="card-text">Frequency Penalty: ${profile.frequency_penalty || "n/a"}</p>
+                    <p class="card-text">Presence Penalty: ${profile.presence_penalty || "n/a"}</p>
+                    <p class="card-text">Max Tokens: ${profile.max_tokens || "n/a"}</p>
+                    <button class="btn btn-primary edit-profile" data-bs-toggle="modal" data-bs-target="#profile-modal" name="${profile.name}">Edit</button>
+                    <button class="btn btn-danger delete-profile" name="${profile.name}">Delete</button>
+                    <button class="btn btn-secondary duplicate-profile" name="${profile.name}">Duplicate</button>
                 </div>
             </div>
         </div>`;
     });
     $("#profile-list").html(output);
 
-    // Add event listeners for edit and delete buttons
     $("#profile-list").on("click", ".edit-profile", function () {
-        // Get profile details from card
-        const name = $(this).parent().find("h5").text();
-        const icon = $(this).parent().find("i").attr("class");
-        const displayName = $(this).parent().find("p.card-text").eq(0).text();
-        const prompt = $(this).parent().find("p.card-text").eq(1).text();
-        const tts = $(this).parent().find("p.card-text").eq(2).text().split(": ")[1];
-        const sortedIndex = $(this).parent().find("p.card-text").eq(3).text().split(": ")[1];
+        const name = $(this).attr("name");
+        const profile = profiles.find(profile => profile.name === name);
 
-        // Set form fields with profile data
-        $("#name").val(name);
-        //populate the icon preview
-        $("#icon-preview").attr("class", icon);
-        $("#icon").val(icon);
-        $("#displayName").val(displayName);
-        $("#prompt").val(prompt);
-        $("#tts").val(tts);
-        $("#sortedIndex").val(sortedIndex);
+        $("#name").val(profile.name);
+        $("#icon-preview").attr("class", profile.icon);
+        $("#icon").val(profile.icon);
+        $("#displayName").val(profile.displayName);
+        $("#prompt").val(profile.prompt);
+        $("#tts").val(profile.tts);
+        $("#sortedIndex").val(profile.sortedIndex);
+        $("#temperature").val(profile.temperature);
+        $("#top_p").val(profile.top_p);
+        $("#frequency_penalty").val(profile.frequency_penalty);
+        $("#presence_penalty").val(profile.presence_penalty);
+        $("#max_tokens").val(profile.max_tokens);
 
-        // Change Save button to Update
         $("#save-profile").off("click").text("Update").on("click", function () {
             updateProfile(name);
         });
     });
 
     $("#profile-list").on("click", ".delete-profile", function () {
-        // Get profile name from card
-        const name = $(this).parent().find("h5").text();
+        const name = $(this).attr("name");
 
-        // Delete profile using API, replace the URL with your API endpoint
         fetch(`/api/profiles/${name}?username=${getCurrentUsername()}`, {
             method: "DELETE"
         })
             .then(response => response.json())
             .then(() => {
-                // Refresh profiles list
                 fetchProfiles();
             });
     });
 
     $("#profile-list").on("click", ".duplicate-profile", function () {
-        // Get profile details from card
-        const name = $(this).parent().find("h5").text();
-        const icon = $(this).parent().find("i").attr("class");
-        const displayName = $(this).parent().find("p.card-text").eq(0).text();
-        const prompt = $(this).parent().find("p.card-text").eq(1).text();
-        const tts = $(this).parent().find("p.card-text").eq(2).text().split(": ")[1];
-        const sortedIndex = $(this).parent().find("p.card-text").eq(3).text().split(": ")[1];
+        const name = $(this).attr("name");
+        const profile = profiles.find(profile => profile.name === name);
 
-        // Create a new profile object with a unique name
-        const newProfile = {
-            name: `${name}-copy`,
-            icon: icon,
-            displayName: `${displayName} (Copy)`,
-            prompt: prompt,
-            tts: tts,
-            sortedIndex: sortedIndex
-        };
+        const newProfile = { ...profile, name: `${profile.name}-copy`, displayName: `${profile.displayName} (Copy)` };
 
-        // Send data to server, replace the URL with your API endpoint
         fetch(`/api/profiles?username=${getCurrentUsername()}`, {
             method: "POST",
             headers: {
@@ -135,29 +127,29 @@ function displayProfiles(profiles) {
         })
             .then(response => response.json())
             .then(() => {
-                // Refresh profiles list
                 fetchProfiles();
             });
     });
 
     function updateProfile(oldName) {
-        // Get form data
         const updatedProfile = {
             name: $("#name").val(),
             icon: $("#icon").val(),
             displayName: $("#displayName").val(),
             prompt: $("#prompt").val(),
             tts: $("#tts").val(),
-            sortedIndex: $("#sortedIndex").val()
+            sortedIndex: $("#sortedIndex").val(),
+            temperature: $("#temperature").val(),
+            top_p: $("#top_p").val(),
+            frequency_penalty: $("#frequency_penalty").val(),
+            presence_penalty: $("#presence_penalty").val(),
+            max_tokens: $("#max_tokens").val(),
         };
 
-        //if display name is empty, set it to the name
         if (updatedProfile.displayName === "") {
             updatedProfile.displayName = updatedProfile.name;
         }
 
-        // Send data to server, replace the URL with your API endpoint
-        // send currentUsername as username in the query string
         fetch(`/api/profiles/${oldName}?username=${getCurrentUsername()}`, {
             method: "PUT",
             headers: {
@@ -167,11 +159,9 @@ function displayProfiles(profiles) {
         })
             .then(response => response.json())
             .then(() => {
-                // Refresh profiles list
                 fetchProfiles();
             });
 
-        // Clear form and restore Save button functionality
         $("#profile-form")[0].reset();
         $("#save-profile").off("click").text("Save").on("click", function () {
             saveProfile();
@@ -180,22 +170,24 @@ function displayProfiles(profiles) {
 }
 
 function saveProfile() {
-    // Get form data
     const newProfile = {
         name: $("#name").val(),
         icon: $("#icon").val(),
         displayName: $("#displayName").val(),
         prompt: $("#prompt").val(),
         tts: $("#tts").val(),
-        sortedIndex: $("#sortedIndex").val()
+        sortedIndex: $("#sortedIndex").val(),
+        temperature: $("#temperature").val(),
+        top_p: $("#top_p").val(),
+        frequency_penalty: $("#frequency_penalty").val(),
+        presence_penalty: $("#presence_penalty").val(),
+        max_tokens: $("#max_tokens").val(),
     };
 
-    //if display name is empty, set it to the name
     if (newProfile.displayName === "") {
         newProfile.displayName = newProfile.name;
     }
 
-    // Send data to server, replace the URL with your API endpoint
     fetch(`/api/profiles?username=${getCurrentUsername()}`, {
         method: "POST",
         headers: {
@@ -205,10 +197,8 @@ function saveProfile() {
     })
         .then(response => response.json())
         .then(() => {
-            // Refresh profiles list
             fetchProfiles();
         });
 
-    // Clear form
     $("#profile-form")[0].reset();
 }

@@ -1,3 +1,4 @@
+// public/api.js
 // purpose: client-side code to make requests to the server side api.
 
 // get app name
@@ -64,4 +65,13 @@ export async function getStt(audioBlob) {
         body: formData,
     });
     return response;
+}
+
+// /public/api.js
+export async function getDefaultParams() {
+    const response = await fetch("/api/gpt-default-params");
+    if (!response.ok) {
+        throw new Error("Error getting default params.");
+    }
+    return await response.json();
 }
