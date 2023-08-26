@@ -466,9 +466,11 @@ class UIManager {
 
         // Remove message from DOM and also from prompt array by message id
         const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-        // Update input value to messageElement's data-message
-        messageInput.value = messageElement.dataset.message;
-        this.adjustInputHeight();
+        // Update input value to messageElement's data-message if not in mute mode
+        if (!isMute) {
+            messageInput.value = messageElement.dataset.message;
+            this.adjustInputHeight();
+        }
         messageElement.remove();
         this.app.prompts.removePrompt(messageId);
         this.deleteMessageFromStorage(messageId);
