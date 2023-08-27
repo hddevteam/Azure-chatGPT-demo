@@ -183,38 +183,6 @@ document.addEventListener("click", function (event) {
     }
 });
 
-// handle the click event on the ai profile
-function handleProfileClick() {
-    const aiProfile = document.getElementById("ai-profile");
-    const menu = document.getElementById("menu");
-
-    // Remove the click event listener from ai-profile
-    aiProfile.removeEventListener("click", handleClick);
-
-    if (window.innerWidth <= 768) {
-        // Add the click event listener to ai-profile for smaller screens
-        aiProfile.addEventListener("click", handleClick);
-
-        // Make sure the menu is hidden initially on smaller screens
-        menu.style.display = "none";
-        menu.setAttribute("data-visible", false);
-    } else {
-        // Make the menu visible and remove the click event listener for larger screens
-        menu.style.display = "block";
-        menu.setAttribute("data-visible", true);
-    }
-}
-
-
-// handle the click event on the ai profile
-function handleClick(event) {
-    event.stopPropagation();
-    toggleMenu();
-}
-
-document.addEventListener("DOMContentLoaded", handleProfileClick);
-window.addEventListener("resize", handleProfileClick);
-
 // toggle the menu when user click the ai profile
 function toggleMenu() {
     const menu = document.getElementById("menu");
@@ -225,9 +193,9 @@ function toggleMenu() {
 
     if (!isVisible) {
         document.addEventListener("click", function hideMenuOnOutsideClick(event) {
-            const aiProfile = document.getElementById("ai-profile");
+            const profileListMenu = document.getElementById("profile-list-menu");
 
-            if (event.target !== menu && event.target !== aiProfile && !aiProfile.contains(event.target)) {
+            if (event.target !== menu && event.target !== profileListMenu && !profileListMenu.contains(event.target)) {
                 menu.style.display = "none";
                 menu.setAttribute("data-visible", false);
                 document.removeEventListener("click", hideMenuOnOutsideClick);
@@ -235,5 +203,14 @@ function toggleMenu() {
         });
     }
 }
+
+// handle the click event on the ai profile
+function handleClick(event) {
+    event.stopPropagation();
+    toggleMenu();
+}
+
+document.getElementById("profile-list-menu").addEventListener("click", handleClick);
+
 
 setupVoiceInput(uiManager);

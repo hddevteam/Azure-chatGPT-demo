@@ -18,6 +18,10 @@
         z-index: 9999;
     }
 
+    #profile-list-menu {
+        display: block;
+    }
+
     #menu li {
         margin-bottom: 0.5em;
     }
@@ -67,23 +71,11 @@
 
     }
 
-    #ai-profile {
-        padding: 0.3em;
-        display: inline-block;
-        margin: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        cursor: pointer;
-        background-color: #4CAF50;
-        transition: background-color 0.2s ease-in-out;
-        color: #fff;
+    #messages {
+        width: 100%;
+        bottom: 1em;
+        padding: 1em;
     }
-
-    #ai-profile:hover {
-        background-color: #3e8e41;
-    }
-
 
     .message {
         padding: 1em;
@@ -101,13 +93,6 @@
     .message li {
         margin-bottom: 0.5em;
         margin-left: 2em;
-    }
-
-    #messages {
-        width: 100%;
-        top: 2.7em;
-        bottom: 1em;
-        padding: 1em;
     }
 
     .mini-toolbar {

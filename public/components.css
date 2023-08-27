@@ -14,6 +14,46 @@
     max-width: max-content;
 }
 
+h1 {
+    margin: 20px;
+    width: 50%;
+    font-size: 24px;
+    font-family: 'Roboto';
+    font-weight: 500;
+    color: #e6f2ff;
+}
+
+#header-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+#header a {
+    text-decoration: none;
+}
+
+#header a,
+#profile-list-menu {
+    text-decoration: none;
+    color: #e6f2ff;
+    display: flex;
+    padding: 5px;
+    background-color: #4CAF50;
+    border-radius: 5px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+#ai-profile, #profile-list-menu {
+    display: flex;
+    align-items: center;
+}
+
+#profile-list-menu {
+    display: none;
+}
+
 
 #menu-header {
     display: flex;
@@ -77,23 +117,6 @@
     background-color: #424141;
     color: #e6f2ff;
     cursor: pointer;
-}
-
-#header a {
-    text-decoration: none;
-}
-
-#ai-profile {
-    padding: 5px;
-    color: #e6f2ff;
-    margin: 20px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    width: 50%;
-    width: fit-content;
-    background-color: #4CAF50;
-    border-radius: 5px;
 }
 
 .message {
