@@ -41,13 +41,82 @@ $(function () {
         const iconClass = $(this).val();
         $("#icon-preview").attr("class", iconClass);
     });
+
+    $("button[data-bs-target='#profile-modal']").on("click", function () {
+        // Reset the form fields
+        $("#profile-form")[0].reset();
+        // reset the icon preview
+        $("#icon-preview").attr("class", "");
+        // reset the save button event and text
+        $("#save-profile").off("click").text("Save").on("click", function () {
+            saveProfile();
+        });
+    });
 });
+
+let profiles = [];
 
 function fetchProfiles() {
     fetch("/api/profiles?username=" + getCurrentUsername())
         .then(response => response.json())
-        .then(data => displayProfiles(data));
+        .then(data => {
+            profiles = data;
+            displayProfiles(profiles);
+        });
 }
+
+$("#profile-list").on("click", ".edit-profile", function () {
+    const name = $(this).attr("name");
+    const profile = profiles.find(profile => profile.name === name);
+
+    $("#name").val(profile.name);
+    $("#icon-preview").attr("class", profile.icon);
+    $("#icon").val(profile.icon);
+    $("#displayName").val(profile.displayName);
+    $("#prompt").val(profile.prompt);
+    $("#tts").val(profile.tts);
+    $("#sortedIndex").val(profile.sortedIndex);
+    $("#temperature").val(profile.temperature);
+    $("#top_p").val(profile.top_p);
+    $("#frequency_penalty").val(profile.frequency_penalty);
+    $("#presence_penalty").val(profile.presence_penalty);
+    $("#max_tokens").val(profile.max_tokens);
+
+    $("#save-profile").off("click").text("Update").on("click", function () {
+        updateProfile(name);
+    });
+});
+
+$("#profile-list").on("click", ".delete-profile", function () {
+    const name = $(this).attr("name");
+
+    fetch(`/api/profiles/${name}?username=${getCurrentUsername()}`, {
+        method: "DELETE"
+    })
+        .then(response => response.json())
+        .then(() => {
+            fetchProfiles();
+        });
+});
+
+$("#profile-list").on("click", ".duplicate-profile", function () {
+    const name = $(this).attr("name");
+    const profile = profiles.find(profile => profile.name === name);
+
+    const newProfile = { ...profile, name: `${profile.name}-copy`, displayName: `${profile.displayName} (Copy)` };
+
+    fetch(`/api/profiles?username=${getCurrentUsername()}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newProfile)
+    })
+        .then(response => response.json())
+        .then(() => {
+            fetchProfiles();
+        });
+});
 
 function displayProfiles(profiles) {
     let output = "";
@@ -77,97 +146,45 @@ function displayProfiles(profiles) {
         </div>`;
     });
     $("#profile-list").html(output);
-
-    $("#profile-list").on("click", ".edit-profile", function () {
-        const name = $(this).attr("name");
-        const profile = profiles.find(profile => profile.name === name);
-
-        $("#name").val(profile.name);
-        $("#icon-preview").attr("class", profile.icon);
-        $("#icon").val(profile.icon);
-        $("#displayName").val(profile.displayName);
-        $("#prompt").val(profile.prompt);
-        $("#tts").val(profile.tts);
-        $("#sortedIndex").val(profile.sortedIndex);
-        $("#temperature").val(profile.temperature);
-        $("#top_p").val(profile.top_p);
-        $("#frequency_penalty").val(profile.frequency_penalty);
-        $("#presence_penalty").val(profile.presence_penalty);
-        $("#max_tokens").val(profile.max_tokens);
-
-        $("#save-profile").off("click").text("Update").on("click", function () {
-            updateProfile(name);
-        });
-    });
-
-    $("#profile-list").on("click", ".delete-profile", function () {
-        const name = $(this).attr("name");
-
-        fetch(`/api/profiles/${name}?username=${getCurrentUsername()}`, {
-            method: "DELETE"
-        })
-            .then(response => response.json())
-            .then(() => {
-                fetchProfiles();
-            });
-    });
-
-    $("#profile-list").on("click", ".duplicate-profile", function () {
-        const name = $(this).attr("name");
-        const profile = profiles.find(profile => profile.name === name);
-
-        const newProfile = { ...profile, name: `${profile.name}-copy`, displayName: `${profile.displayName} (Copy)` };
-
-        fetch(`/api/profiles?username=${getCurrentUsername()}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(newProfile)
-        })
-            .then(response => response.json())
-            .then(() => {
-                fetchProfiles();
-            });
-    });
-
-    function updateProfile(oldName) {
-        const updatedProfile = {
-            name: $("#name").val(),
-            icon: $("#icon").val(),
-            displayName: $("#displayName").val(),
-            prompt: $("#prompt").val(),
-            tts: $("#tts").val(),
-            sortedIndex: $("#sortedIndex").val(),
-            temperature: $("#temperature").val(),
-            top_p: $("#top_p").val(),
-            frequency_penalty: $("#frequency_penalty").val(),
-            presence_penalty: $("#presence_penalty").val(),
-            max_tokens: $("#max_tokens").val(),
-        };
-
-        if (updatedProfile.displayName === "") {
-            updatedProfile.displayName = updatedProfile.name;
-        }
-
-        fetch(`/api/profiles/${oldName}?username=${getCurrentUsername()}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(updatedProfile)
-        })
-            .then(response => response.json())
-            .then(() => {
-                fetchProfiles();
-            });
-
-        $("#profile-form")[0].reset();
-        $("#save-profile").off("click").text("Save").on("click", function () {
-            saveProfile();
-        });
-    }
 }
+
+function updateProfile(oldName) {
+    const updatedProfile = {
+        name: $("#name").val(),
+        icon: $("#icon").val(),
+        displayName: $("#displayName").val(),
+        prompt: $("#prompt").val(),
+        tts: $("#tts").val(),
+        sortedIndex: $("#sortedIndex").val(),
+        temperature: $("#temperature").val(),
+        top_p: $("#top_p").val(),
+        frequency_penalty: $("#frequency_penalty").val(),
+        presence_penalty: $("#presence_penalty").val(),
+        max_tokens: $("#max_tokens").val(),
+    };
+
+    if (updatedProfile.displayName === "") {
+        updatedProfile.displayName = updatedProfile.name;
+    }
+
+    fetch(`/api/profiles/${oldName}?username=${getCurrentUsername()}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(updatedProfile)
+    })
+        .then(response => response.json())
+        .then(() => {
+            fetchProfiles();
+        });
+
+    $("#profile-form")[0].reset();
+    $("#save-profile").off("click").text("Save").on("click", function () {
+        saveProfile();
+    });
+}
+
 
 function saveProfile() {
     const newProfile = {
@@ -201,4 +218,28 @@ function saveProfile() {
         });
 
     $("#profile-form")[0].reset();
+}
+
+$("#generate-profile").on("click", function () {
+    const profession = $("#name").val();
+    generateProfile(profession);
+});
+
+function generateProfile(profession) {
+    fetch("/api/create-chat-profile", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ profession })
+    })
+        .then(response => response.json())
+        .then(data => {
+            $("#name").val(data.name);
+            $("#icon").val(data.icon);
+            $("#displayName").val(data.displayName);
+            $("#prompt").val(data.prompt);
+            $("#icon").val(data.icon);
+            $("#icon-preview").attr("class", data.icon);
+        });
 }

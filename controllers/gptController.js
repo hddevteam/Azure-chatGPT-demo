@@ -91,3 +91,67 @@ exports.generateResponse = async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 };
+
+exports.createChatProfile = async (req, res) => {
+    const profession = req.body.profession;
+    const prompt = [
+        {
+            role: "user",
+            content:
+                `输出格式：
+            { "name": "", "icon": "", "displayName": "", "prompt": ""}
+
+            输入：
+            请使用以下职业或场景:'${profession}',参考以下模板,生成AI对象配置文件。其中icon要使用font awesome图标代码。请注意输出格式符合JSON规范：
+            {
+                "name": "dotNETCoreExpert",
+                "icon": "fas fa-code",
+                "displayName": ".NET Core Expert",
+                "prompt": "I want you to act as a .NET Core expert. I will provide some details about a project or problem, and it will be your job to come up with solutions using .NET Core. This could involve creating code snippets, debugging existing code, or providing advice on best practices. 
+            }
+
+            输出：`,
+        },
+    ];
+    console.log("Prompt:", prompt);
+
+    const axios = require("axios");
+
+    const currentApiKey = gpt4Apikey;
+    const currentApiUrl = gpt4ApiUrl;
+
+    const options = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "api-key": currentApiKey,
+        },
+        data: {
+            messages: prompt,
+            temperature: 0.8,
+            top_p: defaultParams.top_p,
+            frequency_penalty: defaultParams.frequency_penalty,
+            presence_penalty: defaultParams.presence_penalty,
+            max_tokens: defaultParams.max_tokens,
+            stop: null,
+        },
+    };
+
+    try {
+        // Send request to API endpoint
+        const response = await axios(currentApiUrl, options);
+        const { data } = response;
+
+        // Get message content from response
+        const message = data.choices[0].message.content;
+        console.log(message);
+
+        // Parse message and send as response
+        const chatProfile = JSON.parse(message);
+        res.send(chatProfile);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+};
