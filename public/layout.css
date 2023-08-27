@@ -8,6 +8,9 @@
     flex-direction: row;
     height: calc(100vh - 90px);
     overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 #chat-container {

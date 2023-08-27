@@ -47,7 +47,6 @@
 
     #chat-container {
         padding: 0;
-        min-height: calc(100vh - 150px);
         width: 100%;
         margin: 0;
         border: 0;
@@ -63,9 +62,7 @@
 
     #header {
         display: flex;
-        height: 3em;
         width: 100%;
-        margin-bottom: 1em;
         padding: 1em;
 
     }
@@ -136,16 +133,16 @@
         max-width: 100%;
         margin-right: 0px;
         padding: 5px 10px 5px 5px;
-        border-radius: 5px 5px 0px 0px;
     }
 
-    #message-form {
-        height: 120px;
-        padding: 5px;
+    #message-input {
+        border-radius: 5px 5px 0 0;
     }
+
 
     #input-container {
         display: flex;
+        margin:0;
         flex-direction: column;
         width: 100%;
     }
@@ -153,10 +150,6 @@
     .text-input-container {
         display: flex;
         align-items: center;
-    }
-
-    #message-input {
-        width: 100%;
     }
 
     button[type="submit"] {
@@ -176,7 +169,6 @@
 
     #voice-input-container {
         width: 100%;
-
         display: flex;
         justify-content: center;
     }
