@@ -45,7 +45,8 @@ h1 {
     cursor: pointer;
 }
 
-#ai-profile, #profile-list-menu {
+#ai-profile,
+#profile-list-menu {
     display: flex;
     align-items: center;
 }
@@ -139,16 +140,6 @@ h1 {
     margin-left: 2em;
 }
 
-.system-message {
-    background-color: #424141;
-    opacity: 0.8;
-    color: #e6f2ff;
-    text-align: left;
-    position: sticky;
-    z-index: 1000;
-    top: 0;
-}
-
 .user-message.active {
     background-color: #e0e0e0;
     color: #333333;
@@ -178,11 +169,6 @@ h1 {
     cursor: pointer;
 }
 
-.system-message .fa-quote-left {
-    top: -0.3em;
-    left: -0.1em;
-}
-
 .user-message.active .fa-quote-left {
     color: #4d4d4d;
 }
@@ -198,13 +184,23 @@ h1 {
     color: #fff;
 }
 
-#system-message
-{
+#system-message {
     padding: 10px;
     background-color: #666;
     border: 1px solid #333;
     border-radius: 5px;
     color: #e6f2ff;
+}
+
+/* Minimize window icon styles */
+#window-icon {
+    position: absolute;
+    top: 0.3em;
+    right: 1em;
+    font-size: 1em;
+    color: #fff;
+    background-color: #666;
+    cursor: pointer;
 }
 
 /* Window close icon styles */

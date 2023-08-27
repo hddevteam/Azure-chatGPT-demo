@@ -104,7 +104,7 @@ practiceMode.addEventListener("click", () => {
 document.getElementById("md-container").addEventListener("click", () => {
     // 获取所有活动消息
     const activeMessages = document.querySelectorAll(".message.active");
-  
+
     // 提取data-message和data-sender的值，并组合成字符串
     let content = "";
     activeMessages.forEach(message => {
@@ -112,7 +112,7 @@ document.getElementById("md-container").addEventListener("click", () => {
         const dataMessage = message.getAttribute("data-message");
         content += `### ${dataSender}\n\n${dataMessage}\n\n`;
     });
-  
+
     // 创建一个Markdown文件并下载
     const filename = "messages.md";
     const contentType = "text/markdown;charset=utf-8;";
@@ -211,6 +211,29 @@ function handleClick(event) {
 }
 
 document.getElementById("profile-list-menu").addEventListener("click", handleClick);
+
+// 添加事件监听器到最小化窗口图标
+const systemMessageWindowIcon = document.querySelector("#window-icon");
+
+systemMessageWindowIcon.addEventListener("click", toggleSystemMessage);
+
+// 切换系统消息
+function toggleSystemMessage() {
+    const systemMessage = document.querySelector("#system-message");
+    if (systemMessage.style.display === "none") {
+        systemMessage.style.display = "block";
+        systemMessageWindowIcon.setAttribute("title", "Hide system message");
+        systemMessageWindowIcon.classList.remove("fa-window-maximize");
+        systemMessageWindowIcon.classList.add("fa-window-minimize");
+        
+    } else {
+        systemMessage.style.display = "none";
+        systemMessageWindowIcon.setAttribute("title", "Show system message");
+        systemMessageWindowIcon.classList.remove("fa-window-minimize");
+        systemMessageWindowIcon.classList.add("fa-window-maximize");
+
+    }
+}
 
 
 setupVoiceInput(uiManager);
