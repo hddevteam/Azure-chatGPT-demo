@@ -24,26 +24,10 @@ class UIManager {
         });
         this.messageInput = document.getElementById("message-input");
         this.messages = document.getElementById("messages");
-        this.init();
-    }
-
-    init() {
-        this.adjustInputHeight();
-        this.messageInput.addEventListener("input", () => this.adjustInputHeight());
-    }
-
-    adjustInputHeight() {
-        this.messageInput.style.height = "auto";
-        this.messageInput.style.height = `${Math.min(this.messageInput.scrollHeight-10, window.innerHeight / 2)}px`;
-
-        // Update the messages container's bottom padding
-        const inputHeight = parseInt(this.messageInput.style.height);
-        this.messages.style.bottom = `${inputHeight - 30}px`;
     }
 
     clearMessageInput() {
         this.messageInput.value = "";
-        this.adjustInputHeight(); // Explicitly call adjustInputHeight after clearing the input
     }
 
     // generate unique id
@@ -477,7 +461,6 @@ class UIManager {
         // Update input value to messageElement's data-message if not in mute mode
         if (!isMute) {
             messageInput.value = messageElement.dataset.message;
-            this.adjustInputHeight();
         }
         messageElement.remove();
         this.app.prompts.removePrompt(messageId);
@@ -676,7 +659,6 @@ class UIManager {
     }
 
 
-
     // render menu list from data
     // it only happens when user submit the username or the page is loaded
     renderMenuList(data) {
@@ -794,8 +776,6 @@ class UIManager {
             ttsContainer.style.display = "none";
         }
     }
-
-
 
 
     toggleSpeakerIcon(speaker) {

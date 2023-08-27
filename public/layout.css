@@ -26,8 +26,8 @@
     height: 40px;
     justify-content: space-between;
     align-items: center;
-    background-color: #333; 
-    border-radius: 5px 0 0 0; 
+    background-color: #333;
+    border-radius: 5px 0 0 0;
     padding: 0;
 }
 
@@ -72,7 +72,6 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    z-index: 999;
     overflow: hidden;
     box-sizing: border-box;
     align-items: center;
@@ -90,11 +89,9 @@
 }
 
 #message-input {
-    resize:none;
+    resize: none;
     width: 100%;
-    min-height: 20px;
-    padding: 10px 50px 5px 5px;
-    vertical-align: middle;
+    padding: 5px 50px 0px 5px;
     font-size: 16px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     border: 2px solid #eee;
@@ -104,6 +101,7 @@
     overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: #bbb transparent;
+    line-height: 120%;
 }
 
 #input-container {

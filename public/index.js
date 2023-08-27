@@ -60,6 +60,7 @@ const messageInput = document.querySelector("#message-input");
 const clearInput = document.getElementById("clear-input");
 clearInput.addEventListener("click", function () {
     uiManager.clearMessageInput();
+    handleInput();
 });
 
 // get and set page title and header h1 text from /api/app-name
@@ -151,6 +152,7 @@ messageForm.addEventListener("submit", (event) => {
         uiManager.sendMessage(message);
     }
     messageInput.blur();
+    handleInput();
 });
 
 
@@ -225,7 +227,7 @@ function toggleSystemMessage() {
         systemMessageWindowIcon.setAttribute("title", "Hide system message");
         systemMessageWindowIcon.classList.remove("fa-window-maximize");
         systemMessageWindowIcon.classList.add("fa-window-minimize");
-        
+
     } else {
         systemMessage.style.display = "none";
         systemMessageWindowIcon.setAttribute("title", "Show system message");
@@ -233,6 +235,64 @@ function toggleSystemMessage() {
         systemMessageWindowIcon.classList.add("fa-window-maximize");
 
     }
+}
+
+const initialHeight = messageInput.style.height;
+const halfScreenHeight = window.innerHeight / 2;
+const initFocusHieght = window.innerHeight / 5;
+const appContainer = document.querySelector("#app-container");
+
+// 设置textarea的max-height为屏幕高度的一半
+messageInput.style.maxHeight = `${halfScreenHeight}px`;
+
+messageInput.addEventListener("focus", function () {
+    handleInput();
+});
+
+messageInput.addEventListener("blur", function () {
+    handleInput();
+});
+
+let composing = false;
+
+messageInput.addEventListener("compositionstart", function () {
+    composing = true;
+});
+
+messageInput.addEventListener("compositionend", function () {
+    composing = false;
+    // 在这里进行处理
+    handleInput();
+});
+
+messageInput.addEventListener("input", function () {
+    if (!composing) {
+        // 在这里进行处理
+        handleInput();
+    }
+});
+
+function handleInput() {
+    // 判断messageInput是否失去焦点
+    if (!messageInput.matches(":focus")) {
+        if (messageInput.value === "") {
+            messageInput.style.height = initialHeight;
+            appContainer.style.removeProperty("height");
+        }
+        return;
+    }
+    // 如果输入框的内容为空，将高度恢复为初始高度
+    if (messageInput.value === "") {
+        messageInput.style.height = `${initFocusHieght}px`;
+    } else {
+        // 然后设为scrollHeight，但不超过屏幕的一半
+        messageInput.style.height = `${Math.min(messageInput.scrollHeight, halfScreenHeight)}px`;
+        if (messageInput.scrollHeight < initFocusHieght) {
+            messageInput.style.height = `${initFocusHieght}px`;
+        }
+    }
+    // 调整appContainer的高度
+    appContainer.style.height = `calc(100vh - ${messageInput.style.height} - 45px)`;
 }
 
 
