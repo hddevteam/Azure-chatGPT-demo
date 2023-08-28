@@ -180,10 +180,12 @@ document.getElementById("md-container").addEventListener("click", () => {
 });
 
 document.getElementById("delete-container").addEventListener("click", () => {
-    const confirmation = confirm("Are you sure you want to delete the current active messages?");
-    if (confirmation) {
-        uiManager.deleteActiveMessages();
-    }
+    swal("Are you sure you want to delete the current active messages?", { buttons: ["Cancel", "Delete"], dangerMode: true })
+        .then((confirmation) => {
+            if (confirmation) {
+                uiManager.deleteActiveMessages();
+            }
+        });
 });
 
 // 获取模态对话框元素和触发器元素
@@ -238,7 +240,7 @@ usernameLabel.addEventListener("click", function () {
         })
         .catch(err => {
             if (err) {
-                swal("Oh noes!", "The AJAX request failed!", "error");
+                swal("Oh noes!", "The server request failed!", "error");
             } else {
                 swal.stopLoading();
                 swal.close();
