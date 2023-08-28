@@ -100,28 +100,83 @@ practiceMode.addEventListener("click", () => {
 });
 
 document.getElementById("md-container").addEventListener("click", () => {
-    // 获取所有活动消息
+    // Getting all active messages
     const activeMessages = document.querySelectorAll(".message.active");
 
-    // 提取data-message和data-sender的值，并组合成字符串
-    let content = "";
+    // Extracting the values of data-message and data-sender, and combining them into a string
+    let mdContent = "";
     activeMessages.forEach(message => {
         const dataSender = message.getAttribute("data-sender");
         const dataMessage = message.getAttribute("data-message");
-        content += `### ${dataSender}\n\n${dataMessage}\n\n`;
+        mdContent += `### ${dataSender}\n\n${dataMessage}\n\n`;
     });
 
-    // 创建一个Markdown文件并下载
     const filename = "messages.md";
     const contentType = "text/markdown;charset=utf-8;";
     const a = document.createElement("a");
-    const blob = new Blob([content], { type: contentType });
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const area = document.createElement("textarea");
+    area.value = mdContent;
+    let blob;
+
+    // Popup the Swal
+    function popupSwal() {
+        swal({
+            title: "Generate Markdown File",
+            content: area,
+            buttons: {
+                generate: {
+                    text: "Generate Title and Summary",
+                    value: "generate",
+                    closeModal: false,
+                },
+                download: {
+                    text: "Download",
+                    value: "download",
+                },
+                cancel: "Close"
+            },
+            className: "markdown-modal",
+            closeOnClickOutside: false,
+        })
+            .then((value) => {
+                switch (value) {
+                case "generate":
+                    // Call your API to generate the title and summary
+                    fetch("/api/generate-summary", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ conversation: area.value }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            area.value = "# Title" + "\n\n" + data.title + "\n\n" + "## Summary" + "\n\n" + data.summary + "\n\n" + area.value;
+                            swal.stopLoading();
+                            popupSwal();
+                        });
+                    break;
+                case "download":
+                    // Create a Markdown file and download it
+                    console.log(area.value);
+                    blob = new Blob([area.value], { type: contentType });
+                    a.href = URL.createObjectURL(blob);
+                    a.download = filename;
+                    a.style.display = "none";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    swal.stopLoading();
+                    popupSwal();
+                    break;
+                }
+            });
+    }
+
+    popupSwal();
+
+
 });
 
 document.getElementById("delete-container").addEventListener("click", () => {

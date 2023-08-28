@@ -155,3 +155,70 @@ exports.createChatProfile = async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 };
+
+exports.summarizeConversation = async (req, res) => {
+    const conversation = req.body.conversation;
+
+    const prompt = [
+        {
+            role: "user",
+            content:
+                `输出格式:
+            {
+                "title":"",
+                "summary":""
+            }
+
+            输入:
+            请根据以下对话内容：
+            ===
+            ${conversation}
+            ===
+            以json格式, 生成标题和不超过1个段落, 200字的内容总结, 请注意输出格式符合JSON规范:
+
+            输出:`,
+        },
+    ];
+    console.log("Prompt:", prompt);
+
+    const axios = require("axios");
+
+    const currentApiKey = apiKey;
+    const currentApiUrl = apiUrl;
+
+    const options = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "api-key": currentApiKey,
+        },
+        data: {
+            messages: prompt,
+            temperature: 0.8,
+            top_p: defaultParams.top_p,
+            frequency_penalty: defaultParams.frequency_penalty,
+            presence_penalty: defaultParams.presence_penalty,
+            max_tokens: 200, // Limit summary to 200 words
+            stop: null,
+        },
+    };
+
+    try {
+        // Send request to API endpoint
+        const response = await axios(currentApiUrl, options);
+        const { data } = response;
+
+        // Get message content from response
+        const message = data.choices[0].message.content;
+        console.log(message);
+
+        // Parse message and send as response
+        const conversationSummary = JSON.parse(message);
+        res.send(conversationSummary);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+};
+

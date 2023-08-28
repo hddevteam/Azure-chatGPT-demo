@@ -109,6 +109,29 @@
     color: #333;
 }
 
+.markdown-modal {
+    width: 80vw;
+    height: 80vh;
+}
+
+.swal-title {
+    font-size: 20px;
+    font-family: 'Roboto';
+    font-weight: 300;
+    color: #333;
+    margin: 10px 0;
+}
+
+.markdown-modal textarea {
+    width: 100%;
+    height: 60vh;
+    resize: none;
+    padding: 10px;
+    font-size: 16px;
+    font-family: 'Roboto';
+    line-height: 150%;
+}
+
 #menu li i {
     font-size: 16px;
     margin-right: 10px;
