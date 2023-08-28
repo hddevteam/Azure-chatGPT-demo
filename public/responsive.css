@@ -57,7 +57,7 @@
         box-shadow: 0;
     }
 
-    h1 {
+    #app-name {
         margin: 0em;
         padding: 0.5em;
         font-size: 1em;
@@ -191,9 +191,6 @@
 /* for high resolution mobile devices such as iPhone */
 @media screen and (min-resolution: 2dppx) {
 
-    #chat-container {
-        min-height: calc(100vh - 90px);
-    }
 }
 
 /* iPad Layout */

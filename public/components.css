@@ -21,6 +21,9 @@
     font-family: 'Roboto';
     font-weight: 500;
     color: #e6f2ff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #header-buttons {
@@ -49,6 +52,9 @@
 #profile-list-menu {
     display: flex;
     align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #profile-list-menu {
