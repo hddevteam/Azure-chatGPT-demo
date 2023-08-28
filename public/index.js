@@ -5,6 +5,7 @@ import { getCurrentUsername } from "./storage.js";
 import { getAppName, getPromptRepo } from "./api.js";
 import UIManager from "./UIManager.js";
 import { setupVoiceInput } from "./input-audio.js";
+import swal from "sweetalert";
 
 const app = new App();
 const uiManager = new UIManager(app);
@@ -73,11 +74,7 @@ getAppName()
         headerH1.innerText = appName;
     });
 
-// 获取模态对话框元素和触发器元素
-const modal = document.querySelector(".modal");
-const usernameLabel = document.querySelector("#username-label");
-const userForm = document.querySelector("#user-form");
-const usernameInput = document.querySelector("#username-input");
+
 
 // get tts container element
 const ttsContainer = document.querySelector("#tts-container");
@@ -134,6 +131,9 @@ document.getElementById("delete-container").addEventListener("click", () => {
     }
 });
 
+// 获取模态对话框元素和触发器元素
+const usernameLabel = document.querySelector("#username-label");
+
 // generate current user menulist and render it
 getPromptRepo(getCurrentUsername())
     .then(data => {
@@ -155,34 +155,40 @@ messageForm.addEventListener("submit", (event) => {
     handleInput();
 });
 
-
-// request /api/prompt_repo build queryString to transfer usernameInput value as username to server
-// it will return a json object with username and a data array
-// output the data array and the username in console
-userForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const username = usernameInput.value.trim();
-    modal.style.display = "none";
-    if (username) {
-        getPromptRepo(username)
-            .then(data => {
-                uiManager.renderMenuList(data);
-                //practice mode will be off when user submit the username
-                uiManager.turnOffPracticeMode();
-            });
-    }
-});
-
-// popup the modal when user click the username label
+// popup the Swal when user click the username label
 usernameLabel.addEventListener("click", function () {
-    modal.style.display = "block";
-});
+    swal({
+        text: "Enter your username",
+        content: "input",
+        button: {
+            text: "Submit",
+            closeModal: false,
+        },
+    })
+        .then(username => {
+            if (!username) throw null;
 
-// close the modal when user click the close button
-document.addEventListener("click", function (event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
+            return getPromptRepo(username);
+        })
+        .then(data => {
+            uiManager.renderMenuList(data);
+            //practice mode will be off when user submit the username
+            uiManager.turnOffPracticeMode();
+
+            swal({
+                title: "Success",
+                text: "The username has been set successfully",
+                icon: "success",
+            });
+        })
+        .catch(err => {
+            if (err) {
+                swal("Oh noes!", "The AJAX request failed!", "error");
+            } else {
+                swal.stopLoading();
+                swal.close();
+            }
+        });
 });
 
 // toggle the menu when user click the ai profile

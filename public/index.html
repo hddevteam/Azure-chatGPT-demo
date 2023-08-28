@@ -14,7 +14,7 @@
   <div id="app-container">
     <div id="chat-container">
       <div id="header">
-        <h1></h1>
+        <h1 id="app-name"></h1>
         <span id="header-buttons">
           <a href="profile-manager.html" target="_blank"><span id="ai-profile"><i class="fas fa-robot"></i>
               <span>AI</span>
@@ -74,22 +74,10 @@
       </div>
     </form>
   </div>
-  <div class="modal">
-    <div class="modal-content">
-      <form id="user-form">
-        <label for="username-input">Username:</label>
-        <input type="password" id="username-input" name="username">
-        <button type="submit">Submit</button>
-      </form>
-    </div>
-  </div>
 
 </body>
-<script src="./third_party/marked.min.js"></script>
-<script src="./third_party/clipboard.min.js"></script>
 <script src="https://kit.fontawesome.com/be011bd8b4.js" crossorigin="anonymous"></script>
 <script src="./third_party/OpusMediaRecorder.umd.js"></script>
 <script src="./third_party/encoderWorker.umd.js"></script>
-<script type="module" src="index.js"></script>
-
+<script src="./dist/bundle.js"></script>
 </html>

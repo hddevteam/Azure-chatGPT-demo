@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
 import { setCurrentUsername, getCurrentUsername, getCurrentProfile, setCurrentProfile, saveMessages, getMessages } from "./storage.js";
 import { getGpt, getTts, textToImage } from "./api.js";
+import { marked } from "marked";
+import ClipboardJS from "clipboard";
 
 const modelConfig = {
     "gpt-4": 8000,
@@ -525,13 +526,14 @@ class UIManager {
 
     // Clear message input except the first message
     clearMessage() {
-        // clear mssages in DOM except the first message
+        const messagesContainer = document.getElementById("messages");
+        // clear messages in DOM except the first message
         messagesContainer.innerHTML = "";
-        app.prompts.clearExceptFirst();
-        this.addMessage(app.prompts[0].role, app.prompts[0].content, app.prompts[0].messageId);
+        this.app.prompts.clearExceptFirst();
+        this.addMessage(this.app.prompts[0].role, this.app.prompts[0].content, this.app.prompts[0].messageId);
         this.saveCurrentProfileMessages();
+        const messageInput = document.getElementById("message-input");
         messageInput.value = "";
-
     }
 
     getLastAssistantMessage() {
@@ -555,7 +557,7 @@ class UIManager {
         }
 
         if (message === "/clear") {
-            clearMessage();
+            this.clearMessage();
             return;
         }
         // if message look like: /system: xxx, then send xxx as system message
