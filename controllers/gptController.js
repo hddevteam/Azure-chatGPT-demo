@@ -194,11 +194,11 @@ exports.summarizeConversation = async (req, res) => {
         },
         data: {
             messages: prompt,
-            temperature: 0.8,
+            temperature: 0.3,
             top_p: defaultParams.top_p,
             frequency_penalty: defaultParams.frequency_penalty,
             presence_penalty: defaultParams.presence_penalty,
-            max_tokens: 200, // Limit summary to 200 words
+            max_tokens: 2000, 
             stop: null,
         },
     };
