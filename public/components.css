@@ -14,7 +14,7 @@
     max-width: max-content;
 }
 
-h1 {
+#app-name {
     margin: 20px;
     width: 50%;
     font-size: 24px;
@@ -304,12 +304,16 @@ textarea::-webkit-scrollbar-thumb:hover {
 
 
 #message-form button[type="submit"] {
+    height: 34px;
+    width: 34px;
     position: absolute;
     top: 5px;
     right: 5px;
 }
 
 #voice-input-button {
+    height: 34px;
+    width: 34px;
     position: absolute;
     top: -43px;
     height: 38px;
@@ -368,8 +372,6 @@ textarea::-webkit-scrollbar-thumb:hover {
 }
 
 button {
-    height: 34px;
-    width: 34px;
     background-color: #4CAF50;
     color: #fff;
     border: none;
