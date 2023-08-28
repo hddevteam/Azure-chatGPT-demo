@@ -3,12 +3,13 @@ import { setCurrentUsername, getCurrentUsername, getCurrentProfile, setCurrentPr
 import { getGpt, getTts, textToImage } from "./api.js";
 import { marked } from "marked";
 import ClipboardJS from "clipboard";
+import swal from "sweetalert";
 
 const modelConfig = {
     "gpt-4": 8000,
     "gpt-3.5-turbo": 16000,
 };
-  
+
 
 // purpose to manage the ui interaction of the app
 class UIManager {
@@ -292,7 +293,7 @@ class UIManager {
         const systemMessageElement = document.querySelector("#system-message");
         console.log(message);
         systemMessageElement.innerHTML = message;
-    
+
     }
 
     // Add message to DOM
@@ -442,34 +443,42 @@ class UIManager {
         });
     }
 
-
     deleteMessage(messageId, isMute = false) {
+        if (isMute) {
+            this.deleteMessageInSilent(messageId);
+        } else {
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            const message = messageElement.dataset.message;
+
+            swal({
+                title: "Are you sure you want to delete this message?",
+                text: message,
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        this.deleteMessageInSilent(messageId);
+                        swal("Message deleted", { buttons: false, timer: 1000 });
+                    }
+                });
+        } 
+
+        
+    }
+
+    deleteMessageInSilent(messageId) {
         this.isDeleting = true;
-        // Get message input and check if it's empty or not
-        const messageInput = document.querySelector("#message-input");
-        const isMessageInputEmpty = messageInput.value.trim() === "";
-
-        // If message input is not empty, ask for user confirmation before replacing the text
-        if (!isMessageInputEmpty && !isMute) {
-            const confirmation = confirm("The message input currently contains text. Do you want to replace the existing text with the deleted message?");
-            if (!confirmation) {
-                return;
-            }
-        }
-
         // Remove message from DOM and also from prompt array by message id
         const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-        // Update input value to messageElement's data-message if not in mute mode
-        if (!isMute) {
-            messageInput.value = messageElement.dataset.message;
-        }
         messageElement.remove();
         this.app.prompts.removePrompt(messageId);
         this.deleteMessageFromStorage(messageId);
-
         this.updateSlider();
         this.isDeleting = false;
     }
+
 
     // delete active messages one by one from message list, prompts and local storage
     deleteActiveMessages() {
@@ -487,9 +496,9 @@ class UIManager {
         const currentUsername = getCurrentUsername();
         const currentProfileName = getCurrentProfile().name;
         const savedMessages = getMessages(currentUsername, currentProfileName);
-        
+
         const updatedMessages = savedMessages.filter(savedMessage => savedMessage.messageId !== messageId);
-    
+
         saveMessages(currentUsername, currentProfileName, updatedMessages);
     }
 
@@ -606,7 +615,7 @@ class UIManager {
                 this.addMessage("assistant", data.message, messageId);
                 this.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId });
                 const max_tokens = modelConfig[this.app.model] || 8000;
-                console.log("max_tokens",max_tokens);
+                console.log("max_tokens", max_tokens);
                 const tokens = data.totalTokens;
 
                 const tokensSpan = document.querySelector("#tokens");
@@ -631,7 +640,7 @@ class UIManager {
         if (this.isDeleting) {
             return;
         }
-        
+
         const messagesContainer = document.querySelector("#messages");
 
         const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
