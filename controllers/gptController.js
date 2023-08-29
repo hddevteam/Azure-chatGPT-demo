@@ -174,7 +174,7 @@ exports.summarizeConversation = async (req, res) => {
             ===
             ${conversation}
             ===
-            以json格式, 生成标题和不超过1个段落, 200字的内容总结, 请注意输出格式符合JSON规范:
+            以json格式, 生成标题和不超过1个段落, 200字的内容总结, 请注意输出格式符合JSON规范.
 
             输出:`,
         },
