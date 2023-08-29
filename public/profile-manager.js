@@ -222,11 +222,14 @@ function saveProfile() {
 
 $("#generate-profile").on("click", function () {
     const profession = $("#name").val();
-    generateProfile(profession);
+    $("#generate-profile-spinner").css("display", "inline-block");
+    generateProfile(profession).finally(() => {
+        $("#generate-profile-spinner").css("display", "none");
+    });
 });
 
 function generateProfile(profession) {
-    fetch("/api/create-chat-profile", {
+    return fetch("/api/create-chat-profile", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -243,3 +246,6 @@ function generateProfile(profession) {
             $("#icon-preview").attr("class", data.icon);
         });
 }
+
+
+

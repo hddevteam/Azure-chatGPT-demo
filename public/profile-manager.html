@@ -22,6 +22,11 @@
             Profile</button>
         <div id="profile-list" class="row mt-5"></div>
     </div>
+    <div id="loading" class="d-none text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>    
     <div class="modal fade" id="profile-modal">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -37,7 +42,14 @@
                                 <label for="name" class="form-label">Name</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="name" placeholder="Enter AI profession" required>
-                                    <button id="generate-profile" class="btn btn-outline-secondary" type="button"><i class="fas fa-magic"></i> AI Generate</button>
+                                    <button id="generate-profile" class="btn btn-outline-secondary" type="button">
+                                        <i class="fas fa-magic"></i> 
+                                        AI Generate
+                                        <div id="generate-profile-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                    </button>
+                                    
                                 </div>
                             </div>
                             <div class="mb-3">
