@@ -102,7 +102,7 @@ exports.createChatProfile = async (req, res) => {
             { "name": "", "icon": "", "displayName": "", "prompt": ""}
 
             输入：
-            请使用以下职业或场景:'${profession}',参考以下模板,生成AI对象配置文件。其中icon要使用font awesome图标代码。请注意输出格式符合JSON规范：
+            请使用以下职业或场景:'${profession}',参考以下模板,生成AI对象配置文件。其中icon要使用font awesome图标代码, 例如fas fa-robot, fab fa-js-square等。请注意输出格式符合JSON规范:
             {
                 "name": "dotNETCoreExpert",
                 "icon": "fas fa-code",
