@@ -180,10 +180,11 @@ document.getElementById("md-container").addEventListener("click", () => {
 });
 
 document.getElementById("delete-container").addEventListener("click", () => {
-    swal("Are you sure you want to delete the current active messages?", { buttons: ["Cancel", "Delete"], dangerMode: true })
+    swal("Are you sure you want to delete messages in the current conversation?", { buttons: ["Cancel", "Delete"], dangerMode: true })
         .then((confirmation) => {
             if (confirmation) {
                 uiManager.deleteActiveMessages();
+                swal("Messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
             }
         });
 });

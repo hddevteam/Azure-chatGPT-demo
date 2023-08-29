@@ -460,7 +460,7 @@ class UIManager {
                 .then((willDelete) => {
                     if (willDelete) {
                         this.deleteMessageInSilent(messageId);
-                        swal("Message deleted", { buttons: false, timer: 1000 });
+                        swal("Message deleted", { icon:"success", buttons: false, timer: 1000 });
                     }
                 });
         } 
