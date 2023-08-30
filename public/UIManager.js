@@ -390,8 +390,7 @@ class UIManager {
         slider.max = maxSliderValue;
     }
 
-    getMessagePreview(message) {
-        const maxLength = 50;
+    getMessagePreview(message, maxLength = 50) {
         let previewText = message.replace(/\n/g, " ");
         if (previewText.length > maxLength) {
             return previewText.substring(0, maxLength - 3) + "...";
@@ -448,11 +447,15 @@ class UIManager {
             this.deleteMessageInSilent(messageId);
         } else {
             const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+
+            // get first 500 characters of the message as preview text
             const message = messageElement.dataset.message;
+            const previewText = this.getMessagePreview(message, 500);
+        
 
             swal({
                 title: "Are you sure you want to delete this message?",
-                text: message,
+                text: previewText,
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
