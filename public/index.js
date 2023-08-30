@@ -182,7 +182,7 @@ document.getElementById("md-container").addEventListener("click", () => {
                         },
                     });
                     clipboard.on("success", function () {
-                        swal("Copied!", "The content of the textarea has been copied to the clipboard.", "success");
+                        swal("Copied!", "The content of the textarea has been copied to the clipboard.", "success", { buttons: false, timer: 1000 });
                     });
                     clipboard.on("error", function () {
                         swal("Error!", "Failed to copy the content of the textarea to the clipboard.", "error");
