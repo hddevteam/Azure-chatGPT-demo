@@ -6,6 +6,7 @@ import { getAppName, getPromptRepo } from "./api.js";
 import UIManager from "./UIManager.js";
 import { setupVoiceInput } from "./input-audio.js";
 import swal from "sweetalert";
+import ClipboardJS from "clipboard";
 
 const app = new App();
 const uiManager = new UIManager(app);
@@ -74,8 +75,6 @@ getAppName()
         headerH1.innerText = appName;
     });
 
-
-
 // get tts container element
 const ttsContainer = document.querySelector("#tts-container");
 ttsContainer.style.display = "none";
@@ -133,6 +132,11 @@ document.getElementById("md-container").addEventListener("click", () => {
                     text: "Download",
                     value: "download",
                 },
+                copy: {
+                    text: "Copy",
+                    value: "copy",
+                    className: "md-copy-button",
+                },
                 cancel: "Close"
             },
             className: "markdown-modal",
@@ -170,6 +174,20 @@ document.getElementById("md-container").addEventListener("click", () => {
                     swal.stopLoading();
                     popupSwal();
                     break;
+                case "copy":
+                    // Copy the content of the textarea
+                    var clipboard = new ClipboardJS(".md-copy-button", {
+                        text: function () {
+                            return area.value;
+                        },
+                    });
+                    clipboard.on("success", function () {
+                        swal("Copied!", "The content of the textarea has been copied to the clipboard.", "success");
+                    });
+                    clipboard.on("error", function () {
+                        swal("Error!", "Failed to copy the content of the textarea to the clipboard.", "error");
+                    });
+                    break;
                 }
             });
     }
@@ -180,7 +198,13 @@ document.getElementById("md-container").addEventListener("click", () => {
 });
 
 document.getElementById("delete-container").addEventListener("click", () => {
-    swal("Are you sure you want to delete messages in the current conversation?", { buttons: ["Cancel", "Delete"], dangerMode: true })
+    const messageNumber = document.querySelectorAll(".message.active").length;
+    swal({
+        title: "Are you sure you want to delete messages in the current conversation?",
+        text: `You are about to delete ${messageNumber} messages in the current conversation. This action cannot be undone.`,
+        icon: "warning",
+        buttons: ["Cancel", "Delete"], dangerMode: true
+    })
         .then((confirmation) => {
             if (confirmation) {
                 uiManager.deleteActiveMessages();
