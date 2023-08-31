@@ -200,8 +200,7 @@ document.getElementById("md-container").addEventListener("click", () => {
 document.getElementById("delete-container").addEventListener("click", () => {
     const messageNumber = document.querySelectorAll(".message.active").length;
     swal({
-        title: "Are you sure you want to delete messages in the current conversation?",
-        text: `You are about to delete ${messageNumber} messages in the current conversation. This action cannot be undone.`,
+        title: `You are about to delete ${messageNumber} messages in the current conversation. This action cannot be undone.`,
         icon: "warning",
         buttons: ["Cancel", "Delete"], dangerMode: true
     })
@@ -340,6 +339,8 @@ messageInput.addEventListener("focus", function () {
 
 messageInput.addEventListener("blur", function () {
     handleInput();
+
+    // 滚动到底部,解决iphone键盘收起后页面不回弹的问题
     setTimeout(() => {
         window.scrollTo(0,document.body.scrollHeight);
     }, 100);

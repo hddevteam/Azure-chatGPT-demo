@@ -625,6 +625,12 @@ class UIManager {
                 tokensSpan.textContent = `${tokens}t`;
                 // If tokens are over 90% of max_tokens, remove the first round conversation
                 if (tokens > max_tokens * 0.9) {
+                    swal({
+                        title: "The conersation tokens are over 90% of the limit, will remove the first round conversation from cache to maintain the conversation flow.",
+                        icon: "warning",
+                        buttons: false,
+                        timer: 3000,
+                    });
                     const removedPrompts = this.app.prompts.removeRange(1, 2);
                     removedPrompts.forEach((p) => {
                         this.inactiveMessage(p.messageId);
