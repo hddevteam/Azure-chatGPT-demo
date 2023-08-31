@@ -325,10 +325,11 @@ function toggleSystemMessage() {
     }
 }
 
+setupVoiceInput(uiManager);
+
 const initialHeight = messageInput.style.height;
 const halfScreenHeight = window.innerHeight / 2;
 const initFocusHieght = window.innerHeight / 5;
-const appContainer = document.querySelector("#app-container");
 
 // 设置textarea的max-height为屏幕高度的一半
 messageInput.style.maxHeight = `${halfScreenHeight}px`;
@@ -339,6 +340,9 @@ messageInput.addEventListener("focus", function () {
 
 messageInput.addEventListener("blur", function () {
     handleInput();
+    setTimeout(() => {
+        window.scrollTo(0,document.body.scrollHeight);
+    }, 100);
 });
 
 let composing = false;
@@ -365,7 +369,6 @@ function handleInput() {
     if (!messageInput.matches(":focus")) {
         if (messageInput.value === "") {
             messageInput.style.height = initialHeight;
-            appContainer.style.removeProperty("height");
         }
         return;
     }
@@ -379,9 +382,31 @@ function handleInput() {
             messageInput.style.height = `${initFocusHieght}px`;
         }
     }
-    // 调整appContainer的高度
-    appContainer.style.height = `calc(100vh - ${messageInput.style.height} - 45px)`;
+
 }
 
 
-setupVoiceInput(uiManager);
+function updateVh() {
+    vh = window.innerHeight * 0.01;
+    console.log(vh);
+    document.documentElement.style.setProperty("--vh", `${vh}px`);
+}
+let vh;
+// 获取视口高度，并将其设置为一个CSS变量
+updateVh();
+
+window.addEventListener("resize", () => {
+    updateVh();
+});
+
+const messageInputContainer = document.querySelector(".message-input-container");
+const appContainer = document.querySelector("#app-container");
+let ro = new ResizeObserver(entries => {
+    for (let entry of entries) {
+        let newHeight = `calc(var(--vh, 1vh) * 100 - ${entry.contentRect.height}px)`;
+        console.log("appContainer.style.height", vh * 100 - entry.contentRect.height);
+        appContainer.style.height = newHeight;
+    }
+});
+
+ro.observe(messageInputContainer);
