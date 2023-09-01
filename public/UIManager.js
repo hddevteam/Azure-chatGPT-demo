@@ -380,7 +380,6 @@ class UIManager {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         this.updateSlider();
-        this.saveMessageActiveStatus(messageId, isActive);
     }
 
 
@@ -526,9 +525,9 @@ class UIManager {
         messages.forEach(message => {
             if (message.dataset.sender === "user" || message.dataset.sender === "assistant") {
                 if (message.dataset.messageId === "undefined") {
-                    loadedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: this.generateId() });
+                    loadedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: this.generateId(), isActive: message.classList.contains("active")});
                 } else {
-                    loadedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: message.dataset.messageId });
+                    loadedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: message.dataset.messageId, isActive: message.classList.contains("active")});
                 }
             }
         });
@@ -598,7 +597,7 @@ class UIManager {
         if (!isRetry) {
             this.addMessage("user", message, messageId);
         }
-        this.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId });
+        this.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
         this.saveCurrentProfileMessages();
         // join prompts except the messageId field to a string
         const promptText = this.app.prompts.getPromptText();
@@ -617,11 +616,11 @@ class UIManager {
                 messageId = this.generateId();
                 const content = "AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。";
                 this.addMessage("assistant", content, messageId, false);
-                this.app.prompts.addPrompt({ role: "assistant", content: content, messageId: messageId });
+                this.app.prompts.addPrompt({ role: "assistant", content: content, messageId: messageId, isActive: false });
             } else {
                 messageId = this.generateId();
                 this.addMessage("assistant", data.message, messageId);
-                this.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId });
+                this.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId, isActive: true });
                 const max_tokens = modelConfig[this.app.model] || 8000;
                 console.log("max_tokens", max_tokens);
                 const tokens = data.totalTokens;
@@ -862,6 +861,8 @@ class UIManager {
         const currentUsername = getCurrentUsername();
         const currentProfileName = getCurrentProfile().name;
         const savedMessages = getMessages(currentUsername, currentProfileName);
+        console.log("save message", messageId, isActive);
+        console.log(savedMessages);
 
         const updatedMessages = savedMessages.map(savedMessage => {
             if (savedMessage.messageId === messageId) {
