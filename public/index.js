@@ -35,10 +35,13 @@ slider.addEventListener("input", function () {
     currentValue.textContent = sliderValue;
 
     messages.forEach((messageElement, index) => {
+        const messageId = messageElement.dataset.messageId;
         if (index >= messages.length - sliderValue) {
             messageElement.classList.add("active");
+            uiManager.saveMessageActiveStatus(messageId, true);
         } else {
             messageElement.classList.remove("active");
+            uiManager.saveMessageActiveStatus(messageId, false);
         }
     });
 
@@ -54,8 +57,8 @@ slider.addEventListener("input", function () {
 
     // restore onLengthChange callback
     app.prompts.onLengthChange = originalOnLengthChange;
-
 });
+
 
 const messageForm = document.querySelector("#message-form");
 const messageInput = document.querySelector("#message-input");
@@ -389,7 +392,6 @@ function handleInput() {
 
 function updateVh() {
     vh = window.innerHeight * 0.01;
-    console.log(vh);
     document.documentElement.style.setProperty("--vh", `${vh}px`);
 }
 let vh;
@@ -405,7 +407,6 @@ const appContainer = document.querySelector("#app-container");
 let ro = new ResizeObserver(entries => {
     for (let entry of entries) {
         let newHeight = `calc(var(--vh, 1vh) * 100 - ${entry.contentRect.height}px)`;
-        console.log("appContainer.style.height", vh * 100 - entry.contentRect.height);
         appContainer.style.height = newHeight;
     }
 });

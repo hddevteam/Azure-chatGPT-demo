@@ -187,6 +187,10 @@ class UIManager {
                 this.app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
             });
         }
+
+        // Save the new active status of the message
+        const isActive = messageElement.classList.contains("active");
+        this.saveMessageActiveStatus(messageElement.dataset.messageId, isActive);
     }
 
     // Create a new method for attaching a toggle active message event listener
@@ -376,11 +380,12 @@ class UIManager {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         this.updateSlider();
+        this.saveMessageActiveStatus(messageId, isActive);
     }
 
 
     updateSlider() {
-        const messageCount = document.querySelectorAll(".message").length - 1;
+        const messageCount = document.querySelectorAll(".message").length;
         document.querySelector("#maxValue").textContent = messageCount;
 
         const counversationCount = this.app.prompts.length - 1;
@@ -451,7 +456,7 @@ class UIManager {
             // get first 500 characters of the message as preview text
             const message = messageElement.dataset.message;
             const previewText = this.getMessagePreview(message, 500);
-        
+
 
             swal({
                 title: "Are you sure you want to delete this message?",
@@ -463,12 +468,12 @@ class UIManager {
                 .then((willDelete) => {
                     if (willDelete) {
                         this.deleteMessageInSilent(messageId);
-                        swal("Message deleted", { icon:"success", buttons: false, timer: 1000 });
+                        swal("Message deleted", { icon: "success", buttons: false, timer: 1000 });
                     }
                 });
-        } 
+        }
 
-        
+
     }
 
     deleteMessageInSilent(messageId) {
@@ -669,8 +674,8 @@ class UIManager {
         savedMessages.slice(startingIndex, savedMessages.length - currentMessagesCount).reverse().forEach((message, index) => {
             // Check if the message is already in the list
             if (!currentMessageIds.includes(message.messageId)) {
-                let isActive = false;
-                this.addMessage(message.role, message.content, message.messageId, isActive, "top");
+                let isActive = message.isActive||false;
+                this.addMessage(message.role, message.content, message.messageId, isActive, "top");               
             }
         });
 
@@ -709,16 +714,13 @@ class UIManager {
         // read saved messages from local storage for current profile and current username
         const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
         const startingIndex = savedMessages.length > this.messageLimit ? savedMessages.length - this.messageLimit : 0;
-        // add saved messages to the message list and load last 2 messages(max) to prompts
         savedMessages.slice(startingIndex).forEach((message, index, arr) => {
-            let isActive = false;
-            if (index >= arr.length - 2) {
+            let isActive = message.isActive||false;
+            if (isActive) {
                 this.app.prompts.addPrompt(message);
-                isActive = true;
             }
             this.addMessage(message.role, message.content, message.messageId, isActive);
         });
-
 
         //empty menu list
         const menuList = document.querySelector("#menu-list");
@@ -771,12 +773,10 @@ class UIManager {
                 const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
 
                 const startingIndex = savedMessages.length > self.messageLimit ? savedMessages.length - self.messageLimit : 0;
-                // add saved messages to the message list and load last 2 messages(max) to prompts
                 savedMessages.slice(startingIndex).forEach((message, index, arr) => {
-                    let isActive = false;
-                    if (index >= arr.length - 2) {
+                    let isActive = message.isActive||false;
+                    if (isActive) {
                         self.app.prompts.addPrompt(message);
-                        isActive = true;
                     }
                     self.addMessage(message.role, message.content, message.messageId, isActive);
                 });
@@ -857,6 +857,24 @@ class UIManager {
             console.error(error);
         }
     }
+
+    saveMessageActiveStatus(messageId, isActive) {
+        const currentUsername = getCurrentUsername();
+        const currentProfileName = getCurrentProfile().name;
+        const savedMessages = getMessages(currentUsername, currentProfileName);
+
+        const updatedMessages = savedMessages.map(savedMessage => {
+            if (savedMessage.messageId === messageId) {
+                // Update the isActive status of the message
+                return { ...savedMessage, isActive: isActive };
+            } else {
+                return savedMessage;
+            }
+        });
+
+        saveMessages(currentUsername, currentProfileName, updatedMessages);
+    }
+
 }
 
 export default UIManager;
