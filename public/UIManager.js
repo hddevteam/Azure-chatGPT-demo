@@ -169,20 +169,14 @@ class UIManager {
         // Get the messageElement based on event type
         const messageElement = event.currentTarget.parentElement;
 
-        // check if the element has class active
         if (messageElement.classList.contains("active")) {
-            // if it has, remove the inactive class
             messageElement.classList.remove("active");
-            // remove the message frmo prompts by message id
             const messageId = messageElement.dataset.messageId;
             this.app.prompts.removePrompt(messageId);
         } else {
-            // if it doesn't, add the inactive class
             messageElement.classList.add("active");
-            // clear prompts except index 0
-            this.app.prompts.clearExceptFirst();
-            // add all the active messages to prompts
             const activeMessages = document.querySelectorAll(".message.active");
+            this.app.prompts.clear();
             activeMessages.forEach(activeMessage => {
                 this.app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
             });
@@ -292,10 +286,10 @@ class UIManager {
         return codeBlocksWithCopyElements;
     }
 
-    addSystemMessage(message) {
+    setSystemMessage(message) {
         // 获取显示系统消息的元素
+        this.app.prompts.setSystemPrompt(message);
         const systemMessageElement = document.querySelector("#system-message");
-        console.log(message);
         systemMessageElement.innerHTML = message;
 
     }
@@ -305,15 +299,13 @@ class UIManager {
         const messageElement = this.createMessageElement(sender, messageId, isActive);
         messageElement.dataset.message = message;
 
-        if (sender !== "system") {
-            const conversationElement = this.createConversationElement();
-            messageElement.appendChild(conversationElement);
-            this.attachToggleActiveMessageEventListener(conversationElement);
+        const conversationElement = this.createConversationElement();
+        messageElement.appendChild(conversationElement);
+        this.attachToggleActiveMessageEventListener(conversationElement);
 
-            const deleteElement = this.createDeleteElement();
-            messageElement.appendChild(deleteElement);
-            this.attachDeleteMessageEventListener(deleteElement);
-        }
+        const deleteElement = this.createDeleteElement();
+        messageElement.appendChild(deleteElement);
+        this.attachDeleteMessageEventListener(deleteElement);
 
         const messageContentElement = sender === "user" ? document.createElement("pre") : document.createElement("div");
         messageElement.appendChild(messageContentElement);
@@ -456,14 +448,12 @@ class UIManager {
             const message = messageElement.dataset.message;
             const previewText = this.getMessagePreview(message, 500);
 
-
             swal({
                 title: "Are you sure you want to delete this message?",
                 text: previewText,
                 icon: "warning",
                 buttons: true,
-                dangerMode: true,
-            })
+                dangerMode: true,})
                 .then((willDelete) => {
                     if (willDelete) {
                         this.deleteMessageInSilent(messageId);
@@ -471,8 +461,6 @@ class UIManager {
                     }
                 });
         }
-
-
     }
 
     deleteMessageInSilent(messageId) {
@@ -493,9 +481,7 @@ class UIManager {
         // delete active messages one by one from last to first, and dont't delete the system prompt
         for (let i = activeMessages.length - 1; i >= 0; i--) {
             const message = activeMessages[i];
-            if (message.dataset.sender !== "system") {
-                this.deleteMessage(message.dataset.messageId, true);
-            }
+            this.deleteMessage(message.dataset.messageId, true);
         }
     }
 
@@ -525,9 +511,9 @@ class UIManager {
         messages.forEach(message => {
             if (message.dataset.sender === "user" || message.dataset.sender === "assistant") {
                 if (message.dataset.messageId === "undefined") {
-                    loadedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: this.generateId(), isActive: message.classList.contains("active")});
+                    loadedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: this.generateId(), isActive: message.classList.contains("active") });
                 } else {
-                    loadedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: message.dataset.messageId, isActive: message.classList.contains("active")});
+                    loadedMessages.push({ role: message.dataset.sender, content: message.dataset.message, messageId: message.dataset.messageId, isActive: message.classList.contains("active") });
                 }
             }
         });
@@ -545,8 +531,6 @@ class UIManager {
         const messagesContainer = document.getElementById("messages");
         // clear messages in DOM except the first message
         messagesContainer.innerHTML = "";
-        this.app.prompts.clearExceptFirst();
-        this.addMessage(this.app.prompts[0].role, this.app.prompts[0].content, this.app.prompts[0].messageId);
         this.saveCurrentProfileMessages();
         const messageInput = document.getElementById("message-input");
         messageInput.value = "";
@@ -576,15 +560,6 @@ class UIManager {
             this.clearMessage();
             return;
         }
-        // if message look like: /system: xxx, then send xxx as system message
-        if (message.startsWith("/system")) {
-            message = message.replace("/system", "");
-            let messageId = this.generateId();
-            this.addSystemMessage(getCurrentProfile().prompt);
-            this.app.prompts.clearPrompts();
-            this.app.prompts.addPrompt({ role: "system", content: message, messageId: messageId });
-            return;
-        }
 
         if (message.startsWith("/image")) {
             const imageCaption = message.replace("/image", "").trim();
@@ -599,18 +574,15 @@ class UIManager {
         }
         this.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
         this.saveCurrentProfileMessages();
-        // join prompts except the messageId field to a string
+
         const promptText = this.app.prompts.getPromptText();
-        console.log(promptText);
 
-        const messageInput = document.querySelector("#message-input");
         this.clearMessageInput();
-
         try {
             this.showToast("AI thinking...");
             console.log(this.app.model);
+            console.log(promptText);
             const data = await getGpt(promptText, this.app.model);
-            // console.log(data);
             // If no response, pop last prompt and send a message
             if (!data) {
                 messageId = this.generateId();
@@ -639,7 +611,6 @@ class UIManager {
                     removedPrompts.forEach((p) => {
                         this.inactiveMessage(p.messageId);
                     });
-                    this.app.prompts.updateFirstPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: this.generateId() });
                 }
             }
             this.saveCurrentProfileMessages();
@@ -660,10 +631,6 @@ class UIManager {
         const currentMessagesCount = messagesContainer.children.length;
         const messageLimit = 10;
         const startingIndex = savedMessages.length - currentMessagesCount - messageLimit > 0 ? savedMessages.length - currentMessagesCount - messageLimit : 0;
-
-        // Check if system prompt is already loaded
-        const systemPromptLoaded = Array.from(messagesContainer.children).some(message => message.dataset.sender === "system");
-
         // Record the current scroll position
         const currentScrollPosition = messagesContainer.scrollHeight - messagesContainer.scrollTop;
 
@@ -673,8 +640,8 @@ class UIManager {
         savedMessages.slice(startingIndex, savedMessages.length - currentMessagesCount).reverse().forEach((message, index) => {
             // Check if the message is already in the list
             if (!currentMessageIds.includes(message.messageId)) {
-                let isActive = message.isActive||false;
-                this.addMessage(message.role, message.content, message.messageId, isActive, "top");               
+                let isActive = message.isActive || false;
+                this.addMessage(message.role, message.content, message.messageId, isActive, "top");
             }
         });
 
@@ -692,10 +659,7 @@ class UIManager {
         usernameLabel.textContent = getCurrentUsername();
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.innerHTML = "";
-        // Get currentProfile from storage.js if available, otherwise set it to the first profile
         const savedCurrentProfile = getCurrentProfile();
-        // get profile name from savedCurrentProfile then find the profile object from profiles array incase the profile object is changed
-        // then set currentProfile to the profile object
         let currentProfileName = savedCurrentProfile ? savedCurrentProfile.name : profiles[0].name;
         let currentProfile = profiles.find(profile => profile.name === currentProfileName);
         // if currentProfile is not found, set it to the first profile, currentProfileName is also set to the first profile name
@@ -707,14 +671,12 @@ class UIManager {
         setCurrentProfile(currentProfile);
         this.setupPracticeMode();
 
-        let messageId = this.generateId();
-        this.app.prompts.addPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: messageId });
-        this.addSystemMessage(getCurrentProfile().prompt);
+        this.setSystemMessage(getCurrentProfile().prompt);
         // read saved messages from local storage for current profile and current username
         const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
         const startingIndex = savedMessages.length > this.messageLimit ? savedMessages.length - this.messageLimit : 0;
         savedMessages.slice(startingIndex).forEach((message, index, arr) => {
-            let isActive = message.isActive||false;
+            let isActive = message.isActive || false;
             if (isActive) {
                 this.app.prompts.addPrompt(message);
             }
@@ -765,15 +727,13 @@ class UIManager {
                 // 清空 prompts 数组
                 self.app.prompts.clear();
 
-                let messageId = self.generateId();
-                self.app.prompts.addPrompt({ role: "system", content: getCurrentProfile().prompt, messageId: messageId });
-                self.addSystemMessage(getCurrentProfile().prompt);
+                self.setSystemMessage(getCurrentProfile().prompt);
                 // read saved messages from local storage for current profile and current username
                 const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
 
                 const startingIndex = savedMessages.length > self.messageLimit ? savedMessages.length - self.messageLimit : 0;
                 savedMessages.slice(startingIndex).forEach((message, index, arr) => {
-                    let isActive = message.isActive||false;
+                    let isActive = message.isActive || false;
                     if (isActive) {
                         self.app.prompts.addPrompt(message);
                     }
@@ -781,8 +741,6 @@ class UIManager {
                 });
             });
         });
-
-
     }
 
     setupPracticeMode() {
@@ -795,7 +753,6 @@ class UIManager {
             ttsContainer.style.display = "none";
         }
     }
-
 
     toggleSpeakerIcon(speaker) {
         speaker.classList.toggle("fa-volume-off");
@@ -861,8 +818,6 @@ class UIManager {
         const currentUsername = getCurrentUsername();
         const currentProfileName = getCurrentProfile().name;
         const savedMessages = getMessages(currentUsername, currentProfileName);
-        console.log("save message", messageId, isActive);
-        console.log(savedMessages);
 
         const updatedMessages = savedMessages.map(savedMessage => {
             if (savedMessage.messageId === messageId) {
@@ -872,7 +827,6 @@ class UIManager {
                 return savedMessage;
             }
         });
-
         saveMessages(currentUsername, currentProfileName, updatedMessages);
     }
 

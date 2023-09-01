@@ -25,8 +25,8 @@ switchElement.addEventListener("change", function () {
 const slider = document.getElementById("slider");
 const currentValue = document.getElementById("currentValue");
 app.prompts.onLengthChange = function (newLength) {
-    slider.value = newLength - 1;
-    currentValue.textContent = newLength - 1;
+    slider.value = newLength;
+    currentValue.textContent = newLength;
 };
 
 slider.addEventListener("input", function () {
@@ -49,7 +49,6 @@ slider.addEventListener("input", function () {
     const originalOnLengthChange = app.prompts.onLengthChange;
     app.prompts.onLengthChange = null;
 
-    app.prompts.clearExceptFirst();
     const activeMessages = document.querySelectorAll(".message.active");
     activeMessages.forEach(activeMessage => {
         app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });

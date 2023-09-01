@@ -4,6 +4,7 @@ class Prompts {
     constructor() {
         this.data = [];
         this.onLengthChange = null;
+        this.systemPrompt = "";
     }
     /**
      * Adds a prompt to the data array
@@ -12,6 +13,10 @@ class Prompts {
     addPrompt(prompt) {
         this.data.push(prompt);
         this.notifyLengthChange();
+    }
+
+    setSystemPrompt(prompt) {
+        this.systemPrompt = prompt;
     }
 
     /**
@@ -45,15 +50,6 @@ class Prompts {
     }
 
     /**
-     * Removes all prompts from the data array except the first prompt
-     * @returns - The removed prompts
-     */
-    clearExceptFirst() {
-        this.data = this.data.slice(0, 1);
-        this.notifyLengthChange();
-    }
-
-    /**
      * Removes a range of prompts from the data array based on the startIndex and deleteCount
      * @param {*} startIndex - The index of the prompt to start removing
      * @param {*} deleteCount - The number of prompts to remove
@@ -70,18 +66,15 @@ class Prompts {
      * @returns - The prompts array as a string
      */
     getPromptText() {
-        return JSON.stringify(this.data.map((p) => {
+        //combine the system prompt and the data array
+        // system prompt is the first prompt
+        // it looks like this: {role: "system", content: "Hello, I am a chatbot."}
+        const systemPrompt = { role: "system", content: this.systemPrompt };
+        const prompts = [systemPrompt, ...this.data];
+        return JSON.stringify(prompts.map((p) => {
             return { role: p.role, content: p.content };
         }));
     }
 
-    /**
-     * update the first prompt's content
-     * @param {*} newPrompt - The new prompt content
-     */
-    updateFirstPrompt(newPrompt) {
-        this.data[0] = newPrompt;
-        this.notifyLengthChange();
-    }
 }
 export default Prompts;
