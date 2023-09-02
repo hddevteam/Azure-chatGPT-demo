@@ -1,23 +1,27 @@
-# chatGPTdemo for Azure OpenAI gpt-35-turbo/gpt4 model 🤖
+# 🤖 Powerful chatGPT for Azure OpenAI GPT model 
 
-Welcome to chatGPTdemo, a fascinating demo website built with Node.js and Azure OpenAI gpt-35-turbo (version 0301)/gpt4 model. This project serves as a great starting point for developers who are interested in developing chatbot applications using JavaScript and Azure OpenAI API.
+Welcome to Azure chatGPT demo, a fascinating chatGPT website built with Node.js and Azure OpenAI gpt-35-turbo (version 0301)/gpt4 model. This project serves as a great starting point for developers who are interested in developing chatbot applications using JavaScript and Azure OpenAI API.
 
 ## 🌟 Features
+- **Support for fully control messages in current conversation 💬**
+![Dekstop Screenshot](screenshot_desktop.png)
 
-![chatGPTdemo](./demo.png)
+- **Summarize current conversation and save it to markdown file 📝**
+![Export to markdown file](screenshot_markdown.png)
 
-- Easy-to-use chat interface
-- Customizable AI character role
-- Mobile and tablet compatibility
-- Support for Azure Text-to-Speech engine
-- Auto-play bot message audio option
-- User profile switch feature
+- Manage AI profiles and support to Create new AI profile by using GPT-4 model in seconds 🤖!
+![Manage AI profile](screenshot_profile_manager.png)
+
+- **Support for Azure Text-to-Speech engine 📢**
+- **Support generating image from text by using DALL-E API 🖼️**
+- **Support Speech-to-Text by using Azure Speech-to-Text engine 🎙️**
 - Display actor avatar and name in header when selected
 - Support for loading system prompt from remote URL
-- System message customization using /system xxx command
 - Message formatting preservation
 - Token counter
-- **Support for adding and removing messages in current round conversation 💬**
+- Mobile and tablet compatibility
+![Optimize for mobile](screenshot_mobile.png)
+
 
 ## 🚀 Getting Started
 
@@ -34,9 +38,9 @@ Welcome to chatGPTdemo, a fascinating demo website built with Node.js and Azure 
 
    ```
    API_KEY=yourgpt35apikey
-   API_URL=https://$yourendpoint/openai/deployments/$gptmodelname$/chat/completions?api-version=2023-03-15-preview
+   API_URL=https://$yourendpoint
    GPT_4_API_KEY=yourgpt4apikey
-   GPT_4_API_URL=https://$yourendpoint/openai/deployments/$gpt4modelname$/chat/completions?api-version=2023-03-15-preview
+   GPT_4_API_URL=https://$yourgpt4endpoint
    ```
 
 4. (Optional) Add extra features with `PROMPT_REPO_URLS` and `AZURE_TTS`:
@@ -66,11 +70,10 @@ Welcome to chatGPTdemo, a fascinating demo website built with Node.js and Azure 
 6. Start the server:
 
    ```
-   node server.js
+   npm start
    ```
 
-7. Open your browser and visit [http://localhost:3000](http://localhost:3000) to enjoy the chatGPTdemo website!
+7. Open your browser and visit [http://localhost:3000](http://localhost:3000) to enjoy the chatGPT for your own!
 
-![chatGPTdemo](./demo.png)
 
 Now you're all set to explore and develop your chatbot application using JavaScript and Azure OpenAI API. Happy coding! 🎉
