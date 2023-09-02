@@ -204,12 +204,35 @@ document.getElementById("delete-container").addEventListener("click", () => {
     swal({
         title: `You are about to delete ${messageNumber} messages in the current conversation. This action cannot be undone.`,
         icon: "warning",
-        buttons: ["Cancel", "Delete"], dangerMode: true
+        buttons: {
+            cancel: "Cancel",
+            delete: {
+                text: "Delete",
+                value: "delete",                        
+            },
+            edit: {
+                text: "Edit",
+                value: "edit",
+            },
+        },   
+        dangerMode: true
     })
-        .then((confirmation) => {
-            if (confirmation) {
+        .then((value) => {
+            if (value=== "delete") {
                 uiManager.deleteActiveMessages();
                 swal("Messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
+            } else if (value === "edit") {
+                const activeMessages = document.querySelectorAll(".message.active");
+                let mdContent = "";
+                activeMessages.forEach(message => {
+                    const dataSender = message.getAttribute("data-sender");
+                    const dataMessage = message.getAttribute("data-message");
+                    mdContent += `### ${dataSender}\n\n${dataMessage}\n\n`;
+                });
+                messageInput.value += mdContent;
+                uiManager.deleteActiveMessages();
+                swal("Messages in the current conversation have been merged into the text box successfully!", { icon: "success", buttons: false, timer: 1000 });
+                messageInput.focus();
             }
         });
 });
@@ -329,7 +352,7 @@ function toggleSystemMessage() {
 setupVoiceInput(uiManager);
 
 const initialHeight = messageInput.style.height;
-const halfScreenHeight = window.innerHeight / 2;
+const halfScreenHeight = window.innerHeight / 1.5;
 const initFocusHieght = window.innerHeight / 5;
 
 // 设置textarea的max-height为屏幕高度的一半
@@ -341,7 +364,7 @@ messageInput.addEventListener("focus", function () {
 
 messageInput.addEventListener("blur", function () {
     handleInput();
-
+    
     // 滚动到底部,解决iphone键盘收起后页面不回弹的问题
     setTimeout(() => {
         window.scrollTo(0,document.body.scrollHeight);
@@ -387,7 +410,6 @@ function handleInput() {
     }
 
 }
-
 
 function updateVh() {
     vh = window.innerHeight * 0.01;

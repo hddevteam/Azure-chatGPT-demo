@@ -449,17 +449,31 @@ class UIManager {
             const previewText = this.getMessagePreview(message, 500);
 
             swal({
-                title: "Are you sure you want to delete this message?",
+                title: "Are you sure you want to delete or edit this message?",
                 text: previewText,
                 icon: "warning",
-                buttons: true,
-                dangerMode: true,})
-                .then((willDelete) => {
-                    if (willDelete) {
-                        this.deleteMessageInSilent(messageId);
-                        swal("Message deleted", { icon: "success", buttons: false, timer: 1000 });
-                    }
-                });
+                buttons: {
+                    cancel: "Cancel",
+                    delete: {
+                        text: "Delete",
+                        value: "delete",                        
+                    },
+                    edit: {
+                        text: "Edit",
+                        value: "edit",
+                    },
+                },                
+            }).then((value) => {
+                if (value === "delete") {
+                    this.deleteMessageInSilent(messageId);
+                    swal("Message deleted", { icon: "success", buttons: false, timer: 1000 });
+                } else if (value === "edit") {
+                    this.messageInput.value = message;
+                    this.messageInput.focus();
+                    this.deleteMessageInSilent(messageId);
+                    swal("Message deleted but copied to input box.", { icon: "success", buttons: false, timer: 1000 });
+                }
+            });
         }
     }
 
@@ -829,7 +843,6 @@ class UIManager {
         });
         saveMessages(currentUsername, currentProfileName, updatedMessages);
     }
-
 }
 
 export default UIManager;
