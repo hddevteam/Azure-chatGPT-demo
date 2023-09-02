@@ -23,13 +23,12 @@
     }
 
     #menu li {
-        margin-bottom: 0.5em;
+        margin: 0;
+        padding: 10px;
     }
 
     #menu-header {
-        padding: 5px;
-        padding-left: 10px;
-        margin-bottom: 0.5em;
+        display: none;
     }
 
     #menu-header i,
@@ -67,8 +66,6 @@
     #header {
         display: flex;
         width: 100%;
-        padding: 1em;
-
     }
 
     #messages {
