@@ -78,6 +78,7 @@ class UIManager {
     // Create a new method for creating the conversation element
     createConversationElement() {
         const conversationElement = document.createElement("i");
+        conversationElement.title = "Hide/Show the message in current conversation";
         conversationElement.classList.add("fas");
         conversationElement.classList.add("fa-quote-left");
         return conversationElement;
