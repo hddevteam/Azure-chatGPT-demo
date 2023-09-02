@@ -3,7 +3,7 @@
 Welcome to Azure chatGPT demo, a fascinating chatGPT website built with Node.js and Azure OpenAI gpt-35-turbo (version 0301)/gpt4 model. This project serves as a great starting point for developers who are interested in developing chatbot applications using JavaScript and Azure OpenAI API.
 
 ## 🌟 Features
-- **Support for fully control messages in current conversation 💬**
+- **Support for fully control messages in current conversation, you can delete, hide or unhide any message in the conversation 💬**
 ![Dekstop Screenshot](screenshot_desktop.png)
 
 - **Summarize current conversation and save it to markdown file 📝**
