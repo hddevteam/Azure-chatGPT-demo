@@ -99,9 +99,8 @@
         font-size: 12px;
     }
 
-    .mini-toolbar span {
-        margin-right: 5px;
-        font-size: 12px;
+    .btn .btn-text {
+        display: none;
     }
 
     #clear-input {
@@ -159,11 +158,10 @@
     }
 
     #voice-input-button {
-        height: fit-content;
-        font-size: 25px;
         width: 100% !important;
         position: static !important;
         border-radius: 0px 0px 0px 5px;
+        height: 34px;
     }
 
     #csv-container {

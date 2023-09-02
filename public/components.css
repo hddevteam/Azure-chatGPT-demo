@@ -297,15 +297,57 @@ textarea::-webkit-scrollbar-thumb:hover {
     padding: 5px;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
     border-top-left-radius: 0.5em;
+    display: flex;
+    gap: 5px;
+    justify-content: space-between;
 }
 
-.mini-toolbar span {
-    margin-right: 10px;
+.interactive-elements {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btns {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
     cursor: pointer;
+    padding: 5px;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    transition: all 0.3s ease;
 }
 
-.mini-toolbar i {
-    margin-right: 3px;
+#user {
+    background-color: #3e8e41;
+}
+
+.btn:hover {
+    background-color: #555;
+}
+
+.btn .btn-text {
+    margin-left: 5px;
+}
+
+.btn.gpt-4 {
+    background-color: #1AB394;
+}
+
+.btn.gpt-3 {
+    background-color: #999;
+}
+
+.information {
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 #sliderContainer {

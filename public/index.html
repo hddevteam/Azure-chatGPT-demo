@@ -41,23 +41,26 @@
   <div class="message-input-container">
     <div class="mini-toolbar-container">
       <div class="mini-toolbar">
-        <div class="switch-container">
-          <input type="checkbox" class="js-switch" id="model-switch">
-          <span id="model-name">GPT3.5</span>
+        <div class="interactive-elements">
+          <span class="btn gpt-3" id="model-switch">GPT3.5</span>
+          <div class="slider-container">
+            <label id="maxValue">10</label>
+            <input type="range" id="slider" min="0" max="2" value="2" step="1">
+            <span id="currentValue">0</span>
+          </div>
         </div>
-        <span id="sliderContainer">
-          <label id="maxValue">10</label>
-          <input type="range" id="slider" min="0" max="2" value="2" step="1">
-          <span id="currentValue">0</span>
-        </span>
-        <span id="tts-container"><i id="practice-mode-icon" class="fas fa-volume-off"></i><span
-            id="practice-mode">Man.</span></span><span id="user"><i class="fas fa-user-circle"></i><span
-            id="username-label">Guest</span></span>
-        <span id="md-container" title="Click to save the current conversation as a Markdown file"><i
-            class="fas fa-file-alt"></i><span id="export-md">md</span></span>
-        <span id="delete-container" title="Click to delete all active messages"><i class="fas fa-trash-alt"></i><span
-            id="delete-messages">Delete</span></span>
-        <i class="fas fa-info-circle"></i><span id="tokens"></span>
+        <div class="btns">
+          <span class="btn" id="tts-container"><i id="practice-mode-icon" class="fas fa-volume-off"></i><span
+              id="practice-mode" class="btn-text">Man.</span></span>
+          <span class="btn" id="md-container" title="Click to save the current conversation as a Markdown file"><i
+              class="fa-brands fa-markdown"></i><span class="btn-text">md</span></span>
+          <span class="btn" id="delete-container" title="Click to delete all active messages"><i
+              class="fas fa-trash-alt"></i><span class="btn-text">Delete</span></span>
+          <span class="btn" id="user"><i class="fas fa-user-circle"></i><span id="username-label">Guest</span></span>
+        </div>
+        <div class="information">
+          <i class="fas fa-info-circle"></i><span id="tokens"></span>
+        </div>
       </div>
     </div>
     <form id="message-form">
@@ -80,4 +83,5 @@
 <script src="./third_party/OpusMediaRecorder.umd.js"></script>
 <script src="./third_party/encoderWorker.umd.js"></script>
 <script src="./dist/bundle.js"></script>
+
 </html>

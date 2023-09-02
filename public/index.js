@@ -11,16 +11,22 @@ import ClipboardJS from "clipboard";
 const app = new App();
 const uiManager = new UIManager(app);
 
-const switchElement = document.getElementById("model-switch");
-const modelNameElement = document.getElementById("model-name");
-const switchOptions = { color: "#1AB394", secondaryColor: "#ED5565" };
-const modelSwitch = new Switchery(switchElement, switchOptions);
+const switchElement = document.querySelector("#model-switch");
+let model = "gpt-3.5-turbo"; // default model
 
-switchElement.addEventListener("change", function () {
-    app.model = this.checked ? "gpt-4" : "gpt-3.5-turbo";
-    modelNameElement.textContent = this.checked ? "GPT4" : "GPT3.5";
+switchElement.addEventListener("click", function () {
+    model = model === "gpt-3.5-turbo" ? "gpt-4" : "gpt-3.5-turbo";
+    this.textContent = model === "gpt-4" ? "GPT4" : "GPT3.5";
+    app.model = model;
+    
+    if (model === "gpt-4") {
+        this.classList.remove("gpt-3");
+        this.classList.add("gpt-4");
+    } else {
+        this.classList.remove("gpt-4");
+        this.classList.add("gpt-3");
+    }
 });
-
 
 const slider = document.getElementById("slider");
 const currentValue = document.getElementById("currentValue");
@@ -48,7 +54,7 @@ slider.addEventListener("input", function () {
     // save current onLengthChange callback
     const originalOnLengthChange = app.prompts.onLengthChange;
     app.prompts.onLengthChange = null;
-
+    app.prompts.clear();
     const activeMessages = document.querySelectorAll(".message.active");
     activeMessages.forEach(activeMessage => {
         app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
@@ -81,7 +87,7 @@ getAppName()
 const ttsContainer = document.querySelector("#tts-container");
 ttsContainer.style.display = "none";
 
-const practiceMode = document.querySelector("#practice-mode");
+const practiceMode = document.querySelector("#tts-container");
 
 // add click event listener to practiceMode
 practiceMode.addEventListener("click", () => {
@@ -364,7 +370,7 @@ messageInput.addEventListener("focus", function () {
 
 messageInput.addEventListener("blur", function () {
     handleInput();
-    
+
     // 滚动到底部,解决iphone键盘收起后页面不回弹的问题
     setTimeout(() => {
         window.scrollTo(0,document.body.scrollHeight);
