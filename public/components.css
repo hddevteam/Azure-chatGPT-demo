@@ -483,13 +483,42 @@ table {
     width: 100%;
     border-collapse: collapse;
     border-radius: 5px;
-  }
-  
-  th, td {
+}
+
+th,
+td {
     padding: 4px;
     text-align: left;
-    border: 1px solid #fff; 
-  }
+    border: 1px solid #fff;
+}
 
-  
-  
+#chat-profile-list-menu {
+    position: absolute;
+    top: 30px;
+    background-color: #ffffff;
+    width: fit-content;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    transition: all 0.2s;
+}
+
+#chat-profile-list-menu.hidden {
+    display: none;
+}
+
+#chat-profile-list-menu ul {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+#chat-profile-list-menu ul li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+#chat-profile-list-menu ul li:hover {
+    background-color: #f1f1f1;
+}
