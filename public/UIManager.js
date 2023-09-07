@@ -18,6 +18,7 @@ class UIManager {
         this.app = app;
         this.messageLimit = 10;
         this.isDeleting = false;
+        this.profiles = [];
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.addEventListener("scroll", () => {
             if (messagesContainer.scrollTop === 0) {
@@ -562,9 +563,11 @@ class UIManager {
         return lines[lines.length - 1];
     }
 
+
     // Send message on button click
     async sendMessage(message = "", isRetry = false) {
         let messageId = this.generateId();
+
         if (message.startsWith("/complete")) {
             const lastMessage = this.getLastAssistantMessage();
             const secondLastLine = this.getLastLine(lastMessage.dataset.message);
@@ -590,7 +593,31 @@ class UIManager {
         this.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
         this.saveCurrentProfileMessages();
 
-        const promptText = this.app.prompts.getPromptText();
+        let promptText;
+        if (message.startsWith("@")) {
+            const parts = message.split(":");
+            if (parts.length >= 2) {
+                const profileDisplayName = parts[0].substring(1).trim(); // Remove '@'
+                const messageContent = parts.slice(1).join(":").trim();
+                const profile = this.profiles.find(p => p.displayName === profileDisplayName);
+                if (profile) {
+                    const systemPrompt = { role: "system", content: profile.prompt };
+                    let data = this.app.prompts.data.map(d => {
+                        if (d.role === "assistant") {
+                            return { ...d, role: "user" };
+                        }
+                        return d;
+                    });
+                    data.push({ role: "user", content: messageContent });
+                    const prompts = [systemPrompt, ...data];
+                    promptText = JSON.stringify(prompts.map((p) => {
+                        return { role: p.role, content: p.content };
+                    }));
+                }
+            }
+        } else {
+            promptText = this.app.prompts.getPromptText();
+        }
 
         this.clearMessageInput();
         try {
@@ -668,18 +695,18 @@ class UIManager {
     // render menu list from data
     // it only happens when user submit the username or the page is loaded
     renderMenuList(data) {
-        const profiles = data.profiles;
+        this.profiles = data.profiles;
         setCurrentUsername(data.username);
         const usernameLabel = document.querySelector("#username-label");
         usernameLabel.textContent = getCurrentUsername();
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.innerHTML = "";
         const savedCurrentProfile = getCurrentProfile();
-        let currentProfileName = savedCurrentProfile ? savedCurrentProfile.name : profiles[0].name;
-        let currentProfile = profiles.find(profile => profile.name === currentProfileName);
+        let currentProfileName = savedCurrentProfile ? savedCurrentProfile.name : this.profiles[0].name;
+        let currentProfile = this.profiles.find(profile => profile.name === currentProfileName);
         // if currentProfile is not found, set it to the first profile, currentProfileName is also set to the first profile name
         if (!currentProfile) {
-            currentProfile = profiles[0];
+            currentProfile = this.profiles[0];
             currentProfileName = currentProfile.name;
         }
 
@@ -704,7 +731,7 @@ class UIManager {
         const aiProfile = document.querySelector("#ai-profile");
         aiProfile.innerHTML = `<i class="${getCurrentProfile().icon}"></i> ${getCurrentProfile().displayName}`;
         //add menu items
-        profiles.forEach(item => {
+        this.profiles.forEach(item => {
             let li = document.createElement("li");
             li.dataset.profile = item.name;
             // set current selected menu item to active
@@ -732,7 +759,7 @@ class UIManager {
                 self.turnOffPracticeMode();
                 // change currentProfile
                 var profileName = this.getAttribute("data-profile");
-                setCurrentProfile(profiles.find(function (p) { return p.name === profileName; }));
+                setCurrentProfile(self.profiles.find(function (p) { return p.name === profileName; }));
                 // 如果当前 profile 的 tts 属性为 enabled，则显示 ttsContainer
                 self.setupPracticeMode();
                 // 设置 profile 图标和名称
