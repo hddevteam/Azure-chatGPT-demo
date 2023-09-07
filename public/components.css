@@ -479,17 +479,29 @@ button:hover {
 }
 
 table {
-    margin: 10px 0;
     width: 100%;
     border-collapse: collapse;
-    border-radius: 5px;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    background: linear-gradient(to bottom, #e6f0ff, #bfd2ff);
 }
 
 th,
 td {
-    padding: 4px;
+    padding: 5px;
     text-align: left;
     border: 1px solid #fff;
+}
+
+th {
+    background-color: #a0c0ff;
+    color: #000;
+    font-weight: bold;
+    
+}
+
+tr:hover {
+    background-color: #e3e3e3;
 }
 
 #chat-profile-list-menu {
