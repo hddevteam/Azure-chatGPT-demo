@@ -462,7 +462,7 @@ messageInput.addEventListener("keyup", function(event) {
 profileListMenu.addEventListener("click", function(event) {
     if (event.target.tagName.toLowerCase() === "li") {
         const selectedName = event.target.textContent;
-        messageInput.value = `@${selectedName}: `;
+        messageInput.value = `@${selectedName}: `+ messageInput.value.slice(1);
         messageInput.focus();
         profileListMenu.classList.add("hidden");
     }

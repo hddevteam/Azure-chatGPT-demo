@@ -565,24 +565,36 @@ class UIManager {
 
     async validateMessage(message) {
         if (message.startsWith("@") && !message.substring(0, 50).includes(":")) {
-            const correctedMessage = message.replace(/\s/, ":");
+            const firstColonIndex = message.indexOf("："); // Find the index of the first Chinese colon
+            const firstSpaceIndex = message.indexOf(" "); // Find the index of the first space
+            let correctedMessage;
+            if (firstColonIndex !== -1 && firstColonIndex < 50) {
+                // If there is a Chinese colon in the first 50 characters
+                correctedMessage = message.replace("：", ":"); // Replace the first Chinese colon with an English colon
+            } else if (firstSpaceIndex !== -1 && firstSpaceIndex < 50) {
+                // If there is a space in the first 50 characters
+                correctedMessage = message.replace(/\s/, ":"); // Replace the first space with an English colon
+            } else {
+                // If there is neither a Chinese colon nor a space in the first 50 characters
+                correctedMessage = message; // Keep the original message
+            }
             const option = await swal({
                 title: "Incorrect format",
-                text: `The format should be @Role: Message. Corrected message would be "${correctedMessage.substring(0, 50)}..."`,
+                text: `The format should be @Role: Message. \n Would you like me to correct it to \n${correctedMessage.substring(0, 50)} ...?`,
                 icon: "warning",
                 buttons: {
-                    correct: {
-                        text: "Correct",
-                        value: "correct",
+                    continue: {
+                        text: "Continue",
+                        value: "continue",
                     },
                     edit: {
                         text: "Edit",
                         value: "edit",
                     },
-                    continue: {
-                        text: "Continue",
-                        value: "continue",
-                    },
+                    correct: {
+                        text: "Correct",
+                        value: "correct",
+                    }
                 },
             });
     
@@ -638,9 +650,9 @@ class UIManager {
 
         if (!isRetry) {
             this.addMessage("user", message, messageId);
-        }
-        this.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
-        this.saveCurrentProfileMessages();
+            this.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
+            this.saveCurrentProfileMessages();
+        } 
 
         let promptText;
         if (message.startsWith("@") && !isSkipped) {
@@ -662,6 +674,8 @@ class UIManager {
                     }
                     return d;
                 });
+                // remove the last prompt
+                data.pop();
                 data.push({ role: "user", content: messageContent });
                 const prompts = [systemPrompt, ...data];
                 promptText = JSON.stringify(prompts.map((p) => {
