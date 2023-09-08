@@ -625,6 +625,7 @@ class UIManager {
         let reEdit = validationResult.reEdit;
 
         if (reEdit) {
+            this.messageInput.value = message;
             this.messageInput.focus();
             return;
         }
@@ -640,19 +641,18 @@ class UIManager {
             return;
         }
 
-        if (message.startsWith("/image")) {
-            const imageCaption = message.replace("/image", "").trim();
-            this.addMessage("user", imageCaption, messageId);
-            this.saveCurrentProfileMessages();
-            this.generateImage(imageCaption);
-            return;
-        }
-
         if (!isRetry) {
             this.addMessage("user", message, messageId);
             this.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
             this.saveCurrentProfileMessages();
         } 
+
+        if (message.startsWith("/image")) {
+            const imageCaption = message.replace("/image", "").trim();
+            this.showToast("AI is generating image...");
+            this.generateImage(imageCaption);
+            return;
+        }
 
         let promptText;
         if (message.startsWith("@") && !isSkipped) {
@@ -686,9 +686,8 @@ class UIManager {
             promptText = this.app.prompts.getPromptText();
         }
 
-        this.clearMessageInput();
         try {
-            this.showToast("AI thinking...");
+            this.showToast("AI is thinking...");
             console.log(this.app.model);
             console.log(promptText);
             const data = await getGpt(promptText, this.app.model);
