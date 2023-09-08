@@ -221,11 +221,6 @@ class UIManager {
         const messageElem = document.querySelector(`[data-message-id="${messageId}"]`);
         if (messageElem) {
             const messageContent = messageElem.dataset.message;
-            this.app.prompts.removePrompt(messageId);
-            //add active class to message if it is not already active
-            if (!messageElem.classList.contains("active")) {
-                messageElem.classList.add("active");
-            }
             await this.sendMessage(messageContent, true);
         }
     }
@@ -616,7 +611,7 @@ class UIManager {
     
 
     // Send message on button click
-    async sendMessage(message = "", isRetry = false) {
+    async sendMessage(message = "") {
         let messageId = this.generateId();
 
         const validationResult = await this.validateMessage(message);
@@ -641,11 +636,10 @@ class UIManager {
             return;
         }
 
-        if (!isRetry) {
-            this.addMessage("user", message, messageId);
-            this.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
-            this.saveCurrentProfileMessages();
-        } 
+        
+        this.addMessage("user", message, messageId);
+        this.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
+        this.saveCurrentProfileMessages();
 
         if (message.startsWith("/image")) {
             const imageCaption = message.replace("/image", "").trim();
