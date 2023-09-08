@@ -458,13 +458,13 @@ class UIManager {
                     cancel: "Cancel",
                     delete: {
                         text: "Delete",
-                        value: "delete",                        
+                        value: "delete",
                     },
                     edit: {
                         text: "Edit",
                         value: "edit",
                     },
-                },                
+                },
             }).then((value) => {
                 if (value === "delete") {
                     this.deleteMessageInSilent(messageId);
@@ -563,15 +563,64 @@ class UIManager {
         return lines[lines.length - 1];
     }
 
+    async validateMessage(message) {
+        if (message.startsWith("@") && !message.substring(0, 50).includes(":")) {
+            const correctedMessage = message.replace(/\s/, ":");
+            const option = await swal({
+                title: "Incorrect format",
+                text: `The format should be @Role: Message. Corrected message would be "${correctedMessage.substring(0, 50)}..."`,
+                icon: "warning",
+                buttons: {
+                    correct: {
+                        text: "Correct",
+                        value: "correct",
+                    },
+                    edit: {
+                        text: "Edit",
+                        value: "edit",
+                    },
+                    continue: {
+                        text: "Continue",
+                        value: "continue",
+                    },
+                },
+            });
+    
+            if (option === "correct") {
+                return { message: correctedMessage, isSkipped: false, reEdit: false };
+            }
+    
+            if (option === "edit") {
+                return { message: "", isSkipped: false, reEdit: true };
+            }
+    
+            if (option === "continue") {
+                return { message, isSkipped: true, reEdit: false };
+            }
+        }
+    
+        return { message, isSkipped: false, reEdit: false };
+    }
+    
 
     // Send message on button click
     async sendMessage(message = "", isRetry = false) {
         let messageId = this.generateId();
 
+        const validationResult = await this.validateMessage(message);
+        message = validationResult.message;
+        let isSkipped = validationResult.isSkipped;
+        let reEdit = validationResult.reEdit;
+
+        if (reEdit) {
+            this.messageInput.focus();
+            return;
+        }
+
         if (message.startsWith("/complete")) {
             const lastMessage = this.getLastAssistantMessage();
             const secondLastLine = this.getLastLine(lastMessage.dataset.message);
-            message = `内容没有输出完整，请从\n${secondLastLine}\n这一行开始, 向下补充余下的内容`;
+            message = `The content is not fully output, please start from the line\n${secondLastLine}\nand supplement the remaining content below.`;
         }
 
         if (message === "/clear") {
@@ -594,26 +643,30 @@ class UIManager {
         this.saveCurrentProfileMessages();
 
         let promptText;
-        if (message.startsWith("@")) {
+        if (message.startsWith("@") && !isSkipped) {
             const parts = message.split(":");
             if (parts.length >= 2) {
                 const profileDisplayName = parts[0].substring(1).trim(); // Remove '@'
                 const messageContent = parts.slice(1).join(":").trim();
+                let systemPrompt;
                 const profile = this.profiles.find(p => p.displayName === profileDisplayName);
                 if (profile) {
-                    const systemPrompt = { role: "system", content: profile.prompt };
-                    let data = this.app.prompts.data.map(d => {
-                        if (d.role === "assistant") {
-                            return { ...d, role: "user" };
-                        }
-                        return d;
-                    });
-                    data.push({ role: "user", content: messageContent });
-                    const prompts = [systemPrompt, ...data];
-                    promptText = JSON.stringify(prompts.map((p) => {
-                        return { role: p.role, content: p.content };
-                    }));
+                    systemPrompt = { role: "system", content: profile.prompt };
+                } else {
+                    systemPrompt = { role: "system", content: `You are an experienced ${profileDisplayName}.` };
+                    console.log(systemPrompt);
                 }
+                let data = this.app.prompts.data.map(d => {
+                    if (d.role === "assistant") {
+                        return { ...d, role: "user" };
+                    }
+                    return d;
+                });
+                data.push({ role: "user", content: messageContent });
+                const prompts = [systemPrompt, ...data];
+                promptText = JSON.stringify(prompts.map((p) => {
+                    return { role: p.role, content: p.content };
+                }));
             }
         } else {
             promptText = this.app.prompts.getPromptText();
@@ -628,7 +681,7 @@ class UIManager {
             // If no response, pop last prompt and send a message
             if (!data) {
                 messageId = this.generateId();
-                const content = "AI没有返回结果，请再说一下你的问题，或者换个问题问我吧。";
+                const content = "The AI did not return any results. Please repeat your question or ask me a different question.";
                 this.addMessage("assistant", content, messageId, false);
                 this.app.prompts.addPrompt({ role: "assistant", content: content, messageId: messageId, isActive: false });
             } else {
