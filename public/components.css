@@ -111,7 +111,6 @@
 
 .markdown-modal {
     width: 80vw;
-    height: 80vh;
 }
 
 .swal-title {
@@ -119,7 +118,16 @@
     font-family: 'Roboto';
     font-weight: 300;
     color: #333;
-    margin: 10px 0;
+    margin: 20px 0;
+    padding: 0;
+}
+
+.swal-content {
+    margin: 0;
+}
+
+.swal-footer {
+    margin: 0;
 }
 
 .markdown-modal textarea {
@@ -358,11 +366,11 @@ textarea::-webkit-scrollbar-thumb:hover {
     background-color: #a0c0ff;
     color: #fafafa;
     font-size: 12px;
-    transition: background-color 0.5s ease-in-out; 
+    transition: background-color 0.5s ease-in-out;
 }
 
 .info-chip.updated {
-    background-color: #FF7043; 
+    background-color: #FF7043;
 }
 
 #sliderContainer {
@@ -512,7 +520,7 @@ th {
     background-color: #a0c0ff;
     color: #000;
     font-weight: bold;
-    
+
 }
 
 tr:hover {
@@ -536,9 +544,9 @@ tr:hover {
 }
 
 svg path,
-svg rect{
-  fill: #fff;
-  opacity: 0.8;
+svg rect {
+    fill: #fff;
+    opacity: 0.8;
 }
 
 #chat-profile-list-menu.hidden {
