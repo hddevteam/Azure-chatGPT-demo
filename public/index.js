@@ -437,7 +437,7 @@ const messageInputContainer = document.querySelector(".message-input-container")
 const appContainer = document.querySelector("#app-container");
 let ro = new ResizeObserver(entries => {
     for (let entry of entries) {
-        let newHeight = `calc(var(--vh, 1vh) * 100 - ${entry.contentRect.height}px)`;
+        let newHeight = `calc(var(--vh, 1vh) * 99.5 - ${entry.contentRect.height}px)`;
         appContainer.style.height = newHeight;
     }
 });

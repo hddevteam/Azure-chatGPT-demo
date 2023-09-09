@@ -297,6 +297,7 @@ textarea::-webkit-scrollbar-thumb:hover {
     padding: 5px;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
     border-top-left-radius: 0.5em;
+    border-top-right-radius: 0.5em;
     display: flex;
     gap: 5px;
     justify-content: space-between;
@@ -528,6 +529,16 @@ tr:hover {
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
     transition: all 0.2s;
+}
+
+.hidden {
+    display: none;
+}
+
+svg path,
+svg rect{
+  fill: #fff;
+  opacity: 0.8;
 }
 
 #chat-profile-list-menu.hidden {
