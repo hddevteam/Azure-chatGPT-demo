@@ -248,6 +248,8 @@ class UIManager {
             console.error(error);
             let messageId = this.generateId();
             this.addMessage("assistant", error.message, messageId);
+        } finally {
+            this.finishSubmitProcessing();
         }
     }
 
@@ -612,8 +614,10 @@ class UIManager {
 
     // Send message on button click
     async sendMessage(message = "") {
-        let messageId = this.generateId();
+        
+        this.initSubmitButtonProcessing();
 
+        let messageId = this.generateId();
         const validationResult = await this.validateMessage(message);
         message = validationResult.message;
         let isSkipped = validationResult.isSkipped;
@@ -622,6 +626,7 @@ class UIManager {
         if (reEdit) {
             this.messageInput.value = message;
             this.messageInput.focus();
+            this.finishSubmitProcessing();
             return;
         }
 
@@ -633,6 +638,7 @@ class UIManager {
 
         if (message === "/clear") {
             this.clearMessage();
+            this.finishSubmitProcessing();
             return;
         }
 
@@ -685,6 +691,10 @@ class UIManager {
             console.log(this.app.model);
             console.log(promptText);
             const data = await getGpt(promptText, this.app.model);
+
+            // 停止动画，恢复按钮初始状态
+            this.finishSubmitProcessing();
+
             // If no response, pop last prompt and send a message
             if (!data) {
                 messageId = this.generateId();
@@ -727,13 +737,32 @@ class UIManager {
         }
     }
 
+    finishSubmitProcessing() {
+        const submitButton = document.getElementById("submitButton");
+        const buttonIcon = document.getElementById("submit-button-icon");
+        const loader = document.getElementById("submit-loader");
+        submitButton.disabled = false;
+        buttonIcon.classList.remove("hidden");
+        loader.classList.add("hidden");
+    }
+
+    initSubmitButtonProcessing() {
+        const submitButton = document.getElementById("submitButton");
+        const buttonIcon = document.getElementById("submit-button-icon");
+        const loader = document.getElementById("submit-loader");
+        // 设置按钮为处理中状态
+        submitButton.disabled = true;
+        buttonIcon.classList.add("hidden");
+        loader.classList.remove("hidden");
+        return { submitButton, buttonIcon, loader };
+    }
+
     loadMoreMessages() {
         if (this.isDeleting) {
             return;
         }
 
         const messagesContainer = document.querySelector("#messages");
-
         const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
         const currentMessagesCount = messagesContainer.children.length;
         const messageLimit = 10;

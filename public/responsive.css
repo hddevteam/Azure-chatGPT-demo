@@ -70,8 +70,7 @@
 
     #messages {
         width: 100%;
-        bottom: 1em;
-        padding: 1em;
+        padding: 0.5em;
     }
 
     .message {
