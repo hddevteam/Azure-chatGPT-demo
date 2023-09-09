@@ -346,8 +346,22 @@ textarea::-webkit-scrollbar-thumb:hover {
 
 .information {
     display: flex;
-    align-items: center;
+    justify-content: right;
     gap: 5px;
+    padding: 2px 5px;
+}
+
+.info-chip {
+    border-radius: 5px;
+    padding: 2px;
+    background-color: #a0c0ff;
+    color: #fafafa;
+    font-size: 12px;
+    transition: background-color 0.5s ease-in-out; 
+}
+
+.info-chip.updated {
+    background-color: #FF7043; 
 }
 
 #sliderContainer {

@@ -592,23 +592,23 @@ class UIManager {
                     }
                 },
             });
-    
+
             if (option === "correct") {
                 return { message: correctedMessage, isSkipped: false, reEdit: false };
             }
-    
+
             if (option === "edit") {
                 return { message: "", isSkipped: false, reEdit: true };
             }
-    
+
             if (option === "continue") {
                 return { message, isSkipped: true, reEdit: false };
             }
         }
-    
+
         return { message, isSkipped: false, reEdit: false };
     }
-    
+
 
     // Send message on button click
     async sendMessage(message = "") {
@@ -636,7 +636,7 @@ class UIManager {
             return;
         }
 
-        
+
         this.addMessage("user", message, messageId);
         this.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
         this.saveCurrentProfileMessages();
@@ -701,6 +701,11 @@ class UIManager {
 
                 const tokensSpan = document.querySelector("#tokens");
                 tokensSpan.textContent = `${tokens}t`;
+                tokensSpan.parentNode.classList.add("updated");
+                setTimeout(() => {
+                    tokensSpan.parentNode.classList.remove("updated");
+                }, 500); 
+
                 // If tokens are over 90% of max_tokens, remove the first round conversation
                 if (tokens > max_tokens * 0.9) {
                     swal({

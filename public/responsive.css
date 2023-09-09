@@ -161,26 +161,6 @@
         height: 34px;
     }
 
-    #csv-container {
-        display: none;
-    }
-
-
-    .modal-content {
-        margin: 25% auto;
-        width: 100%;
-    }
-
-    .modal-content {
-        background-color: #fefefe;
-        margin: 15% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        border-radius: 5px;
-        max-width: 500px;
-        text-align: center;
-    }
-
 }
 
 /* for high resolution mobile devices such as iPhone */
