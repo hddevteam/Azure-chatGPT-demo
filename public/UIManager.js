@@ -564,15 +564,16 @@ class UIManager {
         if (message.startsWith("@") && !message.substring(0, 50).includes(":")) {
             const firstColonIndex = message.indexOf("："); // Find the index of the first Chinese colon
             const firstSpaceIndex = message.indexOf(" "); // Find the index of the first space
+            const firstNewLineIndex = message.indexOf("\n"); // Find the index of the first newline
             let correctedMessage;
-            if (firstColonIndex !== -1 && firstColonIndex < 50) {
-                // If there is a Chinese colon in the first 50 characters
-                correctedMessage = message.replace("：", ":"); // Replace the first Chinese colon with an English colon
-            } else if (firstSpaceIndex !== -1 && firstSpaceIndex < 50) {
-                // If there is a space in the first 50 characters
-                correctedMessage = message.replace(/\s/, ":"); // Replace the first space with an English colon
+            let minIndex = Math.min(
+                firstColonIndex !== -1 ? firstColonIndex : Infinity,
+                firstSpaceIndex !== -1 ? firstSpaceIndex : Infinity,
+                firstNewLineIndex !== -1 ? firstNewLineIndex : Infinity
+            );
+            if (minIndex < 50) {
+                correctedMessage = message.substring(0, minIndex) + ":" + message.substring(minIndex + 1);
             } else {
-                // If there is neither a Chinese colon nor a space in the first 50 characters
                 correctedMessage = message; // Keep the original message
             }
             const option = await swal({
@@ -594,23 +595,23 @@ class UIManager {
                     }
                 },
             });
-
+    
             if (option === "correct") {
                 return { message: correctedMessage, isSkipped: false, reEdit: false };
             }
-
+    
             if (option === "edit") {
                 return { message: "", isSkipped: false, reEdit: true };
             }
-
+    
             if (option === "continue") {
                 return { message, isSkipped: true, reEdit: false };
             }
         }
-
+    
         return { message, isSkipped: false, reEdit: false };
     }
-
+    
 
     // Send message on button click
     async sendMessage(message = "") {
