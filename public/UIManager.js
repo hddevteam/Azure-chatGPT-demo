@@ -120,7 +120,7 @@ class UIManager {
     }
 
     // Create a new method for creating the message element
-    createMessageElement(sender, messageId, isActive) {
+    createMessageElement(sender, messageId, isActive, isError) {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message");
         messageElement.classList.add(`${sender}-message`);
@@ -129,6 +129,10 @@ class UIManager {
 
         if (isActive) {
             messageElement.classList.add("active");
+        }
+
+        if (isError) {
+            messageElement.classList.add("error-message");
         }
 
         return messageElement;
@@ -198,9 +202,20 @@ class UIManager {
     attachDeleteMessageEventListener(element) {
         element.addEventListener("click", () => {
             const messageId = element.parentElement.dataset.messageId;
-            this.deleteMessage(messageId);
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+
+            // Check if the message is an error message
+            const isError = messageElement.classList.contains("error-message");
+
+            // If it's an error message, delete it without confirmation
+            if (isError) {
+                this.deleteMessageInSilent(messageId);
+            } else {
+                this.deleteMessage(messageId);
+            }
         });
     }
+
 
     // Add this method to attach a retry message event listener
     attachRetryMessageEventListener(retryElement, messageId) {
@@ -216,14 +231,33 @@ class UIManager {
         return retryElement;
     }
 
-    // Add this method to handle retrying a message
+    // Modify this method to handle retrying a message
     async retryMessage(messageId) {
         const messageElem = document.querySelector(`[data-message-id="${messageId}"]`);
         if (messageElem) {
             const messageContent = messageElem.dataset.message;
+
+            // Check if the message to retry is the last message
+            const lastMessageId = this.getLastMessageId();
+            if (messageId === lastMessageId) {
+                // If it is, delete it
+                this.deleteMessageInSilent(messageId);
+            } else {
+                // If not, just set it as inactive
+                this.inactiveMessage(messageId);
+            }
+
+            // Then resend the message
             await this.sendMessage(messageContent, true);
         }
     }
+
+    // Add this method to get the ID of the last message
+    getLastMessageId() {
+        const messages = document.querySelectorAll(".message");
+        return messages.length > 0 ? messages[messages.length - 1].dataset.messageId : null;
+    }
+
 
     //text to image
     async generateImage(caption) {
@@ -294,8 +328,8 @@ class UIManager {
     }
 
     // Add message to DOM
-    addMessage(sender, message, messageId, isActive = true, position = "bottom") {
-        const messageElement = this.createMessageElement(sender, messageId, isActive);
+    addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false) {
+        const messageElement = this.createMessageElement(sender, messageId, isActive, isError);
         messageElement.dataset.message = message;
 
         const conversationElement = this.createConversationElement();
@@ -502,7 +536,6 @@ class UIManager {
         const currentUsername = getCurrentUsername();
         const currentProfileName = getCurrentProfile().name;
         const savedMessages = getMessages(currentUsername, currentProfileName);
-
         const updatedMessages = savedMessages.filter(savedMessage => savedMessage.messageId !== messageId);
 
         saveMessages(currentUsername, currentProfileName, updatedMessages);
@@ -510,6 +543,7 @@ class UIManager {
 
     inactiveMessage(messageId) {
         const message = document.querySelector(`[data-message-id="${messageId}"]`);
+        this.app.prompts.removePrompt(messageId);
         if (message) {
             message.classList.remove("active");
         }
@@ -595,27 +629,27 @@ class UIManager {
                     }
                 },
             });
-    
+
             if (option === "correct") {
                 return { message: correctedMessage, isSkipped: false, reEdit: false };
             }
-    
+
             if (option === "edit") {
                 return { message: "", isSkipped: false, reEdit: true };
             }
-    
+
             if (option === "continue") {
                 return { message, isSkipped: true, reEdit: false };
             }
         }
-    
+
         return { message, isSkipped: false, reEdit: false };
     }
-    
+
 
     // Send message on button click
     async sendMessage(message = "") {
-        
+
         this.initSubmitButtonProcessing();
 
         let messageId = this.generateId();
@@ -715,7 +749,7 @@ class UIManager {
                 tokensSpan.parentNode.classList.add("updated");
                 setTimeout(() => {
                     tokensSpan.parentNode.classList.remove("updated");
-                }, 500); 
+                }, 500);
 
                 // If tokens are over 90% of max_tokens, remove the first round conversation
                 if (tokens > max_tokens * 0.9) {
@@ -734,7 +768,8 @@ class UIManager {
             this.saveCurrentProfileMessages();
         } catch (error) {
             let messageId = this.generateId();
-            this.addMessage("assistant", error.message, messageId);
+            this.addMessage("assistant", error.message, messageId, true, "bottom", true);
+            this.finishSubmitProcessing();
         }
     }
 

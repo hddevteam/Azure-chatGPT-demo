@@ -166,17 +166,6 @@
     line-height: 150%;
 }
 
-.message ol,
-.message ul {
-    margin-top: 1em;
-    margin-bottom: 1em;
-}
-
-.message li {
-    margin-bottom: 0.5em;
-    margin-left: 2em;
-}
-
 .user-message.active {
     background-color: #e0e0e0;
     color: #333333;
@@ -197,6 +186,29 @@
     color: #333333;
     text-align: left;
     margin-left: 20px;
+}
+
+.error-message {
+    color: #990000;
+}
+
+#system-message {
+    padding: 10px;
+    background-color: #666;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #e6f2ff;
+}
+
+.message ol,
+.message ul {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.message li {
+    margin-bottom: 0.5em;
+    margin-left: 2em;
 }
 
 /* Quote icon styles */
@@ -221,13 +233,6 @@
     color: #fff;
 }
 
-#system-message {
-    padding: 10px;
-    background-color: #666;
-    border: 1px solid #333;
-    border-radius: 5px;
-    color: #e6f2ff;
-}
 
 /* Minimize window icon styles */
 #window-icon {
