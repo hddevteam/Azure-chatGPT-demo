@@ -73,23 +73,41 @@ exports.generateResponse = async (req, res) => {
     try {
         // Send request to API endpoint
         const response = await axios(currentApiUrl, options);
+    
         const { data } = response;
-
+    
         // Get message content and total tokens from response
         const message = data.choices[0].message.content || data.choices[0].finish_reason;
         console.log(data);
         const totalTokens = data.usage.total_tokens;
-
+    
         // Create response object
         const responseObj = { message, totalTokens };
         console.log(responseObj);
-
+    
         // Send response
         res.send(responseObj);
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error");
-    }
+        console.error(error.message);
+        console.error(error.stack);
+    
+        // Check if there is a response from the server
+        if (error.response) {
+            // The request was made and the server responded with a status code that falls out of the range of 2xx
+            console.error(error.response.data);
+            console.error(error.response.status);
+            console.error(error.response.headers);
+            return res.status(error.response.status).send(error.response.data);
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error(error.request);
+            return res.status(500).send("Request was made but no response was received");
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            return res.status(500).send("Error", error.message);
+        }
+    }    
+    
 };
 
 exports.createChatProfile = async (req, res) => {
@@ -152,7 +170,7 @@ exports.createChatProfile = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).send("Internal Server Error");
+        res.status(500).send(error);
     }
 };
 
@@ -198,7 +216,7 @@ exports.summarizeConversation = async (req, res) => {
             top_p: defaultParams.top_p,
             frequency_penalty: defaultParams.frequency_penalty,
             presence_penalty: defaultParams.presence_penalty,
-            max_tokens: 2000, 
+            max_tokens: 2000,
             stop: null,
         },
     };

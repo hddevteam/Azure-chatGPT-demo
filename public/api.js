@@ -37,11 +37,20 @@ export async function getGpt(promptText, model) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: promptText, model: model }),
     });
+
+    // Get the response data
+    const data = await response.json();
+
+    // If the response is not okay, throw an error with the status and message
     if (!response.ok) {
-        throw new Error("Error generating response.");
+        let errMsg = data.error ? data.error.message : "Error generating response.";
+        throw new Error(`Error ${response.status}: ${errMsg}`);
     }
-    return await response.json();
+
+    return data;
 }
+
+
 
 // get tts response
 export async function getTts(message) {

@@ -7,7 +7,8 @@ const app = express();
 
 const apiRouter = require("./api");
 
-app.use(bodyParser.json());
+// Here we set the limit
+app.use(bodyParser.json({ limit: "1000kb" }));
 app.use(express.static("public"));
 app.use("/api", apiRouter);
 
