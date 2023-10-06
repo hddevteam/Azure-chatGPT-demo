@@ -401,11 +401,10 @@ class UIManager {
     }
 
     handleInput(initFocusHieght, halfScreenHeight) {
-        const initialHeight = this.messageInput.style.height;
         // 判断messageInput是否失去焦点
         if (!this.messageInput.matches(":focus")) {
             if (this.messageInput.value === "") {
-                this.messageInput.style.height = initialHeight;
+                this.messageInput.style.height = "";
             }
             return;
         }

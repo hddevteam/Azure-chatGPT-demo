@@ -28,7 +28,7 @@ switchElement.addEventListener("click", function () {
 });
 
 const halfScreenHeight = window.innerHeight / 1.5;
-const initFocusHieght = window.innerHeight / 5;
+const initFocusHeight = window.innerHeight / 5;
 
 
 const slider = document.getElementById("slider");
@@ -73,7 +73,7 @@ const messageInput = document.querySelector("#message-input");
 const clearInput = document.getElementById("clear-input");
 clearInput.addEventListener("click", function () {
     uiManager.clearMessageInput();
-    uiManager.handleInput(initFocusHieght, halfScreenHeight);
+    uiManager.handleInput(initFocusHeight, halfScreenHeight);
 });
 
 // get and set page title and header h1 text from /api/app-name
@@ -271,7 +271,7 @@ messageForm.addEventListener("submit", (event) => {
     }
     messageInput.value = "";
     messageInput.blur();
-    uiManager.handleInput(initFocusHieght, halfScreenHeight);
+    uiManager.handleInput(initFocusHeight, halfScreenHeight);
 });
 
 // popup the Swal when user click the username label
@@ -364,17 +364,15 @@ function toggleSystemMessage() {
 
 setupVoiceInput(uiManager);
 
-
-
 // 设置textarea的max-height为屏幕高度的一半
 messageInput.style.maxHeight = `${halfScreenHeight}px`;
 
 messageInput.addEventListener("focus", function () {
-    uiManager.handleInput(initFocusHieght, halfScreenHeight);
+    uiManager.handleInput(initFocusHeight, halfScreenHeight);
 });
 
 messageInput.addEventListener("blur", function () {
-    uiManager.handleInput(initFocusHieght, halfScreenHeight);
+    uiManager.handleInput(initFocusHeight, halfScreenHeight);
 
     // 滚动到底部,解决iphone键盘收起后页面不回弹的问题
     setTimeout(() => {
@@ -391,13 +389,13 @@ messageInput.addEventListener("compositionstart", function () {
 messageInput.addEventListener("compositionend", function () {
     composing = false;
     // 在这里进行处理
-    uiManager.handleInput(initFocusHieght, halfScreenHeight);
+    uiManager.handleInput(initFocusHeight, halfScreenHeight);
 });
 
 messageInput.addEventListener("input", function () {
     if (!composing) {
         // 在这里进行处理
-        uiManager.handleInput(initFocusHieght, halfScreenHeight);
+        uiManager.handleInput(initFocusHeight, halfScreenHeight);
     }
 });
 
