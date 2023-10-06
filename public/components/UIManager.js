@@ -11,7 +11,7 @@ import swal from "sweetalert";
 class UIManager {
     constructor(app) {
         this.app = app;
-        this.messageLimit = 10;
+        this.messageLimit = 15;
         this.isDeleting = false;
         this.profiles = [];
         const messagesContainer = document.querySelector("#messages");
@@ -21,7 +21,6 @@ class UIManager {
             }
         });
         this.messageInput = document.getElementById("message-input");
-        this.messages = document.getElementById("messages");
         this.domManager = new DOMManager();
         this.eventManager = new EventManager(this);
         this.messageManager = new MessageManager(this);
@@ -230,16 +229,13 @@ class UIManager {
         const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
         let startingIndex = 0;
 
-        // case 1
         if (savedMessages.length <= this.messageLimit) {
             startingIndex = 0;
         } else {
-            // case 2
             const firstActiveMessageIndex = savedMessages.findIndex(message => message.isActive);
             if (firstActiveMessageIndex !== -1 && firstActiveMessageIndex < savedMessages.length - this.messageLimit) {
                 startingIndex = firstActiveMessageIndex;
             } else {
-                // case 3
                 startingIndex = savedMessages.length - this.messageLimit;
             }
         }

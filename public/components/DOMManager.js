@@ -107,8 +107,6 @@ class DOMManager {
         speaker.classList.toggle("fa-volume-up");
     }
 
-
-
 }
 
 export default DOMManager;

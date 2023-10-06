@@ -193,7 +193,7 @@ class MessageManager {
                     });
                     const removedPrompts = this.uiManager.app.prompts.removeRange(1, 2);
                     removedPrompts.forEach((p) => {
-                        this.uiManager.inactiveMessage(p.messageId);
+                        this.inactiveMessage(p.messageId);
                     });
                 }
             }
@@ -204,27 +204,45 @@ class MessageManager {
             this.uiManager.finishSubmitProcessing();
         }
     }
+
+    // Add this method to get the ID of the last message
+    getLastMessageId() {
+        const messages = document.querySelectorAll(".message");
+        return messages.length > 0 ? messages[messages.length - 1].dataset.messageId : null;
+    }
+
+    // Modify this method to handle retrying a message
     async retryMessage(messageId) {
-        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        const messageElem = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (messageElem) {
+            const messageContent = messageElem.dataset.message;
 
-        // Check if the message is an error message
-        const isError = messageElement.classList.contains("error-message");
+            // Check if the message to retry is the last message
+            const lastMessageId = this.getLastMessageId();
+            if (messageId === lastMessageId) {
+                // If it is, delete it
+                this.deleteMessageInStorage(messageId);
+            } else {
+                // If not, just set it as inactive
+                this.inactiveMessage(messageId);
+            }
 
-        // Remove the error message style
-        if (isError) {
-            messageElement.classList.remove("error-message");
+            // Then resend the message
+            await this.sendMessage(messageContent, true);
         }
+    }
 
-        // Get the original message content
-        const messageContent = messageElement.dataset.message;
-
-        // Send the message again
-        await this.sendMessage(messageContent);
+    inactiveMessage(messageId) {
+        const message = document.querySelector(`[data-message-id="${messageId}"]`);
+        this.uiManager.app.prompts.removePrompt(messageId);
+        if (message) {
+            message.classList.remove("active");
+        }
     }
 
     deleteMessage(messageId, isMute = false) {
         if (isMute) {
-            this.deleteMessageInSilent(messageId);
+            this.deleteMessageInStorage(messageId);
         } else {
             const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
 
@@ -249,16 +267,27 @@ class MessageManager {
                 },
             }).then((value) => {
                 if (value === "delete") {
-                    this.deleteMessageInSilent(messageId);
+                    this.deleteMessageInStorage(messageId);
                     swal("Message deleted", { icon: "success", buttons: false, timer: 1000 });
                 } else if (value === "edit") {
                     this.uiManager.messageInput.value = message;
                     this.uiManager.messageInput.focus();
-                    this.deleteMessageInSilent(messageId);
+                    this.deleteMessageInStorage(messageId);
                     swal("Message deleted but copied to input box.", { icon: "success", buttons: false, timer: 1000 });
                 }
             });
         }
+    }
+
+    deleteMessageInStorage(messageId) {
+        this.uiManager.isDeleting = true;
+        // Remove message from DOM and also from prompt array by message id
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        messageElement.remove();
+        this.uiManager.app.prompts.removePrompt(messageId);
+        this.uiManager.storageManager.deleteMessageFromStorage(messageId);
+        this.uiManager.updateSlider();
+        this.uiManager.isDeleting = false;
     }
 
     setMessageContent(sender, messageElem, message, isActive) {
@@ -301,13 +330,6 @@ class MessageManager {
         return previewText;
     }
 
-    async deleteMessageInSilent(messageId) {
-        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-        messageElement.remove();
-        this.uiManager.app.prompts.removePrompt(messageId);
-        this.uiManager.storageManager.saveCurrentProfileMessages();
-    }
-
     // delete active messages one by one from message list, prompts and local storage
     deleteActiveMessages() {
         const activeMessages = document.querySelectorAll(".message.active");
@@ -319,7 +341,7 @@ class MessageManager {
     }
 
     loadMoreMessages() {
-        if (this.isDeleting) {
+        if (this.uiManager.isDeleting) {
             return;
         }
 

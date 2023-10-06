@@ -45,6 +45,15 @@ class StorageManager {
         });
         saveMessages(currentUsername, currentProfileName, updatedMessages);
     }
+
+    deleteMessageFromStorage(messageId) {
+        const currentUsername = getCurrentUsername();
+        const currentProfileName = getCurrentProfile().name;
+        const savedMessages = getMessages(currentUsername, currentProfileName);
+        const updatedMessages = savedMessages.filter(savedMessage => savedMessage.messageId !== messageId);
+
+        saveMessages(currentUsername, currentProfileName, updatedMessages);
+    }
 }
 
 export default StorageManager;
