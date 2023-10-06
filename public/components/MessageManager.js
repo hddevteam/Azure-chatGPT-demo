@@ -1,6 +1,6 @@
 // MessageManager.js
-import { getGpt } from "./api.js";
-import { getCurrentProfile, getCurrentUsername } from "./storage.js";
+import { getGpt } from "../utils/api.js";
+import { getCurrentProfile, getCurrentUsername } from "../utils/storage.js";
 import swal from "sweetalert";
 import { marked } from "marked";
 

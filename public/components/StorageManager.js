@@ -1,5 +1,5 @@
 // StorageManager.js
-import { getCurrentUsername, getCurrentProfile, saveMessages, getMessages } from "./storage.js";
+import { getCurrentUsername, getCurrentProfile, saveMessages, getMessages } from "../utils/storage.js";
 
 class StorageManager {
     constructor(uiManager) {

@@ -3,8 +3,8 @@ import DOMManager from "./DOMManager.js";
 import EventManager from "./EventManager.js";
 import MessageManager from "./MessageManager.js";
 import StorageManager from "./StorageManager.js";
-import { getCurrentUsername, getCurrentProfile, setCurrentUsername, setCurrentProfile, getMessages } from "./storage.js";
-import { textToImage } from "./api.js";
+import { getCurrentUsername, getCurrentProfile, setCurrentUsername, setCurrentProfile, getMessages } from "../utils/storage.js";
+import { textToImage, getTts } from "../utils/api.js";
 import swal from "sweetalert";
 
 
@@ -306,6 +306,61 @@ class UIManager {
             // if ttsContainer is display, then hide it
             ttsContainer.style.display = "none";
         }
+    }
+
+    // play the message with tts
+    async playMessage(speaker) {
+        // if the speaker is playing, stop it and return
+        if (speaker.classList.contains("fa-volume-up")) {
+            //if the audio is playing, stop it
+            this.app.audio.pause();
+            this.domManager.toggleSpeakerIcon(speaker);
+            this.app.currentPlayingSpeaker = null;
+            return;
+        }
+        // If there is a speaker currently playing, stop it and reset its icon
+        if (this.app.currentPlayingSpeaker && this.app.currentPlayingSpeaker !== speaker) {
+            this.app.audio.pause();
+            this.toggleSpeakerIcon(this.app.currentPlayingSpeaker); // Reset the icon of the previous speaker
+        }
+
+        // Update the currentPlayingSpeaker variable
+        this.app.setCurrentPlayingSpeaker(speaker);
+
+        //get message from parent element dataset message attribute
+        const message = speaker.parentElement.parentElement.dataset.message;
+
+        try {
+            this.domManager.toggleSpeakerIcon(speaker);
+            const blob = await getTts(message);
+            console.log("ready to play...");
+            this.app.audio.src = URL.createObjectURL(blob);
+            await this.playAudio(speaker);
+        } catch (error) {
+            this.domManager.toggleSpeakerIcon(speaker);
+            console.error(error);
+        }
+    }
+
+    async playAudio(speaker) {
+        return new Promise((resolve, reject) => {
+            this.app.audio.onerror = () => {
+                this.domManager.toggleSpeakerIcon(speaker);
+                this.app.currentPlayingSpeaker = null;
+                console.error("Error playing audio.");
+                reject(new Error("Error playing audio."));
+            };
+            this.app.audio.onended = () => {
+                this.domManager.toggleSpeakerIcon(speaker);
+                this.app.currentPlayingSpeaker = null;
+                resolve();
+            };
+            this.app.audio.onabort = () => {
+                console.error("Audio play aborted.");
+                resolve();
+            };
+            this.app.audio.play();
+        });
     }
 }
 

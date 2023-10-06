@@ -102,6 +102,11 @@ class DOMManager {
         return retryElement;
     }
 
+    toggleSpeakerIcon(speaker) {
+        speaker.classList.toggle("fa-volume-off");
+        speaker.classList.toggle("fa-volume-up");
+    }
+
 
 
 }
