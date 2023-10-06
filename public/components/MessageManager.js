@@ -252,8 +252,8 @@ class MessageManager {
                     this.deleteMessageInSilent(messageId);
                     swal("Message deleted", { icon: "success", buttons: false, timer: 1000 });
                 } else if (value === "edit") {
-                    this.messageInput.value = message;
-                    this.messageInput.focus();
+                    this.uiManager.messageInput.value = message;
+                    this.uiManager.messageInput.focus();
                     this.deleteMessageInSilent(messageId);
                     swal("Message deleted but copied to input box.", { icon: "success", buttons: false, timer: 1000 });
                 }

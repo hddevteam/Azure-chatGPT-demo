@@ -228,7 +228,22 @@ class UIManager {
         this.setSystemMessage(getCurrentProfile().prompt);
         // read saved messages from local storage for current profile and current username
         const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
-        const startingIndex = savedMessages.length > this.messageLimit ? savedMessages.length - this.messageLimit : 0;
+        let startingIndex = 0;
+
+        // case 1
+        if (savedMessages.length <= this.messageLimit) {
+            startingIndex = 0;
+        } else {
+            // case 2
+            const firstActiveMessageIndex = savedMessages.findIndex(message => message.isActive);
+            if (firstActiveMessageIndex !== -1 && firstActiveMessageIndex < savedMessages.length - this.messageLimit) {
+                startingIndex = firstActiveMessageIndex;
+            } else {
+                // case 3
+                startingIndex = savedMessages.length - this.messageLimit;
+            }
+        }
+
         savedMessages.slice(startingIndex).forEach((message, index, arr) => {
             let isActive = message.isActive || false;
             if (isActive) {
