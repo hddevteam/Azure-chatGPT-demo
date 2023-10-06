@@ -54,7 +54,7 @@ class EventManager {
 
             // If it's an error message, delete it without confirmation
             if (isError) {
-                this.uiManager.messageManager.deleteMessageInstorage(messageId);
+                this.uiManager.messageManager.deleteMessageInStorage(messageId);
             } else {
                 this.uiManager.messageManager.deleteMessage(messageId);
             }
