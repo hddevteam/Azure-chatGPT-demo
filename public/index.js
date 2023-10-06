@@ -44,10 +44,10 @@ slider.addEventListener("input", function () {
         const messageId = messageElement.dataset.messageId;
         if (index >= messages.length - sliderValue) {
             messageElement.classList.add("active");
-            uiManager.saveMessageActiveStatus(messageId, true);
+            uiManager.storageManager.saveMessageActiveStatus(messageId, true);
         } else {
             messageElement.classList.remove("active");
-            uiManager.saveMessageActiveStatus(messageId, false);
+            uiManager.storageManager.saveMessageActiveStatus(messageId, false);
         }
     });
 
@@ -225,7 +225,7 @@ document.getElementById("delete-container").addEventListener("click", () => {
     })
         .then((value) => {
             if (value=== "delete") {
-                uiManager.deleteActiveMessages();
+                uiManager.messageManager.deleteActiveMessages();
                 swal("Messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
             } else if (value === "edit") {
                 const activeMessages = document.querySelectorAll(".message.active");
@@ -236,7 +236,7 @@ document.getElementById("delete-container").addEventListener("click", () => {
                     mdContent += `### ${dataSender}\n\n${dataMessage}\n\n`;
                 });
                 messageInput.value += mdContent;
-                uiManager.deleteActiveMessages();
+                uiManager.messageManager.deleteActiveMessages();
                 swal("Messages in the current conversation have been merged into the text box successfully!", { icon: "success", buttons: false, timer: 1000 });
                 messageInput.focus();
             }
@@ -264,7 +264,7 @@ messageForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const message = messageInput.value.trim();
     if (message) {
-        uiManager.sendMessage(message);
+        uiManager.messageManager.sendMessage(message);
     }
     messageInput.value = "";
     messageInput.blur();
