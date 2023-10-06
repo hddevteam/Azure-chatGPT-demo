@@ -373,6 +373,55 @@ class UIManager {
             this.app.audio.play();
         });
     }
+
+    handleMessageFormSubmit(messageInput) {
+        // Prevent form submission
+        event.preventDefault();
+
+        // Get the message from the input field
+        const message = messageInput.value.trim();
+
+        // If the message is not empty, send it
+        if (message) {
+            this.messageManager.sendMessage(message);
+        }
+
+        // Clear the input field and handle the UI
+        this.clearMessageInput();
+        this.messageInput.blur();
+        this.handleInput();
+    }
+
+    handleProfileListMenuClick(event) {
+        if (event.target.tagName.toLowerCase() === "li") {
+            const selectedName = event.target.textContent;
+            this.messageManager.addProfileToMessageInput(selectedName);
+            this.clearProfileListMenu();
+        }
+    }
+
+    handleInput(initFocusHieght, halfScreenHeight) {
+        const initialHeight = this.messageInput.style.height;
+        // 判断messageInput是否失去焦点
+        if (!this.messageInput.matches(":focus")) {
+            if (this.messageInput.value === "") {
+                this.messageInput.style.height = initialHeight;
+            }
+            return;
+        }
+        // 如果输入框的内容为空，将高度恢复为初始高度
+        if (this.messageInput.value === "") {
+            this.messageInput.style.height = `${initFocusHieght}px`;
+        } else {
+            // 然后设为scrollHeight，但不超过屏幕的一半
+            this.messageInput.style.height = `${Math.min(this.messageInput.scrollHeight, halfScreenHeight)}px`;
+            if (this.messageInput.scrollHeight < initFocusHieght) {
+                this.messageInput.style.height = `${initFocusHieght}px`;
+            }
+        }
+
+    }
+
 }
 
 export default UIManager;

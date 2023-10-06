@@ -1,15 +1,14 @@
 // purpose: entry point of the application. It is responsible for creating the App object and passing it to the UIManager object. It also contains the event listeners for the message form and the modal form.
 
-import App from "./models/App.js";
 import { getCurrentUsername } from "./utils/storage.js";
 import { getAppName, getPromptRepo } from "./utils/api.js";
-import UIManager from "./components/UIManager.js";
 import { setupVoiceInput } from "./utils/input-audio.js";
 import swal from "sweetalert";
 import ClipboardJS from "clipboard";
+import setup from "./setup.js";
 
-const app = new App();
-const uiManager = new UIManager(app);
+const uiManager = setup();
+const app = uiManager.app;
 
 const switchElement = document.querySelector("#model-switch");
 let model = "gpt-3.5-turbo"; // default model
@@ -18,7 +17,7 @@ switchElement.addEventListener("click", function () {
     model = model === "gpt-3.5-turbo" ? "gpt-4" : "gpt-3.5-turbo";
     this.textContent = model === "gpt-4" ? "GPT4" : "GPT3.5";
     app.model = model;
-    
+
     if (model === "gpt-4") {
         this.classList.remove("gpt-3");
         this.classList.add("gpt-4");
@@ -27,6 +26,10 @@ switchElement.addEventListener("click", function () {
         this.classList.add("gpt-3");
     }
 });
+
+const halfScreenHeight = window.innerHeight / 1.5;
+const initFocusHieght = window.innerHeight / 5;
+
 
 const slider = document.getElementById("slider");
 const currentValue = document.getElementById("currentValue");
@@ -70,7 +73,7 @@ const messageInput = document.querySelector("#message-input");
 const clearInput = document.getElementById("clear-input");
 clearInput.addEventListener("click", function () {
     uiManager.clearMessageInput();
-    handleInput();
+    uiManager.handleInput(initFocusHieght, halfScreenHeight);
 });
 
 // get and set page title and header h1 text from /api/app-name
@@ -214,17 +217,17 @@ document.getElementById("delete-container").addEventListener("click", () => {
             cancel: "Cancel",
             delete: {
                 text: "Delete",
-                value: "delete",                        
+                value: "delete",
             },
             edit: {
                 text: "Edit",
                 value: "edit",
             },
-        },   
+        },
         dangerMode: true
     })
         .then((value) => {
-            if (value=== "delete") {
+            if (value === "delete") {
                 uiManager.messageManager.deleteActiveMessages();
                 swal("Messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
             } else if (value === "edit") {
@@ -268,7 +271,7 @@ messageForm.addEventListener("submit", (event) => {
     }
     messageInput.value = "";
     messageInput.blur();
-    handleInput();
+    uiManager.handleInput(initFocusHieght, halfScreenHeight);
 });
 
 // popup the Swal when user click the username label
@@ -361,23 +364,21 @@ function toggleSystemMessage() {
 
 setupVoiceInput(uiManager);
 
-const initialHeight = messageInput.style.height;
-const halfScreenHeight = window.innerHeight / 1.5;
-const initFocusHieght = window.innerHeight / 5;
+
 
 // 设置textarea的max-height为屏幕高度的一半
 messageInput.style.maxHeight = `${halfScreenHeight}px`;
 
 messageInput.addEventListener("focus", function () {
-    handleInput();
+    uiManager.handleInput(initFocusHieght, halfScreenHeight);
 });
 
 messageInput.addEventListener("blur", function () {
-    handleInput();
+    uiManager.handleInput(initFocusHieght, halfScreenHeight);
 
     // 滚动到底部,解决iphone键盘收起后页面不回弹的问题
     setTimeout(() => {
-        window.scrollTo(0,document.body.scrollHeight);
+        window.scrollTo(0, document.body.scrollHeight);
     }, 100);
 });
 
@@ -390,36 +391,15 @@ messageInput.addEventListener("compositionstart", function () {
 messageInput.addEventListener("compositionend", function () {
     composing = false;
     // 在这里进行处理
-    handleInput();
+    uiManager.handleInput(initFocusHieght, halfScreenHeight);
 });
 
 messageInput.addEventListener("input", function () {
     if (!composing) {
         // 在这里进行处理
-        handleInput();
+        uiManager.handleInput(initFocusHieght, halfScreenHeight);
     }
 });
-
-function handleInput() {
-    // 判断messageInput是否失去焦点
-    if (!messageInput.matches(":focus")) {
-        if (messageInput.value === "") {
-            messageInput.style.height = initialHeight;
-        }
-        return;
-    }
-    // 如果输入框的内容为空，将高度恢复为初始高度
-    if (messageInput.value === "") {
-        messageInput.style.height = `${initFocusHieght}px`;
-    } else {
-        // 然后设为scrollHeight，但不超过屏幕的一半
-        messageInput.style.height = `${Math.min(messageInput.scrollHeight, halfScreenHeight)}px`;
-        if (messageInput.scrollHeight < initFocusHieght) {
-            messageInput.style.height = `${initFocusHieght}px`;
-        }
-    }
-
-}
 
 function updateVh() {
     vh = window.innerHeight * 0.01;
@@ -444,12 +424,12 @@ let ro = new ResizeObserver(entries => {
 
 ro.observe(messageInputContainer);
 
-  
+
 const profileListMenu = document.getElementById("chat-profile-list-menu");
 const profileListElement = document.getElementById("profile-list");
 
 
-messageInput.addEventListener("keyup", function(event) {
+messageInput.addEventListener("keyup", function (event) {
     const value = event.target.value.trim();
     const cursorPosition = messageInput.selectionStart;
     if (value.charAt(0) === "@" && cursorPosition === 1) {
@@ -459,16 +439,16 @@ messageInput.addEventListener("keyup", function(event) {
         profileListMenu.classList.add("hidden");
     }
 });
-  
-profileListMenu.addEventListener("click", function(event) {
+
+profileListMenu.addEventListener("click", function (event) {
     if (event.target.tagName.toLowerCase() === "li") {
         const selectedName = event.target.textContent;
-        messageInput.value = `@${selectedName}: `+ messageInput.value.slice(1);
+        messageInput.value = `@${selectedName}: ` + messageInput.value.slice(1);
         messageInput.focus();
         profileListMenu.classList.add("hidden");
     }
 });
-  
+
 function loadProfileList() {
     profileListElement.innerHTML = "";
     for (let name of profileNameList) {
@@ -482,4 +462,3 @@ function loadProfileList() {
     const menuHeight = inputHeight - 16; // 1em = 16px
     profileListMenu.style.height = `${menuHeight}px`;
 }
-  
