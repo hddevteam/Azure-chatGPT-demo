@@ -3,8 +3,8 @@
 
 // purpose: to manage the ai profiles(system prompt) of current user
 
-import { getCurrentUsername } from "./storage.js";
-import { getDefaultParams } from "./api.js";
+import { getCurrentUsername } from "./utils/storage.js";
+import { getDefaultParams } from "./utils/api.js";
 
 const showAlert = (type, message) => {
     var alertHtml = `
