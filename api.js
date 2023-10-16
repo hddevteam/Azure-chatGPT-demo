@@ -19,6 +19,8 @@ router.post("/speech-to-text", azureTTSController.uploadMiddleware, azureTTSCont
 router.post("/gpt", gptController.generateResponse);
 router.post("/create-chat-profile", gptController.createChatProfile);
 router.post("/generate-summary", gptController.summarizeConversation);
+router.post("/generate-title", gptController.generateTitle);
+
 
 router.get("/prompt_repo", profileController.getPromptRepo);
 router.get("/profiles", profileController.getProfiles);

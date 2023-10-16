@@ -84,3 +84,15 @@ export async function getDefaultParams() {
     }
     return await response.json();
 }
+
+export async function generateTitle(conversation) {
+    const response = await fetch("/api/generate-title", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ conversation })
+    });
+    return await response.text();
+}
+
