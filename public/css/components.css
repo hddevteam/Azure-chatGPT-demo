@@ -36,8 +36,7 @@
     text-decoration: none;
 }
 
-#header a,
-#profile-list-menu {
+#ai-profile {
     text-decoration: none;
     color: #e6f2ff;
     display: flex;
@@ -46,19 +45,10 @@
     border-radius: 5px;
     margin-right: 5px;
     cursor: pointer;
-}
-
-#ai-profile,
-#profile-list-menu {
-    display: flex;
     align-items: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-#profile-list-menu {
-    display: none;
 }
 
 
@@ -78,6 +68,12 @@
     z-index: 10;
     background-color: #f1f1f1;
 }
+
+#manage-profile {
+    position: absolute;
+    right: 0px;
+    top: 5px;
+  }
 
 #menu-header i {
     font-size: 20px;

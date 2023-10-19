@@ -18,17 +18,9 @@
         z-index: 9999;
     }
 
-    #profile-list-menu {
-        display: block;
-    }
-
     #menu li {
         margin: 0;
         padding: 10px;
-    }
-
-    #menu-header {
-        display: none;
     }
 
     #menu-header i,
