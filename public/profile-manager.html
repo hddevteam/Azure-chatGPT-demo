@@ -37,11 +37,9 @@
                     </div>
                     <div class="modal-body row">
                         <div class="col-sm-12 col-md-8">
-                            <h5>Basic Settings</h5>
                             <div class="mb-3">
-                                <label for="name" class="form-label">Name</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="name" placeholder="Enter AI profession" required>
+                                    <label for="profession" class="form-label">Profession</label>
+                                    <textarea class="form-control" id="profession" rows="3" placeholder="Enter AI profession"></textarea>
                                     <button id="generate-profile" class="btn btn-outline-secondary" type="button">
                                         <i class="fas fa-magic"></i> 
                                         AI Generate
@@ -49,8 +47,11 @@
                                             <span class="sr-only">Loading...</span>
                                         </div>
                                     </button>
-                                    
-                                </div>
+                            </div>
+                            <h5>Basic Settings</h5>
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" required>
                             </div>
                             <div class="mb-3">
                                 <label for="icon" class="form-label">Icon</label>

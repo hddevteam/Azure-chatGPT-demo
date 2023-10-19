@@ -31,7 +31,14 @@ $(function () {
         showAlert("warning", "You are currently logged in as guest. You can not edit the profile.");
     }
 
-    fetchProfiles();
+    fetchProfiles().then(() => {
+        // Check if there is a profile name in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const profileName = urlParams.get("profileName");
+        if (profileName) {
+            openEditProfileDialog(profileName);
+        }
+    });
 
     $("#save-profile").on("click", function () {
         saveProfile();
@@ -54,10 +61,40 @@ $(function () {
     });
 });
 
+function openEditProfileDialog(name) {
+    const profile = profiles.find(profile => profile.name === name);
+
+    if (profile) {
+        $("#profession").val(profile.prompt);
+        $("#name").val(profile.name);
+        $("#icon-preview").attr("class", profile.icon);
+        $("#icon").val(profile.icon);
+        $("#displayName").val(profile.displayName);
+        $("#prompt").val(profile.prompt);
+        $("#tts").val(profile.tts);
+        $("#sortedIndex").val(profile.sortedIndex);
+        $("#temperature").val(profile.temperature);
+        $("#top_p").val(profile.top_p);
+        $("#frequency_penalty").val(profile.frequency_penalty);
+        $("#presence_penalty").val(profile.presence_penalty);
+        $("#max_tokens").val(profile.max_tokens);
+
+        $("#save-profile").off("click").text("Update").on("click", function () {
+            updateProfile(name);
+        });
+
+        // Open the modal
+        $("#profile-modal").modal("show");
+    } else {
+        showAlert("error", `Profile ${name} not found.`);
+    }
+}
+
+
 let profiles = [];
 
 function fetchProfiles() {
-    fetch("/api/profiles?username=" + getCurrentUsername())
+    return fetch("/api/profiles?username=" + getCurrentUsername())
         .then(response => response.json())
         .then(data => {
             profiles = data;
@@ -67,25 +104,9 @@ function fetchProfiles() {
 
 $("#profile-list").on("click", ".edit-profile", function () {
     const name = $(this).attr("name");
-    const profile = profiles.find(profile => profile.name === name);
-
-    $("#name").val(profile.name);
-    $("#icon-preview").attr("class", profile.icon);
-    $("#icon").val(profile.icon);
-    $("#displayName").val(profile.displayName);
-    $("#prompt").val(profile.prompt);
-    $("#tts").val(profile.tts);
-    $("#sortedIndex").val(profile.sortedIndex);
-    $("#temperature").val(profile.temperature);
-    $("#top_p").val(profile.top_p);
-    $("#frequency_penalty").val(profile.frequency_penalty);
-    $("#presence_penalty").val(profile.presence_penalty);
-    $("#max_tokens").val(profile.max_tokens);
-
-    $("#save-profile").off("click").text("Update").on("click", function () {
-        updateProfile(name);
-    });
+    openEditProfileDialog(name);
 });
+
 
 $("#profile-list").on("click", ".delete-profile", function () {
     const name = $(this).attr("name");
@@ -177,6 +198,7 @@ function updateProfile(oldName) {
         .then(response => response.json())
         .then(() => {
             fetchProfiles();
+            window.opener.postMessage({ type: "PROFILE_UPDATED", data: updatedProfile }, "*");
         });
 
     $("#profile-form")[0].reset();
@@ -221,7 +243,7 @@ function saveProfile() {
 }
 
 $("#generate-profile").on("click", function () {
-    const profession = $("#name").val();
+    const profession = $("#profession").val();
     $("#generate-profile-spinner").css("display", "inline-block");
     generateProfile(profession).finally(() => {
         $("#generate-profile-spinner").css("display", "none");
@@ -238,12 +260,16 @@ function generateProfile(profession) {
     })
         .then(response => response.json())
         .then(data => {
-            $("#name").val(data.name);
+            $("#profession").val(data.prompt);
+            if ($("#name").val() === "") {
+                $("#name").val(data.name);
+            }
             $("#icon").val(data.icon);
             $("#displayName").val(data.displayName);
             $("#prompt").val(data.prompt);
             $("#icon").val(data.icon);
             $("#icon-preview").attr("class", data.icon);
+            
         });
 }
 

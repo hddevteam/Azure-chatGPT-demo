@@ -95,8 +95,16 @@ class UIManager {
         // 获取显示系统消息的元素
         this.app.prompts.setSystemPrompt(message);
         const systemMessageElement = document.querySelector("#system-message");
-        systemMessageElement.innerHTML = message;
+        systemMessageElement.innerHTML = `${message}<button id="edit-system-message"><i class="fas fa-edit"></i></button>`;
+
+        // 定义编辑按钮的点击事件
+        const editButton = document.querySelector("#edit-system-message");
+        editButton.addEventListener("click", () => {
+            // 使用window.open可以在新标签页中打开，并将当前的profile name传递过去
+            window.open(`profile-manager.html?profileName=${getCurrentProfile().name}`, "_blank");
+        });
     }
+    
 
     updateSlider() {
         const messageCount = document.querySelectorAll(".message").length;
