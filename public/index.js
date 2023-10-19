@@ -155,50 +155,50 @@ document.getElementById("md-container").addEventListener("click", () => {
         })
             .then((value) => {
                 switch (value) {
-                case "generate":
-                    // Call your API to generate the title and summary
-                    fetch("/api/generate-summary", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ conversation: area.value }),
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log(data);
-                            area.value = "# Title" + "\n\n" + data.title + "\n\n" + "## Summary" + "\n\n" + data.summary + "\n\n" + area.value;
-                            swal.stopLoading();
-                            popupSwal();
+                    case "generate":
+                        // Call your API to generate the title and summary
+                        fetch("/api/generate-summary", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ conversation: area.value }),
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(data);
+                                area.value = "# Title" + "\n\n" + data.title + "\n\n" + "## Summary" + "\n\n" + data.summary + "\n\n" + area.value;
+                                swal.stopLoading();
+                                popupSwal();
+                            });
+                        break;
+                    case "download":
+                        // Create a Markdown file and download it
+                        console.log(area.value);
+                        blob = new Blob([area.value], { type: contentType });
+                        a.href = URL.createObjectURL(blob);
+                        a.download = filename;
+                        a.style.display = "none";
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        swal.stopLoading();
+                        popupSwal();
+                        break;
+                    case "copy":
+                        // Copy the content of the textarea
+                        var clipboard = new ClipboardJS(".md-copy-button", {
+                            text: function () {
+                                return area.value;
+                            },
                         });
-                    break;
-                case "download":
-                    // Create a Markdown file and download it
-                    console.log(area.value);
-                    blob = new Blob([area.value], { type: contentType });
-                    a.href = URL.createObjectURL(blob);
-                    a.download = filename;
-                    a.style.display = "none";
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    swal.stopLoading();
-                    popupSwal();
-                    break;
-                case "copy":
-                    // Copy the content of the textarea
-                    var clipboard = new ClipboardJS(".md-copy-button", {
-                        text: function () {
-                            return area.value;
-                        },
-                    });
-                    clipboard.on("success", function () {
-                        swal("Copied!", "The content of the textarea has been copied to the clipboard.", "success", { buttons: false, timer: 1000 });
-                    });
-                    clipboard.on("error", function () {
-                        swal("Error!", "Failed to copy the content of the textarea to the clipboard.", "error");
-                    });
-                    break;
+                        clipboard.on("success", function () {
+                            swal("Copied!", "The content of the textarea has been copied to the clipboard.", "success", { buttons: false, timer: 1000 });
+                        });
+                        clipboard.on("error", function () {
+                            swal("Error!", "Failed to copy the content of the textarea to the clipboard.", "error");
+                        });
+                        break;
                 }
             });
     }
@@ -310,34 +310,8 @@ usernameLabel.addEventListener("click", function () {
         });
 });
 
-// toggle the menu when user click the ai profile
-function toggleMenu() {
-    const menu = document.getElementById("menu");
-    const isVisible = menu.getAttribute("data-visible") === "true";
 
-    menu.style.display = isVisible ? "none" : "block";
-    menu.setAttribute("data-visible", !isVisible);
-
-    if (!isVisible) {
-        document.addEventListener("click", function hideMenuOnOutsideClick(event) {
-            const profileListMenu = document.getElementById("profile-list-menu");
-
-            if (event.target !== menu && event.target !== profileListMenu && !profileListMenu.contains(event.target)) {
-                menu.style.display = "none";
-                menu.setAttribute("data-visible", false);
-                document.removeEventListener("click", hideMenuOnOutsideClick);
-            }
-        });
-    }
-}
-
-// handle the click event on the ai profile
-function handleClick(event) {
-    event.stopPropagation();
-    toggleMenu();
-}
-
-document.getElementById("profile-list-menu").addEventListener("click", handleClick);
+document.getElementById("ai-profile").addEventListener("click", handleClick);
 
 // 添加事件监听器到最小化窗口图标
 const systemMessageWindowIcon = document.querySelector("#window-icon");
@@ -459,4 +433,67 @@ function loadProfileList() {
     const inputHeight = inputRect.height;
     const menuHeight = inputHeight - 16; // 1em = 16px
     profileListMenu.style.height = `${menuHeight}px`;
+}
+
+window.onload = function () {
+    adjustChatContainer();
+};
+
+// 当窗口大小改变时也需要调整
+window.onresize = function () {
+    adjustChatContainer();
+};
+
+function adjustChatContainer() {
+    const chatContainer = document.getElementById("chat-container");
+    const menu = document.getElementById("menu");
+
+    if (window.innerWidth <= 768) { // 如果是响应式布局
+        chatContainer.style.flex = "1";
+        menu.dataset.visible = false;
+        menu.style.display = "none";
+    } else { // 如果是桌面布局
+        chatContainer.style.flex = "0 0 85%";
+        menu.dataset.visible = true;
+        menu.style.display = "block";
+
+    }
+}
+
+
+// toggle the menu when user click the ai profile
+function toggleMenu() {
+    const menu = document.getElementById("menu");
+    const chatContainer = document.getElementById("chat-container");
+    const isVisible = menu.getAttribute("data-visible") === "true";
+
+    menu.style.display = isVisible ? "none" : "block";
+    menu.setAttribute("data-visible", !isVisible);
+
+    if (isVisible) {
+        chatContainer.style.flex = "1";
+    } else {
+        if (window.innerWidth > 768) {
+            chatContainer.style.flex = "0 0 85%";
+        }
+        if (window.innerWidth <= 768) {
+            document.addEventListener("click", function hideMenuOnOutsideClick(event) {
+                const profileListMenu = document.getElementById("ai-profile");
+
+                if (event.target !== menu && event.target !== profileListMenu && !profileListMenu.contains(event.target)) {
+                    menu.style.display = "none";
+                    menu.setAttribute("data-visible", false);
+                    chatContainer.style.flex = "1";
+                    document.removeEventListener("click", hideMenuOnOutsideClick);
+                }
+            });
+        }
+    }
+}
+
+
+// handle the click event on the ai profile
+function handleClick(event) {
+    event.stopPropagation();
+    toggleMenu();
 }
