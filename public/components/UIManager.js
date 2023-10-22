@@ -3,6 +3,7 @@ import DOMManager from "./DOMManager.js";
 import EventManager from "./EventManager.js";
 import MessageManager from "./MessageManager.js";
 import StorageManager from "./StorageManager.js";
+import ChatHistoryManager from "./ChatHistoryManager.js";
 import { getCurrentUsername, getCurrentProfile, setCurrentUsername, setCurrentProfile, getMessages } from "../utils/storage.js";
 import { textToImage, getTts } from "../utils/api.js";
 import swal from "sweetalert";
@@ -427,6 +428,12 @@ class UIManager {
             }
         }
 
+    }
+
+    showChatHistory() {
+        const chatHistoryManager = new ChatHistoryManager();
+        const chatHistory = chatHistoryManager.getChatHistory();
+        this.domManager.renderChatHistoryList(chatHistory, this.profiles);
     }
 
 }

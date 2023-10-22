@@ -107,6 +107,30 @@ class DOMManager {
         speaker.classList.toggle("fa-volume-up");
     }
 
+    renderChatHistoryList(chatHistory, profiles) {
+        const chatHistoryListElement = document.querySelector("#chat-history-list");
+        chatHistoryListElement.innerHTML = "";
+    
+        chatHistory.forEach(history => {
+            const profile = profiles.find(profile => profile.name === history.profileName);
+            const listItemElement = document.createElement("li");
+            listItemElement.classList.add("chat-history-item");
+    
+            const profileIconElement = document.createElement("i");
+            profile.icon.split(" ").forEach(cls => profileIconElement.classList.add(cls));
+            listItemElement.appendChild(profileIconElement);
+    
+            const titleElement = document.createElement("span");
+            titleElement.textContent = history.title;
+            listItemElement.appendChild(titleElement);
+    
+            const createdAtElement = document.createElement("small");
+            createdAtElement.textContent = new Date(history.createdAt).toLocaleString();
+            listItemElement.appendChild(createdAtElement);
+    
+            chatHistoryListElement.appendChild(listItemElement);
+        });
+    }    
 }
 
 export default DOMManager;

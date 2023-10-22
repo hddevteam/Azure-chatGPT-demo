@@ -1,3 +1,4 @@
+// /utils/storage.js
 // Purpose: Storage functions for the current user's data.
 
 let currentUserData = JSON.parse(localStorage.getItem("currentUserData")) || { username: "guest", currentProfile: null };

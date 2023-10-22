@@ -1,3 +1,4 @@
+// index.js
 // purpose: entry point of the application. It is responsible for creating the App object and passing it to the UIManager object. It also contains the event listeners for the message form and the modal form.
 
 import { getCurrentUsername, getCurrentProfile, setCurrentProfile } from "./utils/storage.js";
@@ -162,6 +163,7 @@ let profileNameList = [];
 getPromptRepo(getCurrentUsername())
     .then(data => {
         uiManager.renderMenuList(data);
+        uiManager.showChatHistory();
         profileNameList = data.profiles.map(profile => profile.displayName);
     })
     .catch(error => {
