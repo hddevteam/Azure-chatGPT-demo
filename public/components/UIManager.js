@@ -430,12 +430,15 @@ class UIManager {
 
     }
 
-    showChatHistory() {
+    async showChatHistory() {
         const chatHistoryManager = new ChatHistoryManager();
+        const username = getCurrentUsername();
+        if (!localStorage.getItem(chatHistoryManager.chatHistoryKeyPrefix + username)) {
+            await chatHistoryManager.generateChatHistory();
+        }
         const chatHistory = chatHistoryManager.getChatHistory();
         this.domManager.renderChatHistoryList(chatHistory, this.profiles);
     }
-
 }
 
 export default UIManager;

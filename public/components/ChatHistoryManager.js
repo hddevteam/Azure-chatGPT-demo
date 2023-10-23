@@ -5,10 +5,6 @@ import { v4 as uuidv4 } from "uuid";
 class ChatHistoryManager {
     constructor() {
         this.chatHistoryKeyPrefix = "chatHistory_";
-        const username = getCurrentUsername();
-        if (!localStorage.getItem(this.chatHistoryKeyPrefix + username)) {
-            this.generateChatHistory();
-        }
     }
 
     // 生成唯一的chat ID
