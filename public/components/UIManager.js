@@ -26,6 +26,7 @@ class UIManager {
         this.eventManager = new EventManager(this);
         this.messageManager = new MessageManager(this);
         this.storageManager = new StorageManager(this);
+        this.chatHistoryManager = new ChatHistoryManager();
     }
 
     clearMessageInput() {
@@ -105,7 +106,7 @@ class UIManager {
             window.open(`profile-manager.html?profileName=${getCurrentProfile().name}`, "_blank");
         });
     }
-    
+
 
     updateSlider() {
         const messageCount = document.querySelectorAll(".message").length;
@@ -212,6 +213,7 @@ class UIManager {
         return { submitButton, buttonIcon, loader };
     }
 
+
     // render menu list from data
     // it only happens when user submit the username or the page is loaded
     renderMenuList(data) {
@@ -219,43 +221,12 @@ class UIManager {
         setCurrentUsername(data.username);
         const usernameLabel = document.querySelector("#username-label");
         usernameLabel.textContent = getCurrentUsername();
-        const messagesContainer = document.querySelector("#messages");
-        messagesContainer.innerHTML = "";
         const savedCurrentProfile = getCurrentProfile();
+        const chatHistory = this.chatHistoryManager.getChatHistory();
         let currentProfileName = savedCurrentProfile ? savedCurrentProfile.name : this.profiles[0].name;
-        let currentProfile = this.profiles.find(profile => profile.name === currentProfileName);
-        // if currentProfile is not found, set it to the first profile, currentProfileName is also set to the first profile name
-        if (!currentProfile) {
-            currentProfile = this.profiles[0];
-            currentProfileName = currentProfile.name;
-        }
-
-        setCurrentProfile(currentProfile);
-        this.setupPracticeMode();
-
-        this.setSystemMessage(getCurrentProfile().prompt);
-        // read saved messages from local storage for current profile and current username
-        const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
-        let startingIndex = 0;
-
-        if (savedMessages.length <= this.messageLimit) {
-            startingIndex = 0;
-        } else {
-            const firstActiveMessageIndex = savedMessages.findIndex(message => message.isActive);
-            if (firstActiveMessageIndex !== -1 && firstActiveMessageIndex < savedMessages.length - this.messageLimit) {
-                startingIndex = firstActiveMessageIndex;
-            } else {
-                startingIndex = savedMessages.length - this.messageLimit;
-            }
-        }
-
-        savedMessages.slice(startingIndex).forEach((message, index, arr) => {
-            let isActive = message.isActive || false;
-            if (isActive) {
-                this.app.prompts.addPrompt(message);
-            }
-            this.messageManager.addMessage(message.role, message.content, message.messageId, isActive);
-        });
+        let latestChat;
+        latestChat = chatHistory.find(history => history.profileName === currentProfileName);
+        this.currentChatId = latestChat?.id || this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfileName);
 
         //empty menu list
         const menuList = document.querySelector("#menu-list");
@@ -281,39 +252,55 @@ class UIManager {
             const self = this;
             //add click event listener
             li.addEventListener("click", function () {
-                // set current selected menu item to active and also remove active class from other menu items
-                const activeItem = document.querySelector("#menu-list li.active");
-                if (activeItem) {
-                    activeItem.classList.remove("active");
-                }
-                this.classList.add("active");
-                // reset practice mode
-                self.turnOffPracticeMode();
-                // change currentProfile
-                var profileName = this.getAttribute("data-profile");
-                setCurrentProfile(self.profiles.find(function (p) { return p.name === profileName; }));
-                // 如果当前 profile 的 tts 属性为 enabled，则显示 ttsContainer
-                self.setupPracticeMode();
-                // 设置 profile 图标和名称
-                const aiProfile = document.querySelector("#ai-profile");
-                aiProfile.innerHTML = `<i class="${getCurrentProfile().icon}"></i> ${getCurrentProfile().displayName}`;
-                messagesContainer.innerHTML = "";
-                // 清空 prompts 数组
-                self.app.prompts.clear();
-
-                self.setSystemMessage(getCurrentProfile().prompt);
-                // read saved messages from local storage for current profile and current username
-                const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
-
-                const startingIndex = savedMessages.length > self.messageLimit ? savedMessages.length - self.messageLimit : 0;
-                savedMessages.slice(startingIndex).forEach((message, index, arr) => {
-                    let isActive = message.isActive || false;
-                    if (isActive) {
-                        self.app.prompts.addPrompt(message);
-                    }
-                    self.messageManager.addMessage(message.role, message.content, message.messageId, isActive);
-                });
+                const profileName = li.dataset.profile;
+                const latestChat = chatHistory.find(history => history.profileName === profileName);
+                self.currentChatId = latestChat?.id || self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
+                self.changeChatTopic(self.currentChatId);
             });
+        });
+
+        this.changeChatTopic(this.currentChatId);
+
+    }
+
+    changeChatTopic(chatId) {
+        const profileName = chatId.split("_")[1];
+
+        // Update current profile and chat ID
+        setCurrentProfile(this.profiles.find(p => p.name === profileName));
+        this.setSystemMessage(getCurrentProfile().prompt);
+        console.log("profileName: ", profileName);
+        
+        // Set active profile menu item
+        document.querySelector("#menu-list li.active")?.classList.remove("active");
+        document.querySelector(`#menu-list li[data-profile="${profileName}"]`).classList.add("active");
+
+        // Reset practice mode and setup it based on the current profile
+        this.turnOffPracticeMode();
+        this.setupPracticeMode();
+
+        // Update UI
+        const aiProfile = document.querySelector("#ai-profile");
+        aiProfile.innerHTML = `<i class="${getCurrentProfile().icon}"></i> ${getCurrentProfile().displayName}`;
+
+        // Clear current chat messages and prompts
+        document.querySelector("#messages").innerHTML = "";
+        this.app.prompts.clear();
+
+        // Load chat messages by chatId
+        this.loadChatById(this.currentChatId);
+    }
+
+
+    loadChatById(chatId) {
+        // load chat messages by chatId
+        const chatMessages = getMessages(chatId);
+        chatMessages.forEach((message, index, arr) => {
+            let isActive = message.isActive || false;
+            if (isActive) {
+                this.app.prompts.addPrompt(message);
+            }
+            this.messageManager.addMessage(message.role, message.content, message.messageId, isActive);
         });
     }
 
