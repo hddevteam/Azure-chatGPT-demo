@@ -249,12 +249,12 @@ exports.generateTitle = async (req, res) => {
             role: "user",
             content: `
             输入:
-            请根据以下对话内容：
+            请根据以下内容生成一个简短的标题，10字以内。注意，标题需要突出主题或关键点。
+
             ===
             ${conversation}
             ===
-            生成一个简短的标题，10字以内。注意，标题需要突出对话的主题或关键点。
-
+        
             输出:`,
         },
     ];
@@ -277,7 +277,7 @@ exports.generateTitle = async (req, res) => {
             top_p: defaultParams.top_p,
             frequency_penalty: defaultParams.frequency_penalty,
             presence_penalty: defaultParams.presence_penalty,
-            max_tokens: 200,
+            max_tokens: 20,
             stop: null,
         },
     };
