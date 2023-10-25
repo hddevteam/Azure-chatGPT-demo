@@ -6,6 +6,15 @@ import { getChatHistory, saveChatHistory } from "../utils/storage.js";
 class ChatHistoryManager {
     constructor() {
         this.chatHistoryKeyPrefix = "chatHistory_";
+        this.subscribers = [];
+    }
+
+    subscribe(callback) {
+        this.subscribers.push(callback);
+    }
+
+    notifySubscribers(action, chatHistoryItem) {
+        this.subscribers.forEach(callback => callback(action, chatHistoryItem));
     }
 
     // 生成唯一的chat ID
@@ -58,18 +67,20 @@ class ChatHistoryManager {
         chatHistory.unshift(newChatHistory);
 
         this.saveChatHistory(chatHistory);
+        this.notifySubscribers("create", newChatHistory);
     }
 
 
     // 更新聊天历史记录
-    async updateChatHistory(chatId, messageContent, updatedAt) {
+    async updateChatHistory(chatId, messageContent="") {
         const chatHistory = this.getChatHistory();
         const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
         if (chatHistoryToUpdate) {
             const title = await generateTitle(messageContent);
             chatHistoryToUpdate.title = title;
-            chatHistoryToUpdate.updatedAt = updatedAt;
+            chatHistoryToUpdate.updatedAt = new Date().toISOString();
             this.saveChatHistory(chatHistory);
+            this.notifySubscribers("update", chatHistoryToUpdate);
         } else {
             await this.createChatHistory(chatId);
         }
@@ -77,9 +88,11 @@ class ChatHistoryManager {
 
     // 删除聊天历史记录
     deleteChatHistory(chatId) {
+        const chatHistoryToDelete = this.getChatHistory().find(history => history.id === chatId);
         const chatHistory = this.getChatHistory();
         const updatedChatHistory = chatHistory.filter(history => history.id !== chatId);
         this.saveChatHistory(updatedChatHistory);
+        this.notifySubscribers("delete", chatHistoryToDelete);
     }
 }
 

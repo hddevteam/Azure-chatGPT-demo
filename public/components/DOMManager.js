@@ -115,6 +115,7 @@ class DOMManager {
             const profile = profiles.find(profile => profile.name === history.profileName);
             const listItemElement = document.createElement("li");
             listItemElement.classList.add("chat-history-item");
+            listItemElement.dataset.id = history.id; 
     
             const profileIconElement = document.createElement("i");
             profile.icon.split(" ").forEach(cls => profileIconElement.classList.add(cls));
@@ -130,7 +131,44 @@ class DOMManager {
     
             chatHistoryListElement.appendChild(listItemElement);
         });
-    }    
+    }
+    
+    removeChatHistoryItem(chatId) {
+        const listItemElement = document.querySelector(`.chat-history-item[data-id="${chatId}"]`);
+        if (listItemElement) {
+            listItemElement.remove();
+        }
+    }
+
+    updateChatHistoryItem(chatHistoryItem, profile) {
+        // First remove the old list item
+        this.removeChatHistoryItem(chatHistoryItem.id);
+
+        // Then add the new list item
+        this.appendChatHistoryItem(chatHistoryItem, profile);
+    }
+
+    appendChatHistoryItem(chatHistoryItem, profile) {
+        const chatHistoryListElement = document.querySelector("#chat-history-list");
+        const listItemElement = document.createElement("li");
+        listItemElement.classList.add("chat-history-item");
+        listItemElement.dataset.id = chatHistoryItem.id;
+
+        const profileIconElement = document.createElement("i");
+        profile.icon.split(" ").forEach(cls => profileIconElement.classList.add(cls));
+        listItemElement.appendChild(profileIconElement);
+
+        const titleElement = document.createElement("span");
+        titleElement.textContent = chatHistoryItem.title;
+        listItemElement.appendChild(titleElement);
+
+        const createdAtElement = document.createElement("small");
+        createdAtElement.textContent = new Date(chatHistoryItem.createdAt).toLocaleString();
+        listItemElement.appendChild(createdAtElement);
+
+        chatHistoryListElement.prepend(listItemElement);  
+    }
+
 }
 
 export default DOMManager;

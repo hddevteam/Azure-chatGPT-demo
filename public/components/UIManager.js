@@ -27,6 +27,7 @@ class UIManager {
         this.messageManager = new MessageManager(this);
         this.storageManager = new StorageManager(this);
         this.chatHistoryManager = new ChatHistoryManager();
+        this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
     }
 
     clearMessageInput() {
@@ -216,10 +217,10 @@ class UIManager {
 
     // render menu list from data
     // it only happens when user submit the username or the page is loaded
-    renderMenuList(data) {
+    async renderMenuList(data) {
         this.profiles = data.profiles;
         setCurrentUsername(data.username);
-        this.showChatHistory();
+        await this.showChatHistory();
         const usernameLabel = document.querySelector("#username-label");
         usernameLabel.textContent = getCurrentUsername();
         const savedCurrentProfile = getCurrentProfile();
@@ -426,6 +427,16 @@ class UIManager {
         }
         const chatHistory = chatHistoryManager.getChatHistory();
         this.domManager.renderChatHistoryList(chatHistory, this.profiles);
+    }
+
+    handleChatHistoryChange(action, chatHistoryItem) {
+        if (action === "create") {
+            this.domManager.appendChatHistoryItem(chatHistoryItem, getCurrentProfile());
+        } else if (action === "update") {
+            this.domManager.updateChatHistoryItem(chatHistoryItem, getCurrentProfile());
+        } else if (action === "delete") {
+            this.domManager.removeChatHistoryItem(chatHistoryItem.id);
+        }
     }
 }
 
