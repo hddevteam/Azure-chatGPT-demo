@@ -28,6 +28,7 @@ class UIManager {
         this.storageManager = new StorageManager(this);
         this.chatHistoryManager = new ChatHistoryManager();
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
+        this.setupChatHistoryListClickHandler();
     }
 
     clearMessageInput() {
@@ -438,6 +439,20 @@ class UIManager {
             this.domManager.removeChatHistoryItem(chatHistoryItem.id);
         }
     }
+
+    setupChatHistoryListClickHandler() {
+        const chatHistoryListElement = document.querySelector("#chat-history-list");
+        chatHistoryListElement.addEventListener("click", this.handleChatHistoryItemClick.bind(this));
+    }
+
+    handleChatHistoryItemClick(e) {
+        const listItemElement = e.target.closest(".chat-history-item");
+        if (listItemElement) {
+            this.currentChatId = listItemElement.dataset.id;
+            this.changeChatTopic(this.currentChatId);
+        }
+    }
 }
 
 export default UIManager;
+
