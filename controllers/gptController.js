@@ -288,7 +288,7 @@ exports.generateTitle = async (req, res) => {
         const { data } = response;
 
         // Get message content from response
-        const message = data.choices[0].message.content;
+        const message = data.choices[0].message.content||"无题";
         console.log(message);
 
         // Parse message and send as response
