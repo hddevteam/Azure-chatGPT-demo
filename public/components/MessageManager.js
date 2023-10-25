@@ -117,6 +117,7 @@ class MessageManager {
         this.uiManager.storageManager.saveCurrentProfileMessages();
         this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
+
         if (message.startsWith("/image")) {
             const imageCaption = message.replace("/image", "").trim();
             this.uiManager.showToast("AI is generating image...");

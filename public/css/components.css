@@ -397,6 +397,18 @@ textarea::-webkit-scrollbar-thumb:hover {
     cursor: pointer;
 }
 
+#clear-input:hover {
+    color: #999;
+}
+
+#add-topic {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    font-size: 1em;
+    color: purple;
+    cursor: pointer;
+}
 
 #message-form button[type="submit"] {
     height: 34px;

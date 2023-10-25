@@ -273,7 +273,7 @@ class UIManager {
         setCurrentProfile(this.profiles.find(p => p.name === profileName));
         this.setSystemMessage(getCurrentProfile().prompt);
         console.log("profileName: ", profileName);
-        
+
         // Set active profile menu item
         document.querySelector("#menu-list li.active")?.classList.remove("active");
         document.querySelector(`#menu-list li[data-profile="${profileName}"]`).classList.add("active");
@@ -441,9 +441,22 @@ class UIManager {
     }
 
     setupChatHistoryListClickHandler() {
+        const addTopicButton = document.querySelector("#add-topic");
+        addTopicButton.addEventListener("click", this.handleAddTopicClick.bind(this));
         const chatHistoryListElement = document.querySelector("#chat-history-list");
         chatHistoryListElement.addEventListener("click", this.handleChatHistoryItemClick.bind(this));
     }
+
+    handleAddTopicClick() {
+        const profileName = getCurrentProfile().name;
+        const username = getCurrentUsername();
+        const chatId = this.chatHistoryManager.generateChatId(username, profileName);
+
+        // Change the current chat topic to the newly created chat ID
+        this.currentChatId = chatId;
+        this.changeChatTopic(chatId);
+    }
+
 
     handleChatHistoryItemClick(e) {
         const listItemElement = e.target.closest(".chat-history-item");

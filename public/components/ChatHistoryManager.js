@@ -72,12 +72,10 @@ class ChatHistoryManager {
 
 
     // 更新聊天历史记录
-    async updateChatHistory(chatId, messageContent="") {
+    async updateChatHistory(chatId) {
         const chatHistory = this.getChatHistory();
         const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
         if (chatHistoryToUpdate) {
-            const title = await generateTitle(messageContent);
-            chatHistoryToUpdate.title = title;
             chatHistoryToUpdate.updatedAt = new Date().toISOString();
             this.saveChatHistory(chatHistory);
             this.notifySubscribers("update", chatHistoryToUpdate);
