@@ -35,16 +35,14 @@ class ChatHistoryManager {
 
         // 对于每一个聊天记录，生成一个聊天历史记录
         for (let key of chatKeys) {
-            const profileName = key.split("_")[1];
-            await this.createChatHistory(profileName, key);
+            await this.createChatHistory(key);
         }
     }
 
     // 创建新的聊天历史记录
-    async createChatHistory(profileName, chatId) {
-        const username = getCurrentUsername();
-        chatId = chatId || this.generateChatId(username, profileName);
-        const messages = getMessages(username, profileName);
+    async createChatHistory(chatId) {
+        const profileName = chatId.split("_")[1];
+        const messages = getMessages(chatId);
         if (!messages.length) return;
 
         const title = await generateTitle(messages[0].content);
@@ -64,13 +62,16 @@ class ChatHistoryManager {
 
 
     // 更新聊天历史记录
-    updateChatHistory(chatId, title, updatedAt) {
+    async updateChatHistory(chatId, messageContent, updatedAt) {
         const chatHistory = this.getChatHistory();
         const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
         if (chatHistoryToUpdate) {
+            const title = await generateTitle(messageContent);
             chatHistoryToUpdate.title = title;
             chatHistoryToUpdate.updatedAt = updatedAt;
             this.saveChatHistory(chatHistory);
+        } else {
+            await this.createChatHistory(chatId);
         }
     }
 

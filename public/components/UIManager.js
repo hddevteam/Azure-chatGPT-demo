@@ -219,6 +219,7 @@ class UIManager {
     renderMenuList(data) {
         this.profiles = data.profiles;
         setCurrentUsername(data.username);
+        this.showChatHistory();
         const usernameLabel = document.querySelector("#username-label");
         usernameLabel.textContent = getCurrentUsername();
         const savedCurrentProfile = getCurrentProfile();

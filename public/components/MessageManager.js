@@ -115,6 +115,7 @@ class MessageManager {
         this.addMessage("user", message, messageId);
         this.uiManager.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
         this.uiManager.storageManager.saveCurrentProfileMessages();
+        this.uiManager.chatHistoryManager.updateChatHistory();
 
         if (message.startsWith("/image")) {
             const imageCaption = message.replace("/image", "").trim();

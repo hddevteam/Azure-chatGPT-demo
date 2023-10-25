@@ -163,7 +163,6 @@ let profileNameList = [];
 getPromptRepo(getCurrentUsername())
     .then(data => {
         uiManager.renderMenuList(data);
-        uiManager.showChatHistory();
         profileNameList = data.profiles.map(profile => profile.displayName);
     })
     .catch(error => {
