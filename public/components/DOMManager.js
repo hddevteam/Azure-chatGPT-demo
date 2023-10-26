@@ -1,6 +1,6 @@
 // DOMManager.js
 import { marked } from "marked";
-import { formatTime } from "../utils/ timeUtils.js";
+import { formatTime } from "../utils/timeUtils.js";
 
 
 class DOMManager {

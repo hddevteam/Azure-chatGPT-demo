@@ -7,21 +7,28 @@
 }
 
 #chat-history-container {
-    background-color: #2f2f2f;
+    background-color: #555;
     border: none;
-    border-radius: 5px;
+    border-radius: 0px 10px 10px 0px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     padding: 10px;
     margin: 0px auto 0p 0px;
-    max-width: 25%;
-    max-height: calc(100vh - 40px);
+    margin-top: 20px;
+    max-width: 20%;
     overflow: auto;
-    
+}
+
+#app-outer-container {
+    display: flex;
+    justify-content: flex-start;
+    height: 100%;
+    padding-left: 20px;
 }
 
 #app-container {
     flex: 1;
-    max-width: 1000px;
+    justify-content: flex-start;
+    max-width: 1200px;
     margin: 0 auto;
     display: flex;
     flex-direction: row;

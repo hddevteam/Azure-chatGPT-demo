@@ -412,6 +412,8 @@ class UIManager {
         if (!this.messageInput.matches(":focus")) {
             if (this.messageInput.value === "") {
                 this.messageInput.style.height = "";
+            } else {
+                this.messageInput.style.height = `${initFocusHeight}px`;
             }
             return;
         }

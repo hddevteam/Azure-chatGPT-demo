@@ -617,7 +617,7 @@ svg rect {
 }
 
 #chat-history-list li.active {
-    background-color: #555;
+    background-color: #666;
     color: limegreen;
 }
 
