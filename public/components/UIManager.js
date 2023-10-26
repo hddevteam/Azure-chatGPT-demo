@@ -299,14 +299,15 @@ class UIManager {
         this.app.prompts.clear();
 
         // Load chat messages by chatId
-        this.loadChatById(this.currentChatId);
+        this.loadMessagesByChatId(this.currentChatId);
     }
 
 
-    loadChatById(chatId) {
+    loadMessagesByChatId(chatId) {
         // load chat messages by chatId
-        const chatMessages = getMessages(chatId);
-        chatMessages.forEach((message, index, arr) => {
+        const savedMessages = getMessages(chatId);
+        const startingIndex = savedMessages.length > this.messageLimit ? savedMessages.length - this.messageLimit : 0;
+        savedMessages.slice(startingIndex).forEach((message, index, arr) => {
             let isActive = message.isActive || false;
             if (isActive) {
                 this.app.prompts.addPrompt(message);

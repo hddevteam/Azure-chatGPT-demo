@@ -1,6 +1,6 @@
 // MessageManager.js
 import { getGpt } from "../utils/api.js";
-import { getCurrentProfile, getCurrentUsername } from "../utils/storage.js";
+import { getCurrentProfile, getMessages } from "../utils/storage.js";
 import swal from "sweetalert";
 import { marked } from "marked";
 
@@ -348,9 +348,9 @@ class MessageManager {
         }
 
         const messagesContainer = document.querySelector("#messages");
-        const savedMessages = JSON.parse(localStorage.getItem(getCurrentUsername() + "_" + getCurrentProfile().name) || "[]");
+        const savedMessages = getMessages(this.uiManager.currentChatId);
         const currentMessagesCount = messagesContainer.children.length;
-        const messageLimit = 10;
+        const messageLimit = this.uiManager.messageLimit;
         const startingIndex = savedMessages.length - currentMessagesCount - messageLimit > 0 ? savedMessages.length - currentMessagesCount - messageLimit : 0;
         // Record the current scroll position
         const currentScrollPosition = messagesContainer.scrollHeight - messagesContainer.scrollTop;
