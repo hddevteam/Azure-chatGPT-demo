@@ -256,6 +256,7 @@ class UIManager {
             //add click event listener
             li.addEventListener("click", function () {
                 const profileName = li.dataset.profile;
+                const chatHistory = self.chatHistoryManager.getChatHistory();
                 const latestChat = chatHistory.find(history => history.profileName === profileName);
                 self.currentChatId = latestChat?.id || self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
                 self.changeChatTopic(self.currentChatId);
@@ -277,6 +278,10 @@ class UIManager {
         // Set active profile menu item
         document.querySelector("#menu-list li.active")?.classList.remove("active");
         document.querySelector(`#menu-list li[data-profile="${profileName}"]`).classList.add("active");
+
+        // Set active chat history item
+        document.querySelector("#chat-history-list li.active")?.classList.remove("active");
+        document.querySelector(`#chat-history-list li[data-id="${chatId}"]`)?.classList.add("active");
 
         // Reset practice mode and setup it based on the current profile
         this.turnOffPracticeMode();
@@ -435,9 +440,12 @@ class UIManager {
             this.domManager.appendChatHistoryItem(chatHistoryItem, getCurrentProfile());
         } else if (action === "update") {
             this.domManager.updateChatHistoryItem(chatHistoryItem, getCurrentProfile());
+            // Set active chat history item
         } else if (action === "delete") {
             this.domManager.removeChatHistoryItem(chatHistoryItem.id);
         }
+        document.querySelector("#chat-history-list li.active")?.classList.remove("active");
+        document.querySelector(`#chat-history-list li[data-id="${this.currentChatId}"]`)?.classList.add("active");
     }
 
     setupChatHistoryListClickHandler() {

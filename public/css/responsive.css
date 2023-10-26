@@ -1,6 +1,10 @@
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
 
+    #chat-history-container {
+        display: none;
+    }
+
     #menu {
         display: none;
         position: fixed;
