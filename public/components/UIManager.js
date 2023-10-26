@@ -3,7 +3,8 @@ import DOMManager from "./DOMManager.js";
 import EventManager from "./EventManager.js";
 import MessageManager from "./MessageManager.js";
 import StorageManager from "./StorageManager.js";
-import { getCurrentUsername, getCurrentProfile, setCurrentUsername, setCurrentProfile, getMessages } from "../utils/storage.js";
+import ChatHistoryManager from "./ChatHistoryManager.js";
+import { getCurrentUsername, getCurrentProfile, setCurrentUsername, setCurrentProfile, getMessages, removeMessagesByChatId } from "../utils/storage.js";
 import { textToImage, getTts } from "../utils/api.js";
 import swal from "sweetalert";
 
@@ -21,10 +22,16 @@ class UIManager {
             }
         });
         this.messageInput = document.getElementById("message-input");
-        this.domManager = new DOMManager();
+        this.domManager = new DOMManager(
+            this.deleteChatHistory.bind(this),
+            this.editChatHistoryItem.bind(this)
+        );
         this.eventManager = new EventManager(this);
         this.messageManager = new MessageManager(this);
         this.storageManager = new StorageManager(this);
+        this.chatHistoryManager = new ChatHistoryManager();
+        this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
+        this.setupChatHistoryListClickHandler();
     }
 
     clearMessageInput() {
@@ -104,7 +111,7 @@ class UIManager {
             window.open(`profile-manager.html?profileName=${getCurrentProfile().name}`, "_blank");
         });
     }
-    
+
 
     updateSlider() {
         const messageCount = document.querySelectorAll(".message").length;
@@ -211,50 +218,21 @@ class UIManager {
         return { submitButton, buttonIcon, loader };
     }
 
+
     // render menu list from data
     // it only happens when user submit the username or the page is loaded
-    renderMenuList(data) {
+    async renderMenuList(data) {
         this.profiles = data.profiles;
         setCurrentUsername(data.username);
+        await this.showChatHistory();
         const usernameLabel = document.querySelector("#username-label");
         usernameLabel.textContent = getCurrentUsername();
-        const messagesContainer = document.querySelector("#messages");
-        messagesContainer.innerHTML = "";
         const savedCurrentProfile = getCurrentProfile();
+        const chatHistory = this.chatHistoryManager.getChatHistory();
         let currentProfileName = savedCurrentProfile ? savedCurrentProfile.name : this.profiles[0].name;
-        let currentProfile = this.profiles.find(profile => profile.name === currentProfileName);
-        // if currentProfile is not found, set it to the first profile, currentProfileName is also set to the first profile name
-        if (!currentProfile) {
-            currentProfile = this.profiles[0];
-            currentProfileName = currentProfile.name;
-        }
-
-        setCurrentProfile(currentProfile);
-        this.setupPracticeMode();
-
-        this.setSystemMessage(getCurrentProfile().prompt);
-        // read saved messages from local storage for current profile and current username
-        const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
-        let startingIndex = 0;
-
-        if (savedMessages.length <= this.messageLimit) {
-            startingIndex = 0;
-        } else {
-            const firstActiveMessageIndex = savedMessages.findIndex(message => message.isActive);
-            if (firstActiveMessageIndex !== -1 && firstActiveMessageIndex < savedMessages.length - this.messageLimit) {
-                startingIndex = firstActiveMessageIndex;
-            } else {
-                startingIndex = savedMessages.length - this.messageLimit;
-            }
-        }
-
-        savedMessages.slice(startingIndex).forEach((message, index, arr) => {
-            let isActive = message.isActive || false;
-            if (isActive) {
-                this.app.prompts.addPrompt(message);
-            }
-            this.messageManager.addMessage(message.role, message.content, message.messageId, isActive);
-        });
+        let latestChat;
+        latestChat = chatHistory.find(history => history.profileName === currentProfileName);
+        this.currentChatId = latestChat?.id || this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfileName);
 
         //empty menu list
         const menuList = document.querySelector("#menu-list");
@@ -280,39 +258,60 @@ class UIManager {
             const self = this;
             //add click event listener
             li.addEventListener("click", function () {
-                // set current selected menu item to active and also remove active class from other menu items
-                const activeItem = document.querySelector("#menu-list li.active");
-                if (activeItem) {
-                    activeItem.classList.remove("active");
-                }
-                this.classList.add("active");
-                // reset practice mode
-                self.turnOffPracticeMode();
-                // change currentProfile
-                var profileName = this.getAttribute("data-profile");
-                setCurrentProfile(self.profiles.find(function (p) { return p.name === profileName; }));
-                // 如果当前 profile 的 tts 属性为 enabled，则显示 ttsContainer
-                self.setupPracticeMode();
-                // 设置 profile 图标和名称
-                const aiProfile = document.querySelector("#ai-profile");
-                aiProfile.innerHTML = `<i class="${getCurrentProfile().icon}"></i> ${getCurrentProfile().displayName}`;
-                messagesContainer.innerHTML = "";
-                // 清空 prompts 数组
-                self.app.prompts.clear();
-
-                self.setSystemMessage(getCurrentProfile().prompt);
-                // read saved messages from local storage for current profile and current username
-                const savedMessages = getMessages(getCurrentUsername(), getCurrentProfile().name);
-
-                const startingIndex = savedMessages.length > self.messageLimit ? savedMessages.length - self.messageLimit : 0;
-                savedMessages.slice(startingIndex).forEach((message, index, arr) => {
-                    let isActive = message.isActive || false;
-                    if (isActive) {
-                        self.app.prompts.addPrompt(message);
-                    }
-                    self.messageManager.addMessage(message.role, message.content, message.messageId, isActive);
-                });
+                const profileName = li.dataset.profile;
+                const chatHistory = self.chatHistoryManager.getChatHistory();
+                const latestChat = chatHistory.find(history => history.profileName === profileName);
+                self.currentChatId = latestChat?.id || self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
+                self.changeChatTopic(self.currentChatId);
             });
+        });
+
+        this.changeChatTopic(this.currentChatId);
+
+    }
+
+    changeChatTopic(chatId) {
+        const profileName = chatId.split("_")[1];
+
+        // Update current profile and chat ID
+        setCurrentProfile(this.profiles.find(p => p.name === profileName));
+        this.setSystemMessage(getCurrentProfile().prompt);
+        console.log("profileName: ", profileName);
+
+        // Set active profile menu item
+        document.querySelector("#menu-list li.active")?.classList.remove("active");
+        document.querySelector(`#menu-list li[data-profile="${profileName}"]`).classList.add("active");
+
+        // Set active chat history item
+        document.querySelector("#chat-history-list li.active")?.classList.remove("active");
+        document.querySelector(`#chat-history-list li[data-id="${chatId}"]`)?.classList.add("active");
+
+        // Reset practice mode and setup it based on the current profile
+        this.turnOffPracticeMode();
+        this.setupPracticeMode();
+
+        // Update UI
+        const aiProfile = document.querySelector("#ai-profile");
+        aiProfile.innerHTML = `<i class="${getCurrentProfile().icon}"></i> ${getCurrentProfile().displayName}`;
+
+        // Clear current chat messages and prompts
+        document.querySelector("#messages").innerHTML = "";
+        this.app.prompts.clear();
+
+        // Load chat messages by chatId
+        this.loadChatById(this.currentChatId);
+    }
+
+
+    loadChatById(chatId) {
+        // load chat messages by chatId
+        const chatMessages = getMessages(chatId);
+        chatMessages.forEach((message, index, arr) => {
+            let isActive = message.isActive || false;
+            if (isActive) {
+                this.app.prompts.addPrompt(message);
+            }
+            this.messageManager.addMessage(message.role, message.content, message.messageId, isActive);
         });
     }
 
@@ -408,27 +407,131 @@ class UIManager {
         }
     }
 
-    handleInput(initFocusHieght, halfScreenHeight) {
+    handleInput(initFocusHeight, halfScreenHeight) {
         // 判断messageInput是否失去焦点
         if (!this.messageInput.matches(":focus")) {
             if (this.messageInput.value === "") {
                 this.messageInput.style.height = "";
+            } else {
+                this.messageInput.style.height = `${initFocusHeight}px`;
             }
             return;
         }
         // 如果输入框的内容为空，将高度恢复为初始高度
         if (this.messageInput.value === "") {
-            this.messageInput.style.height = `${initFocusHieght}px`;
+            this.messageInput.style.height = `${initFocusHeight}px`;
         } else {
             // 然后设为scrollHeight，但不超过屏幕的一半
             this.messageInput.style.height = `${Math.min(this.messageInput.scrollHeight, halfScreenHeight)}px`;
-            if (this.messageInput.scrollHeight < initFocusHieght) {
-                this.messageInput.style.height = `${initFocusHieght}px`;
+            if (this.messageInput.scrollHeight < initFocusHeight) {
+                this.messageInput.style.height = `${initFocusHeight}px`;
             }
         }
 
     }
 
+    async showChatHistory() {
+        const username = getCurrentUsername();
+        if (!localStorage.getItem(this.chatHistoryManager.chatHistoryKeyPrefix + username)) {
+            this.chatHistoryManager.generateChatHistory();
+        } else {
+            const chatHistory = this.chatHistoryManager.getChatHistory();
+            this.domManager.renderChatHistoryList(chatHistory, this.profiles);
+        }
+    }
+
+    handleChatHistoryChange(action, chatHistoryItem) {
+        console.log("chatHistoryItem: ", chatHistoryItem, " action: ", action);
+        const profile = this.profiles.find(profile => profile.name === chatHistoryItem.profileName);
+        if (!profile) return;
+        if (action === "create") {
+            this.domManager.appendChatHistoryItem(chatHistoryItem, getCurrentProfile());
+        } else if (action === "update") {
+            this.domManager.updateChatHistoryItem(chatHistoryItem, profile);
+        } else if (action === "delete") {
+            this.domManager.removeChatHistoryItem(chatHistoryItem.id);
+            removeMessagesByChatId(chatHistoryItem.id);
+        }
+
+        // Set active chat history item
+        document.querySelector("#chat-history-list li.active")?.classList.remove("active");
+        document.querySelector(`#chat-history-list li[data-id="${this.currentChatId}"]`)?.classList.add("active");
+    }
+
+    setupChatHistoryListClickHandler() {
+        const addTopicButton = document.querySelector("#add-topic");
+        addTopicButton.addEventListener("click", this.handleAddTopicClick.bind(this));
+        const chatHistoryListElement = document.querySelector("#chat-history-list");
+        chatHistoryListElement.addEventListener("click", this.handleChatHistoryItemClick.bind(this));
+    }
+
+    handleAddTopicClick() {
+        const profileName = getCurrentProfile().name;
+        const username = getCurrentUsername();
+        const chatId = this.chatHistoryManager.generateChatId(username, profileName);
+
+        // Change the current chat topic to the newly created chat ID
+        this.currentChatId = chatId;
+        this.changeChatTopic(chatId);
+    }
+
+
+    handleChatHistoryItemClick(e) {
+        const listItemElement = e.target.closest(".chat-history-item");
+        if (listItemElement) {
+            this.currentChatId = listItemElement.dataset.id;
+            this.changeChatTopic(this.currentChatId);
+        }
+    }
+
+    deleteChatHistory(chatId) {
+        const chatHistory = this.chatHistoryManager.getChatHistory();
+        const chatHistoryToDelete = chatHistory.find(history => history.id === chatId);
+        swal({
+            title: "Are you sure?",
+            text: `You will not be able to recover the chat history for \n "${chatHistoryToDelete.title}"!`,
+            icon: "warning",
+            buttons: {
+                cancel: "Cancel",
+                confirm: {
+                    text: "Delete",
+                    value: "delete",
+                }
+            },
+            dangerMode: true,
+        }).then((value) => {
+            if (value === "delete") {
+                this.chatHistoryManager.deleteChatHistory(chatId);
+            }
+        });
+    }
+
+    editChatHistoryItem(chatId) {
+        const chatHistory = this.chatHistoryManager.getChatHistory();
+        const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
+        swal({
+            text: "Please enter a new title:",
+            content: {
+                element: "input",
+                attributes: {
+                    placeholder: "Title",
+                    value: chatHistoryToUpdate.title,
+                },
+            },
+            buttons: {
+                cancel: "Cancel",
+                confirm: {
+                    text: "Update",
+                    value: "update",
+                }
+            },
+        }).then((newTitle) => {
+            chatHistoryToUpdate.title = newTitle;
+            this.chatHistoryManager.updateChatHistory(chatId, newTitle);
+
+        });
+    }
 }
 
 export default UIManager;
+

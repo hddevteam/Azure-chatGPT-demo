@@ -1,8 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
 
+#main-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+#chat-history-container {
+    background-color: #555;
+    border: none;
+    border-radius: 0px 10px 10px 0px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    margin: 0px auto 0p 0px;
+    margin-top: 20px;
+    max-width: 20%;
+    overflow: auto;
+}
+
+#app-outer-container {
+    display: flex;
+    justify-content: flex-start;
+    height: 100%;
+    padding-left: 20px;
+}
 
 #app-container {
-    max-width: 1000px;
+    flex: 1;
+    justify-content: flex-start;
+    max-width: 1200px;
     margin: 0 auto;
     display: flex;
     flex-direction: row;
@@ -92,7 +118,7 @@
 #message-input {
     resize: none;
     width: 100%;
-    padding: 5px 50px 0px 5px;
+    padding: 5px 50px 0px 25px;
     font-size: 16px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     border: 2px solid #eee;

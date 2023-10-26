@@ -85,13 +85,13 @@ export async function getDefaultParams() {
     return await response.json();
 }
 
-export async function generateTitle(conversation) {
+export async function generateTitle(content) {
     const response = await fetch("/api/generate-title", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ conversation })
+        body: JSON.stringify({ conversation: content })
     });
     return await response.text();
 }

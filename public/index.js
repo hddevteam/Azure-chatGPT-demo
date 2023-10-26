@@ -1,3 +1,4 @@
+// index.js
 // purpose: entry point of the application. It is responsible for creating the App object and passing it to the UIManager object. It also contains the event listeners for the message form and the modal form.
 
 import { getCurrentUsername, getCurrentProfile, setCurrentProfile } from "./utils/storage.js";
@@ -294,11 +295,11 @@ window.addEventListener("resize", () => {
 });
 
 const messageInputContainer = document.querySelector(".message-input-container");
-const appContainer = document.querySelector("#app-container");
+const mainContainer = document.querySelector("#main-container");
 let ro = new ResizeObserver(entries => {
     for (let entry of entries) {
         let newHeight = `calc(var(--vh, 1vh) * 99.5 - ${entry.contentRect.height}px)`;
-        appContainer.style.height = newHeight;
+        mainContainer.style.height = newHeight;
     }
 });
 

@@ -1,3 +1,4 @@
+// /utils/storage.js
 // Purpose: Storage functions for the current user's data.
 
 let currentUserData = JSON.parse(localStorage.getItem("currentUserData")) || { username: "guest", currentProfile: null };
@@ -24,11 +25,24 @@ function saveCurrentUserData() {
     localStorage.setItem("currentUserData", JSON.stringify(currentUserData));
 }
 
-export function saveMessages(username, profileName, messages) {
-    localStorage.setItem(username + "_" + profileName, JSON.stringify(messages));
+export function saveMessages(chatId, messages) {
+    localStorage.setItem(chatId, JSON.stringify(messages));
 }
 
-export function getMessages(username, profileName) {
-    return JSON.parse(localStorage.getItem(username + "_" + profileName) || "[]");
+export function getMessages(chatId) {
+    return JSON.parse(localStorage.getItem(chatId) || "[]");
 }
 
+const chatHistoryKeyPrefix = "chatHistory_";
+
+export function getChatHistory(username) {
+    return JSON.parse(localStorage.getItem(chatHistoryKeyPrefix + username) || "[]");
+}
+
+export function saveChatHistory(username, chatHistory) {
+    localStorage.setItem(chatHistoryKeyPrefix + username, JSON.stringify(chatHistory));
+}
+
+export function removeMessagesByChatId(chatId) {
+    localStorage.removeItem(chatId);
+}

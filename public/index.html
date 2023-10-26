@@ -11,33 +11,42 @@
 
 <body>
   <div id="toast"></div>
-  <div id="app-container">
-    <div id="chat-container" style="flex: 0 0 85%;">
-      <div id="header">
-        <h1 id="app-name"></h1>
-        <span id="header-buttons">
-          <button id="ai-profile"><i class="fas fa-robot"></i>
-            <span>AI</span>
-          </button>
-        </span>
-        <i id="window-icon" class="fa fa-window-minimize" title="Hide system message"></i>
-      </div>
-      <div id="profile-content">
-        <div id="system-message"></div>
-      </div>
-      <div id="messages"></div>
-      <div class="information">
-        <span class="info-chip"><i class="fas fa-info-circle"></i><span id="tokens"></span></span>
-      </div>
+
+  <div id="main-container">
+    <div id="chat-history-container">
+      <h2>Chat History</h2>
+      <ul id="chat-history-list"></ul>
     </div>
-    <div id="menu">
-      <div id="menu-header">
-        <i class="fas fa-list"></i>
-        <span>AI Actor</span><a href="profile-manager.html" target="_blank"><span id="manage-profile"><i
-              class="fas fa-cog"></i></span></a>
+    <div id="app-outer-container">
+      <div id="app-container">
+        <div id="chat-container" style="flex: 0 0 85%;">
+          <div id="header">
+            <h1 id="app-name"></h1>
+            <span id="header-buttons">
+              <button id="ai-profile"><i class="fas fa-robot"></i>
+                <span>AI</span>
+              </button>
+            </span>
+            <i id="window-icon" class="fa fa-window-minimize" title="Hide system message"></i>
+          </div>
+          <div id="profile-content">
+            <div id="system-message"></div>
+          </div>
+          <div id="messages"></div>
+          <div class="information">
+            <span class="info-chip"><i class="fas fa-info-circle"></i><span id="tokens"></span></span>
+          </div>
+        </div>
+        <div id="menu">
+          <div id="menu-header">
+            <i class="fas fa-list"></i>
+            <span>AI Actor</span><a href="profile-manager.html" target="_blank"><span id="manage-profile"><i
+                  class="fas fa-cog"></i></span></a>
+          </div>
+          <ul id="menu-list">
+          </ul>
+        </div>
       </div>
-      <ul id="menu-list">
-      </ul>
     </div>
   </div>
   <div class="message-input-container">
@@ -71,7 +80,8 @@
         <textarea id="message-input" name="message" autocomplete="off"
           placeholder="Feel free to ask anything. You can use '@' to ask a specific expert, even if they're not listed in the menu. For example, '@App Designer: How to design a great app?'"
           tabindex="1"></textarea>
-        <i id="clear-input" class="fas fa-times"></i>
+        <i id="clear-input" class="fas fa-times" title="Clear input"></i>
+        <i id="add-topic" class="fa-solid fa-wand-sparkles" title="New topic"></i>
         <div class="button-row">
           <div id="voice-input-container">
             <button id="voice-input-button" type="button"><i class="fas fa-microphone" aria-hidden="true"></i></button>

@@ -24,6 +24,7 @@
     "sweetalert": "^2.1.2"
   },
   "devDependencies": {
+    "@types/uuid": "^9.0.6",
     "bootstrap": "^5.2.3",
     "chai": "^4.3.7",
     "chai-http": "^4.3.0",
