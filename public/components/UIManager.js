@@ -431,20 +431,23 @@ class UIManager {
     }
 
     async showChatHistory() {
-        const chatHistoryManager = new ChatHistoryManager();
         const username = getCurrentUsername();
-        if (!localStorage.getItem(chatHistoryManager.chatHistoryKeyPrefix + username)) {
-            await chatHistoryManager.generateChatHistory();
+        if (!localStorage.getItem(this.chatHistoryManager.chatHistoryKeyPrefix + username)) {
+            this.chatHistoryManager.generateChatHistory();
+        } else {
+            const chatHistory = this.chatHistoryManager.getChatHistory();
+            this.domManager.renderChatHistoryList(chatHistory, this.profiles);
         }
-        const chatHistory = chatHistoryManager.getChatHistory();
-        this.domManager.renderChatHistoryList(chatHistory, this.profiles);
     }
 
     handleChatHistoryChange(action, chatHistoryItem) {
+        console.log("chatHistoryItem: ", chatHistoryItem, " action: ", action);
+        const profile = this.profiles.find(profile => profile.name === chatHistoryItem.profileName);
+        if (!profile) return;
         if (action === "create") {
             this.domManager.appendChatHistoryItem(chatHistoryItem, getCurrentProfile());
         } else if (action === "update") {
-            this.domManager.updateChatHistoryItem(chatHistoryItem, getCurrentProfile());
+            this.domManager.updateChatHistoryItem(chatHistoryItem, profile);
         } else if (action === "delete") {
             this.domManager.removeChatHistoryItem(chatHistoryItem.id);
             removeMessagesByChatId(chatHistoryItem.id);
