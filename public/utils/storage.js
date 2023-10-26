@@ -42,3 +42,7 @@ export function getChatHistory(username) {
 export function saveChatHistory(username, chatHistory) {
     localStorage.setItem(chatHistoryKeyPrefix + username, JSON.stringify(chatHistory));
 }
+
+export function removeMessagesByChatId(chatId) {
+    localStorage.removeItem(chatId);
+}

@@ -72,10 +72,11 @@ class ChatHistoryManager {
 
 
     // 更新聊天历史记录
-    async updateChatHistory(chatId) {
+    async updateChatHistory(chatId, title="") {
         const chatHistory = this.getChatHistory();
         const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
         if (chatHistoryToUpdate) {
+            if (title) chatHistoryToUpdate.title = title;
             chatHistoryToUpdate.updatedAt = new Date().toISOString();
             this.saveChatHistory(chatHistory);
             this.notifySubscribers("update", chatHistoryToUpdate);
@@ -92,6 +93,8 @@ class ChatHistoryManager {
         this.saveChatHistory(updatedChatHistory);
         this.notifySubscribers("delete", chatHistoryToDelete);
     }
+
+
 }
 
 export default ChatHistoryManager;

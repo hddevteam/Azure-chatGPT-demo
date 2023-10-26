@@ -4,7 +4,7 @@ import EventManager from "./EventManager.js";
 import MessageManager from "./MessageManager.js";
 import StorageManager from "./StorageManager.js";
 import ChatHistoryManager from "./ChatHistoryManager.js";
-import { getCurrentUsername, getCurrentProfile, setCurrentUsername, setCurrentProfile, getMessages } from "../utils/storage.js";
+import { getCurrentUsername, getCurrentProfile, setCurrentUsername, setCurrentProfile, getMessages, removeMessagesByChatId } from "../utils/storage.js";
 import { textToImage, getTts } from "../utils/api.js";
 import swal from "sweetalert";
 
@@ -22,7 +22,10 @@ class UIManager {
             }
         });
         this.messageInput = document.getElementById("message-input");
-        this.domManager = new DOMManager();
+        this.domManager = new DOMManager(
+            this.deleteChatHistory.bind(this),
+            this.editChatHistoryItem.bind(this)
+        );
         this.eventManager = new EventManager(this);
         this.messageManager = new MessageManager(this);
         this.storageManager = new StorageManager(this);
@@ -440,10 +443,12 @@ class UIManager {
             this.domManager.appendChatHistoryItem(chatHistoryItem, getCurrentProfile());
         } else if (action === "update") {
             this.domManager.updateChatHistoryItem(chatHistoryItem, getCurrentProfile());
-            // Set active chat history item
         } else if (action === "delete") {
             this.domManager.removeChatHistoryItem(chatHistoryItem.id);
+            removeMessagesByChatId(chatHistoryItem.id);
         }
+
+        // Set active chat history item
         document.querySelector("#chat-history-list li.active")?.classList.remove("active");
         document.querySelector(`#chat-history-list li[data-id="${this.currentChatId}"]`)?.classList.add("active");
     }
@@ -472,6 +477,54 @@ class UIManager {
             this.currentChatId = listItemElement.dataset.id;
             this.changeChatTopic(this.currentChatId);
         }
+    }
+
+    deleteChatHistory(chatId) {
+        const chatHistory = this.chatHistoryManager.getChatHistory();
+        const chatHistoryToDelete = chatHistory.find(history => history.id === chatId);
+        swal({
+            title: "Are you sure?",
+            text: `You will not be able to recover the chat history for \n "${chatHistoryToDelete.title}"!`,
+            icon: "warning",
+            buttons: {
+                cancel: "Cancel",
+                confirm: {
+                    text: "Delete",
+                    value: "delete",
+                }
+            },
+            dangerMode: true,
+        }).then((value) => {
+            if (value === "delete") {
+                this.chatHistoryManager.deleteChatHistory(chatId);
+            }
+        });
+    }
+
+    editChatHistoryItem(chatId) {
+        const chatHistory = this.chatHistoryManager.getChatHistory();
+        const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
+        swal({
+            text: "Please enter a new title:",
+            content: {
+                element: "input",
+                attributes: {
+                    placeholder: "Title",
+                    value: chatHistoryToUpdate.title,
+                },
+            },
+            buttons: {
+                cancel: "Cancel",
+                confirm: {
+                    text: "Update",
+                    value: "update",
+                }
+            },
+        }).then((newTitle) => {
+            chatHistoryToUpdate.title = newTitle;
+            this.chatHistoryManager.updateChatHistory(chatId, newTitle);
+
+        });
     }
 }
 

@@ -13,7 +13,7 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     padding: 10px;
     margin: 0px auto 0p 0px;
-    max-width: 20%;
+    max-width: 25%;
     max-height: calc(100vh - 40px);
     overflow: auto;
     

@@ -410,6 +410,10 @@ textarea::-webkit-scrollbar-thumb:hover {
     cursor: pointer;
 }
 
+#add-topic:hover {
+    color: #999;
+}
+
 #message-form button[type="submit"] {
     height: 34px;
     width: 34px;
@@ -582,7 +586,8 @@ svg rect {
 
 #chat-history-container h2 {
     font-size: 18px;
-    font-weight: bold;
+    font-family: 'Roboto';
+    font-weight: 500;
     margin-bottom: 10px;
     color: #fff;
 }
@@ -606,6 +611,11 @@ svg rect {
     cursor: pointer;
 }
 
+#chat-history-list li small {
+    color: #999;
+    margin-left: 5px;
+}
+
 #chat-history-list li.active {
     background-color: #555;
     color: limegreen;
@@ -618,4 +628,28 @@ svg rect {
 
 #chat-history-list li:last-child {
     margin-bottom: 0;
+}
+
+button.action-button {
+    margin: 0 3px;
+    padding: 2px;
+    font-size: 14px;
+    background-color: #4d4d4d;
+    color: #3e8e41;
+}
+
+button.action-button:hover {
+    background-color: #555;
+    color: #4CAF50;
+    margin: 0 3px;
+    padding: 2px;
+    font-size: 14px;
+}
+
+button.action-button.invisible {
+    display: none;
+}
+
+#chat-history-list li button.action-button i {
+    margin: 0;
 }
