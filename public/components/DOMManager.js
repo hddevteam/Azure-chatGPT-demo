@@ -174,6 +174,8 @@ class DOMManager {
         chatHistoryListElement.innerHTML = "";
         chatHistory.forEach(history => {
             const profile = profiles.find(profile => profile.name === history.profileName);
+            // if not found, skip to next iteration
+            if (!profile) return;            
             const listItemElement = this.createChatHistoryItem(history, profile);
             chatHistoryListElement.appendChild(listItemElement);
         });
