@@ -180,6 +180,23 @@ messageForm.addEventListener("submit", (event) => {
     messageInput.blur();
     uiManager.handleInput(initFocusHeight, halfScreenHeight);
 });
+// Listening for keydown event
+document.addEventListener("keydown", (event) => {
+    // Check if Option/Alt + S was pressed on macOS
+    if (event.getModifierState("Alt") && event.code === "KeyS") {
+        event.preventDefault();
+        const message = messageInput.value.trim();
+        if (message) {
+            uiManager.messageManager.sendMessage(message);
+        }
+        messageInput.value = "";
+        messageInput.blur();
+        uiManager.handleInput(initFocusHeight, halfScreenHeight);
+    }
+});
+
+
+
 
 // popup the Swal when user click the username label
 usernameLabel.addEventListener("click", function () {
