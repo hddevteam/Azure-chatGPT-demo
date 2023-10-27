@@ -133,7 +133,7 @@ class DOMManager {
         listItemElement.dataset.id = history.id; 
 
         const profileIconElement = document.createElement("i");
-        profile.icon.split(" ").forEach(cls => profileIconElement.classList.add(cls));
+        profileIconElement.className = profile.icon;
         listItemElement.appendChild(profileIconElement);
 
         const titleElement = document.createElement("span");
