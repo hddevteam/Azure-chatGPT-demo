@@ -412,27 +412,30 @@ class UIManager {
     }
 
     handleInput(initFocusHeight, halfScreenHeight) {
-        // 判断messageInput是否失去焦点
-        if (!this.messageInput.matches(":focus")) {
+        // add a delay to avoid other events can't respond when the input is focused
+        setTimeout(() => {
+            // 判断messageInput是否失去焦点
+            if (!this.messageInput.matches(":focus")) {
+                if (this.messageInput.value === "") {
+                    this.messageInput.style.height = "";
+                } else {
+                    this.messageInput.style.height = `${initFocusHeight}px`;
+                }
+                return;
+            }
+            // 如果输入框的内容为空，将高度恢复为初始高度
             if (this.messageInput.value === "") {
-                this.messageInput.style.height = "";
+                this.messageInput.style.height = `${initFocusHeight}px`;
             } else {
-                this.messageInput.style.height = `${initFocusHeight}px`;
+                // 然后设为scrollHeight，但不超过屏幕的一半
+                this.messageInput.style.height = `${Math.min(this.messageInput.scrollHeight, halfScreenHeight)}px`;
+                if (this.messageInput.scrollHeight < initFocusHeight) {
+                    this.messageInput.style.height = `${initFocusHeight}px`;
+                }
             }
-            return;
-        }
-        // 如果输入框的内容为空，将高度恢复为初始高度
-        if (this.messageInput.value === "") {
-            this.messageInput.style.height = `${initFocusHeight}px`;
-        } else {
-            // 然后设为scrollHeight，但不超过屏幕的一半
-            this.messageInput.style.height = `${Math.min(this.messageInput.scrollHeight, halfScreenHeight)}px`;
-            if (this.messageInput.scrollHeight < initFocusHeight) {
-                this.messageInput.style.height = `${initFocusHeight}px`;
-            }
-        }
-
+        }, 0);  
     }
+    
 
     async showChatHistory() {
         const username = getCurrentUsername();
