@@ -506,6 +506,9 @@ class UIManager {
         }).then((value) => {
             if (value === "delete") {
                 this.chatHistoryManager.deleteChatHistory(chatId);
+                if (this.currentChatId === chatId) {
+                    this.changeChatTopic(this.currentChatId);
+                }
             }
         });
     }
