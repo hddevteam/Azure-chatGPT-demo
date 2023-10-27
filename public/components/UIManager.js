@@ -119,7 +119,7 @@ class UIManager {
 
         const counversationCount = this.app.prompts.length - 1;
         //slider.max will be 10 or the number of messages in the conversation, whichever is greater
-        const maxSliderValue = Math.max(10, counversationCount);
+        const maxSliderValue = Math.max(this.messageLimit, counversationCount);
         const slider = document.querySelector("#slider");
         slider.max = maxSliderValue;
     }
