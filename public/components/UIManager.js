@@ -227,24 +227,27 @@ class UIManager {
         await this.showChatHistory();
         const usernameLabel = document.querySelector("#username-label");
         usernameLabel.textContent = getCurrentUsername();
-        const savedCurrentProfile = getCurrentProfile();
         const chatHistory = this.chatHistoryManager.getChatHistory();
-        let currentProfileName = savedCurrentProfile ? savedCurrentProfile.name : this.profiles[0].name;
+        const savedCurrentProfile = getCurrentProfile();
+        if (!savedCurrentProfile) {
+            setCurrentProfile(this.profiles[0]);
+        }
+        const currentProfile = getCurrentProfile();
         let latestChat;
-        latestChat = chatHistory.find(history => history.profileName === currentProfileName);
-        this.currentChatId = latestChat?.id || this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfileName);
+        latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
+        this.currentChatId = latestChat?.id || this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
 
         //empty menu list
         const menuList = document.querySelector("#menu-list");
         menuList.innerHTML = "";
         const aiProfile = document.querySelector("#ai-profile");
-        aiProfile.innerHTML = `<i class="${getCurrentProfile().icon}"></i> ${getCurrentProfile().displayName}`;
+        aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
         //add menu items
         this.profiles.forEach(item => {
             let li = document.createElement("li");
             li.dataset.profile = item.name;
             // set current selected menu item to active
-            if (item.name === currentProfileName) {
+            if (item.name === currentProfile.name) {
                 li.classList.add("active");
             }
             let icon = document.createElement("i");
