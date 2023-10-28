@@ -172,16 +172,16 @@ getPromptRepo(getCurrentUsername())
 
 // Send message on form submit
 messageForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const message = messageInput.value.trim();
-    if (message) {
-        uiManager.messageManager.sendMessage(message);
-    }
-    messageInput.value = "";
-    messageInput.blur();
-    uiManager.handleInput(initFocusHeight, halfScreenHeight);
+    //uiManager.js中已经写过这个方法，直接调用
+    uiManager.handleMessageFormSubmit(messageInput);
 });
-
+// Listening for keydown event
+document.addEventListener("keydown", (event) => {
+    // Check if Option/Alt + S was pressed on macOS
+    if (event.getModifierState("Alt") && event.code === "KeyS") {
+        uiManager.handleMessageFormSubmit(messageInput);
+    }
+});
 // popup the Swal when user click the username label
 usernameLabel.addEventListener("click", function () {
     swal({
