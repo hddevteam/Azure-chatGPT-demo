@@ -28,7 +28,7 @@ switchElement.addEventListener("click", function () {
     }
 });
 
-const halfScreenHeight = window.innerHeight / 1.5;
+const halfScreenHeight = window.innerHeight / 2;
 const initFocusHeight = window.innerHeight / 5;
 
 
@@ -251,15 +251,6 @@ messageInput.style.maxHeight = `${halfScreenHeight}px`;
 
 messageInput.addEventListener("focus", function () {
     uiManager.handleInput(initFocusHeight, halfScreenHeight);
-});
-
-messageInput.addEventListener("blur", function () {
-    uiManager.handleInput(initFocusHeight, halfScreenHeight);
-
-    // 滚动到底部,解决iphone键盘收起后页面不回弹的问题
-    setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight);
-    }, 100);
 });
 
 let composing = false;
