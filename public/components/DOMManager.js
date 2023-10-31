@@ -211,21 +211,37 @@ class DOMManager {
         popupMenuElement.classList.add("popup-menu");
         popupMenuElement.style.display = "none";
 
-        const items = ["Delete", "Copy", "Toggle"];
+        // Define an object with menu items and their corresponding Font Awesome class names
+        const items = [
+            { name: "Delete", icon: "fa-trash" },
+            { name: "Copy", icon: "fa-copy" },
+            { name: "Toggle", icon: isCollapsed ? "fa-chevron-down" : "fa-chevron-up" }
+        ];
+
         items.forEach(item => {
             const li = document.createElement("li");
-            li.textContent = item;
             li.classList.add("menu-item");
-            li.classList.add(`${item.toLowerCase()}-item`);
-            if (item === "Toggle") {
+            li.classList.add(`${item.name.toLowerCase()}-item`);
+
+            // Create the Font Awesome icon and prepend it to the menu item
+            const icon = document.createElement("i");
+            icon.classList.add("fas", item.icon);
+            li.prepend(icon);
+
+            const span = document.createElement("span");
+            span.textContent = item.name;
+            li.appendChild(span);
+
+            if (item.name === "Toggle") {
                 li.dataset.collapsed = isCollapsed ? "true" : "false";
-                li.textContent = isCollapsed ? "Expand" : "Collapse";
+                span.textContent = isCollapsed ? "Expand" : "Collapse";
             }
             popupMenuElement.appendChild(li);
         });
 
         return popupMenuElement;
     }
+
 
 
 

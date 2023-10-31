@@ -277,11 +277,17 @@ ul.popup-menu {
 }
 
 li.menu-item {
-    padding: 5px 20px; 
+    padding: 5px 10px; 
     list-style: none; 
     cursor: pointer;
     margin: 0;
+    font-size: 12px;
     transition: background-color 0.3s ease-in-out; 
+}
+
+li.menu-item i
+{
+    margin-right: 10px;
 }
 
 li.menu-item:hover {

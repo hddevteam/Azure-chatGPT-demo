@@ -162,10 +162,20 @@ class EventManager {
                 this.attachCodeBlockCopyEvent(codeBlock, copyElement);
             });
 
-            const toggleItem = messageElement.querySelector('.toggle-item');
+            const toggleItem = messageElement.querySelector(".toggle-item");
             if (toggleItem) {
                 toggleItem.dataset.collapsed = isCollapsed ? "true" : "false";
-                toggleItem.textContent = isCollapsed ? "Expand" : "Collapse";
+                const span = toggleItem.querySelector("span");
+                span.textContent = isCollapsed ? "Expand" : "Collapse";
+
+                // Get the Font Awesome icon element
+                const icon = toggleItem.querySelector("i");
+                // Change the class depending on whether the message is collapsed or not
+                if (isCollapsed) {
+                    icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+                } else {
+                    icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+                }
             }
         }
     }
