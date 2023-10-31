@@ -22,6 +22,8 @@ class EventManager {
         if (messageElement.classList.contains("active")) {
             messageElement.classList.remove("active");
             this.uiManager.app.prompts.removePrompt(messageId);
+            // Call the method with forceCollapse = true
+            this.toggleCollapseMessage(messageElement, true);
         } else {
             messageElement.classList.add("active");
             this.uiManager.app.prompts.clear();
@@ -29,10 +31,9 @@ class EventManager {
             activeMessages.forEach(activeMessage => {
                 this.uiManager.app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
             });
+            // Call the method with forceCollapse = false
+            this.toggleCollapseMessage(messageElement, false);
         }
-
-        console.log(messageElement.classList.contains("active"));
-        console.log(this.uiManager.app.prompts);
 
         const isActive = messageElement.classList.contains("active");
         this.uiManager.storageManager.saveMessageActiveStatus(messageId, isActive);
@@ -141,6 +142,16 @@ class EventManager {
         const toggleItem = popupMenu.querySelector(".toggle-item");
         toggleItem.addEventListener("click", () => {
             const messageElement = popupMenu.parentElement;
+            const isCurrentlyCollapsed = messageElement.classList.contains("collapsed");
+
+            // If the message is collapsed, we expand it, and vice versa.
+            this.toggleCollapseMessage(messageElement, !isCurrentlyCollapsed);
+        });
+    }
+
+    toggleCollapseMessage(messageElement, forceCollapse) {
+        const isCurrentlyCollapsed = messageElement.classList.contains("collapsed");
+        if ((forceCollapse && !isCurrentlyCollapsed) || (!forceCollapse && isCurrentlyCollapsed)) {
             const isCollapsed = messageElement.classList.toggle("collapsed");
             const updatedMessage = isCollapsed ? this.uiManager.messageManager.getMessagePreview(messageElement.dataset.message) : messageElement.dataset.message;
             const sender = messageElement.dataset.sender;
@@ -150,10 +161,13 @@ class EventManager {
             newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
                 this.attachCodeBlockCopyEvent(codeBlock, copyElement);
             });
-            toggleItem.dataset.collapsed = isCollapsed ? "true" : "false";
-            toggleItem.textContent = isCollapsed ? "Expand" : "Collapse";
 
-        });
+            const toggleItem = messageElement.querySelector('.toggle-item');
+            if (toggleItem) {
+                toggleItem.dataset.collapsed = isCollapsed ? "true" : "false";
+                toggleItem.textContent = isCollapsed ? "Expand" : "Collapse";
+            }
+        }
     }
 }
 
