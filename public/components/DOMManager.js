@@ -111,7 +111,7 @@ class DOMManager {
         speaker.classList.toggle("fa-volume-off");
         speaker.classList.toggle("fa-volume-up");
     }
-    
+
     removeChatHistoryItem(chatId) {
         const listItemElement = document.querySelector(`.chat-history-item[data-id="${chatId}"]`);
         if (listItemElement) {
@@ -130,7 +130,7 @@ class DOMManager {
     createChatHistoryItem(history, profile) {
         const listItemElement = document.createElement("li");
         listItemElement.classList.add("chat-history-item");
-        listItemElement.dataset.id = history.id; 
+        listItemElement.dataset.id = history.id;
 
         const profileIconElement = document.createElement("i");
         profileIconElement.className = profile.icon;
@@ -142,25 +142,25 @@ class DOMManager {
 
         const createdAtElement = document.createElement("small");
         createdAtElement.textContent = formatTime(history.createdAt);
-        
+
         listItemElement.appendChild(createdAtElement);
 
         const actionGroup = document.createElement("div");
         actionGroup.classList.add("action-button-group");
-    
+
         const deleteButton = this.createChatHistoryActionButton("fa fa-trash", () => {
             this.deleteChatHistoryHandler(history.id);
         });
-    
+
         const editButton = this.createChatHistoryActionButton("fa fa-edit", () => {
             this.editChatHistoryHandler(history.id);
         });
-    
+
         actionGroup.appendChild(deleteButton);
         actionGroup.appendChild(editButton);
-    
+
         listItemElement.appendChild(actionGroup);
-    
+
         return listItemElement;
     }
 
@@ -170,7 +170,7 @@ class DOMManager {
         chatHistory.forEach(history => {
             const profile = profiles.find(profile => profile.name === history.profileName);
             // if not found, skip to next iteration
-            if (!profile) return;            
+            if (!profile) return;
             const listItemElement = this.createChatHistoryItem(history, profile);
             chatHistoryListElement.appendChild(listItemElement);
         });
@@ -179,7 +179,7 @@ class DOMManager {
     appendChatHistoryItem(chatHistoryItem, profile) {
         const chatHistoryListElement = document.querySelector("#chat-history-list");
         const listItemElement = this.createChatHistoryItem(chatHistoryItem, profile);
-        chatHistoryListElement.prepend(listItemElement);  
+        chatHistoryListElement.prepend(listItemElement);
     }
 
     createChatHistoryActionButton(iconClass, clickHandler) {
@@ -205,25 +205,29 @@ class DOMManager {
         menuButtonElement.classList.add("fa-ellipsis-h");
         return menuButtonElement;
     }
-    
-    createPopupMenuElement() {
+
+    createPopupMenuElement(isCollapsed) {
         const popupMenuElement = document.createElement("ul");
         popupMenuElement.classList.add("popup-menu");
         popupMenuElement.style.display = "none";
-    
-        const items = ["Delete", "Copy", "Collapse"];
+
+        const items = ["Delete", "Copy", "Toggle"];
         items.forEach(item => {
             const li = document.createElement("li");
             li.textContent = item;
             li.classList.add("menu-item");
             li.classList.add(`${item.toLowerCase()}-item`);
+            if (item === "Toggle") {
+                li.dataset.collapsed = isCollapsed ? "true" : "false";
+                li.textContent = isCollapsed ? "Expand" : "Collapse";
+            }
             popupMenuElement.appendChild(li);
         });
-    
+
         return popupMenuElement;
     }
-    
-    
+
+
 
 }
 

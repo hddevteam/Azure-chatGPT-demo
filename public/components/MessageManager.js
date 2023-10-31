@@ -28,7 +28,7 @@ class MessageManager {
         const menuButtonElement = this.uiManager.domManager.createMenuButtonElement();
         messageElement.appendChild(menuButtonElement);
         
-        const popupMenuElement = this.uiManager.domManager.createPopupMenuElement();
+        const popupMenuElement = this.uiManager.domManager.createPopupMenuElement(!isActive);
         messageElement.appendChild(popupMenuElement);
         
         this.uiManager.eventManager.attachMenuButtonEventListener(menuButtonElement);

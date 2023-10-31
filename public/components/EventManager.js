@@ -138,18 +138,21 @@ class EventManager {
             this.uiManager.showToast("copied successful");
         });
 
-        const toggleItem = popupMenu.querySelector(".collapse-item");
+        const toggleItem = popupMenu.querySelector(".toggle-item");
         toggleItem.addEventListener("click", () => {
             const messageElement = popupMenu.parentElement;
             const isCollapsed = messageElement.classList.toggle("collapsed");
             const updatedMessage = isCollapsed ? this.uiManager.messageManager.getMessagePreview(messageElement.dataset.message) : messageElement.dataset.message;
             const sender = messageElement.dataset.sender;
-            
+
             const newCodeBlocksWithCopyElements = this.uiManager.messageManager.setMessageContent(sender, messageElement, updatedMessage, !isCollapsed);
 
             newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
                 this.attachCodeBlockCopyEvent(codeBlock, copyElement);
             });
+            toggleItem.dataset.collapsed = isCollapsed ? "true" : "false";
+            toggleItem.textContent = isCollapsed ? "Expand" : "Collapse";
+
         });
     }
 }
