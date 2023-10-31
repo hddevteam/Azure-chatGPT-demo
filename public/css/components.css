@@ -502,6 +502,7 @@ button:hover {
 
 .code-block-wrapper {
     position: relative;
+    line-height: 1.2;
 }
 
 .code-block-copy {
