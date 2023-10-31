@@ -145,27 +145,22 @@ class DOMManager {
         
         listItemElement.appendChild(createdAtElement);
 
+        const actionGroup = document.createElement("div");
+        actionGroup.classList.add("action-button-group");
+    
         const deleteButton = this.createChatHistoryActionButton("fa fa-trash", () => {
             this.deleteChatHistoryHandler(history.id);
         });
-
+    
         const editButton = this.createChatHistoryActionButton("fa fa-edit", () => {
             this.editChatHistoryHandler(history.id);
         });
-
-        listItemElement.appendChild(deleteButton);
-        listItemElement.appendChild(editButton);
-
-        listItemElement.addEventListener("mouseenter", () => {
-            deleteButton.classList.remove("invisible");
-            editButton.classList.remove("invisible");
-        });
-
-        listItemElement.addEventListener("mouseleave", () => {
-            deleteButton.classList.add("invisible");
-            editButton.classList.add("invisible");
-        });
-
+    
+        actionGroup.appendChild(deleteButton);
+        actionGroup.appendChild(editButton);
+    
+        listItemElement.appendChild(actionGroup);
+    
         return listItemElement;
     }
 
@@ -189,7 +184,7 @@ class DOMManager {
 
     createChatHistoryActionButton(iconClass, clickHandler) {
         const buttonElement = document.createElement("button");
-        buttonElement.classList.add("action-button", "invisible");
+        buttonElement.classList.add("action-button");
 
         const iconElement = document.createElement("i");
         iconElement.classList.add(...iconClass.split(" "));
