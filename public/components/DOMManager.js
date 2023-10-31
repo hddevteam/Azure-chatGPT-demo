@@ -198,6 +198,33 @@ class DOMManager {
         return buttonElement;
     }
 
+    createMenuButtonElement() {
+        const menuButtonElement = document.createElement("i");
+        menuButtonElement.classList.add("menu-button");
+        menuButtonElement.classList.add("fas");
+        menuButtonElement.classList.add("fa-ellipsis-h");
+        return menuButtonElement;
+    }
+    
+    createPopupMenuElement() {
+        const popupMenuElement = document.createElement("ul");
+        popupMenuElement.classList.add("popup-menu");
+        popupMenuElement.style.display = "none";
+    
+        const items = ["Delete", "Copy", "Collapse"];
+        items.forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = item;
+            li.classList.add("menu-item");
+            li.classList.add(`${item.toLowerCase()}-item`);
+            popupMenuElement.appendChild(li);
+        });
+    
+        return popupMenuElement;
+    }
+    
+    
+
 }
 
 export default DOMManager;

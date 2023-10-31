@@ -25,9 +25,14 @@ class MessageManager {
         messageElement.appendChild(conversationElement);
         this.uiManager.eventManager.attachToggleActiveMessageEventListener(conversationElement);
 
-        const deleteElement = this.uiManager.domManager.createDeleteElement();
-        messageElement.appendChild(deleteElement);
-        this.uiManager.eventManager.attachDeleteMessageEventListener(deleteElement);
+        const menuButtonElement = this.uiManager.domManager.createMenuButtonElement();
+        messageElement.appendChild(menuButtonElement);
+        
+        const popupMenuElement = this.uiManager.domManager.createPopupMenuElement();
+        messageElement.appendChild(popupMenuElement);
+        
+        this.uiManager.eventManager.attachMenuButtonEventListener(menuButtonElement);
+        this.uiManager.eventManager.attachPopupMenuItemEventListener(popupMenuElement);
 
         const messageContentElement = sender === "user" ? document.createElement("pre") : document.createElement("div");
         messageElement.appendChild(messageContentElement);
@@ -36,21 +41,6 @@ class MessageManager {
         if (!isActive) {
             messageElement.classList.add("collapsed");
         }
-
-        const messageElem = messageElement;
-
-        messageElement.addEventListener("dblclick", (event) => {
-            const isCollapsed = messageElem.classList.toggle("collapsed");
-            const updatedMessage = isCollapsed ? this.getMessagePreview(messageElem.dataset.message) : messageElem.dataset.message;
-
-            // Update the message content and get the new codeBlocksWithCopyElements
-            const newCodeBlocksWithCopyElements = this.setMessageContent(sender, messageElem, updatedMessage, !isCollapsed);
-
-            newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
-                this.uiManager.eventManager.attachCodeBlockCopyEvent(codeBlock, copyElement);
-            });
-
-        });
 
         const iconGroup = this.uiManager.domManager.createIconGroup();
 
@@ -324,7 +314,7 @@ class MessageManager {
         return codeBlocksWithCopyElements;
     }
 
-    getMessagePreview(message, maxLength = 50) {
+    getMessagePreview(message, maxLength = 80) {
         let previewText = message.replace(/\n/g, " ");
         if (previewText.length > maxLength) {
             return previewText.substring(0, maxLength - 3) + "...";

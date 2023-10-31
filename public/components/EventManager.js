@@ -14,7 +14,7 @@ class EventManager {
             await this.uiManager.playMessage(speaker);
         });
     }
-    
+
     toggleActiveMessage(event) {
         const messageElement = event.currentTarget.parentElement;
         const messageId = messageElement.dataset.messageId;
@@ -109,6 +109,47 @@ class EventManager {
         });
         clipboard.on("error", function () {
             self.uiManager.showToast("copied failed");
+        });
+    }
+
+    attachMenuButtonEventListener(menuButton) {
+        menuButton.addEventListener("click", (event) => {
+            const popupMenu = menuButton.nextSibling;
+            popupMenu.style.display = popupMenu.style.display === "none" ? "block" : "none";
+            event.stopPropagation();
+        });
+
+        document.addEventListener("click", () => {
+            menuButton.nextSibling.style.display = "none";
+        });
+    }
+
+    attachPopupMenuItemEventListener(popupMenu) {
+        const deleteItem = popupMenu.querySelector(".delete-item");
+        deleteItem.addEventListener("click", () => {
+            const messageId = popupMenu.parentElement.dataset.messageId;
+            this.uiManager.messageManager.deleteMessage(messageId);
+        });
+
+        const copyItem = popupMenu.querySelector(".copy-item");
+        copyItem.addEventListener("click", () => {
+            const message = popupMenu.parentElement.dataset.message;
+            navigator.clipboard.writeText(message);
+            this.uiManager.showToast("copied successful");
+        });
+
+        const toggleItem = popupMenu.querySelector(".collapse-item");
+        toggleItem.addEventListener("click", () => {
+            const messageElement = popupMenu.parentElement;
+            const isCollapsed = messageElement.classList.toggle("collapsed");
+            const updatedMessage = isCollapsed ? this.uiManager.messageManager.getMessagePreview(messageElement.dataset.message) : messageElement.dataset.message;
+            const sender = messageElement.dataset.sender;
+            
+            const newCodeBlocksWithCopyElements = this.uiManager.messageManager.setMessageContent(sender, messageElement, updatedMessage, !isCollapsed);
+
+            newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
+                this.attachCodeBlockCopyEvent(codeBlock, copyElement);
+            });
         });
     }
 }
