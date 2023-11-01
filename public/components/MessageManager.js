@@ -229,6 +229,7 @@ class MessageManager {
         this.uiManager.app.prompts.removePrompt(messageId);
         if (message) {
             message.classList.remove("active");
+            this.toggleCollapseMessage(message, true);
         }
     }
 
@@ -356,6 +357,37 @@ class MessageManager {
 
         // Set the scroll position back to the original position after loading more messages
         messagesContainer.scrollTop = messagesContainer.scrollHeight - currentScrollPosition;
+    }
+
+    toggleCollapseMessage(messageElement, forceCollapse) {
+        const isCurrentlyCollapsed = messageElement.classList.contains("collapsed");
+        if ((forceCollapse && !isCurrentlyCollapsed) || (!forceCollapse && isCurrentlyCollapsed)) {
+            const isCollapsed = messageElement.classList.toggle("collapsed");
+            const updatedMessage = isCollapsed ? this.getMessagePreview(messageElement.dataset.message) : messageElement.dataset.message;
+            const sender = messageElement.dataset.sender;
+
+            const newCodeBlocksWithCopyElements = this.setMessageContent(sender, messageElement, updatedMessage, !isCollapsed);
+
+            newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
+                this.uiManager.eventManager.attachCodeBlockCopyEvent(codeBlock, copyElement);
+            });
+
+            const toggleItem = messageElement.querySelector(".toggle-item");
+            if (toggleItem) {
+                toggleItem.dataset.collapsed = isCollapsed ? "true" : "false";
+                const span = toggleItem.querySelector("span");
+                span.textContent = isCollapsed ? "Expand" : "Collapse";
+
+                // Get the Font Awesome icon element
+                const icon = toggleItem.querySelector("i");
+                // Change the class depending on whether the message is collapsed or not
+                if (isCollapsed) {
+                    icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+                } else {
+                    icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+                }
+            }
+        }
     }
 
 }
