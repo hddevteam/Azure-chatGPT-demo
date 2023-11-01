@@ -45,6 +45,7 @@ const handleRequestError = (error, res) => {
 };
 
 const makeRequest = async ({ apiKey, apiUrl, prompt, params }) => {
+    console.log("makeRequest", prompt);
     const options = {
         method: "POST",
         headers: {
@@ -91,6 +92,7 @@ exports.generateResponse = async (req, res) => {
         const message = data.choices[0].message.content || data.choices[0].finish_reason;
         const totalTokens = data.usage.total_tokens;
         const responseObj = { message, totalTokens };
+        console.log("responseObj", responseObj);
         res.send(responseObj);
     } catch (error) {
         handleRequestError(error, res);
@@ -231,4 +233,42 @@ exports.generateTitle = async (req, res) => {
         handleRequestError(error, res);
     }
 };
+
+exports.generateFollowUpQuestions = async (req, res) => {
+    // Parse conversation from request body
+    const prompt = JSON.parse(req.body.prompt);
+    console.log(prompt);
+    // Add follow up questions instruction to the conversation
+    prompt.push({
+        role: "user",
+        content: `Output:
+        {
+            "questions": []
+        }
+        请站在提问者角度, 针对讨论内容, 深入地提出几个简短的问题, 每个问题不超过15字, 问题数量不少于3个, 请将问题以JSON格式输出.
+        Output:`,
+    });
+
+    const requestData = {
+        apiKey: apiKey,
+        apiUrl: apiUrl,
+        prompt,
+        params: {
+            temperature: 0.5,
+            max_tokens: 1000,
+            presence_penalty: 0.0,
+            frequency_penalty: 0.5,
+        },
+    };
+
+    try {
+        const response = await makeRequest(requestData);
+        // Parse questions from the response and convert it into an array
+        const responseObj =  JSON.parse(response.data.choices[0].message.content);
+        res.send(responseObj);
+    } catch (error) {
+        handleRequestError(error, res);
+    }
+};
+
 

@@ -1,5 +1,5 @@
 // MessageManager.js
-import { getGpt } from "../utils/api.js";
+import { getGpt, getFollowUpQuestions } from "../utils/api.js";
 import { getCurrentProfile, getMessages } from "../utils/storage.js";
 import swal from "sweetalert";
 import { marked } from "marked";
@@ -27,10 +27,10 @@ class MessageManager {
 
         const menuButtonElement = this.uiManager.domManager.createMenuButtonElement();
         messageElement.appendChild(menuButtonElement);
-        
+
         const popupMenuElement = this.uiManager.domManager.createPopupMenuElement(!isActive);
         messageElement.appendChild(popupMenuElement);
-        
+
         this.uiManager.eventManager.attachMenuButtonEventListener(menuButtonElement);
         this.uiManager.eventManager.attachPopupMenuItemEventListener(popupMenuElement);
 
@@ -114,7 +114,6 @@ class MessageManager {
             this.uiManager.generateImage(imageCaption);
             return;
         }
-
         let promptText;
         if (message.startsWith("@") && !isSkipped) {
             const parts = message.split(":");
@@ -138,6 +137,7 @@ class MessageManager {
                 data.pop();
                 data.push({ role: "user", content: messageContent });
                 const prompts = [systemPrompt, ...data];
+                console.log(prompts);
                 promptText = JSON.stringify(prompts.map((p) => {
                     return { role: p.role, content: p.content };
                 }));
@@ -165,6 +165,12 @@ class MessageManager {
                 messageId = this.uiManager.generateId();
                 this.addMessage("assistant", data.message, messageId);
                 this.uiManager.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId, isActive: true });
+                
+
+                const questPromptText = this.uiManager.app.prompts.getPromptText();
+                const followUpQuestionsData = await getFollowUpQuestions(questPromptText);
+                console.log(followUpQuestionsData.questions);
+
                 const max_tokens = modelConfig[this.uiManager.app.model] || 8000;
                 console.log("max_tokens", max_tokens);
                 const tokens = data.totalTokens;
@@ -238,7 +244,7 @@ class MessageManager {
         this.uiManager.messageInput.value = message;
         this.uiManager.messageInput.focus();
     }
-    
+
 
     deleteMessage(messageId, isMute = false) {
         if (isMute) {
@@ -265,7 +271,7 @@ class MessageManager {
                 if (value === "delete") {
                     this.deleteMessageInStorage(messageId);
                     swal("Message deleted", { icon: "success", buttons: false, timer: 1000 });
-                } 
+                }
             });
         }
     }
