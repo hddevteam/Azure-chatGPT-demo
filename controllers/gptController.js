@@ -116,11 +116,11 @@ exports.createChatProfile = async (req, res) => {
         {
             role: "user",
             content:
-                `输出格式：
+                `Output:
             { "name": "", "icon": "", "displayName": "", "prompt": ""}
 
-            输入：
-            请使用以下职业或场景:'${profession}',参考以下模板,生成AI对象配置文件。其中icon要使用font awesome图标代码, 例如fas fa-robot, fab fa-js-square等。请注意输出格式符合JSON规范:
+            Input:
+            Please create a chat profile for the following profession or scenario: ${profession}. Please use the following template to generate the chat profile. The icon should be a font awesome icon code, for example, fas fa-robot, fab fa-js-square, etc. Please note that the output should be in JSON format.
             {
                 "name": "dotNETCoreExpert",
                 "icon": "fas fa-code",
@@ -181,20 +181,19 @@ exports.summarizeConversation = async (req, res) => {
         {
             role: "user",
             content:
-                `输出格式:
+                `Output:
             {
                 "title":"",
                 "summary":""
             }
 
-            输入:
-            请根据以下对话内容：
+            Input:
+            Please summarize the following conversation into a title and a paragraph of no more than 200 words. Please note that the output should be in JSON format.
             ===
             ${conversation}
             ===
-            以json格式, 生成标题和不超过1个段落, 200字的内容总结, 请注意输出格式符合JSON规范.
-
-            输出:`,
+            
+            Output:`,
         },
     ];
     console.log("Prompt:", prompt);
@@ -248,14 +247,14 @@ exports.generateTitle = async (req, res) => {
         {
             role: "user",
             content: `
-            输入:
-            请根据以下内容生成一个简短的标题，10字以内。注意，标题需要突出主题或关键点。
-
+            Input:
+            Please generate a short title, less than 15 words, based on the following content. Please note that the title should highlight the topic or key points.
+            The title language should be consistent with the content language.
             ===
             ${conversation}
             ===
         
-            输出:`,
+            Output:`,
         },
     ];
     console.log("Prompt:", prompt);
@@ -277,7 +276,7 @@ exports.generateTitle = async (req, res) => {
             top_p: defaultParams.top_p,
             frequency_penalty: defaultParams.frequency_penalty,
             presence_penalty: defaultParams.presence_penalty,
-            max_tokens: 20,
+            max_tokens: 30,
             stop: null,
         },
     };
@@ -288,7 +287,7 @@ exports.generateTitle = async (req, res) => {
         const { data } = response;
 
         // Get message content from response
-        const message = data.choices[0].message.content||"无题";
+        const message = data.choices[0].message.content||"untitled";
         console.log(message);
 
         // Parse message and send as response

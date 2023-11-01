@@ -113,3 +113,4 @@ extract-code-for-chat.ipynb
 build/my-languages.so
 public/dist/
 
+.DS_Store
