@@ -213,6 +213,7 @@ class DOMManager {
 
         // Define an object with menu items and their corresponding Font Awesome class names
         const items = [
+            { name: "Edit", icon: "fa-edit" },
             { name: "Delete", icon: "fa-trash" },
             { name: "Copy", icon: "fa-copy" },
             { name: "Toggle", icon: isCollapsed ? "fa-chevron-down" : "fa-chevron-up" }

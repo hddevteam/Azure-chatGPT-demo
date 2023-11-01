@@ -126,6 +126,14 @@ class EventManager {
     }
 
     attachPopupMenuItemEventListener(popupMenu) {
+        
+        const editItem = popupMenu.querySelector(".edit-item");
+        editItem.addEventListener("click", () => {
+            const message = popupMenu.parentElement.dataset.message;
+            const messageId = popupMenu.parentElement.dataset.messageId;
+            this.uiManager.messageManager.editMessage(message, messageId);
+        });
+
         const deleteItem = popupMenu.querySelector(".delete-item");
         deleteItem.addEventListener("click", () => {
             const messageId = popupMenu.parentElement.dataset.messageId;

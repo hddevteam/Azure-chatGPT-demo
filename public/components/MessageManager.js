@@ -232,6 +232,13 @@ class MessageManager {
         }
     }
 
+    editMessage(message, messageId) {
+        this.inactiveMessage(messageId);
+        this.uiManager.messageInput.value = message;
+        this.uiManager.messageInput.focus();
+    }
+    
+
     deleteMessage(messageId, isMute = false) {
         if (isMute) {
             this.deleteMessageInStorage(messageId);
@@ -252,21 +259,12 @@ class MessageManager {
                         text: "Delete",
                         value: "delete",
                     },
-                    edit: {
-                        text: "Edit",
-                        value: "edit",
-                    },
                 },
             }).then((value) => {
                 if (value === "delete") {
                     this.deleteMessageInStorage(messageId);
                     swal("Message deleted", { icon: "success", buttons: false, timer: 1000 });
-                } else if (value === "edit") {
-                    this.uiManager.messageInput.value = message;
-                    this.uiManager.messageInput.focus();
-                    this.deleteMessageInStorage(messageId);
-                    swal("Message deleted but copied to input box.", { icon: "success", buttons: false, timer: 1000 });
-                }
+                } 
             });
         }
     }
