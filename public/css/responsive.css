@@ -94,7 +94,10 @@
         margin-bottom: 1em;
     }
 
-    .message li {
+.message li:not(.menu-item) {
+        margin-bottom: 0.5em;
+        margin-left: 2em;
+    } {
         margin-bottom: 0.5em;
         margin-left: 2em;
     }
