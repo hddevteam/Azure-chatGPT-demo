@@ -459,22 +459,23 @@ class MessageManager {
         const currentProfile = getCurrentProfile();
         
         const systemPrompt = { role: "system", 
-            content: `你是一个初学者，你正在和${currentProfile.displayName}交流,
-                      他的简介如下
+            content: ` You are an experienced person who is good at asking questions. You are talking to ${currentProfile.displayName},
+            Here is his/her profile:
                       ===
                       ${currentProfile.prompt}
                       ===
-                      你会提出有深度的问题让讨论进行下去` };
+                      ` };
         
         const userPrompt = { role: "user", 
             content: `Output: {
                 "questions": []
             }
-            请根据以下内容
+            Please generate follow-up questions based on the following content:
             ===
             ${content}
             ===
-            生成简短的questions, 每个问题不超过15字, 数量不少于2个, 必须严格按照JSON格式输出. 
+            Please note that the follow-up questions should be short, each question should not exceed 15 words, the number of questions should be no less than 2, and must be strictly in accordance with the JSON format.
+            Please use the language of the content to ask questions.
             Output:` };
         const prompts = [systemPrompt, userPrompt];
         console.log(prompts);
