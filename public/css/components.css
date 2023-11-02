@@ -720,6 +720,10 @@ button.action-button.invisible {
     margin: 0;
 }
 
+.follow-up-questions {
+    text-align: right;
+}
+
 .follow-up-questions button {
     background-color: white;
     color: black;
