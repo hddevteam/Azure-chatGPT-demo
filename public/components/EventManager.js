@@ -126,7 +126,7 @@ class EventManager {
     }
 
     attachPopupMenuItemEventListener(popupMenu) {
-        
+
         const editItem = popupMenu.querySelector(".edit-item");
         editItem.addEventListener("click", () => {
             const message = popupMenu.parentElement.dataset.message;
@@ -156,6 +156,14 @@ class EventManager {
             this.uiManager.messageManager.toggleCollapseMessage(messageElement, !isCurrentlyCollapsed);
         });
     }
+
+    attachQuestionButtonEvent(questionElement, question) {
+        questionElement.addEventListener("click", async () => {
+            // Use `question` as the message to send to AI
+            await this.uiManager.messageManager.sendMessage(question);
+        });
+    }
+
 }
 
 export default EventManager;

@@ -245,7 +245,7 @@ exports.generateFollowUpQuestions = async (req, res) => {
         {
             "questions": []
         }
-        请站在提问者角度, 针对讨论内容, 深入地提出几个简短的问题, 每个问题不超过15字, 问题数量不少于3个, 请将问题以JSON格式输出.
+        请基于之前的话题内容，站在提问者角度, 生成简短的follow-up问题, 每个问题不超过15字, 数量不少于3个, 以JSON格式输出.
         Output:`,
     });
 
@@ -254,10 +254,10 @@ exports.generateFollowUpQuestions = async (req, res) => {
         apiUrl: apiUrl,
         prompt,
         params: {
-            temperature: 0.5,
+            temperature: 0.8,
             max_tokens: 1000,
             presence_penalty: 0.0,
-            frequency_penalty: 0.5,
+            frequency_penalty: 0.0,
         },
     };
 
@@ -265,6 +265,7 @@ exports.generateFollowUpQuestions = async (req, res) => {
         const response = await makeRequest(requestData);
         // Parse questions from the response and convert it into an array
         const responseObj =  JSON.parse(response.data.choices[0].message.content);
+        console.log(responseObj);
         res.send(responseObj);
     } catch (error) {
         handleRequestError(error, res);

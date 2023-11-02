@@ -86,121 +86,146 @@ class MessageManager {
         this.uiManager.updateSlider();
     }
 
-    async sendMessage(message = "") {
-        this.uiManager.initSubmitButtonProcessing();
-
-        let messageId = this.uiManager.generateId();
+    async validateInput(message) {
         const validationResult = await this.uiManager.validateMessage(message);
         message = validationResult.message;
-        let isSkipped = validationResult.isSkipped;
         let reEdit = validationResult.reEdit;
 
         if (reEdit) {
             this.uiManager.messageInput.value = message;
             this.uiManager.messageInput.focus();
             this.uiManager.finishSubmitProcessing();
-            return;
+            return false;
         }
 
+        let messageId = this.uiManager.generateId();
         this.addMessage("user", message, messageId);
         this.uiManager.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
         this.uiManager.storageManager.saveCurrentProfileMessages();
         this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
+        // return validationResult if input is valid and processed successfully.
+        return validationResult;
+    }
 
-        if (message.startsWith("/image")) {
-            const imageCaption = message.replace("/image", "").trim();
-            this.uiManager.showToast("AI is generating image...");
-            this.uiManager.generateImage(imageCaption);
-            return;
-        }
-        let promptText;
-        if (message.startsWith("@") && !isSkipped) {
-            const parts = message.split(":");
-            if (parts.length >= 2) {
-                const profileDisplayName = parts[0].substring(1).trim(); // Remove '@'
-                const messageContent = parts.slice(1).join(":").trim();
-                let systemPrompt;
-                const profile = this.uiManager.profiles.find(p => p.displayName === profileDisplayName);
-                if (profile) {
-                    systemPrompt = { role: "system", content: profile.prompt };
-                } else {
-                    systemPrompt = { role: "system", content: `You are an experienced ${profileDisplayName}.` };
-                }
-                let data = this.uiManager.app.prompts.data.map(d => {
-                    if (d.role === "assistant") {
-                        return { ...d, role: "user" };
-                    }
-                    return d;
-                });
-                // remove the last prompt
-                data.pop();
-                data.push({ role: "user", content: messageContent });
-                const prompts = [systemPrompt, ...data];
-                console.log(prompts);
-                promptText = JSON.stringify(prompts.map((p) => {
-                    return { role: p.role, content: p.content };
-                }));
-            }
-        } else {
-            promptText = this.uiManager.app.prompts.getPromptText();
-        }
 
+
+    async sendTextMessage() {
+        this.uiManager.showToast("AI is thinking...");
+        const promptText = this.uiManager.app.prompts.getPromptText();
+        // Code for getGpt, check it's proper implementation in your code.
+        return await getGpt(promptText, this.uiManager.app.model);
+    }
+
+    async sendImageMessage(message) {
+        const imageCaption = message.replace("/image", "").trim();
+        this.uiManager.showToast("AI is generating image...");
+        return await this.uiManager.generateImage(imageCaption);
+    }
+
+
+    async wrapWithGetGptErrorHandler(dataPromise) {
         try {
-            this.uiManager.showToast("AI is thinking...");
-            console.log(this.uiManager.app.model);
-            console.log(promptText);
-            const data = await getGpt(promptText, this.uiManager.app.model);
-
-            // 停止动画，恢复按钮初始状态
-            this.uiManager.finishSubmitProcessing();
-
-            // If no response, pop last prompt and send a message
+            const data = await dataPromise;
             if (!data) {
-                messageId = this.uiManager.generateId();
+                let messageId = this.uiManager.generateId();
                 const content = "The AI did not return any results. Please repeat your question or ask me a different question.";
                 this.addMessage("assistant", content, messageId, false);
                 this.uiManager.app.prompts.addPrompt({ role: "assistant", content: content, messageId: messageId, isActive: false });
             } else {
-                messageId = this.uiManager.generateId();
+                let messageId = this.uiManager.generateId();
                 this.addMessage("assistant", data.message, messageId);
                 this.uiManager.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId, isActive: true });
-                
-
-                const questPromptText = this.uiManager.app.prompts.getPromptText();
-                const followUpQuestionsData = await getFollowUpQuestions(questPromptText);
-                console.log(followUpQuestionsData.questions);
-
-                const max_tokens = modelConfig[this.uiManager.app.model] || 8000;
-                console.log("max_tokens", max_tokens);
-                const tokens = data.totalTokens;
-                const tokensSpan = document.querySelector("#tokens");
-                tokensSpan.textContent = `${tokens}t`;
-                tokensSpan.parentNode.classList.add("updated");
-                setTimeout(() => {
-                    tokensSpan.parentNode.classList.remove("updated");
-                }, 500);
-
-                // If tokens are over 90% of max_tokens, remove the first round conversation
-                if (tokens > max_tokens * 0.9) {
-                    swal({
-                        title: "The conersation tokens are over 90% of the limit, will remove the first round conversation from cache to maintain the conversation flow.",
-                        icon: "warning",
-                        buttons: false,
-                        timer: 3000,
-                    });
-                    const removedPrompts = this.uiManager.app.prompts.removeRange(1, 2);
-                    removedPrompts.forEach((p) => {
-                        this.inactiveMessage(p.messageId);
-                    });
-                }
             }
-            this.uiManager.storageManager.saveCurrentProfileMessages();
+            return data;
         } catch (error) {
             let messageId = this.uiManager.generateId();
             this.addMessage("assistant", error.message, messageId, true, "bottom", true);
             this.uiManager.finishSubmitProcessing();
         }
+    }
+
+
+    checkTokensAndWarn(tokens) {
+        const max_tokens = modelConfig[this.uiManager.app.model] || 8000;
+        if (tokens > max_tokens * 0.9) {
+            swal({
+                title: "The conersation tokens are over 90% of the limit, will remove the first round conversation from cache to maintain the conversation flow.",
+                icon: "warning",
+                buttons: false,
+                timer: 3000,
+            });
+            const removedPrompts = this.uiManager.app.prompts.removeRange(1, 2);
+            removedPrompts.forEach((p) => {
+                this.inactiveMessage(p.messageId);
+            });
+        }
+    }
+
+    async sendProfileMessage(message) {
+        // Profile-specific logic
+        const parts = message.split(":");
+        if (parts.length >= 2) {
+            const profileDisplayName = parts[0].substring(1).trim(); // Remove '@'
+            const messageContent = parts.slice(1).join(":").trim();
+            let systemPrompt;
+            const profile = this.uiManager.profiles.find(p => p.displayName === profileDisplayName);
+            if (profile) {
+                systemPrompt = { role: "system", content: profile.prompt };
+            } else {
+                systemPrompt = { role: "system", content: `You are an experienced ${profileDisplayName}.` };
+            }
+            let data = this.uiManager.app.prompts.data.map(d => {
+                if (d.role === "assistant") {
+                    return { ...d, role: "user" };
+                }
+                return d;
+            });
+            // remove the last prompt
+            data.pop();
+            data.push({ role: "user", content: messageContent });
+            const prompts = [systemPrompt, ...data];
+            console.log(prompts);
+            const promptText = JSON.stringify(prompts.map((p) => {
+                return { role: p.role, content: p.content };
+            }));
+
+            // Send the new 'profile' message
+            this.uiManager.showToast("AI is thinking...");
+            return await getGpt(promptText, this.uiManager.app.model);
+        }
+    }
+
+    async sendMessage(inputMessage = "") {
+        this.clearFollowUpQuestions();
+
+        this.uiManager.initSubmitButtonProcessing();
+
+        const validationResult = await this.validateInput(inputMessage);
+
+        if (!validationResult) {
+            return;
+        }
+
+        const { message, isSkipped } = validationResult;
+        let data;
+
+        if (message.startsWith("/image")) {
+            data = await this.sendImageMessage(message);
+        } else if (message.startsWith("@") && !isSkipped) {
+            data = await this.sendProfileMessage(message);
+        } else {
+            data = await this.sendTextMessage(message);
+        }
+
+        data = await this.wrapWithGetGptErrorHandler(data);
+        this.uiManager.finishSubmitProcessing();
+
+        // Don't forget to perform follow-up actions after the response if any
+        await this.sendFollowUpQuestions();
+
+        this.checkTokensAndWarn(data.totalTokens);
+        this.uiManager.storageManager.saveCurrentProfileMessages();
     }
 
     // Add this method to get the ID of the last message
@@ -394,6 +419,40 @@ class MessageManager {
                 }
             }
         }
+    }
+    // MessageManager.js
+    addFollowUpQuestions(questions) {
+        const followUpQuestionsElement = document.createElement("div");
+        followUpQuestionsElement.classList.add("follow-up-questions");
+
+        questions.forEach((question) => {
+            const questionElement = document.createElement("button");
+            questionElement.textContent = question;
+            this.uiManager.eventManager.attachQuestionButtonEvent(questionElement, question);
+            followUpQuestionsElement.appendChild(questionElement);
+        });
+
+        const messagesContainer = document.querySelector("#messages");
+        messagesContainer.appendChild(followUpQuestionsElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        this.uiManager.updateSlider();
+    }
+
+    // MessageManager.js
+    clearFollowUpQuestions() {
+        const followUpQuestionsElement = document.querySelector("#messages .follow-up-questions");
+        if (followUpQuestionsElement) {
+            followUpQuestionsElement.remove();
+        }
+    }
+
+    async sendFollowUpQuestions() {
+        const questionPromptText = this.uiManager.app.prompts.getPromptText();
+        const followUpQuestionsData = await getFollowUpQuestions(questionPromptText);
+        console.log(followUpQuestionsData.questions);
+
+        this.addFollowUpQuestions(followUpQuestionsData.questions);
     }
 
 }
