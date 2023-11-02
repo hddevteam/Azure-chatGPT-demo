@@ -141,7 +141,7 @@ class DOMManager {
         listItemElement.appendChild(titleElement);
 
         const createdAtElement = document.createElement("small");
-        createdAtElement.textContent = formatTime(history.createdAt);
+        createdAtElement.textContent = formatTime(history.updatedAt);
 
         listItemElement.appendChild(createdAtElement);
 

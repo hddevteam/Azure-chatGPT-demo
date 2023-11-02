@@ -25,8 +25,12 @@ class ChatHistoryManager {
     // Use these functions like this
     getChatHistory() {
         const username = getCurrentUsername();
-        return getChatHistory(username);
-    }
+        const chatHistory = getChatHistory(username);
+        
+        return chatHistory.sort((a, b) => {
+            return new Date(b.updatedAt) - new Date(a.updatedAt);
+        });
+    }    
 
     saveChatHistory(chatHistory) {
         const username = getCurrentUsername();
