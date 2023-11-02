@@ -147,6 +147,14 @@ class MessageManager {
 
 
     checkTokensAndWarn(tokens) {
+        
+        const tokensSpan = document.querySelector("#tokens");
+        tokensSpan.textContent = `${tokens}t`;
+        tokensSpan.parentNode.classList.add("updated");
+        setTimeout(() => {
+            tokensSpan.parentNode.classList.remove("updated");
+        }, 500);
+
         const max_tokens = modelConfig[this.uiManager.app.model] || 8000;
         if (tokens > max_tokens * 0.9) {
             swal({
