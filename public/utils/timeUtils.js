@@ -14,12 +14,20 @@ export function formatTime(createdAt) {
         return `${diffMinutes} minutes ago`;
     } else if (diffDays < 1) {
         return `${diffHours} hours ago`;
+    } else if (diffDays == 1) {
+        return "yesterday";
     } else if (diffWeeks < 1) {
         return `${diffDays} days ago`;
+    } else if (diffWeeks == 1) {
+        return "last week";
     } else if (diffMonths < 1) {
         return `${diffWeeks} weeks ago`;
+    } else if (diffMonths == 1) {
+        return "last month";
     } else if (diffYears < 1) {
         return `${diffMonths} months ago`;
+    } else if (diffYears == 1) {
+        return "last year";
     } else {
         return `${diffYears} years ago`;
     }
