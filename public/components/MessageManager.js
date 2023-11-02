@@ -136,6 +136,7 @@ class MessageManager {
                 let messageId = this.uiManager.generateId();
                 this.addMessage("assistant", data.message, messageId);
                 this.uiManager.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId, isActive: true });
+                await this.sendFollowUpQuestions(data.message);
             }
             return data;
         } catch (error) {
@@ -147,7 +148,7 @@ class MessageManager {
 
 
     checkTokensAndWarn(tokens) {
-        
+
         const tokensSpan = document.querySelector("#tokens");
         tokensSpan.textContent = `${tokens}t`;
         tokensSpan.parentNode.classList.add("updated");
@@ -230,7 +231,6 @@ class MessageManager {
         this.uiManager.finishSubmitProcessing();
 
         // Don't forget to perform follow-up actions after the response if any
-        await this.sendFollowUpQuestions();
 
         this.checkTokensAndWarn(data.totalTokens);
         this.uiManager.storageManager.saveCurrentProfileMessages();
@@ -455,8 +455,33 @@ class MessageManager {
         }
     }
 
-    async sendFollowUpQuestions() {
-        const questionPromptText = this.uiManager.app.prompts.getPromptText();
+    async sendFollowUpQuestions(content) {       
+        const currentProfile = getCurrentProfile();
+        
+        const systemPrompt = { role: "system", 
+            content: `你是一个初学者，你正在和${currentProfile.displayName}交流,
+                      他的简介如下
+                      ===
+                      ${currentProfile.prompt}
+                      ===
+                      你会提出有深度的问题让讨论进行下去` };
+        
+        const userPrompt = { role: "user", 
+            content: `Output: {
+                "questions": []
+            }
+            请根据以下内容
+            ===
+            ${content}
+            ===
+            生成简短的questions, 每个问题不超过15字, 数量不少于2个, 必须严格按照JSON格式输出. 
+            Output:` };
+        const prompts = [systemPrompt, userPrompt];
+        console.log(prompts);
+        const questionPromptText = JSON.stringify(prompts.map((p) => {
+            return { role: p.role, content: p.content };
+        }));
+
         const followUpQuestionsData = await getFollowUpQuestions(questionPromptText);
         console.log(followUpQuestionsData.questions);
 

@@ -237,15 +237,6 @@ exports.generateTitle = async (req, res) => {
 exports.generateFollowUpQuestions = async (req, res) => {
     const prompt = JSON.parse(req.body.prompt);
 
-    prompt.push({
-        role: "user",
-        content: `Output: {
-            "questions": []
-        }
-        请基于之前的话题内容，站在提问者角度, 生成简短的follow-up问题, 每个问题不超过15字, 数量不少于3个, 必须严格按照JSON格式输出. 
-        Output:`,
-    });
-
     const requestData = {
         apiKey: apiKey,
         apiUrl: apiUrl,
