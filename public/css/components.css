@@ -699,7 +699,6 @@ button.action-button {
     opacity: 0.5;
     border-radius: 5px;
     background: #333; 
-    transition: background 0.3s, border-color 0.3s, color 0.3s; 
 }
 
 button.action-button:hover {
@@ -721,7 +720,7 @@ button.action-button.invisible {
 }
 
 .follow-up-questions {
-    text-align: right;
+    text-align: left;
 }
 
 .follow-up-questions button {

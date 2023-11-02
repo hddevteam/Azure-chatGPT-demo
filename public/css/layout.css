@@ -4,16 +4,20 @@
     display: flex;
     width: 100vw;
     height: 100vh;
-}
+    margin: 0 auto;
+    max-width: 1440px;
+  }
+  
 
 #chat-history-container {
     background-color: #555;
     border: none;
-    border-radius: 0px 10px 10px 0px;
+    border-radius: 10px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     padding: 10px;
     margin: 0px auto 0p 0px;
     margin-top: 20px;
+    margin-left: 5px;
     max-width: 20%;
     overflow: auto;
 }
@@ -23,7 +27,7 @@
     display: flex;
     justify-content: flex-start;
     height: 100%;
-    padding-left: 20px;
+    padding-left: 10px;
 }
 
 #app-container {
