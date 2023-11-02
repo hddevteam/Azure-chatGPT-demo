@@ -106,7 +106,9 @@ export async function getFollowUpQuestions(prompt) {
     });
 
     // Get the response data
-    const data = await response.json();
+    const responseText = await response.text();
+    console.log(responseText);
+    const data = JSON.parse(responseText);
 
     // If the response is not okay, throw an error with the status and message
     if (!response.ok) {

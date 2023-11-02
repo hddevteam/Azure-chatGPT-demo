@@ -68,8 +68,8 @@ exports.generateResponse = async (req, res) => {
     if (!prompt || !prompt.length) {
         console.error("Invalid prompt");
         return res.status(400).send("Invalid prompt");
-    }    
-    
+    }
+
     const currentApiKey = model === "gpt-3.5-turbo" ? apiKey : gpt4Apikey;
     const currentApiUrl = model === "gpt-3.5-turbo" ? apiUrl : gpt4ApiUrl;
 
@@ -235,17 +235,14 @@ exports.generateTitle = async (req, res) => {
 };
 
 exports.generateFollowUpQuestions = async (req, res) => {
-    // Parse conversation from request body
     const prompt = JSON.parse(req.body.prompt);
-    console.log(prompt);
-    // Add follow up questions instruction to the conversation
+
     prompt.push({
         role: "user",
-        content: `Output:
-        {
+        content: `Output: {
             "questions": []
         }
-        请基于之前的话题内容，站在提问者角度, 生成简短的follow-up问题, 每个问题不超过15字, 数量不少于3个, 以JSON格式输出.
+        请基于之前的话题内容，站在提问者角度, 生成简短的follow-up问题, 每个问题不超过15字, 数量不少于3个, 必须严格按照JSON格式输出. 
         Output:`,
     });
 
@@ -263,10 +260,9 @@ exports.generateFollowUpQuestions = async (req, res) => {
 
     try {
         const response = await makeRequest(requestData);
-        // Parse questions from the response and convert it into an array
-        const responseObj =  JSON.parse(response.data.choices[0].message.content);
-        console.log(responseObj);
-        res.send(responseObj);
+        const { data } = response;
+        const message = data.choices[0].message.content || "untitled";
+        res.send(message);
     } catch (error) {
         handleRequestError(error, res);
     }
