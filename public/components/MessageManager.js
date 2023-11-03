@@ -136,7 +136,7 @@ class MessageManager {
                 let messageId = this.uiManager.generateId();
                 this.addMessage("assistant", data.message, messageId);
                 this.uiManager.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId, isActive: true });
-                await this.sendFollowUpQuestions(data.message);
+                await this.sendFollowUpQuestions();
             }
             return data;
         } catch (error) {
@@ -471,11 +471,20 @@ class MessageManager {
         }
     }
 
-    async sendFollowUpQuestions(content) {       
+    async sendFollowUpQuestions() {       
         const currentProfile = getCurrentProfile();
+        const activeMessages = [...document.querySelectorAll(".message.active")];
+        let content = "";
+        const lastFourMessages = activeMessages.slice(-4); // This will still work even if there are fewer than 4 messages
+        lastFourMessages.forEach(message => {
+            // const dataSender = message.getAttribute("data-sender");
+            const dataMessage = message.getAttribute("data-message");
+            content += `${dataMessage}\n\n`;
+        });
+
         
         const systemPrompt = { role: "system", 
-            content: ` You are an experienced person who is good at asking questions. You are talking to ${currentProfile.displayName},
+            content: ` You are a critical thinker who is good at asking questions. You are talking to ${currentProfile.displayName},
             Here is his/her profile:
                       ===
                       ${currentProfile.prompt}

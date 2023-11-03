@@ -201,12 +201,11 @@ exports.generateTitle = async (req, res) => {
             role: "user",
             content: `
             Input:
-            Please generate a short title, less than 15 words, based on the following content. Please note that the title should highlight the topic or key points.
-            The title language should be consistent with the content language.
+            Please generate a short title in less than 10 words for the following content and must be in the language of the content. 
             ===
             ${conversation}
             ===
-        
+            Please note that the title should highlight the topic or key points. 
             Output:`,
         },
     ];
