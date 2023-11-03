@@ -660,8 +660,9 @@ svg rect {
 }
 
 #chat-history-list li.active {
-    background-color: #666;
-    color: limegreen;
+    background-color: #007BFF;
+    color: white;
+    border: 1px solid #0056b3;
 }
 
 #chat-history-list li i {

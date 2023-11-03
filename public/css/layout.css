@@ -10,18 +10,18 @@
   
 
 #chat-history-container {
-    background-color: #555;
+    background: linear-gradient(to bottom, #999, #333);
     border: none;
     border-radius: 10px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     padding: 10px;
-    margin: 0px auto 0p 0px;
+    margin: 0px auto 0px;
     margin-top: 20px;
     margin-left: 5px;
     max-width: 20%;
     overflow: auto;
-}
-
+  }
+  
 #app-outer-container {
     flex: 1;
     display: flex;
@@ -71,11 +71,12 @@
     height: 40px;
     justify-content: space-between;
     align-items: center;
-    background-color: #333;
+    background: linear-gradient(to bottom right, #999, #333);
     border-radius: 5px 0 0 0;
     padding: 0;
     position: relative;
-}
+  }
+  
 
 
 #profile-content {
@@ -111,14 +112,15 @@
 
 #message-form {
     height: auto;
-    background-color: #333;
+    background: linear-gradient(to bottom, #333, #555);
     padding: 5px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: flex-start;
     box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
-}
+  }
+  
 
 #message-input {
     resize: none;
