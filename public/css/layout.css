@@ -12,22 +12,32 @@
 #chat-history-container {
     background: linear-gradient(to bottom, #999, #333);
     border: none;
-    border-radius: 10px;
+    border-radius: 10px 0 0 10px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     padding: 10px;
     margin: 0px auto 0px;
-    margin-top: 20px;
-    margin-left: 5px;
+    margin-top: 40px;
     max-width: 20%;
     overflow: auto;
+    height: 95vh;
+    overflow: hidden;  
   }
+
+#app-outer-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    flex: 1;
+    position: relative;    /* Add */
+}
+
   
 #app-outer-container {
     flex: 1;
     display: flex;
     justify-content: flex-start;
     height: 100%;
-    padding-left: 10px;
 }
 
 #app-container {

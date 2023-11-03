@@ -287,7 +287,7 @@ window.addEventListener("resize", () => {
 });
 
 const messageInputContainer = document.querySelector(".message-input-container");
-const mainContainer = document.querySelector("#main-container");
+const mainContainer = document.querySelector("#app-outer-container");
 let ro = new ResizeObserver(entries => {
     for (let entry of entries) {
         let newHeight = `calc(var(--vh, 1vh) * 99.5 - ${entry.contentRect.height}px)`;

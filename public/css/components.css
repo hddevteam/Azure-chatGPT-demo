@@ -638,7 +638,21 @@ svg rect {
 #chat-history-list {
     list-style: none;
     padding: 0;
+    width: 100%;
+    height: 100%;
+    padding-bottom: 40px;
+    overflow: auto;
 }
+
+#chat-history-list::-webkit-scrollbar {
+    display: none;  /* for Chrome, Safari */
+}
+
+#chat-history-list {
+    -ms-overflow-style: none;  /* for IE and Edge */
+    scrollbar-width: none; /* for Firefox */
+}
+
 
 #chat-history-list li {
     padding: 10px;
@@ -646,11 +660,13 @@ svg rect {
     color: #f5f5f5;
     border-radius: 3px;
     margin-bottom: 10px;
+    border: 1px solid #333;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 #chat-history-list li:hover {
-    background-color: #444;
+    background-color: #3391FF;
+    border: 1px solid #0056b3;
     cursor: pointer;
 }
 
@@ -667,7 +683,6 @@ svg rect {
 
 #chat-history-list li i {
     margin-right: 10px;
-    
 }
 
 #chat-history-list li:last-child {
