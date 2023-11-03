@@ -118,39 +118,40 @@ document.getElementById("md-container").addEventListener("click", () => {
 
 document.getElementById("delete-container").addEventListener("click", () => {
     const messageNumber = document.querySelectorAll(".message.active").length;
+    const inactiveMessageNumber = document.querySelectorAll(".message:not(.active)").length;
+    const allMessageNumber = document.querySelectorAll(".message").length;
+    
     swal({
-        title: `You are about to delete ${messageNumber} messages in the current conversation. This action cannot be undone.`,
+        title: "What kind of messages you want to delete?",
         icon: "warning",
         buttons: {
             cancel: "Cancel",
-            delete: {
-                text: "Delete",
-                value: "delete",
+            deleteActive: {
+                text: `Delete Active Messages (${messageNumber})`,
+                value: "deleteActive",
             },
-            edit: {
-                text: "Edit",
-                value: "edit",
+            deleteInactive: {
+                text: `Delete Inactive Messages (${inactiveMessageNumber})`,
+                value: "deleteInactive",
             },
+            deleteAll: {
+                text: `Delete All Messages (${allMessageNumber})`,
+                value: "deleteAll",
+            }
         },
         dangerMode: true
     })
         .then((value) => {
-            if (value === "delete") {
+            if (value === "deleteActive") {
                 uiManager.messageManager.deleteActiveMessages();
-                swal("Messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
-            } else if (value === "edit") {
-                const activeMessages = document.querySelectorAll(".message.active");
-                let mdContent = "";
-                activeMessages.forEach(message => {
-                    const dataSender = message.getAttribute("data-sender");
-                    const dataMessage = message.getAttribute("data-message");
-                    mdContent += `### ${dataSender}\n\n${dataMessage}\n\n`;
-                });
-                messageInput.value += mdContent;
-                uiManager.messageManager.deleteActiveMessages();
-                swal("Messages in the current conversation have been merged into the text box successfully!", { icon: "success", buttons: false, timer: 1000 });
-                messageInput.focus();
-            }
+                swal("Active messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
+            } else if (value === "deleteInactive") {
+                uiManager.messageManager.deleteInactiveMessages();
+                swal("Inactive messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
+            } else if (value === "deleteAll") {
+                uiManager.messageManager.deleteAllMessages();
+                swal("All messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
+            } 
         });
 });
 

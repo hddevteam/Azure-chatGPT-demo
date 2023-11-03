@@ -370,6 +370,22 @@ class MessageManager {
         }
     }
 
+    deleteInactiveMessages() {
+        const inactiveMessages = document.querySelectorAll(".message:not(.active)");
+        for (let i = inactiveMessages.length - 1; i >= 0; i--) {
+            const message = inactiveMessages[i];
+            this.deleteMessage(message.dataset.messageId, true);
+        }
+    }
+
+    deleteAllMessages() {
+        const allMessages = document.querySelectorAll(".message");
+        for (let i = allMessages.length - 1; i >= 0; i--) {
+            const message = allMessages[i];
+            this.deleteMessage(message.dataset.messageId, true);
+        }
+    }
+
     loadMoreMessages() {
         if (this.uiManager.isDeleting) {
             return;
