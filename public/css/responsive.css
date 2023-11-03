@@ -143,13 +143,13 @@
         width: 100%;
     }
 
-    #voice-input-container {
+    #new-chat-container,#voice-input-container {
         width: 100%;
         display: flex;
         justify-content: center;
     }
 
-    #voice-input-button {
+    #new-chat-button,#voice-input-button {
         width: 100% !important;
         position: static !important;
         border-radius: 0px 0px 0px 5px;
