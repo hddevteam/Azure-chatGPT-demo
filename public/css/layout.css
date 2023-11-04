@@ -18,8 +18,7 @@
     margin: 0px auto 0px;
     margin-top: 40px;
     max-width: 20%;
-    overflow: auto;
-    height: 95vh;
+    height: calc(100vh - 40px);
     overflow: hidden;  
   }
 
@@ -29,7 +28,7 @@
     justify-content: space-between;
     height: 100vh;
     flex: 1;
-    position: relative;    /* Add */
+    position: relative; 
 }
 
   

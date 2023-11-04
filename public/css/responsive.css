@@ -1,3 +1,24 @@
+@media screen and (max-width: 1440px) {
+    #menu {
+      display: none; /* 隐藏菜单 */
+    }
+  
+    #chat-container {
+      flex: 1; /* 让聊天容器占满剩下的空间 */
+    }
+  }
+  
+  @media screen and (max-width: 1024px) {
+    #chat-history-container {
+      display: none; /* 隐藏聊天历史 */
+    }
+  
+    #app-container {
+      margin-left: 0; /* 删除左边距 */
+      max-width: 100%; /* 让app容器占满屏幕宽度 */
+    }
+  }
+
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
     #app-outer-container {
