@@ -484,23 +484,23 @@ class MessageManager {
 
         
         const systemPrompt = { role: "system", 
-            content: ` You are a critical thinker who is good at asking questions. You are talking to ${currentProfile.displayName},
+            content: ` You are a critical thinker. You are talking with ${currentProfile.displayName},
             Here is his/her profile:
                       ===
                       ${currentProfile.prompt}
                       ===
                       ` };
-        
+        console.log(this.uiManager.clientLanguage);
         const userPrompt = { role: "user", 
             content: `Output: {
-                "questions": []
+                "suggestedUserResponses": []
             }
-            Please generate follow-up questions based on the following content:
+            Please give your follow-up content idea based on the following content:
             ===
             ${content}
             ===
-            Please note that the follow-up questions should be short, each question should not exceed 15 words, the number of questions should be no less than 2, and must be strictly in accordance with the JSON format.
-            Please use the language of the content to ask questions.
+            Please note that the follow-up idea should be short, each idea should not exceed 15 words, the number should be no less than 2 but no more than 5, and must be strictly in accordance with the JSON format.
+            Please use ${this.uiManager.clientLanguage}.
             Output:` };
         const prompts = [systemPrompt, userPrompt];
         console.log(prompts);
@@ -508,10 +508,10 @@ class MessageManager {
             return { role: p.role, content: p.content };
         }));
 
-        const followUpQuestionsData = await getFollowUpQuestions(questionPromptText);
-        console.log(followUpQuestionsData.questions);
+        const followUpResponsesData = await getFollowUpQuestions(questionPromptText);
+        console.log(followUpResponsesData.suggestedUserResponses);
 
-        this.addFollowUpQuestions(followUpQuestionsData.questions);
+        this.addFollowUpQuestions(followUpResponsesData.suggestedUserResponses);
     }
 
 }

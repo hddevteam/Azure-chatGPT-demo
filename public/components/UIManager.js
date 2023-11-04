@@ -15,6 +15,7 @@ class UIManager {
         this.messageLimit = 15;
         this.isDeleting = false;
         this.profiles = [];
+        this.clientLanguage = "en-US";
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.addEventListener("scroll", () => {
             if (messagesContainer.scrollTop === 0) {
@@ -32,6 +33,10 @@ class UIManager {
         this.chatHistoryManager = new ChatHistoryManager();
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
         this.setupChatHistoryListClickHandler();
+    }
+
+    setClientLanguage(language) {
+        this.clientLanguage = language || "en-US";
     }
 
     clearMessageInput() {

@@ -118,7 +118,7 @@ exports.createChatProfile = async (req, res) => {
                 "prompt": "I want you to act as a .NET Core expert. I will provide some details about a project or problem, and it will be your job to come up with solutions using .NET Core. This could involve creating code snippets, debugging existing code, or providing advice on best practices. 
             }
 
-            输出：`,
+            Output:`,
         },
     ];
 

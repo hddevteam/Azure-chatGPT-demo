@@ -11,6 +11,11 @@ import setup from "./setup.js";
 const uiManager = setup();
 const app = uiManager.app;
 
+//get client language
+const clientLanguage = navigator.language;
+console.log(clientLanguage);
+uiManager.setClientLanguage(clientLanguage);
+
 const switchElement = document.querySelector("#model-switch");
 let model = "gpt-3.5-turbo"; // default model
 
@@ -344,7 +349,7 @@ function adjustChatContainer() {
     const chatContainer = document.getElementById("chat-container");
     const menu = document.getElementById("menu");
 
-    if (window.innerWidth <= 768) { // 如果是响应式布局
+    if (window.innerWidth <= 1440) { // 如果是响应式布局
         chatContainer.style.flex = "1";
         menu.dataset.visible = false;
         menu.style.display = "none";
