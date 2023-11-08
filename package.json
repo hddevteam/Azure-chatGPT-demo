@@ -21,7 +21,8 @@
     "microsoft-cognitiveservices-speech-sdk": "^1.27.0",
     "multer": "^1.4.5-lts.1",
     "request": "^2.88.2",
-    "sweetalert": "^2.1.2"
+    "sweetalert": "^2.1.2",
+    "sweetalert2": "^11.9.0"
   },
   "devDependencies": {
     "@types/uuid": "^9.0.6",

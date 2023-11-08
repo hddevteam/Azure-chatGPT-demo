@@ -473,6 +473,7 @@ class UIManager {
 
     handleAddTopicClick() {
         const profileName = getCurrentProfile().name;
+        console.log(profileName);
         const username = getCurrentUsername();
         const chatId = this.chatHistoryManager.generateChatId(username, profileName);
 

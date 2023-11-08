@@ -5,6 +5,7 @@ import { getCurrentUsername, getCurrentProfile, setCurrentProfile } from "./util
 import { getAppName, getPromptRepo } from "./utils/api.js";
 import { setupVoiceInput } from "./utils/input-audio.js";
 import swal from "sweetalert";
+import swal2 from "sweetalert2";
 import MarkdownManager from "./components/MarkdownManager.js";
 import setup from "./setup.js";
 
@@ -169,7 +170,7 @@ getPromptRepo(getCurrentUsername())
         console.error("Error:", error);
     });
 
-
+    
 // Send message on form submit
 messageForm.addEventListener("submit", (event) => {
     //uiManager.js中已经写过这个方法，直接调用
@@ -182,6 +183,92 @@ document.addEventListener("keydown", (event) => {
         uiManager.handleMessageFormSubmit(messageInput);
     }
 });
+document.getElementById("new-chat-container").addEventListener("click",()=>{
+//     let profileNameList = [];
+
+// getPromptRepo(getCurrentUsername())
+//     .then(data => {
+//         uiManager.renderMenuList(data);
+//         profileNameList = data.profiles.map(profile => profile.displayName);
+
+//         const buttons = {};
+
+//         profileNameList.forEach((profileName, index) => {
+//             buttons[`button_${index + 1}`] = {
+//                 text: profileName,
+//                 value: profileName
+//             };
+//         });
+
+//         swal({
+//             title: 'please choose the type of your new chat',
+            
+//             icon: 'info',
+//             buttons: buttons
+//         }).then((result) => {
+//             if (result) {
+//                 const selectedButton = result; // 获取用户选择的按钮值
+//                 console.log(`选择的按钮: ${selectedButton}`);
+//             }
+//         });
+//     })
+//     .catch(error => {
+//         console.error("错误:", error);
+//     });
+let profileNameList = [];
+
+getPromptRepo(getCurrentUsername())
+  .then(data => {
+    uiManager.renderMenuList(data);
+    profileNameList = data.profiles.map(profile => profile.displayName);
+
+    // 去除重复的profileName
+    const uniqueProfileNames = [...new Set(profileNameList)];
+
+    const listItems = uniqueProfileNames.map((profileName, index) => ({
+    //   text: profileName,
+      value: profileName
+    }));
+    
+    swal2.fire({
+      title: 'Choose theme',
+      input: 'select',
+      inputOptions: listItems,
+      inputPlaceholder: 'please choose the theme of your new chat',
+      showCancelButton: true,
+      confirmButtonText: 'new chat',
+      cancelButtonText: 'cancel',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'please choose one theme!';
+        }
+      }
+    }).then((result) => {
+      if (result) {
+        const selectedValue = result.value;
+        console.log(`选择的值: ${selectedValue}`);
+        console.log(selectedValue);
+
+        // 根据选中的值执行相应操作，例如创建对应profileName的聊天
+        createChat(selectedValue);
+      }
+    });
+  })
+  .catch(error => {
+    console.error("错误:", error);
+  });
+
+
+
+
+});
+function createChat(profileName) {
+    
+    // 根据profileName创建对应的聊天
+    console.log(`创建聊天: ${profileName}`);
+    // 执行其他创建聊天的操作
+  }
+    
 // popup the Swal when user click the username label
 usernameLabel.addEventListener("click", function () {
     swal({
