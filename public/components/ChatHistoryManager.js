@@ -84,7 +84,8 @@ class ChatHistoryManager {
         if (chatHistoryToUpdate) {
             if (title) chatHistoryToUpdate.title = title;
             if (messages.length === 1) {
-                title = await generateTitle(messages[0].content);
+                
+                title = await generateTitle(messages[0].content.length>5000?messages[0].content.slice(0,5000)+"...":messages[0].content);
                 chatHistoryToUpdate.title = title;
             }
             chatHistoryToUpdate.updatedAt = new Date().toISOString();

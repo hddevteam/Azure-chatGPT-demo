@@ -475,12 +475,17 @@ class MessageManager {
         const currentProfile = getCurrentProfile();
         const activeMessages = [...document.querySelectorAll(".message.active")];
         let content = "";
-        const lastFourMessages = activeMessages.slice(-4); // This will still work even if there are fewer than 4 messages
+        const lastFourMessages = activeMessages.slice(-2); // This will still work even if there are fewer than 4 messages
         lastFourMessages.forEach(message => {
             // const dataSender = message.getAttribute("data-sender");
             const dataMessage = message.getAttribute("data-message");
             content += `${dataMessage}\n\n`;
         });
+
+        // check if content is longer than 5000 characters, if so, truncate it to 5000 characters and add ellipsis
+        if (content.length > 5000) {
+            content = content.substring(0, 5000) + "...";
+        }
 
         
         const systemPrompt = { role: "system", 
