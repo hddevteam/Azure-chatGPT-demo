@@ -111,7 +111,7 @@ class DOMManager {
         speaker.classList.toggle("fa-volume-off");
         speaker.classList.toggle("fa-volume-up");
     }
-    
+
     removeChatHistoryItem(chatId) {
         const listItemElement = document.querySelector(`.chat-history-item[data-id="${chatId}"]`);
         if (listItemElement) {
@@ -130,7 +130,7 @@ class DOMManager {
     createChatHistoryItem(history, profile) {
         const listItemElement = document.createElement("li");
         listItemElement.classList.add("chat-history-item");
-        listItemElement.dataset.id = history.id; 
+        listItemElement.dataset.id = history.id;
 
         const profileIconElement = document.createElement("i");
         profileIconElement.className = profile.icon;
@@ -142,25 +142,25 @@ class DOMManager {
 
         const createdAtElement = document.createElement("small");
         createdAtElement.textContent = formatTime(history.createdAt);
-        
+
         listItemElement.appendChild(createdAtElement);
 
         const actionGroup = document.createElement("div");
         actionGroup.classList.add("action-button-group");
-    
+
         const deleteButton = this.createChatHistoryActionButton("fa fa-trash", () => {
             this.deleteChatHistoryHandler(history.id);
         });
-    
+
         const editButton = this.createChatHistoryActionButton("fa fa-edit", () => {
             this.editChatHistoryHandler(history.id);
         });
-    
+
         actionGroup.appendChild(deleteButton);
         actionGroup.appendChild(editButton);
-    
+
         listItemElement.appendChild(actionGroup);
-    
+
         return listItemElement;
     }
 
@@ -170,7 +170,7 @@ class DOMManager {
         chatHistory.forEach(history => {
             const profile = profiles.find(profile => profile.name === history.profileName);
             // if not found, skip to next iteration
-            if (!profile) return;            
+            if (!profile) return;
             const listItemElement = this.createChatHistoryItem(history, profile);
             chatHistoryListElement.appendChild(listItemElement);
         });
@@ -179,7 +179,7 @@ class DOMManager {
     appendChatHistoryItem(chatHistoryItem, profile) {
         const chatHistoryListElement = document.querySelector("#chat-history-list");
         const listItemElement = this.createChatHistoryItem(chatHistoryItem, profile);
-        chatHistoryListElement.prepend(listItemElement);  
+        chatHistoryListElement.prepend(listItemElement);
     }
 
     createChatHistoryActionButton(iconClass, clickHandler) {
@@ -197,6 +197,53 @@ class DOMManager {
 
         return buttonElement;
     }
+
+    createMenuButtonElement() {
+        const menuButtonElement = document.createElement("i");
+        menuButtonElement.classList.add("menu-button");
+        menuButtonElement.classList.add("fas");
+        menuButtonElement.classList.add("fa-ellipsis-h");
+        return menuButtonElement;
+    }
+
+    createPopupMenuElement(isCollapsed) {
+        const popupMenuElement = document.createElement("ul");
+        popupMenuElement.classList.add("popup-menu");
+        popupMenuElement.style.display = "none";
+
+        // Define an object with menu items and their corresponding Font Awesome class names
+        const items = [
+            { name: "Delete", icon: "fa-trash" },
+            { name: "Copy", icon: "fa-copy" },
+            { name: "Toggle", icon: isCollapsed ? "fa-chevron-down" : "fa-chevron-up" }
+        ];
+
+        items.forEach(item => {
+            const li = document.createElement("li");
+            li.classList.add("menu-item");
+            li.classList.add(`${item.name.toLowerCase()}-item`);
+
+            // Create the Font Awesome icon and prepend it to the menu item
+            const icon = document.createElement("i");
+            icon.classList.add("fas", item.icon);
+            li.prepend(icon);
+
+            const span = document.createElement("span");
+            span.textContent = item.name;
+            li.appendChild(span);
+
+            if (item.name === "Toggle") {
+                li.dataset.collapsed = isCollapsed ? "true" : "false";
+                span.textContent = isCollapsed ? "Expand" : "Collapse";
+            }
+            popupMenuElement.appendChild(li);
+        });
+
+        return popupMenuElement;
+    }
+
+
+
 
 }
 

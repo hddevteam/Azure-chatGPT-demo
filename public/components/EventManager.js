@@ -14,7 +14,7 @@ class EventManager {
             await this.uiManager.playMessage(speaker);
         });
     }
-    
+
     toggleActiveMessage(event) {
         const messageElement = event.currentTarget.parentElement;
         const messageId = messageElement.dataset.messageId;
@@ -22,6 +22,8 @@ class EventManager {
         if (messageElement.classList.contains("active")) {
             messageElement.classList.remove("active");
             this.uiManager.app.prompts.removePrompt(messageId);
+            // Call the method with forceCollapse = true
+            this.toggleCollapseMessage(messageElement, true);
         } else {
             messageElement.classList.add("active");
             this.uiManager.app.prompts.clear();
@@ -29,10 +31,9 @@ class EventManager {
             activeMessages.forEach(activeMessage => {
                 this.uiManager.app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
             });
+            // Call the method with forceCollapse = false
+            this.toggleCollapseMessage(messageElement, false);
         }
-
-        console.log(messageElement.classList.contains("active"));
-        console.log(this.uiManager.app.prompts);
 
         const isActive = messageElement.classList.contains("active");
         this.uiManager.storageManager.saveMessageActiveStatus(messageId, isActive);
@@ -110,6 +111,73 @@ class EventManager {
         clipboard.on("error", function () {
             self.uiManager.showToast("copied failed");
         });
+    }
+
+    attachMenuButtonEventListener(menuButton) {
+        menuButton.addEventListener("click", (event) => {
+            const popupMenu = menuButton.nextSibling;
+            popupMenu.style.display = popupMenu.style.display === "none" ? "block" : "none";
+            event.stopPropagation();
+        });
+
+        document.addEventListener("click", () => {
+            menuButton.nextSibling.style.display = "none";
+        });
+    }
+
+    attachPopupMenuItemEventListener(popupMenu) {
+        const deleteItem = popupMenu.querySelector(".delete-item");
+        deleteItem.addEventListener("click", () => {
+            const messageId = popupMenu.parentElement.dataset.messageId;
+            this.uiManager.messageManager.deleteMessage(messageId);
+        });
+
+        const copyItem = popupMenu.querySelector(".copy-item");
+        copyItem.addEventListener("click", () => {
+            const message = popupMenu.parentElement.dataset.message;
+            navigator.clipboard.writeText(message);
+            this.uiManager.showToast("copied successful");
+        });
+
+        const toggleItem = popupMenu.querySelector(".toggle-item");
+        toggleItem.addEventListener("click", () => {
+            const messageElement = popupMenu.parentElement;
+            const isCurrentlyCollapsed = messageElement.classList.contains("collapsed");
+
+            // If the message is collapsed, we expand it, and vice versa.
+            this.toggleCollapseMessage(messageElement, !isCurrentlyCollapsed);
+        });
+    }
+
+    toggleCollapseMessage(messageElement, forceCollapse) {
+        const isCurrentlyCollapsed = messageElement.classList.contains("collapsed");
+        if ((forceCollapse && !isCurrentlyCollapsed) || (!forceCollapse && isCurrentlyCollapsed)) {
+            const isCollapsed = messageElement.classList.toggle("collapsed");
+            const updatedMessage = isCollapsed ? this.uiManager.messageManager.getMessagePreview(messageElement.dataset.message) : messageElement.dataset.message;
+            const sender = messageElement.dataset.sender;
+
+            const newCodeBlocksWithCopyElements = this.uiManager.messageManager.setMessageContent(sender, messageElement, updatedMessage, !isCollapsed);
+
+            newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
+                this.attachCodeBlockCopyEvent(codeBlock, copyElement);
+            });
+
+            const toggleItem = messageElement.querySelector(".toggle-item");
+            if (toggleItem) {
+                toggleItem.dataset.collapsed = isCollapsed ? "true" : "false";
+                const span = toggleItem.querySelector("span");
+                span.textContent = isCollapsed ? "Expand" : "Collapse";
+
+                // Get the Font Awesome icon element
+                const icon = toggleItem.querySelector("i");
+                // Change the class depending on whether the message is collapsed or not
+                if (isCollapsed) {
+                    icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+                } else {
+                    icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+                }
+            }
+        }
     }
 }
 

@@ -1,8 +1,20 @@
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
+    #app-outer-container {
+        padding: 0;
+    }
+
+    #app-container {
+        padding: 0;
+        max-width: 100%;
+    }
 
     #chat-history-container {
         display: none;
+    }
+
+    .message-input-container{
+        max-width: 100%;
     }
 
     #menu {
@@ -128,9 +140,8 @@
         align-items: center;
     }
 
-    button[type="submit"] {
+    button#submitButton {
         height: fit-content;
-        font-size: 25px;
         width: 100% !important;
         position: static !important;
         border-radius: 0px 0px 5px 0px;
