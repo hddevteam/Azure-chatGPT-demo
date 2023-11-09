@@ -160,7 +160,7 @@ class EventManager {
     attachQuestionButtonEvent(questionElement, question) {
         questionElement.addEventListener("click", async () => {
             // Use `question` as the message to send to AI
-            await this.uiManager.messageManager.sendMessage(question);
+            this.uiManager.messageInput.value += question;
         });
     }
 
