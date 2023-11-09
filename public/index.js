@@ -132,15 +132,15 @@ document.getElementById("delete-container").addEventListener("click", () => {
         buttons: {
             cancel: "Cancel",
             deleteActive: {
-                text: `Delete Active Messages (${messageNumber})`,
+                text: `Delete Active(${messageNumber})`,
                 value: "deleteActive",
             },
             deleteInactive: {
-                text: `Delete Inactive Messages (${inactiveMessageNumber})`,
+                text: `Delete Inactive(${inactiveMessageNumber})`,
                 value: "deleteInactive",
             },
             deleteAll: {
-                text: `Delete All Messages (${allMessageNumber})`,
+                text: `Delete All(${allMessageNumber})`,
                 value: "deleteAll",
             }
         },
