@@ -1,106 +1,93 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
 
+body,
+html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+#header {
+    flex: 0 0 40px;
+}
+
 #main-container {
     display: flex;
-    width: 100vw;
-    height: 100vh;
-    margin: 0 auto;
-    max-width: 1440px;
-  }
-  
+    flex: 1;
+}
+
+#chat-history-container,
+#menu {
+    flex: 15;
+}
+
+#app-outer-wrapper {
+    flex: 70;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 40px);
+    position: relative;
+}
+
+#app-container {
+    display: flex;
+    flex-direction: column;
+    transition: height 0.2s ease-out;
+}
+
+#profile-content {
+    flex: 0 0 auto;
+}
+
+#messages {
+    flex: 1;
+}
+
 
 #chat-history-container {
     background: linear-gradient(to bottom, #999, #333);
     border: none;
-    border-radius: 10px 0 0 10px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     padding: 10px;
     margin: 0px auto 0px;
-    margin-top: 40px;
-    max-width: 20%;
-    height: calc(100vh - 40px);
-    overflow: hidden;  
-  }
-
-#app-outer-wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100vh;
-    flex: 1;
-    position: relative; 
-}
-
-  
-#app-outer-container {
-    flex: 1;
-    display: flex;
-    justify-content: flex-start;
-    height: 100%;
-}
-
-#app-container {
-    flex: 1;
-    justify-content: flex-start;
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: row;
     overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    transition: height 0.2s ease-out;
+    height: calc(100vh - 40px);
 }
 
-#chat-container {
-    display: flex;
-    flex-direction: column;
-    flex: 0 0 85%;
-}
 
 #menu {
-    flex: 0 0 15%;
-    height: 100%;
     background-color: #f1f1f1;
     border-left: 1px solid #ccc;
     border-radius: 0 5px 5px 0;
     overflow-y: scroll;
     overflow-x: hidden;
     padding-bottom: 30px;
-    scrollbar-width: thin;
-    scrollbar-color: #bbb transparent;
+    overflow: hidden;
+    height: calc(100vh - 40px);
 }
 
 
 #header {
-    flex: 0 0 auto;
     display: flex;
-    width: 100%;
-    height: 40px;
     justify-content: space-between;
     align-items: center;
     background: linear-gradient(to bottom right, #999, #333);
-    border-radius: 5px 0 0 0;
     padding: 0;
-    position: relative;
-  }
-  
-
+}
 
 #profile-content {
-    flex: 0 0 auto;
-    width: 100%;
     margin-top: 5px;
     margin-right: 10px;
     overflow: auto;
 }
 
 #messages {
-    flex: 1 1 auto;
     position: relative;
     margin-top: 10px;
-    width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px;
@@ -113,10 +100,10 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%;
     overflow: hidden;
     box-sizing: border-box;
     align-items: center;
+    width: 100%;
 }
 
 #message-form {
@@ -128,8 +115,8 @@
     justify-content: center;
     align-items: flex-start;
     box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
-  }
-  
+}
+
 
 #message-input {
     resize: none;
@@ -152,7 +139,6 @@
     margin-right: 20px;
     position: relative;
     flex: 1;
-    max-width: 1200px;
 }
 
 .mini-toolbar-container {

@@ -35,6 +35,7 @@ class MessageManager {
         this.uiManager.eventManager.attachPopupMenuItemEventListener(popupMenuElement);
 
         const messageContentElement = sender === "user" ? document.createElement("pre") : document.createElement("div");
+        messageContentElement.classList.add("message-content");
         messageElement.appendChild(messageContentElement);
         const codeBlocksWithCopyElements = this.setMessageContent(sender, messageElement, message, isActive);
 

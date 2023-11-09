@@ -125,7 +125,7 @@ document.getElementById("delete-container").addEventListener("click", () => {
     const messageNumber = document.querySelectorAll(".message.active").length;
     const inactiveMessageNumber = document.querySelectorAll(".message:not(.active)").length;
     const allMessageNumber = document.querySelectorAll(".message").length;
-    
+
     swal({
         title: "What kind of messages you want to delete?",
         icon: "warning",
@@ -156,7 +156,7 @@ document.getElementById("delete-container").addEventListener("click", () => {
             } else if (value === "deleteAll") {
                 uiManager.messageManager.deleteAllMessages();
                 swal("All messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
-            } 
+            }
         });
 });
 
@@ -295,7 +295,7 @@ const messageInputContainer = document.querySelector(".message-input-container")
 const mainContainer = document.querySelector("#app-container");
 let ro = new ResizeObserver(entries => {
     for (let entry of entries) {
-        let newHeight = `calc(var(--vh, 1vh) * 99.5 - ${entry.contentRect.height}px)`;
+        let newHeight = `calc(var(--vh, 1vh) * 99.5 - ${entry.contentRect.height + 40}px)`;
         mainContainer.style.height = newHeight;
     }
 });
@@ -349,46 +349,38 @@ function adjustChatContainer() {
     const chatContainer = document.getElementById("chat-container");
     const menu = document.getElementById("menu");
 
-    if (window.innerWidth <= 1440) { // 如果是响应式布局
-        chatContainer.style.flex = "1";
-        menu.dataset.visible = false;
-        menu.style.display = "none";
-    } else { // 如果是桌面布局
-        chatContainer.style.flex = "0 0 85%";
-        menu.dataset.visible = true;
-        menu.style.display = "block";
-    }
+    // if (window.innerWidth <= 1440) { // 如果是响应式布局
+    //     chatContainer.style.flex = "1";
+    //     menu.dataset.visible = false;
+    //     menu.style.display = "none";
+    // } else { // 如果是桌面布局
+    //     chatContainer.style.flex = "0 0 85%";
+    //     menu.dataset.visible = true;
+    //     menu.style.display = "block";
+    // }
 }
 
 
 // toggle the menu when user click the ai profile
 function toggleMenu() {
     const menu = document.getElementById("menu");
-    const chatContainer = document.getElementById("chat-container");
     const isVisible = menu.getAttribute("data-visible") === "true";
 
     menu.style.display = isVisible ? "none" : "block";
     menu.setAttribute("data-visible", !isVisible);
 
-    if (isVisible) {
-        chatContainer.style.flex = "1";
-    } else {
-        if (window.innerWidth > 768) {
-            chatContainer.style.flex = "0 0 85%";
-        }
-        if (window.innerWidth <= 768) {
-            document.addEventListener("click", function hideMenuOnOutsideClick(event) {
-                const profileListMenu = document.getElementById("ai-profile");
+    if (window.innerWidth <= 768) {
+        document.addEventListener("click", function hideMenuOnOutsideClick(event) {
+            const profileListMenu = document.getElementById("ai-profile");
 
-                if (event.target !== menu && event.target !== profileListMenu && !profileListMenu.contains(event.target)) {
-                    menu.style.display = "none";
-                    menu.setAttribute("data-visible", false);
-                    chatContainer.style.flex = "1";
-                    document.removeEventListener("click", hideMenuOnOutsideClick);
-                }
-            });
-        }
+            if (event.target !== menu && event.target !== profileListMenu && !profileListMenu.contains(event.target)) {
+                menu.style.display = "none";
+                menu.setAttribute("data-visible", false);
+                document.removeEventListener("click", hideMenuOnOutsideClick);
+            }
+        });
     }
+
 }
 
 

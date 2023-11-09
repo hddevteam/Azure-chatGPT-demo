@@ -15,8 +15,7 @@
 }
 
 #app-name {
-    margin: 20px;
-    width: 50%;
+    margin-left: 20px;
     font-size: 24px;
     font-family: 'Roboto';
     font-weight: 500;
@@ -155,11 +154,20 @@
 
 .message {
     position: relative;
-    padding: 1em;
+    padding-left: 1em;
+    padding-bottom: 1em;
+    padding-top: 1.5em;
+    padding-right: 0.5em;
     margin-bottom: 0.8em;
-    margin-right: 0.3em;
+    margin-right: 0.5em;
     border-radius: 0.5em;
     line-height: 150%;
+
+}
+
+.message-content {
+    overflow-y: auto;
+    max-height: 50vh;
 }
 
 .user-message.active {
@@ -171,6 +179,7 @@
 .user-message {
     background-color: #f2f2f2;
     color: #333333;
+    margin-left: 10px;
 }
 
 .assistant-message.active {
@@ -195,6 +204,8 @@
     border: 1px solid #333;
     border-radius: 5px;
     color: #e6f2ff;
+    max-height: 15vh;
+    overflow-y: auto;
 }
 
 .message ol,
@@ -233,8 +244,8 @@
 /* Minimize window icon styles */
 #window-icon {
     position: absolute;
-    bottom: -1em;
-    right: 0.5em;
+    top: 0em;
+    right: 1.2em;
     font-size: 1em;
     cursor: pointer;
     z-index: 2;
