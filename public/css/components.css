@@ -15,7 +15,7 @@
 }
 
 #app-name {
-    margin-left: 20px;
+    margin-left: 10px;
     font-size: 24px;
     font-family: 'Roboto';
     font-weight: 500;
@@ -23,16 +23,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-#header-buttons {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-#header a {
-    text-decoration: none;
 }
 
 #ai-profile {

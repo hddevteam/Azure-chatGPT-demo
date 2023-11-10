@@ -288,7 +288,6 @@ updateVh();
 
 window.addEventListener("resize", () => {
     updateVh();
-    adjustChatContainer();
 });
 
 const messageInputContainer = document.querySelector(".message-input-container");
@@ -341,26 +340,6 @@ function loadProfileList() {
     profileListMenu.style.height = `${menuHeight}px`;
 }
 
-window.onload = function () {
-    adjustChatContainer();
-};
-
-function adjustChatContainer() {
-    const chatContainer = document.getElementById("chat-container");
-    const menu = document.getElementById("menu");
-
-    // if (window.innerWidth <= 1440) { // 如果是响应式布局
-    //     chatContainer.style.flex = "1";
-    //     menu.dataset.visible = false;
-    //     menu.style.display = "none";
-    // } else { // 如果是桌面布局
-    //     chatContainer.style.flex = "0 0 85%";
-    //     menu.dataset.visible = true;
-    //     menu.style.display = "block";
-    // }
-}
-
-
 // toggle the menu when user click the ai profile
 function toggleMenu() {
     const menu = document.getElementById("menu");
@@ -380,8 +359,24 @@ function toggleMenu() {
             }
         });
     }
-
 }
+
+
+const chatHistoryContainer = document.getElementById("chat-history-container");
+const toggleButton = document.getElementById("toggle-chat-topic");
+
+toggleButton.addEventListener("click", function (event) {
+    event.stopPropagation();
+    chatHistoryContainer.style.display = chatHistoryContainer.style.display === "none" ? "block" : "none";
+    chatHistoryContainer.style.minWidth = "300px";
+});
+
+document.addEventListener("click", function (event) {
+    // checks if the click was outside the toggleButton and if the toggleButton is being displayed
+    if (!toggleButton.contains(event.target) && window.getComputedStyle(toggleButton).display !== "none") {
+        chatHistoryContainer.style.display = "none";
+    }
+});
 
 
 // handle the click event on the ai profile
