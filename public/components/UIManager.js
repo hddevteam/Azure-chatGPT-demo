@@ -591,7 +591,7 @@ class UIManager {
             },
         }).then((newTitle) => {
             chatHistoryToUpdate.title = newTitle;
-            this.chatHistoryManager.updateChatHistory(chatId, newTitle);
+            this.chatHistoryManager.updateChatHistory(chatId, false, newTitle);
 
         });
     }
