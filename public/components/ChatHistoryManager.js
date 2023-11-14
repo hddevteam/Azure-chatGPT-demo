@@ -56,11 +56,12 @@ class ChatHistoryManager {
     async createChatHistory(chatId) {
         const profileName = chatId.split("_")[1];
         const messages = getMessages(chatId);
-        if (!messages.length) return;
+        let title = "untitled";
+        if (messages.length) {
+            title = await generateTitle(messages[0].content);
+        }
 
-        const title = await generateTitle(messages[0].content);
         const chatHistory = this.getChatHistory();
-
         const newChatHistory = {
             id: chatId,
             title: title,
@@ -76,15 +77,14 @@ class ChatHistoryManager {
 
 
     // 更新聊天历史记录
-    async updateChatHistory(chatId, title="") {
+    async updateChatHistory(chatId, forceGenerateTitle=false, title="") {
         const chatHistory = this.getChatHistory();
         const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
         const messages = getMessages(chatId);
         if (!messages.length) return;
         if (chatHistoryToUpdate) {
             if (title) chatHistoryToUpdate.title = title;
-            if (messages.length === 1) {
-                
+            if ((messages.length === 1) || forceGenerateTitle) {
                 title = await generateTitle(messages[0].content.length>5000?messages[0].content.slice(0,5000)+"...":messages[0].content);
                 chatHistoryToUpdate.title = title;
             }

@@ -134,6 +134,12 @@ class EventManager {
             this.uiManager.messageManager.editMessage(message, messageId);
         });
 
+        const moveToNewTopicItem = popupMenu.querySelector(".movetonewtopic-item");
+        moveToNewTopicItem.addEventListener("click", () => {
+            const messageId = popupMenu.parentElement.dataset.messageId;
+            this.uiManager.moveToNewTopic(messageId);
+        });
+
         const deleteItem = popupMenu.querySelector(".delete-item");
         deleteItem.addEventListener("click", () => {
             const messageId = popupMenu.parentElement.dataset.messageId;

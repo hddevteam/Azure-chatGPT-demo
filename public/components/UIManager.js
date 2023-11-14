@@ -223,7 +223,6 @@ class UIManager {
         return { submitButton, buttonIcon, loader };
     }
 
-
     // render menu list from data
     // it only happens when user submit the username or the page is loaded
     async renderMenuList(data) {
@@ -238,9 +237,6 @@ class UIManager {
             setCurrentProfile(this.profiles[0]);
         }
         const currentProfile = getCurrentProfile();
-        let latestChat;
-        latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
-        this.currentChatId = latestChat?.id || this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
 
         //empty menu list
         const menuList = document.querySelector("#menu-list");
@@ -269,16 +265,28 @@ class UIManager {
                 const profileName = li.dataset.profile;
                 const chatHistory = self.chatHistoryManager.getChatHistory();
                 const latestChat = chatHistory.find(history => history.profileName === profileName);
-                self.currentChatId = latestChat?.id || self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
-                self.changeChatTopic(self.currentChatId);
+                if (latestChat) {
+                    self.currentChatId = latestChat.id;
+                    self.changeChatTopic(self.currentChatId);
+                } else {
+                    self.currentChatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
+                    self.changeChatTopic(self.currentChatId, true);
+                }
             });
         });
 
-        this.changeChatTopic(this.currentChatId);
-
+        let latestChat;
+        latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
+        if (!latestChat) {
+            this.currentChatId = this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
+            this.changeChatTopic(this.currentChatId, true);
+        } else {
+            this.currentChatId = latestChat.id;
+            this.changeChatTopic(this.currentChatId);
+        }
     }
 
-    changeChatTopic(chatId) {
+    changeChatTopic(chatId, isNewTopic = false) {
         const profileName = chatId.split("_")[1];
 
         // Update current profile and chat ID
@@ -306,8 +314,12 @@ class UIManager {
         document.querySelector("#messages").innerHTML = "";
         this.app.prompts.clear();
 
-        // Load chat messages by chatId
-        this.loadMessagesByChatId(this.currentChatId);
+        if (isNewTopic) {
+            this.chatHistoryManager.createChatHistory(chatId);
+        } else {
+            // Load chat messages by chatId
+            this.loadMessagesByChatId(this.currentChatId);
+        }
     }
 
 
@@ -483,7 +495,35 @@ class UIManager {
 
         // Change the current chat topic to the newly created chat ID
         this.currentChatId = chatId;
-        this.changeChatTopic(chatId);
+        this.changeChatTopic(chatId, true);
+    }
+
+    async moveToNewTopic(messageId) {
+        // 1. 从messages容器中得到当前消息，以及后续的消息
+        // 这里 assumes 在消息列表中找到当前的消息后，其后面所有的消息都是后续的消息
+        const allMessages = document.querySelectorAll(".message");
+        let followingMessages = [];
+        let found = false;
+        allMessages.forEach(msg => {
+            if ((msg.dataset.messageId == messageId) || found) {
+                found = true;
+                followingMessages.push(msg);
+            }
+        });
+
+        // 2. 在当前messages容器中删除当前消息，以及后续的消息
+        followingMessages.forEach(msg => {
+            this.messageManager.deleteMessage(msg.dataset.messageId, true);
+        });
+
+        this.handleAddTopicClick();
+
+        // 5. 将当前消息以及后续的消息移动到新的话题中
+        followingMessages.forEach(msg => {
+            this.messageManager.addMessage(msg.dataset.sender, msg.dataset.message, msg.dataset.messageId, msg.classList.contains("active"));
+        });
+        this.storageManager.saveCurrentProfileMessages();
+        this.chatHistoryManager.updateChatHistory(this.currentChatId, true);
     }
 
 
@@ -514,7 +554,17 @@ class UIManager {
             if (value === "delete") {
                 this.chatHistoryManager.deleteChatHistory(chatId);
                 if (this.currentChatId === chatId) {
-                    this.changeChatTopic(this.currentChatId);
+                    const chatHistory = this.chatHistoryManager.getChatHistory();
+                    const currentProfile = getCurrentProfile();
+                    let latestChat;
+                    latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
+                    if (!latestChat) {
+                        this.currentChatId = this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
+                        this.changeChatTopic(this.currentChatId, true);
+                    } else {
+                        this.currentChatId = latestChat.id;
+                        this.changeChatTopic(this.currentChatId);
+                    }
                 }
             }
         });
