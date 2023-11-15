@@ -266,11 +266,11 @@ class UIManager {
                 const chatHistory = self.chatHistoryManager.getChatHistory();
                 const latestChat = chatHistory.find(history => history.profileName === profileName);
                 if (latestChat) {
-                    self.currentChatId = latestChat.id;
-                    self.changeChatTopic(self.currentChatId);
+                    const chatId = latestChat.id;
+                    self.changeChatTopic(chatId);
                 } else {
-                    self.currentChatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
-                    self.changeChatTopic(self.currentChatId, true);
+                    const chatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
+                    self.changeChatTopic(chatId, true);
                 }
             });
         });
@@ -278,15 +278,28 @@ class UIManager {
         let latestChat;
         latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
         if (!latestChat) {
-            this.currentChatId = this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
-            this.changeChatTopic(this.currentChatId, true);
+            const chatId = this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
+            this.currentChatId = chatId;
+            this.changeChatTopic(chatId, true);
         } else {
-            this.currentChatId = latestChat.id;
-            this.changeChatTopic(this.currentChatId);
+            const chatId = latestChat.id;
+            this.currentChatId = chatId;
+            this.changeChatTopic(chatId);
         }
     }
 
     changeChatTopic(chatId, isNewTopic = false) {
+
+        // check if chatId is current chatId
+        if (this.currentChatId !== chatId) {
+            // check if messages are empty
+            if (document.querySelectorAll(".message").length === 0) {
+                // delete current chat history
+                this.chatHistoryManager.deleteChatHistory(this.currentChatId);
+            } 
+        }
+        this.currentChatId = chatId;
+
         const profileName = chatId.split("_")[1];
 
         // Update current profile and chat ID
@@ -494,7 +507,6 @@ class UIManager {
         const chatId = this.chatHistoryManager.generateChatId(username, profileName);
 
         // Change the current chat topic to the newly created chat ID
-        this.currentChatId = chatId;
         this.changeChatTopic(chatId, true);
     }
 
@@ -530,8 +542,7 @@ class UIManager {
     handleChatHistoryItemClick(e) {
         const listItemElement = e.target.closest(".chat-history-item");
         if (listItemElement) {
-            this.currentChatId = listItemElement.dataset.id;
-            this.changeChatTopic(this.currentChatId);
+            this.changeChatTopic(listItemElement.dataset.id);
         }
     }
 
@@ -559,11 +570,11 @@ class UIManager {
                     let latestChat;
                     latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
                     if (!latestChat) {
-                        this.currentChatId = this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
-                        this.changeChatTopic(this.currentChatId, true);
+                        const chatId = this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
+                        this.changeChatTopic(chatId, true);
                     } else {
-                        this.currentChatId = latestChat.id;
-                        this.changeChatTopic(this.currentChatId);
+                        const chatId = latestChat.id;
+                        this.changeChatTopic(chatId);
                     }
                 }
             }
