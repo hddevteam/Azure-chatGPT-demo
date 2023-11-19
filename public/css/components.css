@@ -15,8 +15,7 @@
 }
 
 #app-name {
-    margin: 20px;
-    width: 50%;
+    margin-left: 10px;
     font-size: 24px;
     font-family: 'Roboto';
     font-weight: 500;
@@ -24,16 +23,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-#header-buttons {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-#header a {
-    text-decoration: none;
 }
 
 #ai-profile {
@@ -155,11 +144,20 @@
 
 .message {
     position: relative;
-    padding: 1em;
+    padding-left: 1em;
+    padding-bottom: 1em;
+    padding-top: 1.5em;
+    padding-right: 0.5em;
     margin-bottom: 0.8em;
-    margin-right: 0.3em;
+    margin-right: 0.5em;
     border-radius: 0.5em;
     line-height: 150%;
+
+}
+
+.message-content {
+    overflow-y: auto;
+    max-height: 50vh;
 }
 
 .user-message.active {
@@ -171,6 +169,7 @@
 .user-message {
     background-color: #f2f2f2;
     color: #333333;
+    margin-left: 10px;
 }
 
 .assistant-message.active {
@@ -195,6 +194,8 @@
     border: 1px solid #333;
     border-radius: 5px;
     color: #e6f2ff;
+    max-height: 15vh;
+    overflow-y: auto;
 }
 
 .message ol,
@@ -233,8 +234,8 @@
 /* Minimize window icon styles */
 #window-icon {
     position: absolute;
-    bottom: -1em;
-    right: 0.5em;
+    top: 0em;
+    right: 1.2em;
     font-size: 1em;
     cursor: pointer;
     z-index: 2;
@@ -657,7 +658,21 @@ svg rect {
 #chat-history-list {
     list-style: none;
     padding: 0;
+    width: 100%;
+    height: 100%;
+    padding-bottom: 40px;
+    overflow: auto;
 }
+
+#chat-history-list::-webkit-scrollbar {
+    display: none;  /* for Chrome, Safari */
+}
+
+#chat-history-list {
+    -ms-overflow-style: none;  /* for IE and Edge */
+    scrollbar-width: none; /* for Firefox */
+}
+
 
 #chat-history-list li {
     padding: 10px;
@@ -665,11 +680,13 @@ svg rect {
     color: #f5f5f5;
     border-radius: 3px;
     margin-bottom: 10px;
+    border: 1px solid #333;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 #chat-history-list li:hover {
-    background-color: #444;
+    background-color: #3391FF;
+    border: 1px solid #0056b3;
     cursor: pointer;
 }
 
@@ -679,13 +696,13 @@ svg rect {
 }
 
 #chat-history-list li.active {
-    background-color: #666;
-    color: limegreen;
+    background-color: #007BFF;
+    color: white;
+    border: 1px solid #0056b3;
 }
 
 #chat-history-list li i {
     margin-right: 10px;
-    
 }
 
 #chat-history-list li:last-child {
@@ -718,7 +735,6 @@ button.action-button {
     opacity: 0.5;
     border-radius: 5px;
     background: #333; 
-    transition: background 0.3s, border-color 0.3s, color 0.3s; 
 }
 
 button.action-button:hover {
@@ -738,6 +754,37 @@ button.action-button.invisible {
 #chat-history-list li button.action-button i {
     margin: 0;
 }
+
+.follow-up-questions {
+    text-align: left;
+}
+
+.follow-up-questions button {
+    background-color: white;
+    color: black;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1em;
+    margin: 4px 2px;
+    padding: 10px 24px;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.19), 0 2px 10px rgba(0, 0, 0, 0.23);
+    transition-duration: 0.4s;
+  }
+  
+  .follow-up-questions button:hover {
+    background-color: #ddd;
+    color: black;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.22);
+  }
+  
+  .follow-up-questions button:active {
+    background-color: #ccc;
+    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.5), 0 5px 10px rgba(0, 0, 0, 0.22);
+    transform: translateY(4px);
+  }
 .message-input-container{
     max-width: 100%;
 }

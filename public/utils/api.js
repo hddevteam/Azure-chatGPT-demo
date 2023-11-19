@@ -96,3 +96,25 @@ export async function generateTitle(content) {
     return await response.text();
 }
 
+// public/api.js
+
+export async function getFollowUpQuestions(prompt) {
+    const response = await fetch("/api/generate-followup-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt }),
+    });
+
+    // Get the response data
+    const responseText = await response.text();
+    console.log(responseText);
+    const data = JSON.parse(responseText);
+
+    // If the response is not okay, throw an error with the status and message
+    if (!response.ok) {
+        let errMsg = data.error ? data.error.message : "Error generating follow up questions.";
+        throw new Error(`Error ${response.status}: ${errMsg}`);
+    }
+
+    return data;
+}

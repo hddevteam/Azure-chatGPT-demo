@@ -20,6 +20,7 @@ router.post("/gpt", gptController.generateResponse);
 router.post("/create-chat-profile", gptController.createChatProfile);
 router.post("/generate-summary", gptController.summarizeConversation);
 router.post("/generate-title", gptController.generateTitle);
+router.post("/generate-followup-questions", gptController.generateFollowUpQuestions);
 
 
 router.get("/prompt_repo", profileController.getPromptRepo);

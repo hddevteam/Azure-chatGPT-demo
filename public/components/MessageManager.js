@@ -1,5 +1,5 @@
 // MessageManager.js
-import { getGpt } from "../utils/api.js";
+import { getGpt, getFollowUpQuestions } from "../utils/api.js";
 import { getCurrentProfile, getMessages } from "../utils/storage.js";
 import swal from "sweetalert";
 import { marked } from "marked";
@@ -27,14 +27,15 @@ class MessageManager {
 
         const menuButtonElement = this.uiManager.domManager.createMenuButtonElement();
         messageElement.appendChild(menuButtonElement);
-        
+
         const popupMenuElement = this.uiManager.domManager.createPopupMenuElement(!isActive);
         messageElement.appendChild(popupMenuElement);
-        
+
         this.uiManager.eventManager.attachMenuButtonEventListener(menuButtonElement);
         this.uiManager.eventManager.attachPopupMenuItemEventListener(popupMenuElement);
 
         const messageContentElement = sender === "user" ? document.createElement("pre") : document.createElement("div");
+        messageContentElement.classList.add("message-content");
         messageElement.appendChild(messageContentElement);
         const codeBlocksWithCopyElements = this.setMessageContent(sender, messageElement, message, isActive);
 
@@ -86,115 +87,154 @@ class MessageManager {
         this.uiManager.updateSlider();
     }
 
-    async sendMessage(message = "") {
-        this.uiManager.initSubmitButtonProcessing();
-
-        let messageId = this.uiManager.generateId();
+    async validateInput(message) {
         const validationResult = await this.uiManager.validateMessage(message);
         message = validationResult.message;
-        let isSkipped = validationResult.isSkipped;
         let reEdit = validationResult.reEdit;
 
         if (reEdit) {
             this.uiManager.messageInput.value = message;
             this.uiManager.messageInput.focus();
             this.uiManager.finishSubmitProcessing();
-            return;
+            return false;
         }
 
+        let messageId = this.uiManager.generateId();
         this.addMessage("user", message, messageId);
         this.uiManager.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
         this.uiManager.storageManager.saveCurrentProfileMessages();
         this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
+        // return validationResult if input is valid and processed successfully.
+        return validationResult;
+    }
 
-        if (message.startsWith("/image")) {
-            const imageCaption = message.replace("/image", "").trim();
-            this.uiManager.showToast("AI is generating image...");
-            this.uiManager.generateImage(imageCaption);
-            return;
-        }
 
-        let promptText;
-        if (message.startsWith("@") && !isSkipped) {
-            const parts = message.split(":");
-            if (parts.length >= 2) {
-                const profileDisplayName = parts[0].substring(1).trim(); // Remove '@'
-                const messageContent = parts.slice(1).join(":").trim();
-                let systemPrompt;
-                const profile = this.uiManager.profiles.find(p => p.displayName === profileDisplayName);
-                if (profile) {
-                    systemPrompt = { role: "system", content: profile.prompt };
-                } else {
-                    systemPrompt = { role: "system", content: `You are an experienced ${profileDisplayName}.` };
-                }
-                let data = this.uiManager.app.prompts.data.map(d => {
-                    if (d.role === "assistant") {
-                        return { ...d, role: "user" };
-                    }
-                    return d;
-                });
-                // remove the last prompt
-                data.pop();
-                data.push({ role: "user", content: messageContent });
-                const prompts = [systemPrompt, ...data];
-                promptText = JSON.stringify(prompts.map((p) => {
-                    return { role: p.role, content: p.content };
-                }));
-            }
-        } else {
-            promptText = this.uiManager.app.prompts.getPromptText();
-        }
 
+    async sendTextMessage() {
+        this.uiManager.showToast("AI is thinking...");
+        const promptText = this.uiManager.app.prompts.getPromptText();
+        // Code for getGpt, check it's proper implementation in your code.
+        return await getGpt(promptText, this.uiManager.app.model);
+    }
+
+    async sendImageMessage(message) {
+        const imageCaption = message.replace("/image", "").trim();
+        this.uiManager.showToast("AI is generating image...");
+        return await this.uiManager.generateImage(imageCaption);
+    }
+
+
+    async wrapWithGetGptErrorHandler(dataPromise) {
         try {
-            this.uiManager.showToast("AI is thinking...");
-            console.log(this.uiManager.app.model);
-            console.log(promptText);
-            const data = await getGpt(promptText, this.uiManager.app.model);
-
-            // 停止动画，恢复按钮初始状态
-            this.uiManager.finishSubmitProcessing();
-
-            // If no response, pop last prompt and send a message
+            const data = await dataPromise;
             if (!data) {
-                messageId = this.uiManager.generateId();
+                let messageId = this.uiManager.generateId();
                 const content = "The AI did not return any results. Please repeat your question or ask me a different question.";
                 this.addMessage("assistant", content, messageId, false);
                 this.uiManager.app.prompts.addPrompt({ role: "assistant", content: content, messageId: messageId, isActive: false });
             } else {
-                messageId = this.uiManager.generateId();
+                let messageId = this.uiManager.generateId();
                 this.addMessage("assistant", data.message, messageId);
                 this.uiManager.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId, isActive: true });
-                const max_tokens = modelConfig[this.uiManager.app.model] || 8000;
-                console.log("max_tokens", max_tokens);
-                const tokens = data.totalTokens;
-                const tokensSpan = document.querySelector("#tokens");
-                tokensSpan.textContent = `${tokens}t`;
-                tokensSpan.parentNode.classList.add("updated");
-                setTimeout(() => {
-                    tokensSpan.parentNode.classList.remove("updated");
-                }, 500);
-
-                // If tokens are over 90% of max_tokens, remove the first round conversation
-                if (tokens > max_tokens * 0.9) {
-                    swal({
-                        title: "The conersation tokens are over 90% of the limit, will remove the first round conversation from cache to maintain the conversation flow.",
-                        icon: "warning",
-                        buttons: false,
-                        timer: 3000,
-                    });
-                    const removedPrompts = this.uiManager.app.prompts.removeRange(1, 2);
-                    removedPrompts.forEach((p) => {
-                        this.inactiveMessage(p.messageId);
-                    });
-                }
+                await this.sendFollowUpQuestions();
             }
-            this.uiManager.storageManager.saveCurrentProfileMessages();
+            return data;
         } catch (error) {
             let messageId = this.uiManager.generateId();
             this.addMessage("assistant", error.message, messageId, true, "bottom", true);
             this.uiManager.finishSubmitProcessing();
         }
+    }
+
+
+    checkTokensAndWarn(tokens) {
+
+        const tokensSpan = document.querySelector("#tokens");
+        tokensSpan.textContent = `${tokens}t`;
+        tokensSpan.parentNode.classList.add("updated");
+        setTimeout(() => {
+            tokensSpan.parentNode.classList.remove("updated");
+        }, 500);
+
+        const max_tokens = modelConfig[this.uiManager.app.model] || 8000;
+        if (tokens > max_tokens * 0.9) {
+            swal({
+                title: "The conersation tokens are over 90% of the limit, will remove the first round conversation from cache to maintain the conversation flow.",
+                icon: "warning",
+                buttons: false,
+                timer: 3000,
+            });
+            const removedPrompts = this.uiManager.app.prompts.removeRange(1, 2);
+            removedPrompts.forEach((p) => {
+                this.inactiveMessage(p.messageId);
+            });
+        }
+    }
+
+    async sendProfileMessage(message) {
+        // Profile-specific logic
+        const parts = message.split(":");
+        if (parts.length >= 2) {
+            const profileDisplayName = parts[0].substring(1).trim(); // Remove '@'
+            const messageContent = parts.slice(1).join(":").trim();
+            let systemPrompt;
+            const profile = this.uiManager.profiles.find(p => p.displayName === profileDisplayName);
+            if (profile) {
+                systemPrompt = { role: "system", content: profile.prompt };
+            } else {
+                systemPrompt = { role: "system", content: `You are an experienced ${profileDisplayName}.` };
+            }
+            let data = this.uiManager.app.prompts.data.map(d => {
+                if (d.role === "assistant") {
+                    return { ...d, role: "user" };
+                }
+                return d;
+            });
+            // remove the last prompt
+            data.pop();
+            data.push({ role: "user", content: messageContent });
+            const prompts = [systemPrompt, ...data];
+            console.log(prompts);
+            const promptText = JSON.stringify(prompts.map((p) => {
+                return { role: p.role, content: p.content };
+            }));
+
+            // Send the new 'profile' message
+            this.uiManager.showToast("AI is thinking...");
+            return await getGpt(promptText, this.uiManager.app.model);
+        }
+    }
+
+    async sendMessage(inputMessage = "") {
+        this.clearFollowUpQuestions();
+
+        this.uiManager.initSubmitButtonProcessing();
+
+        const validationResult = await this.validateInput(inputMessage);
+
+        if (!validationResult) {
+            return;
+        }
+
+        const { message, isSkipped } = validationResult;
+        let data;
+
+        if (message.startsWith("/image")) {
+            data = await this.sendImageMessage(message);
+        } else if (message.startsWith("@") && !isSkipped) {
+            data = await this.sendProfileMessage(message);
+        } else {
+            data = await this.sendTextMessage(message);
+        }
+
+        data = await this.wrapWithGetGptErrorHandler(data);
+        this.uiManager.finishSubmitProcessing();
+
+        // Don't forget to perform follow-up actions after the response if any
+
+        this.checkTokensAndWarn(data.totalTokens);
+        this.uiManager.storageManager.saveCurrentProfileMessages();
     }
 
     // Add this method to get the ID of the last message
@@ -229,8 +269,16 @@ class MessageManager {
         this.uiManager.app.prompts.removePrompt(messageId);
         if (message) {
             message.classList.remove("active");
+            this.toggleCollapseMessage(message, true);
         }
     }
+
+    editMessage(message, messageId) {
+        this.inactiveMessage(messageId);
+        this.uiManager.messageInput.value = message;
+        this.uiManager.messageInput.focus();
+    }
+
 
     deleteMessage(messageId, isMute = false) {
         if (isMute) {
@@ -252,20 +300,11 @@ class MessageManager {
                         text: "Delete",
                         value: "delete",
                     },
-                    edit: {
-                        text: "Edit",
-                        value: "edit",
-                    },
                 },
             }).then((value) => {
                 if (value === "delete") {
                     this.deleteMessageInStorage(messageId);
                     swal("Message deleted", { icon: "success", buttons: false, timer: 1000 });
-                } else if (value === "edit") {
-                    this.uiManager.messageInput.value = message;
-                    this.uiManager.messageInput.focus();
-                    this.deleteMessageInStorage(messageId);
-                    swal("Message deleted but copied to input box.", { icon: "success", buttons: false, timer: 1000 });
                 }
             });
         }
@@ -332,6 +371,22 @@ class MessageManager {
         }
     }
 
+    deleteInactiveMessages() {
+        const inactiveMessages = document.querySelectorAll(".message:not(.active)");
+        for (let i = inactiveMessages.length - 1; i >= 0; i--) {
+            const message = inactiveMessages[i];
+            this.deleteMessage(message.dataset.messageId, true);
+        }
+    }
+
+    deleteAllMessages() {
+        const allMessages = document.querySelectorAll(".message");
+        for (let i = allMessages.length - 1; i >= 0; i--) {
+            const message = allMessages[i];
+            this.deleteMessage(message.dataset.messageId, true);
+        }
+    }
+
     loadMoreMessages() {
         if (this.uiManager.isDeleting) {
             return;
@@ -358,6 +413,111 @@ class MessageManager {
 
         // Set the scroll position back to the original position after loading more messages
         messagesContainer.scrollTop = messagesContainer.scrollHeight - currentScrollPosition;
+    }
+
+    toggleCollapseMessage(messageElement, forceCollapse) {
+        const isCurrentlyCollapsed = messageElement.classList.contains("collapsed");
+        if ((forceCollapse && !isCurrentlyCollapsed) || (!forceCollapse && isCurrentlyCollapsed)) {
+            const isCollapsed = messageElement.classList.toggle("collapsed");
+            const updatedMessage = isCollapsed ? this.getMessagePreview(messageElement.dataset.message) : messageElement.dataset.message;
+            const sender = messageElement.dataset.sender;
+
+            const newCodeBlocksWithCopyElements = this.setMessageContent(sender, messageElement, updatedMessage, !isCollapsed);
+
+            newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
+                this.uiManager.eventManager.attachCodeBlockCopyEvent(codeBlock, copyElement);
+            });
+
+            const toggleItem = messageElement.querySelector(".toggle-item");
+            if (toggleItem) {
+                toggleItem.dataset.collapsed = isCollapsed ? "true" : "false";
+                const span = toggleItem.querySelector("span");
+                span.textContent = isCollapsed ? "Expand" : "Collapse";
+
+                // Get the Font Awesome icon element
+                const icon = toggleItem.querySelector("i");
+                // Change the class depending on whether the message is collapsed or not
+                if (isCollapsed) {
+                    icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+                } else {
+                    icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+                }
+            }
+        }
+    }
+    // MessageManager.js
+    addFollowUpQuestions(questions) {
+        const followUpQuestionsElement = document.createElement("div");
+        followUpQuestionsElement.classList.add("follow-up-questions");
+
+        questions.forEach((question) => {
+            const questionElement = document.createElement("button");
+            questionElement.textContent = question;
+            this.uiManager.eventManager.attachQuestionButtonEvent(questionElement, question);
+            followUpQuestionsElement.appendChild(questionElement);
+        });
+
+        const messagesContainer = document.querySelector("#messages");
+        messagesContainer.appendChild(followUpQuestionsElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        this.uiManager.updateSlider();
+    }
+
+    // MessageManager.js
+    clearFollowUpQuestions() {
+        const followUpQuestionsElement = document.querySelector("#messages .follow-up-questions");
+        if (followUpQuestionsElement) {
+            followUpQuestionsElement.remove();
+        }
+    }
+
+    async sendFollowUpQuestions() {       
+        const currentProfile = getCurrentProfile();
+        const activeMessages = [...document.querySelectorAll(".message.active")];
+        let content = "";
+        const lastFourMessages = activeMessages.slice(-2); // This will still work even if there are fewer than 4 messages
+        lastFourMessages.forEach(message => {
+            // const dataSender = message.getAttribute("data-sender");
+            const dataMessage = message.getAttribute("data-message");
+            content += `${dataMessage}\n\n`;
+        });
+
+        // check if content is longer than 5000 characters, if so, truncate it to 5000 characters and add ellipsis
+        if (content.length > 5000) {
+            content = content.substring(0, 5000) + "...";
+        }
+
+        
+        const systemPrompt = { role: "system", 
+            content: ` You are a critical thinker. You are talking with ${currentProfile.displayName},
+            Here is his/her profile:
+                      ===
+                      ${currentProfile.prompt}
+                      ===
+                      ` };
+        console.log(this.uiManager.clientLanguage);
+        const userPrompt = { role: "user", 
+            content: `Output: {
+                "suggestedUserResponses": []
+            }
+            Please give your follow-up content idea based on the following content:
+            ===
+            ${content}
+            ===
+            Please note that the follow-up idea should be short, each idea should not exceed 15 words, the number should be no less than 2 but no more than 5, and must be strictly in accordance with the JSON format.
+            Please use ${this.uiManager.clientLanguage}.
+            Output:` };
+        const prompts = [systemPrompt, userPrompt];
+        console.log(prompts);
+        const questionPromptText = JSON.stringify(prompts.map((p) => {
+            return { role: p.role, content: p.content };
+        }));
+
+        const followUpResponsesData = await getFollowUpQuestions(questionPromptText);
+        console.log(followUpResponsesData.suggestedUserResponses);
+
+        this.addFollowUpQuestions(followUpResponsesData.suggestedUserResponses);
     }
 
 }

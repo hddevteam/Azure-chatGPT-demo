@@ -23,7 +23,7 @@ class EventManager {
             messageElement.classList.remove("active");
             this.uiManager.app.prompts.removePrompt(messageId);
             // Call the method with forceCollapse = true
-            this.toggleCollapseMessage(messageElement, true);
+            this.uiManager.messageManager.toggleCollapseMessage(messageElement, true);
         } else {
             messageElement.classList.add("active");
             this.uiManager.app.prompts.clear();
@@ -32,7 +32,7 @@ class EventManager {
                 this.uiManager.app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
             });
             // Call the method with forceCollapse = false
-            this.toggleCollapseMessage(messageElement, false);
+            this.uiManager.messageManager.toggleCollapseMessage(messageElement, false);
         }
 
         const isActive = messageElement.classList.contains("active");
@@ -126,6 +126,20 @@ class EventManager {
     }
 
     attachPopupMenuItemEventListener(popupMenu) {
+
+        const editItem = popupMenu.querySelector(".edit-item");
+        editItem.addEventListener("click", () => {
+            const message = popupMenu.parentElement.dataset.message;
+            const messageId = popupMenu.parentElement.dataset.messageId;
+            this.uiManager.messageManager.editMessage(message, messageId);
+        });
+
+        const moveToNewTopicItem = popupMenu.querySelector(".movetonewtopic-item");
+        moveToNewTopicItem.addEventListener("click", () => {
+            const messageId = popupMenu.parentElement.dataset.messageId;
+            this.uiManager.moveToNewTopic(messageId);
+        });
+
         const deleteItem = popupMenu.querySelector(".delete-item");
         deleteItem.addEventListener("click", () => {
             const messageId = popupMenu.parentElement.dataset.messageId;
@@ -145,40 +159,17 @@ class EventManager {
             const isCurrentlyCollapsed = messageElement.classList.contains("collapsed");
 
             // If the message is collapsed, we expand it, and vice versa.
-            this.toggleCollapseMessage(messageElement, !isCurrentlyCollapsed);
+            this.uiManager.messageManager.toggleCollapseMessage(messageElement, !isCurrentlyCollapsed);
         });
     }
 
-    toggleCollapseMessage(messageElement, forceCollapse) {
-        const isCurrentlyCollapsed = messageElement.classList.contains("collapsed");
-        if ((forceCollapse && !isCurrentlyCollapsed) || (!forceCollapse && isCurrentlyCollapsed)) {
-            const isCollapsed = messageElement.classList.toggle("collapsed");
-            const updatedMessage = isCollapsed ? this.uiManager.messageManager.getMessagePreview(messageElement.dataset.message) : messageElement.dataset.message;
-            const sender = messageElement.dataset.sender;
-
-            const newCodeBlocksWithCopyElements = this.uiManager.messageManager.setMessageContent(sender, messageElement, updatedMessage, !isCollapsed);
-
-            newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
-                this.attachCodeBlockCopyEvent(codeBlock, copyElement);
-            });
-
-            const toggleItem = messageElement.querySelector(".toggle-item");
-            if (toggleItem) {
-                toggleItem.dataset.collapsed = isCollapsed ? "true" : "false";
-                const span = toggleItem.querySelector("span");
-                span.textContent = isCollapsed ? "Expand" : "Collapse";
-
-                // Get the Font Awesome icon element
-                const icon = toggleItem.querySelector("i");
-                // Change the class depending on whether the message is collapsed or not
-                if (isCollapsed) {
-                    icon.classList.replace("fa-chevron-up", "fa-chevron-down");
-                } else {
-                    icon.classList.replace("fa-chevron-down", "fa-chevron-up");
-                }
-            }
-        }
+    attachQuestionButtonEvent(questionElement, question) {
+        questionElement.addEventListener("click", async () => {
+            // Use `question` as the message to send to AI
+            this.uiManager.messageInput.value += question;
+        });
     }
+
 }
 
 export default EventManager;

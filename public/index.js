@@ -11,6 +11,11 @@ import setup from "./setup.js";
 const uiManager = setup();
 const app = uiManager.app;
 
+//get client language
+const clientLanguage = navigator.language;
+console.log(clientLanguage);
+uiManager.setClientLanguage(clientLanguage);
+
 const switchElement = document.querySelector("#model-switch");
 let model = "gpt-3.5-turbo"; // default model
 
@@ -118,38 +123,39 @@ document.getElementById("md-container").addEventListener("click", () => {
 
 document.getElementById("delete-container").addEventListener("click", () => {
     const messageNumber = document.querySelectorAll(".message.active").length;
+    const inactiveMessageNumber = document.querySelectorAll(".message:not(.active)").length;
+    const allMessageNumber = document.querySelectorAll(".message").length;
+
     swal({
-        title: `You are about to delete ${messageNumber} messages in the current conversation. This action cannot be undone.`,
+        title: "What kind of messages you want to delete?",
         icon: "warning",
         buttons: {
             cancel: "Cancel",
-            delete: {
-                text: "Delete",
-                value: "delete",
+            deleteActive: {
+                text: `Delete Active(${messageNumber})`,
+                value: "deleteActive",
             },
-            edit: {
-                text: "Edit",
-                value: "edit",
+            deleteInactive: {
+                text: `Delete Inactive(${inactiveMessageNumber})`,
+                value: "deleteInactive",
             },
+            deleteAll: {
+                text: `Delete All(${allMessageNumber})`,
+                value: "deleteAll",
+            }
         },
         dangerMode: true
     })
         .then((value) => {
-            if (value === "delete") {
+            if (value === "deleteActive") {
                 uiManager.messageManager.deleteActiveMessages();
-                swal("Messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
-            } else if (value === "edit") {
-                const activeMessages = document.querySelectorAll(".message.active");
-                let mdContent = "";
-                activeMessages.forEach(message => {
-                    const dataSender = message.getAttribute("data-sender");
-                    const dataMessage = message.getAttribute("data-message");
-                    mdContent += `### ${dataSender}\n\n${dataMessage}\n\n`;
-                });
-                messageInput.value += mdContent;
-                uiManager.messageManager.deleteActiveMessages();
-                swal("Messages in the current conversation have been merged into the text box successfully!", { icon: "success", buttons: false, timer: 1000 });
-                messageInput.focus();
+                swal("Active messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
+            } else if (value === "deleteInactive") {
+                uiManager.messageManager.deleteInactiveMessages();
+                swal("Inactive messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
+            } else if (value === "deleteAll") {
+                uiManager.messageManager.deleteAllMessages();
+                swal("All messages in the current conversation have been deleted successfully!", { icon: "success", buttons: false, timer: 1000 });
             }
         });
 });
@@ -284,14 +290,13 @@ updateVh();
 
 window.addEventListener("resize", () => {
     updateVh();
-    adjustChatContainer();
 });
 
 const messageInputContainer = document.querySelector(".message-input-container");
-const mainContainer = document.querySelector("#main-container");
+const mainContainer = document.querySelector("#app-container");
 let ro = new ResizeObserver(entries => {
     for (let entry of entries) {
-        let newHeight = `calc(var(--vh, 1vh) * 99.5 - ${entry.contentRect.height}px)`;
+        let newHeight = `calc(var(--vh, 1vh) * 99.5 - ${entry.contentRect.height + 40}px)`;
         mainContainer.style.height = newHeight;
     }
 });
@@ -337,24 +342,10 @@ function loadProfileList() {
     profileListMenu.style.height = `${menuHeight}px`;
 }
 
-window.onload = function () {
-    adjustChatContainer();
-};
 
-function adjustChatContainer() {
-    const chatContainer = document.getElementById("chat-container");
-    const menu = document.getElementById("menu");
         
-    if (window.innerWidth <= 768) { // 如果是响应式布局
-        chatContainer.style.flex = "1";
-        menu.dataset.visible = false;
-        menu.style.display = "none";
-    } else { // 如果是桌面布局
-        chatContainer.style.flex = "0 0 85%";
-        menu.dataset.visible = true;
-        menu.style.display = "block";
-    }
-}
+    
+
 function toggleDropdownList(){
     const dropdownList=document.getElementById("dropdown-container");
     const isVisible=dropdownList.getAttribute("data-visible")==="true";
@@ -388,32 +379,40 @@ function handleDropdown(event){
 // toggle the menu when user click the ai profile
 function toggleMenu() {
     const menu = document.getElementById("menu");
-    const chatContainer = document.getElementById("chat-container");
     const isVisible = menu.getAttribute("data-visible") === "true";
 
     menu.style.display = isVisible ? "none" : "block";
     menu.setAttribute("data-visible", !isVisible);
 
-    if (isVisible) {
-        chatContainer.style.flex = "1";
-    } else {
-        if (window.innerWidth > 768) {
-            chatContainer.style.flex = "0 0 85%";
-        }
-        if (window.innerWidth <= 768) {
-            document.addEventListener("click", function hideMenuOnOutsideClick(event) {
-                const profileListMenu = document.getElementById("ai-profile");
+    if (window.innerWidth <= 768) {
+        document.addEventListener("click", function hideMenuOnOutsideClick(event) {
+            const profileListMenu = document.getElementById("ai-profile");
 
-                if (event.target !== menu && event.target !== profileListMenu && !profileListMenu.contains(event.target)) {
-                    menu.style.display = "none";
-                    menu.setAttribute("data-visible", false);
-                    chatContainer.style.flex = "1";
-                    document.removeEventListener("click", hideMenuOnOutsideClick);
-                }
-            });
-        }
+            if (event.target !== menu && event.target !== profileListMenu && !profileListMenu.contains(event.target)) {
+                menu.style.display = "none";
+                menu.setAttribute("data-visible", false);
+                document.removeEventListener("click", hideMenuOnOutsideClick);
+            }
+        });
     }
 }
+
+
+const chatHistoryContainer = document.getElementById("chat-history-container");
+const toggleButton = document.getElementById("toggle-chat-topic");
+
+toggleButton.addEventListener("click", function (event) {
+    event.stopPropagation();
+    chatHistoryContainer.style.display = chatHistoryContainer.style.display === "none" ? "block" : "none";
+    chatHistoryContainer.style.minWidth = "300px";
+});
+
+document.addEventListener("click", function (event) {
+    // checks if the click was outside the toggleButton and if the toggleButton is being displayed
+    if (!toggleButton.contains(event.target) && window.getComputedStyle(toggleButton).display !== "none") {
+        chatHistoryContainer.style.display = "none";
+    }
+});
 
 
 // handle the click event on the ai profile

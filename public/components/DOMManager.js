@@ -141,7 +141,7 @@ class DOMManager {
         listItemElement.appendChild(titleElement);
 
         const createdAtElement = document.createElement("small");
-        createdAtElement.textContent = formatTime(history.createdAt);
+        createdAtElement.textContent = formatTime(history.updatedAt);
 
         listItemElement.appendChild(createdAtElement);
 
@@ -213,6 +213,8 @@ class DOMManager {
 
         // Define an object with menu items and their corresponding Font Awesome class names
         const items = [
+            { name: "Edit", icon: "fa-edit" },
+            { name: "moveToNewTopic", displayName: "Move to new topic", icon: "fa-external-link-square-alt" },
             { name: "Delete", icon: "fa-trash" },
             { name: "Copy", icon: "fa-copy" },
             { name: "Toggle", icon: isCollapsed ? "fa-chevron-down" : "fa-chevron-up" }
@@ -229,7 +231,7 @@ class DOMManager {
             li.prepend(icon);
 
             const span = document.createElement("span");
-            span.textContent = item.name;
+            span.textContent = item.displayName || item.name;
             li.appendChild(span);
 
             if (item.name === "Toggle") {
