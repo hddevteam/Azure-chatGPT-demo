@@ -32,8 +32,8 @@ class UIManager {
         this.chatHistoryManager = new ChatHistoryManager();
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
         this.setupChatHistoryListClickHandler();
-    }
-
+            }
+   
     clearMessageInput() {
         this.messageInput.value = "";
     }
@@ -217,8 +217,8 @@ class UIManager {
         loader.classList.remove("hidden");
         return { submitButton, buttonIcon, loader };
     }
-
-
+    
+   
     // render menu list from data
     // it only happens when user submit the username or the page is loaded
     async renderMenuList(data) {
@@ -238,8 +238,11 @@ class UIManager {
         this.currentChatId = latestChat?.id || this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
 
         //empty menu list
-        const menuList = document.querySelector("#menu-list");
+                const menuList = document.querySelector("#menu-list");
         menuList.innerHTML = "";
+        //empty dropdownlist
+        const dropdownList=document.querySelector("#dropdown-list");
+        dropdownList.innerHTML="";
         const aiProfile = document.querySelector("#ai-profile");
         aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
         //add menu items
@@ -256,8 +259,8 @@ class UIManager {
             span.textContent = item.displayName;
             li.appendChild(icon);
             li.appendChild(span);
-            menuList.appendChild(li);
-            // Capture the 'this' of UIManager instance
+                        menuList.appendChild(li);
+                       // Capture the 'this' of UIManager instance
             const self = this;
             //add click event listener
             li.addEventListener("click", function () {
@@ -268,10 +271,33 @@ class UIManager {
                 self.changeChatTopic(self.currentChatId);
             });
         });
-
+        this.profiles.forEach(item => {
+            let li = document.createElement("li");
+            li.dataset.profile = item.name;
+            let icon = document.createElement("i");
+            icon.className = `${item.icon}`;
+            let span = document.createElement("span");
+            span.textContent = item.displayName;
+            li.appendChild(icon);
+            li.appendChild(span);
+            dropdownList.appendChild(li);
+           
+            const self = this;
+            //add click event listener
+            li.addEventListener("click", function () {
+                const profileName = li.dataset.profile;
+                const chatHistory = self.chatHistoryManager.getChatHistory();
+                const latestChat = chatHistory.find(history => history.profileName === profileName);
+                self.currentChatId = latestChat?.id || self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
+                self.changeChatTopic(self.currentChatId);
+                self.handleAddTopicClick();
+                const chatHistoryListElement = document.querySelector("#chat-history-list");
+                chatHistoryListElement.addEventListener("click", self.handleChatHistoryItemClick.bind(this));
+            });
+        });
         this.changeChatTopic(this.currentChatId);
-
-    }
+        
+            }
 
     changeChatTopic(chatId) {
         const profileName = chatId.split("_")[1];
@@ -284,7 +310,7 @@ class UIManager {
         // Set active profile menu item
         document.querySelector("#menu-list li.active")?.classList.remove("active");
         document.querySelector(`#menu-list li[data-profile="${profileName}"]`).classList.add("active");
-
+        
         // Set active chat history item
         document.querySelector("#chat-history-list li.active")?.classList.remove("active");
         document.querySelector(`#chat-history-list li[data-id="${chatId}"]`)?.classList.add("active");
@@ -541,7 +567,7 @@ class UIManager {
 
         });
     }
-}
+    }
 
 export default UIManager;
 

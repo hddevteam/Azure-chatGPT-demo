@@ -5,7 +5,6 @@ import { getCurrentUsername, getCurrentProfile, setCurrentProfile } from "./util
 import { getAppName, getPromptRepo } from "./utils/api.js";
 import { setupVoiceInput } from "./utils/input-audio.js";
 import swal from "sweetalert";
-import swal2 from "sweetalert2";
 import MarkdownManager from "./components/MarkdownManager.js";
 import setup from "./setup.js";
 
@@ -183,91 +182,7 @@ document.addEventListener("keydown", (event) => {
         uiManager.handleMessageFormSubmit(messageInput);
     }
 });
-document.getElementById("new-chat-container").addEventListener("click",()=>{
-//     let profileNameList = [];
 
-// getPromptRepo(getCurrentUsername())
-//     .then(data => {
-//         uiManager.renderMenuList(data);
-//         profileNameList = data.profiles.map(profile => profile.displayName);
-
-//         const buttons = {};
-
-//         profileNameList.forEach((profileName, index) => {
-//             buttons[`button_${index + 1}`] = {
-//                 text: profileName,
-//                 value: profileName
-//             };
-//         });
-
-//         swal({
-//             title: 'please choose the type of your new chat',
-            
-//             icon: 'info',
-//             buttons: buttons
-//         }).then((result) => {
-//             if (result) {
-//                 const selectedButton = result; // 获取用户选择的按钮值
-//                 console.log(`选择的按钮: ${selectedButton}`);
-//             }
-//         });
-//     })
-//     .catch(error => {
-//         console.error("错误:", error);
-//     });
-let profileNameList = [];
-
-getPromptRepo(getCurrentUsername())
-  .then(data => {
-    uiManager.renderMenuList(data);
-    profileNameList = data.profiles.map(profile => profile.displayName);
-
-    // 去除重复的profileName
-    const uniqueProfileNames = [...new Set(profileNameList)];
-
-    const listItems = uniqueProfileNames.map((profileName, index) => ({
-    //   text: profileName,
-      value: profileName
-    }));
-    
-    swal2.fire({
-      title: 'Choose theme',
-      input: 'select',
-      inputOptions: listItems,
-      inputPlaceholder: 'please choose the theme of your new chat',
-      showCancelButton: true,
-      confirmButtonText: 'new chat',
-      cancelButtonText: 'cancel',
-      inputValidator: (value) => {
-        if (!value) {
-          return 'please choose one theme!';
-        }
-      }
-    }).then((result) => {
-      if (result) {
-        const selectedValue = result.value;
-        console.log(`选择的值: ${selectedValue}`);
-        console.log(selectedValue);
-
-        // 根据选中的值执行相应操作，例如创建对应profileName的聊天
-        createChat(selectedValue);
-      }
-    });
-  })
-  .catch(error => {
-    console.error("错误:", error);
-  });
-
-
-
-
-});
-function createChat(profileName) {
-    
-    // 根据profileName创建对应的聊天
-    console.log(`创建聊天: ${profileName}`);
-    // 执行其他创建聊天的操作
-  }
     
 // popup the Swal when user click the username label
 usernameLabel.addEventListener("click", function () {
@@ -307,7 +222,7 @@ usernameLabel.addEventListener("click", function () {
 
 
 document.getElementById("ai-profile").addEventListener("click", handleClick);
-
+document.getElementById("new-chat-button").addEventListener("click",handleDropdown);
 // 添加事件监听器到最小化窗口图标
 const systemMessageWindowIcon = document.querySelector("#window-icon");
 
@@ -429,7 +344,7 @@ window.onload = function () {
 function adjustChatContainer() {
     const chatContainer = document.getElementById("chat-container");
     const menu = document.getElementById("menu");
-
+        
     if (window.innerWidth <= 768) { // 如果是响应式布局
         chatContainer.style.flex = "1";
         menu.dataset.visible = false;
@@ -440,7 +355,35 @@ function adjustChatContainer() {
         menu.style.display = "block";
     }
 }
+function toggleDropdownList(){
+    const dropdownList=document.getElementById("dropdown-container");
+    const isVisible=dropdownList.getAttribute("data-visible")==="true";
 
+    function hideDropdownOnOutsideClick(event) {
+        const profileListDropdown = document.getElementById("new-chat-button");
+
+        if (event.target !== dropdownList && event.target !== profileListDropdown && !profileListDropdown.contains(event.target)) {
+            dropdownList.style.display = "none";
+            dropdownList.setAttribute("data-visible", false);
+            document.removeEventListener("click", hideDropdownOnOutsideClick);
+        }
+    }
+
+    if(isVisible){
+        dropdownList.style.display="none";
+        dropdownList.setAttribute("data-visible", false);
+        document.removeEventListener("click", hideDropdownOnOutsideClick);
+    } else {
+        dropdownList.style.display="block";
+        dropdownList.setAttribute("data-visible", true);
+        document.addEventListener("click", hideDropdownOnOutsideClick);
+    }
+}
+
+function handleDropdown(event){
+    event.stopPropagation();
+    toggleDropdownList();
+}
 
 // toggle the menu when user click the ai profile
 function toggleMenu() {
@@ -490,4 +433,4 @@ window.addEventListener("message", function (event) {
         }
     }
 }, false);
-
+ 

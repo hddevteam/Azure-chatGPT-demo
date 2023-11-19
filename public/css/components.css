@@ -738,3 +738,68 @@ button.action-button.invisible {
 #chat-history-list li button.action-button i {
     margin: 0;
 }
+.message-input-container{
+    max-width: 100%;
+}
+
+#dropdown-container {
+    display: none;
+    position: fixed;
+    bottom: 4em;
+   left: 5.7em;
+    border-radius: 0.5em;
+    width: 70vw;
+    max-width: max-content;
+    background-color: #FFFFFF;
+    box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    height: calc(50vh);
+    max-height: max-content;
+    z-index: 9999;
+}
+
+#dropdown-container li {
+    margin: 0;
+    padding: 10px;
+}
+
+#dropdown-header i,
+#dropdown-container li i {
+    margin: 0 0.5em 0 0;
+    font-size: 1em;
+    padding: 0.2em;
+}
+
+#dropdown-header span {
+    
+    font-size: 18px;
+    font-family: 'Roboto';
+}
+
+#dropdown-list li span {
+    margin: 0;
+    padding: 0;
+}
+#dropdown-container li:hover,
+#dropdown-container li.active {
+    background-color: #424141;
+    color: #e6f2ff;
+    cursor: pointer;
+}
+#dropdown-header{
+    display: flex;
+    width: 100%;
+    justify-content: left;
+    margin-bottom: 10px;
+    padding: 10px 0;
+    color: #333;
+    border-bottom: 1px solid #ccc;
+    font-size: 20px;
+    padding: 5px;
+    margin-right: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f1f1f1;
+}
