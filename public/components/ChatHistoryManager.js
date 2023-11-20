@@ -1,10 +1,13 @@
-import { getCurrentUsername, getMessages } from "../utils/storage.js";
+//components/ChatHistoryManager.js
 import { generateTitle } from "../utils/api.js";
 import { v4 as uuidv4 } from "uuid";
-import { getChatHistory, saveChatHistory } from "../utils/storage.js";
+import StorageManager from "./StorageManager.js";
+
+
 
 class ChatHistoryManager {
     constructor() {
+        this.storageManager = new StorageManager(this);
         this.chatHistoryKeyPrefix = "chatHistory_";
         this.subscribers = [];
     }
@@ -23,9 +26,9 @@ class ChatHistoryManager {
     }
 
     // Use these functions like this
-    getChatHistory() {
-        const username = getCurrentUsername();
-        const chatHistory = getChatHistory(username);
+    async getChatHistory() {
+        const username = this.storageManager.getCurrentUsername();
+        const chatHistory = await this.storageManager.getChatHistory(username);
         
         return chatHistory.sort((a, b) => {
             return new Date(b.updatedAt) - new Date(a.updatedAt);
@@ -33,12 +36,12 @@ class ChatHistoryManager {
     }    
 
     saveChatHistory(chatHistory) {
-        const username = getCurrentUsername();
-        saveChatHistory(username, chatHistory);
+        const username = this.storageManager.getCurrentUsername();
+        this.storageManager.saveChatHistory(username, chatHistory);
     }
 
     async generateChatHistory() {
-        const username = getCurrentUsername();
+        const username = this.storageManager.getCurrentUsername();
 
         // 获取所有的localStorage keys
         const keys = Object.keys(localStorage);
@@ -55,7 +58,7 @@ class ChatHistoryManager {
     // 创建新的聊天历史记录
     async createChatHistory(chatId) {
         const profileName = chatId.split("_")[1];
-        const messages = getMessages(chatId);
+        const messages = this.storageManager.getMessages(chatId);
         let title = "untitled";
         if (messages.length) {
             title = await generateTitle(messages[0].content);
@@ -80,7 +83,7 @@ class ChatHistoryManager {
     async updateChatHistory(chatId, forceGenerateTitle=false, title="") {
         const chatHistory = this.getChatHistory();
         const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
-        const messages = getMessages(chatId);
+        const messages = this.storageManager.getMessages(chatId);
         if (!messages.length) return;
         if (chatHistoryToUpdate) {
             if (title) chatHistoryToUpdate.title = title;

@@ -30,5 +30,20 @@ router.put("/profiles/:name", profileController.updateProfile);
 router.delete("/profiles/:name", profileController.deleteProfile);
 router.get("/gpt-default-params", gptController.getDefaultParams);
 
+const chatHistoryController = require("./controllers/chatHistoryController");
+const messageController = require("./controllers/messageController");
+
+// Chat History routes
+router.get("/chatHistories", chatHistoryController.getCloudChatHistories);
+router.post("/chatHistories", chatHistoryController.createCloudChatHistory);
+router.put("/chatHistories/:chatId", chatHistoryController.updateCloudChatHistory);
+router.delete("/chatHistories/:chatId", chatHistoryController.deleteCloudChatHistory);
+
+// Message routes
+router.get("/messages/:chatId", messageController.getCloudMessages);
+router.post("/messages/:chatId", messageController.createCloudMessage);
+router.put("/messages/:messageId", messageController.updateCloudMessage);
+router.delete("/messages/:messageId", messageController.deleteCloudMessage);
+
 
 module.exports = router;

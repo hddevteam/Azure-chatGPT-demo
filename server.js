@@ -1,3 +1,11 @@
+// server.js
+const { createTable } = require("./services/azureTableStorage");
+
+createTable("ChatHistories");
+createTable("Messages");
+
+
+
 /* eslint-disable no-unused-vars */
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -11,6 +19,8 @@ const apiRouter = require("./api");
 app.use(bodyParser.json({ limit: "1000kb" }));
 app.use(express.static("public"));
 app.use("/api", apiRouter);
+
+
 
 const server = app.listen(process.env.PORT || 3000, () => console.log("Server is running"));
 const close = () => server.close();

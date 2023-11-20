@@ -3,7 +3,7 @@
 
 // purpose: to manage the ai profiles(system prompt) of current user
 
-import { getCurrentUsername } from "./utils/storage.js";
+import StorageManager  from "./components/storage.js";
 import { getDefaultParams } from "./utils/api.js";
 
 const showAlert = (type, message) => {
@@ -16,6 +16,8 @@ const showAlert = (type, message) => {
     $("#alert-container").html(alertHtml);
 };
 
+
+
 async function init() {
     const defaultParams = await getDefaultParams();
     $("#temperature").attr("placeholder", defaultParams.temperature + " (default)");
@@ -27,7 +29,8 @@ async function init() {
 
 $(function () {
     init();
-    if (getCurrentUsername() === "guest") {
+    const storageManager = new StorageManager();
+    if (storageManager.getCurrentUsername() === "guest") {
         showAlert("warning", "You are currently logged in as guest. You can not edit the profile.");
     }
 

@@ -4,7 +4,6 @@ import EventManager from "./EventManager.js";
 import MessageManager from "./MessageManager.js";
 import StorageManager from "./StorageManager.js";
 import ChatHistoryManager from "./ChatHistoryManager.js";
-import { getCurrentUsername, getCurrentProfile, setCurrentUsername, setCurrentProfile, getMessages, removeMessagesByChatId } from "../utils/storage.js";
 import { textToImage, getTts } from "../utils/api.js";
 import swal from "sweetalert";
 
@@ -113,7 +112,7 @@ class UIManager {
         const editButton = document.querySelector("#edit-system-message");
         editButton.addEventListener("click", () => {
             // 使用window.open可以在新标签页中打开，并将当前的profile name传递过去
-            window.open(`profile-manager.html?profileName=${getCurrentProfile().name}`, "_blank");
+            window.open(`profile-manager.html?profileName=${this.storageManager.getCurrentProfile().name}`, "_blank");
         });
     }
 
@@ -227,17 +226,17 @@ class UIManager {
     // it only happens when user submit the username or the page is loaded
     async renderMenuList(data) {
         this.profiles = data.profiles;
-        setCurrentUsername(data.username);
+        this.storageManager.setCurrentUsername(data.username);
         await this.showChatHistory();
         const usernameLabel = document.querySelector("#username-label");
-        usernameLabel.textContent = getCurrentUsername();
-        const chatHistory = this.chatHistoryManager.getChatHistory();
-        const savedCurrentProfile = getCurrentProfile();
+        usernameLabel.textContent = this.storageManager.getCurrentUsername();
+        const chatHistory = await this.chatHistoryManager.getChatHistory();
+        const savedCurrentProfile = this.storageManager.getCurrentProfile();
         if (!savedCurrentProfile) {
-            setCurrentProfile(this.profiles[0]);
+            this.storageManager.setCurrentProfile(this.profiles[0]);
         }
-        const currentProfile = getCurrentProfile();
 
+        const currentProfile = this.storageManager.getCurrentProfile();
         //empty menu list
         const menuList = document.querySelector("#menu-list");
         menuList.innerHTML = "";
@@ -269,7 +268,7 @@ class UIManager {
                     const chatId = latestChat.id;
                     self.changeChatTopic(chatId);
                 } else {
-                    const chatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
+                    const chatId = self.chatHistoryManager.generateChatId(self.storageManager.getCurrentUsername(), profileName);
                     self.changeChatTopic(chatId, true);
                 }
             });
@@ -278,7 +277,7 @@ class UIManager {
         let latestChat;
         latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
         if (!latestChat) {
-            const chatId = this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
+            const chatId = this.chatHistoryManager.generateChatId(this.storageManager.getCurrentUsername(), currentProfile.name);
             this.currentChatId = chatId;
             this.changeChatTopic(chatId, true);
         } else {
@@ -303,8 +302,8 @@ class UIManager {
         const profileName = chatId.split("_")[1];
 
         // Update current profile and chat ID
-        setCurrentProfile(this.profiles.find(p => p.name === profileName));
-        this.setSystemMessage(getCurrentProfile().prompt);
+        this.storageManager.setCurrentProfile(this.profiles.find(p => p.name === profileName));
+        this.setSystemMessage(this.storageManager.getCurrentProfile().prompt);
         console.log("profileName: ", profileName);
 
         // Set active profile menu item
@@ -321,7 +320,7 @@ class UIManager {
 
         // Update UI
         const aiProfile = document.querySelector("#ai-profile");
-        aiProfile.innerHTML = `<i class="${getCurrentProfile().icon}"></i> ${getCurrentProfile().displayName}`;
+        aiProfile.innerHTML = `<i class="${this.storageManager.getCurrentProfile().icon}"></i> ${this.storageManager.getCurrentProfile().displayName}`;
 
         // Clear current chat messages and prompts
         document.querySelector("#messages").innerHTML = "";
@@ -338,7 +337,7 @@ class UIManager {
 
     loadMessagesByChatId(chatId) {
         // load chat messages by chatId
-        const savedMessages = getMessages(chatId);
+        const savedMessages = this.storageManager.getMessages(chatId);
         const startingIndex = savedMessages.length > this.messageLimit ? savedMessages.length - this.messageLimit : 0;
         savedMessages.slice(startingIndex).forEach((message, index, arr) => {
             let isActive = message.isActive || false;
@@ -351,7 +350,7 @@ class UIManager {
 
     setupPracticeMode() {
         const ttsContainer = document.querySelector("#tts-container");
-        if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
+        if (this.storageManager.getCurrentProfile() && this.storageManager.getCurrentProfile().tts === "enabled") {
             // if ttsContainer is not display, then display it
             ttsContainer.style.display = "inline-block";
         } else {
@@ -467,7 +466,7 @@ class UIManager {
 
 
     async showChatHistory() {
-        const username = getCurrentUsername();
+        const username = this.storageManager.getCurrentUsername();
         if (!localStorage.getItem(this.chatHistoryManager.chatHistoryKeyPrefix + username)) {
             this.chatHistoryManager.generateChatHistory();
         } else {
@@ -481,12 +480,12 @@ class UIManager {
         const profile = this.profiles.find(profile => profile.name === chatHistoryItem.profileName);
         if (!profile) return;
         if (action === "create") {
-            this.domManager.appendChatHistoryItem(chatHistoryItem, getCurrentProfile());
+            this.domManager.appendChatHistoryItem(chatHistoryItem, this.storageManager.getCurrentProfile());
         } else if (action === "update") {
             this.domManager.updateChatHistoryItem(chatHistoryItem, profile);
         } else if (action === "delete") {
             this.domManager.removeChatHistoryItem(chatHistoryItem.id);
-            removeMessagesByChatId(chatHistoryItem.id);
+            this.storageManager.removeMessagesByChatId(chatHistoryItem.id);
         }
 
         // Set active chat history item
@@ -502,8 +501,8 @@ class UIManager {
     }
 
     handleAddTopicClick() {
-        const profileName = getCurrentProfile().name;
-        const username = getCurrentUsername();
+        const profileName = this.storageManager.getCurrentProfile().name;
+        const username = this.storageManager.getCurrentUsername();
         const chatId = this.chatHistoryManager.generateChatId(username, profileName);
 
         // Change the current chat topic to the newly created chat ID
@@ -566,11 +565,11 @@ class UIManager {
                 this.chatHistoryManager.deleteChatHistory(chatId);
                 if (this.currentChatId === chatId) {
                     const chatHistory = this.chatHistoryManager.getChatHistory();
-                    const currentProfile = getCurrentProfile();
+                    const currentProfile = this.storageManager.getCurrentProfile();
                     let latestChat;
                     latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
                     if (!latestChat) {
-                        const chatId = this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
+                        const chatId = this.chatHistoryManager.generateChatId(this.storageManager.getCurrentUsername(), currentProfile.name);
                         this.changeChatTopic(chatId, true);
                     } else {
                         const chatId = latestChat.id;
