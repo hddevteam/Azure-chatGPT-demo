@@ -30,9 +30,10 @@ exports.getCloudChatHistories = async (req, res) => {
 exports.createCloudChatHistory = async (req, res) => {
     try {
         let chatHistory = req.body;
-
+        console.log(chatHistory);
         // Assuming that the id is in the form of 'username_profileName_uuid'
-        const [username, profileName, uuid] = chatHistory.id.split('_');
+        const [username, profileName, uuid] = chatHistory.id.split("_");
+        console.log(username, profileName, uuid);
 
         // Update chatHistory to include PartitionKey and RowKey, 
         // and removing id as it is not required in Azure Table Storage format
@@ -43,13 +44,10 @@ exports.createCloudChatHistory = async (req, res) => {
             // Ensure all the other required properties are included
         };
 
-        // Remove 'id' property as it is not used in Azure Table Storage Entity
-        delete chatHistory.id;
-
         // Create the chat history entity in the table
         const tableClient = getTableClient("ChatHistories");
         const createEntityResponse = await tableClient.createEntity(chatHistory);
-
+        console.log(createEntityResponse);
         res.status(201).json({ data: createEntityResponse });
     } catch (error) {
         console.error(`Failed to create chat history: ${error.message}`);
@@ -60,16 +58,19 @@ exports.createCloudChatHistory = async (req, res) => {
 
 
 exports.updateCloudChatHistory = async (req, res) => {
+    console.log("updateCloudChatHistory");
     try {
         const username = req.params.username; // 或者通过其他方式获取用户名，如认证信息等
         const chatId = req.params.chatId;
+        const uuid = chatId.split("_")[2]||"";
         const chatHistoryData = req.body;
+        console.log(username, chatId, uuid, chatHistoryData);
         const tableClient = getTableClient("ChatHistories");
         const updateEntityResponse = await tableClient.updateEntity({
-            ...chatHistoryData,
-            PartitionKey: username,
-            RowKey: chatId
-        }, { etag: "*" });
+            partitionKey: username,
+            rowKey: uuid,
+            ...chatHistoryData
+        });
         res.status(200).json({ data: updateEntityResponse });
     } catch (error) {
         console.error(`Failed to update chat history: ${error.message}`);
