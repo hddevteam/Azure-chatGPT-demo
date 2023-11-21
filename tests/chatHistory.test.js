@@ -83,7 +83,7 @@ describe("ChatHistory Controller", () => {
         expect(result.data).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
-                    PartitionKey: username,
+                    partitionKey: username,
                     rowKey: testUUID
                 })
             ])
@@ -97,9 +97,8 @@ describe("ChatHistory Controller", () => {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         },{
-            
+            username: username 
         },{
-            username: username,
             chatId: chatId
         });
         const res = setupMockResponse();
@@ -114,15 +113,16 @@ describe("ChatHistory Controller", () => {
     });
   
     test("Delete a ChatHistory from Azure Table Storage", async () => {
-        const req = setupMockRequest({}, { username: username }, { chatId: testUUID });
+        const req = setupMockRequest({}, { username: username }, { chatId: chatId });
         const res = setupMockResponse();
   
         await deleteCloudChatHistory(req, res);
-  
+
         expect(res.status).toHaveBeenCalledWith(204);
-  
-        // Attempt to retrieve the deleted entity should fail
-        await expect(tableClient.getEntity(username, testUUID)).rejects.toThrow();
+
+        // 检索实体以确认isDeleted字段已设置为true
+        const deletedEntity = await tableClient.getEntity(username, testUUID);
+        expect(deletedEntity.isDeleted).toBeTruthy();
     });
 });
   

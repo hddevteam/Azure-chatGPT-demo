@@ -25,22 +25,24 @@ exports.getCloudChatHistories = async (req, res) => {
     }
 };
 
-// controllers/chatHistoryController.js
-
 exports.createCloudChatHistory = async (req, res) => {
     try {
         let chatHistory = req.body;
         console.log(chatHistory);
         // Assuming that the id is in the form of 'username_profileName_uuid'
-        const [username, profileName, uuid] = chatHistory.id.split("_");
+        let [username, profileName, uuid] = chatHistory.id.split("_");
+        // if !uuid, uuid = 0
+        if (!uuid) {
+            uuid = "0";
+        }
         console.log(username, profileName, uuid);
 
         // Update chatHistory to include PartitionKey and RowKey, 
         // and removing id as it is not required in Azure Table Storage format
         chatHistory = {
             ...chatHistory,
-            PartitionKey: username,
-            RowKey: uuid,
+            partitionKey: username,
+            rowKey: uuid,
             // Ensure all the other required properties are included
         };
 
@@ -60,9 +62,9 @@ exports.createCloudChatHistory = async (req, res) => {
 exports.updateCloudChatHistory = async (req, res) => {
     console.log("updateCloudChatHistory");
     try {
-        const username = req.params.username; // 或者通过其他方式获取用户名，如认证信息等
+        const username = req.query.username; // 或者通过其他方式获取用户名，如认证信息等
         const chatId = req.params.chatId;
-        const uuid = chatId.split("_")[2]||"";
+        const uuid = chatId.split("_")[2]||"0";
         const chatHistoryData = req.body;
         console.log(username, chatId, uuid, chatHistoryData);
         const tableClient = getTableClient("ChatHistories");
@@ -71,6 +73,7 @@ exports.updateCloudChatHistory = async (req, res) => {
             rowKey: uuid,
             ...chatHistoryData
         });
+        console.log(updateEntityResponse);
         res.status(200).json({ data: updateEntityResponse });
     } catch (error) {
         console.error(`Failed to update chat history: ${error.message}`);
@@ -80,17 +83,24 @@ exports.updateCloudChatHistory = async (req, res) => {
 
 
 exports.deleteCloudChatHistory = async (req, res) => {
+    console.log("deleteCloudChatHistory");
     try {
+        const username = req.query.username;
         const chatId = req.params.chatId;
+        const uuid = chatId.split("_")[2]||"0";
+        console.log(username, chatId, uuid);
+
         const tableClient = getTableClient("ChatHistories");
-
-        // Get the existing entity so you can update its 'isDeleted' field
-        const chatHistoryEntity = await tableClient.getEntity(req.query.username, chatId);
-
         // Soft delete the chat history by setting 'isDeleted' to true
-        chatHistoryEntity.isDeleted = true;
-        await tableClient.updateEntity(chatHistoryEntity, { etag: "*" });
-        
+        let chatHistoryData = await tableClient.getEntity(username, uuid);
+        console.log(chatHistoryData);
+        chatHistoryData.isDeleted = true;
+        const updateEntityResponse = await tableClient.updateEntity({
+            partitionKey: username,
+            rowKey: uuid,
+            ...chatHistoryData
+        });
+        console.log(updateEntityResponse);
         res.status(204).end();
     } catch (error) {
         console.error(`Failed to delete chat history: ${error.message}`);
