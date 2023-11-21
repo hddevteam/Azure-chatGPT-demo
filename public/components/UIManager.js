@@ -297,9 +297,8 @@ class UIManager {
                 const latestChat = chatHistory.find(history => history.profileName === profileName);
                 self.currentChatId = latestChat?.id || self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
                 self.changeChatTopic(self.currentChatId);
-                self.handleAddTopicClick();
-                const chatHistoryListElement = document.querySelector("#chat-history-list");
-                chatHistoryListElement.addEventListener("click", self.handleChatHistoryItemClick.bind(this));
+                self.setupChatHistoryListClickHandler();
+               self.handleAddTopicClick();
             });
         });
         let latestChat;
@@ -523,8 +522,6 @@ class UIManager {
     }
 
     setupChatHistoryListClickHandler() {
-        const addTopicButton = document.querySelector("#add-topic");
-        addTopicButton.addEventListener("click", this.handleAddTopicClick.bind(this));
         const chatHistoryListElement = document.querySelector("#chat-history-list");
         chatHistoryListElement.addEventListener("click", this.handleChatHistoryItemClick.bind(this));
     }
