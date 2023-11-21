@@ -37,7 +37,8 @@ exports.createCloudMessage = async (req, res) => {
 
         // Check message content size and handle blob storage if necessary
         if (Buffer.byteLength(message.content, "utf16le") > 32 * 1024) {
-            const blobUrl = await uploadTextToBlob("messagecontents", chatId, message.content);
+            const blobName = `${chatId}_${message.messageId}`;
+            const blobUrl = await uploadTextToBlob("messagecontents", blobName, message.content);
             message.content = blobUrl; // Save Blob URL to Table Storage
             message.isContentInBlob = true; // Mark that content is stored in Blob
         } else {
@@ -67,16 +68,25 @@ exports.updateCloudMessage = async (req, res) => {
     console.log("updateCloudMessage", chatId, messageId, message);
     try {
         const tableClient = getTableClient("Messages");
+        // Retrieve the current entity from the table
+        const entity = await tableClient.getEntity(chatId, messageId);
+
+        // if message.content is not empty, check if the content is in Blob Storage and delete it
+        if (message.content && entity.isContentInBlob) {
+            // Assume that we have stored the blob URL in the entity.content and the container name is 'messagecontents'
+            // We need to extract the blob name from the URL
+            const blobUrl = new URL(entity.content);
+            const blobName = blobUrl.pathname.substring(blobUrl.pathname.lastIndexOf("/") + 1);
+            await deleteBlob("messagecontents", blobName);
+        }
 
         // Check if large content needs to be moved to Blob Storage
         let blobUrl;
         if (Buffer.byteLength(message.content, "utf16le") > 32 * 1024) {
+            const blobName = `${chatId}_${messageId}`;
             // Update Blob Storage with new content
-            blobUrl = await uploadTextToBlob("messagecontents", chatId, message.content);
+            blobUrl = await uploadTextToBlob("messagecontents", blobName, message.content);
         }
-
-        // Retrieve the current entity from the table
-        const entity = await tableClient.getEntity(chatId, messageId);
 
         // Update with new Blob URL or the actual text content
         entity.content = blobUrl || message.content;

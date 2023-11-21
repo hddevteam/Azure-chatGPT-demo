@@ -5,6 +5,8 @@ const {
     updateCloudMessage,
     deleteCloudMessage
 } = require("../controllers/messageController");
+
+const { getTextFromBlob } = require("../services/azureBlobStorage");
   
 const { getTableClient } = require("../services/azureTableStorage");
   
@@ -14,6 +16,8 @@ const tableClient = getTableClient("Messages");
   
 const chatHistoryId = `testChat_${uuidv4()}`;
 const messageId = Math.random().toString(36).slice(2, 10);
+const longMessageId = Math.random().toString(36).slice(2, 10);
+const timeout = 30000;
   
 async function clearTableEntity(partitionKey, rowKey) {
     try {
@@ -43,7 +47,8 @@ function setupMockResponse() {
 describe("Message Controller", () => {
   
     afterAll(async () => {
-        // await clearTableEntity(chatHistoryId, messageId);
+        await clearTableEntity(chatHistoryId, messageId);
+        await clearTableEntity(chatHistoryId, longMessageId);
     });
   
     test("Create a new Message in Azure Table Storage", async () => {
@@ -119,5 +124,42 @@ describe("Message Controller", () => {
         const deletedEntity = await tableClient.getEntity(chatHistoryId, messageId);
         expect(deletedEntity.isDeleted).toBeTruthy();
     });
+
+    test("Create and Delete a Message with Blob from Azure Table Storage", async () => {
+        // Create a message with large content using the 'createCloudMessage' method
+        const largeContent = "a".repeat(32 * 1024 + 1);
+        const reqCreate = setupMockRequest({
+            messageId: longMessageId,
+            role: "user",
+            content: largeContent,
+            isActive: true,
+        }, {}, { chatId: chatHistoryId });
+    
+        const resCreate = setupMockResponse();
+    
+        // Create the message
+        await createCloudMessage(reqCreate, resCreate);
+        console.log("resCreate", resCreate);
+
+        expect(resCreate.status).toHaveBeenCalledWith(201);
+
+        // Save the URL from the large message's content, it should be the URL pointing to the Blob
+        const blobUrl = resCreate.json.mock.calls[0][0].data.content;
+        console.log("blobUrl", blobUrl);
+        // Delete the message using the 'deleteCloudMessage' method
+        const reqDelete = setupMockRequest({}, {}, {
+            chatId: chatHistoryId,
+            messageId: longMessageId,
+        });
+        const resDelete = setupMockResponse();
+    
+        // Delete the message
+        await deleteCloudMessage(reqDelete, resDelete);
+        expect(resDelete.status).toHaveBeenCalledWith(204);
+    
+        // Now check if the Blob has been deleted using 'getTextFromBlob' and expecting it to fail
+        await expect(getTextFromBlob(blobUrl)).rejects.toThrow("BlobNotFound");
+    }, timeout);
+
 });
   

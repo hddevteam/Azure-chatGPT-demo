@@ -34,16 +34,16 @@ const chatHistoryController = require("./controllers/chatHistoryController");
 const messageController = require("./controllers/messageController");
 
 // Chat History routes
-router.get("/chatHistories", chatHistoryController.getCloudChatHistories);
+router.get("/chatHistories/:username", chatHistoryController.getCloudChatHistories);
 router.post("/chatHistories", chatHistoryController.createCloudChatHistory);
-router.put("/chatHistories/:chatId", chatHistoryController.updateCloudChatHistory);
-router.delete("/chatHistories/:chatId", chatHistoryController.deleteCloudChatHistory);
+router.put("/chatHistories/:username/:chatId", chatHistoryController.updateCloudChatHistory);
+router.delete("/chatHistories/:username/:chatId", chatHistoryController.deleteCloudChatHistory);
+
 
 // Message routes
 router.get("/messages/:chatId", messageController.getCloudMessages);
 router.post("/messages/:chatId", messageController.createCloudMessage);
-router.put("/messages/:messageId", messageController.updateCloudMessage);
-router.delete("/messages/:messageId", messageController.deleteCloudMessage);
-
+router.put("/messages/:chatId/:messageId", messageController.updateCloudMessage); 
+router.delete("/messages/:chatId/:messageId", messageController.deleteCloudMessage); 
 
 module.exports = router;

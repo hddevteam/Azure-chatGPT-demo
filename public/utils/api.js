@@ -128,7 +128,7 @@ const API_BASE_URL = "/api";
  * @return {Promise<Array>} - A promise that resolves to an array of chat history objects.
  */
 export async function fetchCloudChatHistories(username) {
-    const response = await fetch(`${API_BASE_URL}/chatHistories?username=${encodeURIComponent(username)}`);
+    const response = await fetch(`${API_BASE_URL}/chatHistories/${encodeURIComponent(username)}`);
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -157,11 +157,12 @@ export async function createCloudChatHistory(chatHistoryData) {
 /**
  * Update a chat history
  * @param {Object} chatHistoryData - The data to update the chat history.
+ * @param {string} username - The username associated with the chat history.
  * @param {string} chatId - The ID of the chat history to update.
  * @return {Promise<Object>} - A promise that resolves to the updated chat history object.
  */
-export async function updateCloudChatHistory(chatHistoryData, chatId) {
-    const response = await fetch(`${API_BASE_URL}/chatHistories/${encodeURIComponent(chatId)}`, {
+export async function updateCloudChatHistory(chatHistoryData, username, chatId) {
+    const response = await fetch(`${API_BASE_URL}/chatHistories/${encodeURIComponent(username)}/${encodeURIComponent(chatId)}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -176,11 +177,12 @@ export async function updateCloudChatHistory(chatHistoryData, chatId) {
 
 /**
  * Delete a chat history and all its messages
+ * @param {string} username - The username associated with the chat history.
  * @param {string} chatId - The ID of the chat history to delete.
- * @return {Promise<undefined>} - A promise that resolves once the chat history has been deleted
+ * @return {Promise<undefined>} - A promise that resolves once the chat history has been deleted.
  */
-export async function deleteCloudChatHistory(chatId) {
-    const response = await fetch(`${API_BASE_URL}/chatHistories/${encodeURIComponent(chatId)}`, {
+export async function deleteCloudChatHistory(username, chatId) {
+    const response = await fetch(`${API_BASE_URL}/chatHistories/${encodeURIComponent(username)}/${encodeURIComponent(chatId)}`, {
         method: "DELETE",
     });
     if (!response.ok) {
@@ -188,6 +190,7 @@ export async function deleteCloudChatHistory(chatId) {
     }
     return await response.text(); // Assuming the server responds with some text on successful deletion
 }
+
 
 /**
  * Fetch all messages for a given chatId
@@ -199,7 +202,8 @@ export async function fetchCloudMessages(chatId) {
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    return await response.json();
+    const data = await response.json();
+    return data.messages || []; // Assuming the response structure is { messages: [...] }
 }
 
 /**
@@ -224,12 +228,15 @@ export async function createCloudMessage(messageData, chatId) {
 
 /**
  * Update a message
+/**
+ * Update a message
  * @param {Object} messageData - The data to update the message with.
+ * @param {string} chatId - The chatId of the chat to which the message belongs.
  * @param {string} messageId - The ID of the message to update.
  * @return {Promise<Object>} - A promise that resolves to the updated message object.
  */
-export async function updateCloudMessage(messageData, messageId) {
-    const response = await fetch(`${API_BASE_URL}/messages/${encodeURIComponent(messageId)}`, {
+export async function updateCloudMessage(messageData, chatId, messageId) {
+    const response = await fetch(`${API_BASE_URL}/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -244,11 +251,12 @@ export async function updateCloudMessage(messageData, messageId) {
 
 /**
  * Delete a message
+ * @param {string} chatId - The chatId of the chat to which the message belongs.
  * @param {string} messageId - The ID of the message to delete.
  * @return {Promise<undefined>} - A promise that resolves once the message has been deleted.
  */
-export async function deleteCloudMessage(messageId) {
-    const response = await fetch(`${API_BASE_URL}/messages/${encodeURIComponent(messageId)}`, {
+export async function deleteCloudMessage(chatId, messageId) {
+    const response = await fetch(`${API_BASE_URL}/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, {
         method: "DELETE",
     });
     if (!response.ok) {
@@ -256,4 +264,3 @@ export async function deleteCloudMessage(messageId) {
     }
     return await response.text(); // Assuming the server responds with some text on successful deletion
 }
-

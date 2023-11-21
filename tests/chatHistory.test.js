@@ -73,7 +73,7 @@ describe("ChatHistory Controller", () => {
     });
   
     test("Retrieve ChatHistories from Azure Table Storage", async () => {
-        const req = setupMockRequest({}, { username: username });
+        const req = setupMockRequest({}, {}, {username: username});
         const res = setupMockResponse();
   
         await getCloudChatHistories(req, res);
@@ -97,8 +97,8 @@ describe("ChatHistory Controller", () => {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         },{
-            username: username 
         },{
+            username: username,
             chatId: chatId
         });
         const res = setupMockResponse();
@@ -113,7 +113,7 @@ describe("ChatHistory Controller", () => {
     });
   
     test("Delete a ChatHistory from Azure Table Storage", async () => {
-        const req = setupMockRequest({}, { username: username }, { chatId: chatId });
+        const req = setupMockRequest({}, {}, { username: username, chatId: chatId });
         const res = setupMockResponse();
   
         await deleteCloudChatHistory(req, res);

@@ -11,12 +11,19 @@ async function uploadTextToBlob(containerName, blobName, text) {
     await containerClient.createIfNotExists({ access: "blob" });
 
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-    const uploadBlobResponse = await blockBlobClient.upload(text, Buffer.byteLength(text));
+    await blockBlobClient.upload(text, Buffer.byteLength(text));
     return blockBlobClient.url;
 }
 
 async function getTextFromBlob(url) {
     const response = await fetch(url);
+    if (response.status === 404) { // Check for a 404 Not Found status
+        throw new Error("BlobNotFound");
+    }
+    if (!response.ok) {
+        // Throw an error for other types of HTTP errors
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
     return await response.text();
 }
 

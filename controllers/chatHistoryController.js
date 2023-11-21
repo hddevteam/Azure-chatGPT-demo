@@ -2,7 +2,7 @@
 const { getTableClient } = require("../services/azureTableStorage");
 
 exports.getCloudChatHistories = async (req, res) => {
-    const username = req.query.username;
+    const username = req.params.username;
     if (!username) {
         return res.status(400).json({ message: "username parameter required" });
     }
@@ -62,7 +62,7 @@ exports.createCloudChatHistory = async (req, res) => {
 exports.updateCloudChatHistory = async (req, res) => {
     console.log("updateCloudChatHistory");
     try {
-        const username = req.query.username; // 或者通过其他方式获取用户名，如认证信息等
+        const username = req.params.username; // 或者通过其他方式获取用户名，如认证信息等
         const chatId = req.params.chatId;
         const uuid = chatId.split("_")[2]||"0";
         const chatHistoryData = req.body;
@@ -85,7 +85,7 @@ exports.updateCloudChatHistory = async (req, res) => {
 exports.deleteCloudChatHistory = async (req, res) => {
     console.log("deleteCloudChatHistory");
     try {
-        const username = req.query.username;
+        const username = req.params.username;
         const chatId = req.params.chatId;
         const uuid = chatId.split("_")[2]||"0";
         console.log(username, chatId, uuid);
