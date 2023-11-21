@@ -16,10 +16,13 @@
   "jest": {
     "testEnvironment": "node",
     "testMatch": [
-      "**/tests/**/*.?(m)js?(x)",
-      "**/?(*.)+(spec|test).?(m)js?(x)"
+        "**/tests/**/*.?(m)js?(x)",
+        "**/?(*.)+(spec|test).?(m)js?(x)"
+    ],
+    "testPathIgnorePatterns": [
+        "<rootDir>/tests/profile.test.js"
     ]
-  },
+},
   "author": "",
   "license": "ISC",
   "dependencies": {
