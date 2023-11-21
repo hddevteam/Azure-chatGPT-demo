@@ -34,7 +34,7 @@ class UIManager {
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
         this.setupChatHistoryListClickHandler();
     }
-
+     
     setClientLanguage(language) {
         this.clientLanguage = language || "en-US";
     }
@@ -222,35 +222,7 @@ class UIManager {
         loader.classList.remove("hidden");
         return { submitButton, buttonIcon, loader };
     }
-    toggleDropdownList(){
-        const dropdownList=document.getElementById("dropdown-container");
-        const isVisible=dropdownList.getAttribute("data-visible")==="true";
     
-        function hideDropdownOnOutsideClick(event) {
-            const profileListDropdown = document.getElementById("new-chat-button");
-    
-            if (event.target !== dropdownList && event.target !== profileListDropdown && !profileListDropdown.contains(event.target)) {
-                dropdownList.style.display = "none";
-                dropdownList.setAttribute("data-visible", false);
-                document.removeEventListener("click", hideDropdownOnOutsideClick);
-            }
-        }
-    
-        if(isVisible){
-            dropdownList.style.display="none";
-            dropdownList.setAttribute("data-visible", false);
-            document.removeEventListener("click", hideDropdownOnOutsideClick);
-        } else {
-            dropdownList.style.display="block";
-            dropdownList.setAttribute("data-visible", true);
-            document.addEventListener("click", hideDropdownOnOutsideClick);
-        }
-    }
-    
-    handleDropdown(event){
-        event.stopPropagation();
-        toggleDropdownList();
-    }
 
     // render menu list from data
     // it only happens when user submit the username or the page is loaded
@@ -390,7 +362,32 @@ class UIManager {
             this.loadMessagesByChatId(this.currentChatId);
         }
     }
-
+    toggleDropdownList(){
+        const dropdownList=document.getElementById("dropdown-container");
+        const isVisible=dropdownList.getAttribute("data-visible")==="true";
+    
+        function hideDropdownOnOutsideClick(event) {
+            const profileListDropdown = document.getElementById("new-chat-button");
+    
+            if (event.target !== dropdownList && event.target !== profileListDropdown && !profileListDropdown.contains(event.target)) {
+                dropdownList.style.display = "none";
+                dropdownList.setAttribute("data-visible", false);
+                document.removeEventListener("click", hideDropdownOnOutsideClick);
+            }
+        }
+    
+        if(isVisible){
+            dropdownList.style.display="none";
+            dropdownList.setAttribute("data-visible", false);
+            document.removeEventListener("click", hideDropdownOnOutsideClick);
+        } else {
+            dropdownList.style.display="block";
+            dropdownList.setAttribute("data-visible", true);
+            document.addEventListener("click", hideDropdownOnOutsideClick);
+        }
+    }
+    
+    
 
     loadMessagesByChatId(chatId) {
         // load chat messages by chatId

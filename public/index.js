@@ -343,7 +343,10 @@ function loadProfileList() {
 }
 
 
-        
+function handleDropdown(event){
+    event.stopPropagation();
+    uiManager.toggleDropdownList();
+} 
     
 
 
