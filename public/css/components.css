@@ -793,7 +793,7 @@ button.action-button.invisible {
     display: none;
     position: fixed;
     bottom: 4em;
-   left: 5.7em;
+   left: 20em;
     border-radius: 0.5em;
     width: 70vw;
     max-width: max-content;

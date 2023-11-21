@@ -237,9 +237,10 @@ class UIManager {
             setCurrentProfile(this.profiles[0]);
         }
         const currentProfile = getCurrentProfile();
+        
 
         //empty menu list
-                const menuList = document.querySelector("#menu-list");
+        const menuList = document.querySelector("#menu-list");
         menuList.innerHTML = "";
         //empty dropdownlist
         const dropdownList=document.querySelector("#dropdown-list");
@@ -260,8 +261,8 @@ class UIManager {
             span.textContent = item.displayName;
             li.appendChild(icon);
             li.appendChild(span);
-                        menuList.appendChild(li);
-                       // Capture the 'this' of UIManager instance
+            menuList.appendChild(li);
+         // Capture the 'this' of UIManager instance
             const self = this;
             //add click event listener
             li.addEventListener("click", function () {
@@ -301,7 +302,17 @@ class UIManager {
                 chatHistoryListElement.addEventListener("click", self.handleChatHistoryItemClick.bind(this));
             });
         });
-        this.changeChatTopic(this.currentChatId);
+        let latestChat;
+        latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
+        if (!latestChat) {
+            const chatId = this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
+            this.currentChatId = chatId;
+            this.changeChatTopic(chatId, true);
+        } else {
+            const chatId = latestChat.id;
+            this.currentChatId = chatId;
+            this.changeChatTopic(chatId);
+        }
         
             }
 
