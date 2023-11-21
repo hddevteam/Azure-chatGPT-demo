@@ -13,7 +13,7 @@ const { v4: uuidv4 } = require("uuid");
 const tableClient = getTableClient("Messages");
   
 const chatHistoryId = `testChat_${uuidv4()}`;
-const messageId = uuidv4();
+const messageId = Math.random().toString(36).slice(2, 10);
   
 async function clearTableEntity(partitionKey, rowKey) {
     try {
@@ -43,16 +43,19 @@ function setupMockResponse() {
 describe("Message Controller", () => {
   
     afterAll(async () => {
-        await clearTableEntity(chatHistoryId, messageId);
+        // await clearTableEntity(chatHistoryId, messageId);
     });
   
     test("Create a new Message in Azure Table Storage", async () => {
         const req = setupMockRequest({
-            chatId: chatHistoryId,
             messageId: messageId,
             role: "user",
-            content: "Hello, Azure!"
-        });
+            content: "Hello, Azure!",
+            isActive: true
+        },{},{
+            chatId: chatHistoryId,
+        }
+        );
   
         const res = setupMockResponse();
   
@@ -62,7 +65,7 @@ describe("Message Controller", () => {
         expect(res.json).toHaveBeenCalled();
   
         const result = await tableClient.getEntity(chatHistoryId, messageId);
-        expect(result.RowKey).toEqual(messageId);
+        expect(result.rowKey).toEqual(messageId);
     });
   
     test("Retrieve Messages from Azure Table Storage", async () => {
@@ -76,8 +79,8 @@ describe("Message Controller", () => {
         expect(result.data).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
-                    PartitionKey: chatHistoryId,
-                    RowKey: messageId
+                    partitionKey: chatHistoryId,
+                    rowKey: messageId
                 })
             ])
         );
@@ -86,10 +89,10 @@ describe("Message Controller", () => {
     test("Update a Message in Azure Table Storage", async () => {
         const newContent = "Goodbye, Azure!";
         const req = setupMockRequest({
-            content: newContent
-        },{
+            messageId: messageId,
+            content: newContent,
+        },{},{
             chatId: chatHistoryId,
-            messageId: messageId
         });
         const res = setupMockResponse();
   
@@ -113,7 +116,8 @@ describe("Message Controller", () => {
   
         expect(res.status).toHaveBeenCalledWith(204);
   
-        await expect(tableClient.getEntity(chatHistoryId, messageId)).rejects.toThrow();
+        const deletedEntity = await tableClient.getEntity(chatHistoryId, messageId);
+        expect(deletedEntity.isDeleted).toBeTruthy();
     });
 });
   
