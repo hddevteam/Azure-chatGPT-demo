@@ -1,11 +1,54 @@
 // StorageManager.js
-import CloudStorageManager from "./CloudStorageManager.js";
+
 class StorageManager {
     constructor(uiManager) {
         this.uiManager = uiManager;
-        this.cloudStorageManager = new CloudStorageManager();
         this.currentUserData = JSON.parse(localStorage.getItem("currentUserData")) || { username: "guest", currentProfile: null };
         this.chatHistoryKeyPrefix = "chatHistory_";
+    }
+
+    updateLocalChatHistory(cloudChatHistory) {
+        const username = this.getCurrentUsername();
+        let localHistories = this.getChatHistory(username);
+  
+        const historyIndex = localHistories.findIndex(h => h.id === cloudChatHistory.id);
+        if (historyIndex !== -1) {
+            localHistories[historyIndex] = cloudChatHistory;
+        } else {
+            localHistories.push(cloudChatHistory);
+        }
+        this.saveChatHistory(username, localHistories);
+    }
+
+    insertLocalChatHistory(cloudChatHistory) {
+        const username = this.getCurrentUsername();
+        let localHistories = this.getChatHistory(username);
+
+        localHistories.push(cloudChatHistory);
+        this.saveChatHistory(username, localHistories);
+    }
+
+    deleteLocalChatHistory(chatId) {
+        const username = this.getCurrentUsername();
+        let localHistories = this.getChatHistory(username);
+
+        const historyIndex = localHistories.findIndex(h => h.id === chatId);
+        if (historyIndex !== -1) {
+            localHistories.splice(historyIndex, 1);
+        }
+        this.saveChatHistory(username, localHistories);
+    }
+
+    // 添加这个方法来更新聊天历史记录的timestamp
+    updateChatHistoryTimestamp(chatId, timestamp) {
+        const username = this.getCurrentUsername();
+        let histories = this.getChatHistory(username);
+
+        const historyIndex = histories.findIndex(h => h.id === chatId);
+        if (historyIndex >= 0) {
+            histories[historyIndex].timestamp = timestamp;
+            this.saveChatHistory(username, histories);
+        }
     }
 
     setCurrentUsername(username) {
@@ -63,8 +106,7 @@ class StorageManager {
         return chatId.split("_")[0];
     }
      
-    async getChatHistory(username) {
-        await this.cloudStorageManager.syncChatHistories(username);
+    getChatHistory(username) {
         return JSON.parse(localStorage.getItem(this.chatHistoryKeyPrefix + username) || "[]");
     }
     
