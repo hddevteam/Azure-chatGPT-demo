@@ -119,148 +119,67 @@ export async function getFollowUpQuestions(prompt) {
 }
 
 // public/utils/api.js
-// Base URL for the API
-const API_BASE_URL = "/api";
 
-/**
- * Fetch all chat histories for a given username
- * @param {string} username - The username for which to fetch chat histories.
- * @return {Promise<Array>} - A promise that resolves to an array of chat history objects.
- */
+// Consider using Axios for more fine-grained control of the HTTP requests
+import axios from "axios";
+
+axios.defaults.baseURL = "/api";
+axios.defaults.headers.post["Content-Type"] = "application/json";
+axios.defaults.headers.put["Content-Type"] = "application/json";
+
+// Use interceptors to handle errors globally
+axios.interceptors.response.use(null, error => {
+    const expectedError = error.response && error.response.status >= 400 && error.response.status < 500;
+    if (!expectedError) {
+        console.log("Logging the error", error);
+        alert("An unexpected error occurred.");
+    }
+    return Promise.reject(error);
+});
+
 export async function fetchCloudChatHistories(username) {
-    const response = await fetch(`${API_BASE_URL}/chatHistories/${encodeURIComponent(username)}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return await response.json();
+    const response = await axios.get(`/chatHistories/${encodeURIComponent(username)}`);
+    // The response should be an array of chat histories
+    return response.data.data;
 }
 
-/**
- * Create a new chat history
- * @param {Object} chatHistoryData - The data for the new chat history.
- * @return {Promise<Object>} - A promise that resolves to the created chat history object.
- */
 export async function createCloudChatHistory(chatHistoryData) {
-    const response = await fetch(`${API_BASE_URL}/chatHistories`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(chatHistoryData),
-    });
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return await response.json();
+    const response = await axios.post("/chatHistories", chatHistoryData);
+    // The response should be the created entity
+    return response.data.data;
 }
 
-/**
- * Update a chat history
- * @param {Object} chatHistoryData - The data to update the chat history.
- * @param {string} username - The username associated with the chat history.
- * @param {string} chatId - The ID of the chat history to update.
- * @return {Promise<Object>} - A promise that resolves to the updated chat history object.
- */
 export async function updateCloudChatHistory(chatHistoryData, username, chatId) {
-    const response = await fetch(`${API_BASE_URL}/chatHistories/${encodeURIComponent(username)}/${encodeURIComponent(chatId)}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(chatHistoryData),
-    });
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return await response.json();
+    const response = await axios.put(`/chatHistories/${encodeURIComponent(username)}/${encodeURIComponent(chatId)}`, chatHistoryData);
+    // The response should be the updated entity
+    return response.data.data;
 }
 
-/**
- * Delete a chat history and all its messages
- * @param {string} username - The username associated with the chat history.
- * @param {string} chatId - The ID of the chat history to delete.
- * @return {Promise<undefined>} - A promise that resolves once the chat history has been deleted.
- */
 export async function deleteCloudChatHistory(username, chatId) {
-    const response = await fetch(`${API_BASE_URL}/chatHistories/${encodeURIComponent(username)}/${encodeURIComponent(chatId)}`, {
-        method: "DELETE",
-    });
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return await response.text(); // Assuming the server responds with some text on successful deletion
+    await axios.delete(`/chatHistories/${encodeURIComponent(username)}/${encodeURIComponent(chatId)}`);
+    // Server should be returning the just-deleted entity
+    // If that's not the case, we might need to adjust the server or this method according to that.
 }
 
-
-/**
- * Fetch all messages for a given chatId
- * @param {string} chatId - The chatId for which to fetch messages.
- * @return {Promise<Array>} - A promise that resolves to an array of message objects.
- */
 export async function fetchCloudMessages(chatId) {
-    const response = await fetch(`${API_BASE_URL}/messages/${encodeURIComponent(chatId)}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.messages || []; // Assuming the response structure is { messages: [...] }
+    const response = await axios.get(`/messages/${encodeURIComponent(chatId)}`);
+    // The response should be an array of messages
+    return response.data.data || [];
 }
 
-/**
- * Create a new message
- * @param {Object} messageData - The data for the new message.
- * @param {string} chatId - The ID of the chat history to which the message belongs.
- * @return {Promise<Object>} - A promise that resolves to the created message object.
- */
 export async function createCloudMessage(messageData, chatId) {
-    const response = await fetch(`${API_BASE_URL}/messages/${encodeURIComponent(chatId)}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(messageData),
-    });
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return await response.json();
+    const response = await axios.post(`/messages/${encodeURIComponent(chatId)}`, messageData);
+    // The response should be the created entity
+    return response.data.data;
 }
 
-/**
- * Update a message
-/**
- * Update a message
- * @param {Object} messageData - The data to update the message with.
- * @param {string} chatId - The chatId of the chat to which the message belongs.
- * @param {string} messageId - The ID of the message to update.
- * @return {Promise<Object>} - A promise that resolves to the updated message object.
- */
 export async function updateCloudMessage(messageData, chatId, messageId) {
-    const response = await fetch(`${API_BASE_URL}/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(messageData),
-    });
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return await response.json();
+    const response = await axios.put(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, messageData);
+    // The response should be the updated entity
+    return response.data.data;
 }
 
-/**
- * Delete a message
- * @param {string} chatId - The chatId of the chat to which the message belongs.
- * @param {string} messageId - The ID of the message to delete.
- * @return {Promise<undefined>} - A promise that resolves once the message has been deleted.
- */
 export async function deleteCloudMessage(chatId, messageId) {
-    const response = await fetch(`${API_BASE_URL}/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, {
-        method: "DELETE",
-    });
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return await response.text(); // Assuming the server responds with some text on successful deletion
+    await axios.delete(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`);
+    // Similar to deleteCloudChatHistory, the response handling might need revision based on actual server response.
 }
