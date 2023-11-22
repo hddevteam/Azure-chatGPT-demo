@@ -54,7 +54,10 @@ exports.createCloudMessage = async (req, res) => {
         await tableClient.createEntity(entity);
         console.log(entity);
         console.log("message created");
-        res.status(201).json({ data: entity });
+        // Assume the structure of chatHistory is correct and includes PartitionKey and RowKey
+        const createdEntity = await tableClient.getEntity(chatId, message.messageId);
+        res.status(201).json({ data: createdEntity });
+
     } catch (error) {
         console.error(`Failed to create message: ${error.message}`);
         res.status(500).send(error.message);
@@ -93,7 +96,9 @@ exports.updateCloudMessage = async (req, res) => {
         entity.isContentInBlob = !!blobUrl;
 
         await tableClient.updateEntity({ partitionKey: chatId, rowKey: messageId, ...entity }, "Replace");
-        res.status(200).json({ data: entity });
+        console.log("message updated");
+        const updatedEntity = await tableClient.getEntity(chatId, message.messageId);
+        res.status(200).json({ data: updatedEntity });
     } catch (error) {
         console.error(`Failed to update message: ${error.message}`);
         res.status(500).send(error.message);
@@ -126,7 +131,8 @@ exports.deleteCloudMessage = async (req, res) => {
             isDeleted: true
         });
         console.log("message deleted");
-        res.status(204).send();
+        const deletedEntity = await tableClient.getEntity(chatId, messageId);
+        res.status(204).json({ data: deletedEntity });
     } catch (error) {
         console.error(`Failed to delete message: ${error.message}`);
         res.status(500).send(error.message);
