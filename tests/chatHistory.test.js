@@ -9,6 +9,7 @@ const {
 const { getTableClient } = require("../services/azureTableStorage");
   
 const { v4: uuidv4 } = require("uuid");
+const timeout = 30000;
   
 // Setup request and response mock objects for Express controllers
 function setupMockRequest(bodyParams = {}, queryParams = {}, pathParams = {}) {
@@ -47,7 +48,7 @@ async function clearTableEntity(partitionKey, rowKey) {
 describe("ChatHistory Controller", () => {
   
     afterAll(async () => {
-        await clearTableEntity(username, testUUID);
+        // await clearTableEntity(username, testUUID);
     });
   
     test("Create a new ChatHistory in Azure Table Storage", async () => {
@@ -124,5 +125,5 @@ describe("ChatHistory Controller", () => {
         const deletedEntity = await tableClient.getEntity(username, testUUID);
         expect(deletedEntity.isDeleted).toBeTruthy();
     });
-});
+}, timeout);
   

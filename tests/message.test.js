@@ -161,5 +161,4 @@ describe("Message Controller", () => {
         await expect(getTextFromBlob(blobUrl)).rejects.toThrow("BlobNotFound");
     }, timeout);
 
-});
-  
+}, timeout);
