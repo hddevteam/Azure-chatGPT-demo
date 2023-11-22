@@ -1,7 +1,7 @@
 {
   "name": "chatgptdemo",
   "version": "2.0.0",
-  "description": "This is a demo chatgptdemo made by chatgpt with copilot.",
+  "description": "This is a awesome chatgpt web app made by chatgpt with copilot.",
   "main": "index.js",
   "scripts": {
     "start": "npm run build && node ./server.js",
