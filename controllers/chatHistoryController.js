@@ -48,9 +48,10 @@ exports.createCloudChatHistory = async (req, res) => {
 
         // Create the chat history entity in the table
         const tableClient = getTableClient("ChatHistories");
-        const createEntityResponse = await tableClient.createEntity(chatHistory);
-        console.log(createEntityResponse);
-        res.status(201).json({ data: createEntityResponse });
+        await tableClient.createEntity(chatHistory);
+        console.log("chat history created");
+        const createdEntity = await tableClient.getEntity(username, uuid);
+        res.status(201).json({ data: createdEntity });
     } catch (error) {
         console.error(`Failed to create chat history: ${error.message}`);
         res.status(500).send(error.message);
@@ -68,13 +69,14 @@ exports.updateCloudChatHistory = async (req, res) => {
         const chatHistoryData = req.body;
         console.log(username, chatId, uuid, chatHistoryData);
         const tableClient = getTableClient("ChatHistories");
-        const updateEntityResponse = await tableClient.updateEntity({
+        await tableClient.updateEntity({
             partitionKey: username,
             rowKey: uuid,
             ...chatHistoryData
         });
-        console.log(updateEntityResponse);
-        res.status(200).json({ data: updateEntityResponse });
+        console.log("chat history updated");
+        const updateEntity = await tableClient.getEntity(username, uuid);
+        res.status(200).json({ data: updateEntity });
     } catch (error) {
         console.error(`Failed to update chat history: ${error.message}`);
         res.status(500).send(error.message);
@@ -95,13 +97,14 @@ exports.deleteCloudChatHistory = async (req, res) => {
         let chatHistoryData = await tableClient.getEntity(username, uuid);
         console.log(chatHistoryData);
         chatHistoryData.isDeleted = true;
-        const updateEntityResponse = await tableClient.updateEntity({
+        await tableClient.updateEntity({
             partitionKey: username,
             rowKey: uuid,
             ...chatHistoryData
         });
-        console.log(updateEntityResponse);
-        res.status(204).end();
+        console.log("chat history deleted");
+        const deleteEntity = await tableClient.getEntity(username, uuid);
+        res.status(204).end( deleteEntity );
     } catch (error) {
         console.error(`Failed to delete chat history: ${error.message}`);
         res.status(500).send(error.message);
