@@ -282,6 +282,9 @@ class UIManager {
         this.profiles.forEach(item => {
             let li = document.createElement("li");
             li.dataset.profile = item.name;
+            if (item.name === currentProfile.name) {
+                li.classList.add("active");
+            }
             let icon = document.createElement("i");
             icon.className = `${item.icon}`;
             let span = document.createElement("span");
@@ -362,30 +365,34 @@ class UIManager {
             this.loadMessagesByChatId(this.currentChatId);
         }
     }
-    toggleDropdownList(){
+        toggleDropdownList(){
+        document.querySelector(".modal-overlay").addEventListener("click",this.toggleDropdownList);
         const dropdownList=document.getElementById("dropdown-container");
         const isVisible=dropdownList.getAttribute("data-visible")==="true";
-    
+        const overlay = document.querySelector('.modal-overlay');
         function hideDropdownOnOutsideClick(event) {
             const profileListDropdown = document.getElementById("new-chat-button");
     
             if (event.target !== dropdownList && event.target !== profileListDropdown && !profileListDropdown.contains(event.target)) {
                 dropdownList.style.display = "none";
                 dropdownList.setAttribute("data-visible", false);
+                overlay.style.display = 'none';
                 document.removeEventListener("click", hideDropdownOnOutsideClick);
             }
         }
     
         if(isVisible){
             dropdownList.style.display="none";
-            dropdownList.setAttribute("data-visible", false);
+                         dropdownList.setAttribute("data-visible", false);
+                         overlay.style.display = 'none';
             document.removeEventListener("click", hideDropdownOnOutsideClick);
         } else {
             dropdownList.style.display="block";
-            dropdownList.setAttribute("data-visible", true);
+                        dropdownList.setAttribute("data-visible", true);
+                        overlay.style.display = 'block';
             document.addEventListener("click", hideDropdownOnOutsideClick);
         }
-    }
+            }
     
     
 

@@ -779,8 +779,8 @@ button.action-button.invisible {
 #dropdown-container {
     display: none;
     position: fixed;
-    bottom: 4em;
-   left: calc(50vh);
+    bottom: 7em;
+   left: calc(35vh);
     border-radius: 0.5em;
     width: 70vw;
     max-width: max-content;
@@ -788,6 +788,7 @@ button.action-button.invisible {
     box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     overflow-y: auto;
+    overflow-x:hidden;
     height: calc(50vh);
     max-height: max-content;
     z-index: 9999;
@@ -810,6 +811,7 @@ button.action-button.invisible {
     font-size: 18px;
     font-family: 'Roboto';
 }
+
 
 #dropdown-list li span {
     margin: 0;
@@ -837,3 +839,13 @@ button.action-button.invisible {
     z-index: 10;
     background-color: #f1f1f1;
 }
+.modal-overlay {
+    position: fixed; /* 固定定位 */
+    top: 0; /* 顶部对齐 */
+    left: 0; /* 左侧对齐 */
+    width: 100%; /* 宽度为视窗宽度 */
+    height: 100%; /* 高度为视窗高度 */
+    background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+    display: none; /* 默认不显示 */
+    z-index: 10; /* 位于其他元素上方 */
+  }
