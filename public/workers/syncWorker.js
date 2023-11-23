@@ -51,4 +51,9 @@ async function syncChatHistory(syncItem) {
     }
 }
 
+async function syncMessage(syncItem){
+    console.log("syncMessage", syncItem);
+    return;
+}
+
   

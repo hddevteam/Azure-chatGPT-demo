@@ -77,15 +77,7 @@ class StorageManager {
         localStorage.setItem(chatId, JSON.stringify(messages));
     }
     
-    async getMessages(chatId) {
-        // Let's assume we have a method to fetch the updatedAt timestamp from our local chat history metadata
-        const localChatHistory = this.getLocalChatHistory(chatId);
-        const localUpdatedAt = localChatHistory ? localChatHistory.updatedAt : null;
-
-        // Sync messages from the cloud before returning
-        await this.cloudStorageManager.syncMessages(chatId, localUpdatedAt);
-        
-        // Return the local copy of messages, which should now be up-to-date
+    getMessages(chatId) {
         return JSON.parse(localStorage.getItem(chatId) || "[]");
     }
 

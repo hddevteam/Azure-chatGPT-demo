@@ -1,6 +1,14 @@
 // public/api.js
 // purpose: client-side code to make requests to the server side api.
 
+
+// Consider using Axios for more fine-grained control of the HTTP requests
+import axios from "axios";
+
+axios.defaults.baseURL = "/api";
+axios.defaults.headers.post["Content-Type"] = "application/json";
+axios.defaults.headers.put["Content-Type"] = "application/json";
+
 // get app name
 export async function getAppName() {
     const response = await fetch("/api/app_name");
@@ -119,14 +127,6 @@ export async function getFollowUpQuestions(prompt) {
 }
 
 // public/utils/api.js
-
-// Consider using Axios for more fine-grained control of the HTTP requests
-import axios from "axios";
-
-axios.defaults.baseURL = "/api";
-axios.defaults.headers.post["Content-Type"] = "application/json";
-axios.defaults.headers.put["Content-Type"] = "application/json";
-
 // Use interceptors to handle errors globally
 axios.interceptors.response.use(null, error => {
     const expectedError = error.response && error.response.status >= 400 && error.response.status < 500;
