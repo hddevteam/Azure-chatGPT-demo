@@ -2,6 +2,7 @@
 import {
     createCloudChatHistory,
     updateCloudChatHistory,
+    deleteCloudChatHistory,
 } from "../utils/api.js";
 
 self.addEventListener("message", (event) => {
@@ -35,19 +36,22 @@ async function syncChatHistory(syncItem) {
         response = await createCloudChatHistory(syncItem.data);
         break;
     case "update":
-        response = await updateCloudChatHistory(syncItem.data, syncItem.data.username, syncItem.data.id);
+        response = await updateCloudChatHistory(syncItem.data);
         break;
     case "update-local":
-        // 无需更新操作，仅下载最新记录
-        self.postMessage({ action: "update-local", payload: syncItem.data });
+        // 已在主循环中通过fetchChatHistories处理
         break;
     case "download":
         // 已在主循环中通过fetchChatHistories处理
         break;
+    case "delete":
+        await deleteCloudChatHistory(syncItem.data.id);
+        break;
     }
     if (response) {
+        console.log("syncChatHistory in worker: ", response);
         // 发送成功同步的res以及更新localStorage中的timestamp
-        self.postMessage({ action: "synced", payload: { data: syncItem.data, res: response } });
+        self.postMessage({ action: "synced", payload: { data: syncItem, res: response } });
     }
 }
 

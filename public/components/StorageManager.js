@@ -7,40 +7,42 @@ class StorageManager {
         this.chatHistoryKeyPrefix = "chatHistory_";
     }
 
-    updateLocalChatHistory(cloudChatHistory) {
+    createChatHistory(chatHistoryItem) {
+        const username = this.getCurrentUsername();
+        let chatHistories = this.getChatHistory(username);
+        chatHistories.unshift(chatHistoryItem);
+        this.saveChatHistory(username, chatHistories);
+    }
+
+    readChatHistory(chatId) {
+        const username = this.getCurrentUsername();
+        return this.getChatHistory(username).find(history => history.id === chatId);
+    }
+
+    updateChatHistory(chatHistoryItem) {
+        console.log("updateChatHistory: ", chatHistoryItem);
         const username = this.getCurrentUsername();
         let localHistories = this.getChatHistory(username);
-  
-        const historyIndex = localHistories.findIndex(h => h.id === cloudChatHistory.id);
+        const historyIndex = localHistories.findIndex(h => h.id === chatHistoryItem.id);
+        console.log("updateChatHistory: ", historyIndex);
         if (historyIndex !== -1) {
-            localHistories[historyIndex] = cloudChatHistory;
-        } else {
-            localHistories.push(cloudChatHistory);
+            // To keep the same behavior as updateChatHistory, merge the properties
+            localHistories[historyIndex] = chatHistoryItem;
+            console.log("updateChatHistory: ", localHistories[historyIndex]);
         }
         this.saveChatHistory(username, localHistories);
     }
 
-    insertLocalChatHistory(cloudChatHistory) {
+    deleteChatHistory(chatId) {
         const username = this.getCurrentUsername();
-        let localHistories = this.getChatHistory(username);
-
-        localHistories.push(cloudChatHistory);
-        this.saveChatHistory(username, localHistories);
-    }
-
-    deleteLocalChatHistory(chatId) {
-        const username = this.getCurrentUsername();
-        let localHistories = this.getChatHistory(username);
-
-        const historyIndex = localHistories.findIndex(h => h.id === chatId);
-        if (historyIndex !== -1) {
-            localHistories.splice(historyIndex, 1);
-        }
-        this.saveChatHistory(username, localHistories);
+        let chatHistories = this.getChatHistory(username);
+        chatHistories = chatHistories.filter(history => history.id !== chatId);
+        this.saveChatHistory(username, chatHistories);
     }
 
     // 添加这个方法来更新聊天历史记录的timestamp
     updateChatHistoryTimestamp(chatId, timestamp) {
+        console.log("updateChatHistoryTimestamp: ", chatId, timestamp);
         const username = this.getCurrentUsername();
         let histories = this.getChatHistory(username);
 

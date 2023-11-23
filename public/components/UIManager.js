@@ -6,6 +6,7 @@ import StorageManager from "./StorageManager.js";
 import ChatHistoryManager from "./ChatHistoryManager.js";
 import { textToImage, getTts } from "../utils/api.js";
 import swal from "sweetalert";
+import SyncManager from "./SyncManager.js";
 
 
 class UIManager {
@@ -29,6 +30,7 @@ class UIManager {
         this.eventManager = new EventManager(this);
         this.messageManager = new MessageManager(this);
         this.storageManager = new StorageManager(this);
+        this.syncManager = new SyncManager(this.storageManager);
         this.chatHistoryManager = new ChatHistoryManager();
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
         this.setupChatHistoryListClickHandler();
@@ -230,6 +232,7 @@ class UIManager {
         await this.showChatHistory();
         const usernameLabel = document.querySelector("#username-label");
         usernameLabel.textContent = this.storageManager.getCurrentUsername();
+        await this.syncManager.syncChatHistories();
         const chatHistory = await this.chatHistoryManager.getChatHistory();
         const savedCurrentProfile = this.storageManager.getCurrentProfile();
         if (!savedCurrentProfile) {
@@ -483,9 +486,11 @@ class UIManager {
             this.domManager.appendChatHistoryItem(chatHistoryItem, this.storageManager.getCurrentProfile());
         } else if (action === "update") {
             this.domManager.updateChatHistoryItem(chatHistoryItem, profile);
+            this.syncManager.syncChatHistoryUpdate(chatHistoryItem);
         } else if (action === "delete") {
             this.domManager.removeChatHistoryItem(chatHistoryItem.id);
             this.storageManager.removeMessagesByChatId(chatHistoryItem.id);
+            this.syncManager.syncChatHistoryDelete(chatHistoryItem.id);
         }
 
         // Set active chat history item

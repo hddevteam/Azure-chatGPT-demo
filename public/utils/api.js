@@ -150,13 +150,13 @@ export async function createCloudChatHistory(chatHistoryData) {
 }
 
 export async function updateCloudChatHistory(chatHistoryData, username, chatId) {
-    const response = await axios.put(`/chatHistories/${encodeURIComponent(username)}/${encodeURIComponent(chatId)}`, chatHistoryData);
+    const response = await axios.put(`/chatHistories/${encodeURIComponent(chatId)}`, chatHistoryData);
     // The response should be the updated entity
     return response.data.data;
 }
 
-export async function deleteCloudChatHistory(username, chatId) {
-    await axios.delete(`/chatHistories/${encodeURIComponent(username)}/${encodeURIComponent(chatId)}`);
+export async function deleteCloudChatHistory(chatId) {
+    await axios.delete(`/chatHistories/${encodeURIComponent(chatId)}`);
     // Server should be returning the just-deleted entity
     // If that's not the case, we might need to adjust the server or this method according to that.
 }

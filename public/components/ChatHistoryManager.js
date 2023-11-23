@@ -26,18 +26,13 @@ class ChatHistoryManager {
     }
 
     // Use these functions like this
-    async getChatHistory() {
+    getChatHistory() {
         const username = this.storageManager.getCurrentUsername();
-        const chatHistory = await this.storageManager.getChatHistory(username);
+        const chatHistory = this.storageManager.getChatHistory(username);
         
         return chatHistory.sort((a, b) => {
             return new Date(b.updatedAt) - new Date(a.updatedAt);
         });
-    }    
-
-    saveChatHistory(chatHistory) {
-        const username = this.storageManager.getCurrentUsername();
-        this.storageManager.saveChatHistory(username, chatHistory);
     }
 
     async generateChatHistory() {
@@ -72,9 +67,8 @@ class ChatHistoryManager {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
-        chatHistory.unshift(newChatHistory);
 
-        this.saveChatHistory(chatHistory);
+        this.storageManager.createChatHistory(chatHistory);
         this.notifySubscribers("create", newChatHistory);
     }
 
@@ -92,7 +86,7 @@ class ChatHistoryManager {
                 chatHistoryToUpdate.title = title;
             }
             chatHistoryToUpdate.updatedAt = new Date().toISOString();
-            this.saveChatHistory(chatHistory);
+            this.storageManager.updateChatHistory(chatHistoryToUpdate);
             this.notifySubscribers("update", chatHistoryToUpdate);
         } else {
             await this.createChatHistory(chatId);
@@ -101,13 +95,10 @@ class ChatHistoryManager {
 
     // 删除聊天历史记录
     deleteChatHistory(chatId) {
-        const chatHistoryToDelete = this.getChatHistory().find(history => history.id === chatId);
-        const chatHistory = this.getChatHistory();
-        const updatedChatHistory = chatHistory.filter(history => history.id !== chatId);
-        this.saveChatHistory(updatedChatHistory);
+        const chatHistoryToDelete = this.storageManager.readChatHistory(chatId);
+        this.storageManager.deleteChatHistory(chatId);
         this.notifySubscribers("delete", chatHistoryToDelete);
     }
-
 
 }
 

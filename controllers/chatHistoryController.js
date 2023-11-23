@@ -63,16 +63,20 @@ exports.createCloudChatHistory = async (req, res) => {
 exports.updateCloudChatHistory = async (req, res) => {
     console.log("updateCloudChatHistory");
     try {
-        const username = req.params.username; // 或者通过其他方式获取用户名，如认证信息等
-        const chatId = req.params.chatId;
-        const uuid = chatId.split("_")[2]||"0";
-        const chatHistoryData = req.body;
-        console.log(username, chatId, uuid, chatHistoryData);
+        let chatHistory = req.body;
+        console.log(chatHistory);
+        // Assuming that the id is in the form of 'username_profileName_uuid'
+        let [username, profileName, uuid] = chatHistory.id.split("_");
+        // if !uuid, uuid = 0
+        if (!uuid) {
+            uuid = "0";
+        }
+        console.log(username, profileName, uuid);
         const tableClient = getTableClient("ChatHistories");
         await tableClient.updateEntity({
             partitionKey: username,
             rowKey: uuid,
-            ...chatHistoryData
+            ...chatHistory
         });
         console.log("chat history updated");
         const updateEntity = await tableClient.getEntity(username, uuid);
@@ -87,11 +91,14 @@ exports.updateCloudChatHistory = async (req, res) => {
 exports.deleteCloudChatHistory = async (req, res) => {
     console.log("deleteCloudChatHistory");
     try {
-        const username = req.params.username;
         const chatId = req.params.chatId;
-        const uuid = chatId.split("_")[2]||"0";
-        console.log(username, chatId, uuid);
-
+        // Assuming that the id is in the form of 'username_profileName_uuid'
+        let [username, profileName, uuid] = chatId.split("_");
+        console.log(username, profileName, uuid);
+        // if !uuid, uuid = 0
+        if (!uuid) {
+            uuid = "0";
+        }
         const tableClient = getTableClient("ChatHistories");
         // Soft delete the chat history by setting 'isDeleted' to true
         let chatHistoryData = await tableClient.getEntity(username, uuid);
@@ -103,8 +110,8 @@ exports.deleteCloudChatHistory = async (req, res) => {
             ...chatHistoryData
         });
         console.log("chat history deleted");
-        const deleteEntity = await tableClient.getEntity(username, uuid);
-        res.status(204).end( deleteEntity );
+        await tableClient.getEntity(username, uuid);
+        res.status(204).end();
     } catch (error) {
         console.error(`Failed to delete chat history: ${error.message}`);
         res.status(500).send(error.message);
