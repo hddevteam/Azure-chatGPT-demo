@@ -152,12 +152,12 @@
     margin-right: 0.5em;
     border-radius: 0.5em;
     line-height: 150%;
-
+    max-width: 100vw;
 }
 
 .message-content {
     overflow-y: auto;
-    max-height: 50vh;
+    max-height: 40vh;
 }
 
 .user-message.active {
