@@ -1,14 +1,10 @@
 // services/azureTableStorage.js
 require("dotenv").config();
-const { TableServiceClient, AzureNamedKeyCredential, TableClient } = require("@azure/data-tables");
-
+const { TableServiceClient, TableClient } = require("@azure/data-tables");
 
 // 从环境变量中读取 Azure Storage 设置
-const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
-const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
-
-const cred = new AzureNamedKeyCredential(accountName, accountKey);
-const client = new TableServiceClient(`https://${accountName}.table.core.windows.net`, cred);
+const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const client = TableServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
 
 async function createTable(tableName) {
     try {
@@ -31,7 +27,7 @@ async function createTable(tableName) {
 }
 
 function getTableClient(tableName) {
-    return new TableClient(`https://${accountName}.table.core.windows.net`, tableName, cred);
+    return TableClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING, tableName);
 }
 
 module.exports = {
