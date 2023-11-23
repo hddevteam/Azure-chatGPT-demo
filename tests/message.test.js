@@ -71,7 +71,7 @@ describe("Message Controller", () => {
   
         const result = await tableClient.getEntity(chatHistoryId, messageId);
         expect(result.rowKey).toEqual(messageId);
-    });
+    }, timeout);
   
     test("Retrieve Messages from Azure Table Storage", async () => {
         const req = setupMockRequest({}, {}, { chatId: chatHistoryId });
@@ -89,7 +89,7 @@ describe("Message Controller", () => {
                 })
             ])
         );
-    });
+    }, timeout);
   
     test("Update a Message in Azure Table Storage", async () => {
         const newContent = "Goodbye, Azure!";
@@ -108,7 +108,7 @@ describe("Message Controller", () => {
   
         const updatedEntity = await tableClient.getEntity(chatHistoryId, messageId);
         expect(updatedEntity.content).toEqual(newContent);
-    });
+    }, timeout);
   
     test("Delete a Message from Azure Table Storage", async () => {
         const req = setupMockRequest({}, {}, {
@@ -123,7 +123,7 @@ describe("Message Controller", () => {
   
         const deletedEntity = await tableClient.getEntity(chatHistoryId, messageId);
         expect(deletedEntity.isDeleted).toBeTruthy();
-    });
+    }, timeout);
 
     test("Create and Delete a Message with Blob from Azure Table Storage", async () => {
         // Create a message with large content using the 'createCloudMessage' method

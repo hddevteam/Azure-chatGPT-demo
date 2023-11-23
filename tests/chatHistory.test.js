@@ -48,7 +48,7 @@ async function clearTableEntity(partitionKey, rowKey) {
 describe("ChatHistory Controller", () => {
   
     afterAll(async () => {
-        // await clearTableEntity(username, testUUID);
+        await clearTableEntity(username, testUUID);
     });
   
     test("Create a new ChatHistory in Azure Table Storage", async () => {
@@ -71,7 +71,7 @@ describe("ChatHistory Controller", () => {
         const result = await tableClient.getEntity(username, testUUID);
         console.log(result);
         expect(result.rowKey).toEqual(testUUID);
-    });
+    }, timeout);
   
     test("Retrieve ChatHistories from Azure Table Storage", async () => {
         const req = setupMockRequest({}, {}, {username: username});
@@ -89,7 +89,7 @@ describe("ChatHistory Controller", () => {
                 })
             ])
         );
-    });
+    }, timeout);
   
     test("Update a ChatHistory in Azure Table Storage", async () => {
         const newTitle = "Updated ChatHistory";
@@ -111,7 +111,7 @@ describe("ChatHistory Controller", () => {
       
         const updatedEntity = await tableClient.getEntity(username, testUUID);
         expect(updatedEntity.title).toEqual(newTitle);
-    });
+    }, timeout);
   
     test("Delete a ChatHistory from Azure Table Storage", async () => {
         const req = setupMockRequest({}, {}, { username: username, chatId: chatId });
@@ -124,6 +124,6 @@ describe("ChatHistory Controller", () => {
         // 检索实体以确认isDeleted字段已设置为true
         const deletedEntity = await tableClient.getEntity(username, testUUID);
         expect(deletedEntity.isDeleted).toBeTruthy();
-    });
+    }, timeout);
 }, timeout);
   
