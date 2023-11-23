@@ -341,6 +341,9 @@ class UIManager {
         // Set active profile menu item
         document.querySelector("#menu-list li.active")?.classList.remove("active");
         document.querySelector(`#menu-list li[data-profile="${profileName}"]`).classList.add("active");
+        //Set active profile dropdown item
+        document.querySelector("#dropdown-list li.active")?.classList.remove("active");
+        document.querySelector(`#dropdown-list li[data-profile="${profileName}"]`).classList.add("active");
         
         // Set active chat history item
         document.querySelector("#chat-history-list li.active")?.classList.remove("active");
