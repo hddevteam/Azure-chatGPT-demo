@@ -187,9 +187,7 @@ document.addEventListener("keydown", (event) => {
     if (event.getModifierState("Alt") && event.code === "KeyS") {
         uiManager.handleMessageFormSubmit(messageInput);
     }
-});
-
-    
+});    
 // popup the Swal when user click the username label
 usernameLabel.addEventListener("click", function () {
     swal({
