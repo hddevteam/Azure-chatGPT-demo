@@ -130,7 +130,7 @@ class SyncManager {
   
     handleSyncedItem(syncedItem) {
         console.log("handleSyncedItem: ", syncedItem);
-        if (syncedItem.data.type === "chatHistory") {
+        if (syncedItem && ["create", "update"].includes(syncedItem.data.action) && syncedItem.res && syncedItem.data.type === "chatHistory") {
             console.log("syncedItem: ", syncedItem);
             // 更新LocalStorage中的timestamp
             this.storageManager.updateChatHistoryTimestamp(syncedItem.res.id, syncedItem.res.timestamp);

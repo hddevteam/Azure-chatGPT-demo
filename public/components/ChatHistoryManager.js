@@ -59,7 +59,6 @@ class ChatHistoryManager {
             title = await generateTitle(messages[0].content);
         }
 
-        const chatHistory = this.getChatHistory();
         const newChatHistory = {
             id: chatId,
             title: title,
@@ -68,7 +67,7 @@ class ChatHistoryManager {
             updatedAt: new Date().toISOString()
         };
 
-        this.storageManager.createChatHistory(chatHistory);
+        this.storageManager.createChatHistory(newChatHistory);
         this.notifySubscribers("create", newChatHistory);
     }
 

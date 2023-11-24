@@ -1,6 +1,19 @@
 // controllers/chatHistoryController.js
 const { getTableClient } = require("../services/azureTableStorage");
 
+const parseChatId = (chatId) => {
+    const parts = chatId.split("_");
+    if (parts.length !== 3) {
+        throw new Error("Invalid chatId format. Expected format: username_profileName_uuid, but got: " + chatId);
+    }
+    const [username, profileName, uuid] = parts;
+    if(!username.trim() || !profileName.trim() || !uuid.trim()) {
+        throw new Error("Invalid chatId format. All components must be non-empty.");
+    }
+    return { username, profileName, uuid };
+};
+
+
 exports.getCloudChatHistories = async (req, res) => {
     const username = req.params.username;
     if (!username) {
@@ -29,12 +42,14 @@ exports.createCloudChatHistory = async (req, res) => {
     try {
         let chatHistory = req.body;
         console.log(chatHistory);
-        // Assuming that the id is in the form of 'username_profileName_uuid'
-        let [username, profileName, uuid] = chatHistory.id.split("_");
-        // if !uuid, uuid = 0
-        if (!uuid) {
-            uuid = "0";
+        let parsed;
+        try {
+            parsed = parseChatId(chatHistory.id);
+        } catch (error) {
+            console.error(error.message);
+            return res.status(400).json({ message: error.message });
         }
+        const { username, profileName, uuid } = parsed;
         console.log(username, profileName, uuid);
 
         // Update chatHistory to include PartitionKey and RowKey, 
@@ -64,13 +79,14 @@ exports.updateCloudChatHistory = async (req, res) => {
     console.log("updateCloudChatHistory");
     try {
         let chatHistory = req.body;
-        console.log(chatHistory);
-        // Assuming that the id is in the form of 'username_profileName_uuid'
-        let [username, profileName, uuid] = chatHistory.id.split("_");
-        // if !uuid, uuid = 0
-        if (!uuid) {
-            uuid = "0";
+        let parsed;
+        try {
+            parsed = parseChatId(chatHistory.id);
+        } catch (error) {
+            console.error(error.message);
+            return res.status(400).json({ message: error.message });
         }
+        const { username, profileName, uuid } = parsed;
         console.log(username, profileName, uuid);
         const tableClient = getTableClient("ChatHistories");
         await tableClient.updateEntity({
@@ -92,13 +108,15 @@ exports.deleteCloudChatHistory = async (req, res) => {
     console.log("deleteCloudChatHistory");
     try {
         const chatId = req.params.chatId;
-        // Assuming that the id is in the form of 'username_profileName_uuid'
-        let [username, profileName, uuid] = chatId.split("_");
-        console.log(username, profileName, uuid);
-        // if !uuid, uuid = 0
-        if (!uuid) {
-            uuid = "0";
+        let parsed;
+        try {
+            parsed = parseChatId(chatId);
+        } catch (error) {
+            console.error(error.message);
+            return res.status(400).json({ message: error.message });
         }
+        const { username, profileName, uuid } = parsed;
+        console.log(username, profileName, uuid);
         const tableClient = getTableClient("ChatHistories");
         // Soft delete the chat history by setting 'isDeleted' to true
         let chatHistoryData = await tableClient.getEntity(username, uuid);
@@ -117,4 +135,3 @@ exports.deleteCloudChatHistory = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
-
