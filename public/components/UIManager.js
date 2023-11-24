@@ -299,10 +299,19 @@ class UIManager {
                 const profileName = li.dataset.profile;
                 const chatHistory = self.chatHistoryManager.getChatHistory();
                 const latestChat = chatHistory.find(history => history.profileName === profileName);
-                self.currentChatId = latestChat?.id || self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
-                self.changeChatTopic(self.currentChatId);
-                self.setupChatHistoryListClickHandler();
-               self.handleAddTopicClick();
+                if (latestChat) {
+                    const chatId = latestChat.id;
+                    self.changeChatTopic(chatId);
+                    self.setupChatHistoryListClickHandler();
+                     self.handleAddTopicClick();
+                } else {
+                    const chatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
+                    self.changeChatTopic(chatId, true);
+                    self.setupChatHistoryListClickHandler();
+                     self.handleAddTopicClick();
+                }
+                
+                
             });
         });
         let latestChat;
