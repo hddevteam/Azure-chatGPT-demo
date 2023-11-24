@@ -222,7 +222,7 @@ class UIManager {
         loader.classList.remove("hidden");
         return { submitButton, buttonIcon, loader };
     }
-     createListItem(item, currentProfile, parentElement,clickHandler) {
+    createListItem(item, currentProfile, parentElement, isCreate) {
         let li = document.createElement("li");
         li.dataset.profile = item.name;
         if (item.name === currentProfile.name) {
@@ -245,15 +245,22 @@ class UIManager {
             if (latestChat) {
                 const chatId = latestChat.id;
                 self.changeChatTopic(chatId);
-                // self.setupChatHistoryListClickHandler();
-                // self.handleAddTopicClick();
+                if (isCreate) {
+                    self.setupChatHistoryListClickHandler();
+                    self.handleAddTopicClick();
+
+                }
+
             } else {
                 const chatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
                 self.changeChatTopic(chatId, true);
-                // self.setupChatHistoryListClickHandler();
-                // self.handleAddTopicClick();
+                if (isCreate) {
+                    self.setupChatHistoryListClickHandler();
+                    self.handleAddTopicClick();
+
+                }
             }
-            li.addEventListener("click", clickHandler);
+
 
 
         });
@@ -284,78 +291,12 @@ class UIManager {
         aiActorList.innerHTML = "";
         const aiProfile = document.querySelector("#ai-profile");
         aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
-        //add menu items
         this.profiles.forEach(item => {
-            let li = document.createElement("li");
-            li.dataset.profile = item.name;
-            if (item.name === currentProfile.name) {
-                li.classList.add("active");
-            }
-            let icon = document.createElement("i");
-            icon.className = `${item.icon}`;
-            let span = document.createElement("span");
-            span.textContent = item.displayName;
-            li.appendChild(icon);
-            li.appendChild(span);
-            menuList.appendChild(li);
-    
-            const self = this;
-            // add click event listener
-            li.addEventListener("click", function () {
-                const profileName = li.dataset.profile;
-                const chatHistory = self.chatHistoryManager.getChatHistory();
-                const latestChat = chatHistory.find(history => history.profileName === profileName);
-                if (latestChat) {
-                    const chatId = latestChat.id;
-                    self.changeChatTopic(chatId);
-
-                } else {
-                    const chatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
-                    self.changeChatTopic(chatId, true);
-                }
-    
-    
-            });
-        });
-        this.profiles.forEach(item => {
-        
-            let li = document.createElement("li");
-        li.dataset.profile = item.name;
-        if (item.name === currentProfile.name) {
-            li.classList.add("active");
-        }
-        let icon = document.createElement("i");
-        icon.className = `${item.icon}`;
-        let span = document.createElement("span");
-        span.textContent = item.displayName;
-        li.appendChild(icon);
-        li.appendChild(span);
-        aiActorList.appendChild(li);
-
-        const self = this;
-        // add click event listener
-        li.addEventListener("click", function () {
-            const profileName = li.dataset.profile;
-            const chatHistory = self.chatHistoryManager.getChatHistory();
-            const latestChat = chatHistory.find(history => history.profileName === profileName);
-            if (latestChat) {
-                const chatId = latestChat.id;
-                self.changeChatTopic(chatId);
-                self.setupChatHistoryListClickHandler();
-                self.handleAddTopicClick();
-            } else {
-                const chatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
-                self.changeChatTopic(chatId, true);
-                self.setupChatHistoryListClickHandler();
-                self.handleAddTopicClick();
-            }
-
-
+            // 为menuList列表项也附加点击事件，并传递参数来标识是否创建新的聊天
+            this.createListItem(item, currentProfile, menuList, false);
+            this.createListItem(item, currentProfile, aiActorList, true);
         });
 
-        });
-        // this.setupChatHistoryListClickHandler;
-        // this.handleAddTopicClick;
         let latestChat;
         latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
         if (!latestChat) {
