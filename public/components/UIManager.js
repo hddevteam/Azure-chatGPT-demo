@@ -292,7 +292,6 @@ class UIManager {
         const aiProfile = document.querySelector("#ai-profile");
         aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
         this.profiles.forEach(item => {
-            // 为menuList列表项也附加点击事件，并传递参数来标识是否创建新的聊天
             this.createListItem(item, currentProfile, menuList, false);
             this.createListItem(item, currentProfile, aiActorList, true);
         });
