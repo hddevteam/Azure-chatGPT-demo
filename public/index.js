@@ -226,7 +226,7 @@ usernameLabel.addEventListener("click", function () {
 
 
 document.getElementById("ai-profile").addEventListener("click", handleClick);
-document.getElementById("new-chat-button").addEventListener("click",handleDropdown);
+document.getElementById("new-chat-button").addEventListener("click",handleAIActor);
 // 添加事件监听器到最小化窗口图标
 const systemMessageWindowIcon = document.querySelector("#window-icon");
 
@@ -341,9 +341,9 @@ function loadProfileList() {
 }
 
 
-function handleDropdown(event){
+function handleAIActor(event){
     event.stopPropagation();
-    uiManager.toggleDropdownList();
+    uiManager.toggleAIActorList();
 } 
     
 

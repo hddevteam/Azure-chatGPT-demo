@@ -776,7 +776,7 @@ button.action-button.invisible {
     max-width: 100%;
 }
 
-#dropdown-container {
+#ai-actor-container {
     display: none;
     position: fixed;
     bottom: 7em;
@@ -794,36 +794,36 @@ button.action-button.invisible {
     z-index: 9999;
 }
 
-#dropdown-container li {
+#ai-actor-container li {
     margin: 0;
     padding: 10px;
 }
 
-#dropdown-header i,
-#dropdown-container li i {
+#ai-actor-header i,
+#ai-actor-container li i {
     margin: 0 0.5em 0 0;
     font-size: 1em;
     padding: 0.2em;
 }
 
-#dropdown-header span {
+#ai-actor-header span {
     
     font-size: 18px;
     font-family: 'Roboto';
 }
 
 
-#dropdown-list li span {
+#ai-actor-list li span {
     margin: 0;
     padding: 0;
 }
-#dropdown-container li:hover,
-#dropdown-container li.active {
+#ai-actor-container li:hover,
+#ai-actor-container li.active {
     background-color: #424141;
     color: #e6f2ff;
     cursor: pointer;
 }
-#dropdown-header{
+#ai-actor-header{
     display: flex;
     width: 100%;
     justify-content: left;

@@ -34,7 +34,7 @@ class UIManager {
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
         this.setupChatHistoryListClickHandler();
     }
-     
+
     setClientLanguage(language) {
         this.clientLanguage = language || "en-US";
     }
@@ -222,7 +222,43 @@ class UIManager {
         loader.classList.remove("hidden");
         return { submitButton, buttonIcon, loader };
     }
-    
+     createListItem(item, currentProfile, parentElement,clickHandler) {
+        let li = document.createElement("li");
+        li.dataset.profile = item.name;
+        if (item.name === currentProfile.name) {
+            li.classList.add("active");
+        }
+        let icon = document.createElement("i");
+        icon.className = `${item.icon}`;
+        let span = document.createElement("span");
+        span.textContent = item.displayName;
+        li.appendChild(icon);
+        li.appendChild(span);
+        parentElement.appendChild(li);
+
+        const self = this;
+        // add click event listener
+        li.addEventListener("click", function () {
+            const profileName = li.dataset.profile;
+            const chatHistory = self.chatHistoryManager.getChatHistory();
+            const latestChat = chatHistory.find(history => history.profileName === profileName);
+            if (latestChat) {
+                const chatId = latestChat.id;
+                self.changeChatTopic(chatId);
+                // self.setupChatHistoryListClickHandler();
+                // self.handleAddTopicClick();
+            } else {
+                const chatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
+                self.changeChatTopic(chatId, true);
+                // self.setupChatHistoryListClickHandler();
+                // self.handleAddTopicClick();
+            }
+            li.addEventListener("click", clickHandler);
+
+
+        });
+
+    }
 
     // render menu list from data
     // it only happens when user submit the username or the page is loaded
@@ -238,21 +274,20 @@ class UIManager {
             setCurrentProfile(this.profiles[0]);
         }
         const currentProfile = getCurrentProfile();
-        
+
 
         //empty menu list
         const menuList = document.querySelector("#menu-list");
         menuList.innerHTML = "";
-        //empty dropdownlist
-        const dropdownList=document.querySelector("#dropdown-list");
-        dropdownList.innerHTML="";
+        //empty aiActorlist
+        const aiActorList = document.querySelector("#ai-actor-list");
+        aiActorList.innerHTML = "";
         const aiProfile = document.querySelector("#ai-profile");
         aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
         //add menu items
         this.profiles.forEach(item => {
             let li = document.createElement("li");
             li.dataset.profile = item.name;
-            // set current selected menu item to active
             if (item.name === currentProfile.name) {
                 li.classList.add("active");
             }
@@ -263,9 +298,9 @@ class UIManager {
             li.appendChild(icon);
             li.appendChild(span);
             menuList.appendChild(li);
-         // Capture the 'this' of UIManager instance
+    
             const self = this;
-            //add click event listener
+            // add click event listener
             li.addEventListener("click", function () {
                 const profileName = li.dataset.profile;
                 const chatHistory = self.chatHistoryManager.getChatHistory();
@@ -273,47 +308,54 @@ class UIManager {
                 if (latestChat) {
                     const chatId = latestChat.id;
                     self.changeChatTopic(chatId);
+
                 } else {
                     const chatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
                     self.changeChatTopic(chatId, true);
                 }
+    
+    
             });
         });
         this.profiles.forEach(item => {
+        
             let li = document.createElement("li");
-            li.dataset.profile = item.name;
-            if (item.name === currentProfile.name) {
-                li.classList.add("active");
+        li.dataset.profile = item.name;
+        if (item.name === currentProfile.name) {
+            li.classList.add("active");
+        }
+        let icon = document.createElement("i");
+        icon.className = `${item.icon}`;
+        let span = document.createElement("span");
+        span.textContent = item.displayName;
+        li.appendChild(icon);
+        li.appendChild(span);
+        aiActorList.appendChild(li);
+
+        const self = this;
+        // add click event listener
+        li.addEventListener("click", function () {
+            const profileName = li.dataset.profile;
+            const chatHistory = self.chatHistoryManager.getChatHistory();
+            const latestChat = chatHistory.find(history => history.profileName === profileName);
+            if (latestChat) {
+                const chatId = latestChat.id;
+                self.changeChatTopic(chatId);
+                self.setupChatHistoryListClickHandler();
+                self.handleAddTopicClick();
+            } else {
+                const chatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
+                self.changeChatTopic(chatId, true);
+                self.setupChatHistoryListClickHandler();
+                self.handleAddTopicClick();
             }
-            let icon = document.createElement("i");
-            icon.className = `${item.icon}`;
-            let span = document.createElement("span");
-            span.textContent = item.displayName;
-            li.appendChild(icon);
-            li.appendChild(span);
-            dropdownList.appendChild(li);
-           
-            const self = this;
-            //add click event listener
-            li.addEventListener("click", function () {
-                const profileName = li.dataset.profile;
-                const chatHistory = self.chatHistoryManager.getChatHistory();
-                const latestChat = chatHistory.find(history => history.profileName === profileName);
-                if (latestChat) {
-                    const chatId = latestChat.id;
-                    self.changeChatTopic(chatId);
-                    self.setupChatHistoryListClickHandler();
-                     self.handleAddTopicClick();
-                } else {
-                    const chatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
-                    self.changeChatTopic(chatId, true);
-                    self.setupChatHistoryListClickHandler();
-                     self.handleAddTopicClick();
-                }
-                
-                
-            });
+
+
         });
+
+        });
+        // this.setupChatHistoryListClickHandler;
+        // this.handleAddTopicClick;
         let latestChat;
         latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
         if (!latestChat) {
@@ -325,8 +367,8 @@ class UIManager {
             this.currentChatId = chatId;
             this.changeChatTopic(chatId);
         }
-        
-            }
+
+    }
 
     changeChatTopic(chatId, isNewTopic = false) {
 
@@ -336,7 +378,7 @@ class UIManager {
             if (document.querySelectorAll(".message").length === 0) {
                 // delete current chat history
                 this.chatHistoryManager.deleteChatHistory(this.currentChatId);
-            } 
+            }
         }
         this.currentChatId = chatId;
 
@@ -350,10 +392,10 @@ class UIManager {
         // Set active profile menu item
         document.querySelector("#menu-list li.active")?.classList.remove("active");
         document.querySelector(`#menu-list li[data-profile="${profileName}"]`).classList.add("active");
-        //Set active profile dropdown item
-        document.querySelector("#dropdown-list li.active")?.classList.remove("active");
-        document.querySelector(`#dropdown-list li[data-profile="${profileName}"]`).classList.add("active");
-        
+        //Set active profile aiActor item
+        document.querySelector("#ai-actor-list li.active")?.classList.remove("active");
+        document.querySelector(`#ai-actor-list li[data-profile="${profileName}"]`).classList.add("active");
+
         // Set active chat history item
         document.querySelector("#chat-history-list li.active")?.classList.remove("active");
         document.querySelector(`#chat-history-list li[data-id="${chatId}"]`)?.classList.add("active");
@@ -377,36 +419,36 @@ class UIManager {
             this.loadMessagesByChatId(this.currentChatId);
         }
     }
-        toggleDropdownList(){
-        document.querySelector(".modal-overlay").addEventListener("click",this.toggleDropdownList);
-        const dropdownList=document.getElementById("dropdown-container");
-        const isVisible=dropdownList.getAttribute("data-visible")==="true";
-        const overlay = document.querySelector('.modal-overlay');
-        function hideDropdownOnOutsideClick(event) {
-            const profileListDropdown = document.getElementById("new-chat-button");
-    
-            if (event.target !== dropdownList && event.target !== profileListDropdown && !profileListDropdown.contains(event.target)) {
-                dropdownList.style.display = "none";
-                dropdownList.setAttribute("data-visible", false);
-                overlay.style.display = 'none';
-                document.removeEventListener("click", hideDropdownOnOutsideClick);
+    toggleAIActorList() {
+        document.querySelector(".modal-overlay").addEventListener("click", this.toggleAIActorList);
+        const aiActorList = document.getElementById("ai-actor-container");
+        const isVisible = aiActorList.getAttribute("data-visible") === "true";
+        const overlay = document.querySelector(".modal-overlay");
+        function hideAIActorOnOutsideClick(event) {
+            const profileListAIActor = document.getElementById("new-chat-button");
+
+            if (event.target !== aiActorList && event.target !== profileListAIActor && !profileListAIActor.contains(event.target)) {
+                aiActorList.style.display = "none";
+                aiActorList.setAttribute("data-visible", false);
+                overlay.style.display = "none";
+                document.removeEventListener("click", hideAIActorOnOutsideClick);
             }
         }
-    
-        if(isVisible){
-            dropdownList.style.display="none";
-                         dropdownList.setAttribute("data-visible", false);
-                         overlay.style.display = 'none';
-            document.removeEventListener("click", hideDropdownOnOutsideClick);
+
+        if (isVisible) {
+            aiActorList.style.display = "none";
+            aiActorList.setAttribute("data-visible", false);
+            overlay.style.display = "none";
+            document.removeEventListener("click", hideAIActorOnOutsideClick);
         } else {
-            dropdownList.style.display="block";
-                        dropdownList.setAttribute("data-visible", true);
-                        overlay.style.display = 'block';
-            document.addEventListener("click", hideDropdownOnOutsideClick);
+            aiActorList.style.display = "block";
+            aiActorList.setAttribute("data-visible", true);
+            overlay.style.display = "block";
+            document.addEventListener("click", hideAIActorOnOutsideClick);
         }
-            }
-    
-    
+    }
+
+
 
     loadMessagesByChatId(chatId) {
         // load chat messages by chatId
@@ -676,8 +718,8 @@ class UIManager {
 
         });
     }
-   
-    }
+
+}
 
 export default UIManager;
 
