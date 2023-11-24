@@ -74,14 +74,6 @@ class StorageManager {
     saveCurrentUserData() {
         localStorage.setItem("currentUserData", JSON.stringify(this.currentUserData));
     }
-    
-    saveMessages(chatId, messages) {
-        localStorage.setItem(chatId, JSON.stringify(messages));
-    }
-    
-    getMessages(chatId) {
-        return JSON.parse(localStorage.getItem(chatId) || "[]");
-    }
 
     getLocalChatHistory(chatId) {
         // Assuming username can be determined from chatId
@@ -108,10 +100,6 @@ class StorageManager {
         localStorage.setItem(this.chatHistoryKeyPrefix + username, JSON.stringify(chatHistory));
     }
     
-    removeMessagesByChatId(chatId) {
-        localStorage.removeItem(chatId);
-    }
-
     // 保存当前聊天的信息到本地存储
     saveCurrentProfileMessages() {
         const messages = document.querySelectorAll(".message");
@@ -150,12 +138,79 @@ class StorageManager {
         this.saveMessages(this.uiManager.currentChatId, updatedMessages);
     }
 
-    deleteMessageFromStorage(messageId) {
+    deleteMessage(messageId) {
         const savedMessages = this.getMessages(this.uiManager.currentChatId);
         const updatedMessages = savedMessages.filter(savedMessage => savedMessage.messageId !== messageId);
 
         this.saveMessages(this.uiManager.currentChatId, updatedMessages);
     }
+
+    // create or update a message
+    saveMessage(chatId, message) {
+        let messages = this.getMessages(chatId);
+        const index = messages.findIndex(m => m.messageId === message.messageId);
+    
+
+        if (index > -1) {
+            // Merge existing message with new data
+            messages[index] = { ...messages[index], ...message };
+            messages[index].createdAt = messages[index].createdAt || new Date().toISOString();
+        } else {
+            // Add createdAt field
+            message.createdAt = message.createdAt || new Date().toISOString();
+            // Save new message
+            messages.push(message);
+        }
+        this.saveMessages(chatId, messages);
+    }
+    
+
+    // 更新 getMessages 方法，在确保所有消息都有 createdAt 属性并完成排序后保存回LocalStorage
+    getMessages(chatId) {
+        let messages = JSON.parse(localStorage.getItem(chatId) || "[]");
+
+        // 确保每条消息都有 createdAt 属性
+        let updated = false; // 标识是否更新了消息数组
+        messages = messages.map(message => {
+            if (!message.createdAt) {
+                updated = true;
+                return { ...message, createdAt: new Date().toISOString() };
+            }
+            return message;
+        });
+
+        if (updated) {
+            // 如果有更新, 再次保存回LocalStorage
+            this.saveMessages(chatId, messages);
+        }
+
+        // 根据 createdAt 排序，确保消息顺序
+        messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+        return messages;
+    }
+
+    updateMessageTimestamp(chatId, messageId, timestamp) {
+        console.log("updateMessageTimestamp: ", messageId, timestamp);
+        let messages = this.getMessages(chatId);
+
+        const messageIndex = messages.findIndex(m => m.messageId === messageId);
+        if (messageIndex >= 0) {
+            messages[messageIndex].timestamp = timestamp;
+            this.saveMessages(chatId, messages);
+        } else {
+            console.error(`Message with messageId: ${messageId} not found in chatId: ${chatId}`);
+        }
+    }
+
+    removeMessagesByChatId(chatId) {
+        localStorage.removeItem(chatId);
+    }
+
+    saveMessages(chatId, messages) {
+        localStorage.setItem(chatId, JSON.stringify(messages));
+    }
+
 }
 
 export default StorageManager;

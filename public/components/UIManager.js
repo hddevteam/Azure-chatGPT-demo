@@ -86,15 +86,17 @@ class UIManager {
             const thumbnailWidth = 300;
             const thumbnailHeight = 300;
             // Wrap the <img> tag and caption text in a <div>
-            this.messageManager.addMessage(
-                "assistant",
-                `<div>
-           <img src="${imageUrl}" alt="${caption}" width="${thumbnailWidth}" height="${thumbnailHeight}" style="object-fit: contain;" />
-           <p style="margin-top: 4px;">${caption}</p>
-         </div>`,
-                messageId
-            );
-            this.storageManager.saveCurrentProfileMessages();
+            const newMessageItem = {
+                role: "assistant",
+                content: `<img src="${imageUrl}" alt="${caption}" width="${thumbnailWidth}" height="${thumbnailHeight}" style="object-fit: contain;" />
+                <p style="margin-top: 4px;">${caption}</p>
+              </div>`,
+                messageId: messageId,
+                isActive: true,
+            };
+
+            this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive);
+            this.storageManager.saveMessage(this.currentChatId, newMessageItem);
         } catch (error) {
             console.error(error);
             let messageId = this.generateId();
@@ -128,17 +130,6 @@ class UIManager {
         const maxSliderValue = Math.max(this.messageLimit, counversationCount);
         const slider = document.querySelector("#slider");
         slider.max = maxSliderValue;
-    }
-
-
-    // Clear message input except the first message
-    clearMessage() {
-        const messagesContainer = document.getElementById("messages");
-        // clear messages in DOM except the first message
-        messagesContainer.innerHTML = "";
-        this.storageManager.saveCurrentProfileMessages();
-        const messageInput = document.getElementById("message-input");
-        messageInput.value = "";
     }
 
     getLastAssistantMessage() {
@@ -484,6 +475,7 @@ class UIManager {
         if (!profile) return;
         if (action === "create") {
             this.domManager.appendChatHistoryItem(chatHistoryItem, this.storageManager.getCurrentProfile());
+            this.syncManager.syncChatHistoryCreate(chatHistoryItem);
         } else if (action === "update") {
             this.domManager.updateChatHistoryItem(chatHistoryItem, profile);
             this.syncManager.syncChatHistoryUpdate(chatHistoryItem);

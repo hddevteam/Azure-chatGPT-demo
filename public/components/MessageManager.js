@@ -99,9 +99,10 @@ class MessageManager {
         }
 
         let messageId = this.uiManager.generateId();
-        this.addMessage("user", message, messageId);
-        this.uiManager.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
-        this.uiManager.storageManager.saveCurrentProfileMessages();
+        const newMessage = { role: "user", content: message, messageId: messageId, isActive: true };
+        this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive);
+        this.uiManager.app.prompts.addPrompt(newMessage);
+        this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId,newMessage);
         this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
         // return validationResult if input is valid and processed successfully.
@@ -134,8 +135,10 @@ class MessageManager {
                 this.uiManager.app.prompts.addPrompt({ role: "assistant", content: content, messageId: messageId, isActive: false });
             } else {
                 let messageId = this.uiManager.generateId();
-                this.addMessage("assistant", data.message, messageId);
-                this.uiManager.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId, isActive: true });
+                const newMessage = { role: "assistant", content: data.message, messageId: messageId, isActive: true };
+                this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive);
+                this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
+                this.uiManager.app.prompts.addPrompt(newMessage);
                 await this.sendFollowUpQuestions();
             }
             return data;
@@ -233,7 +236,6 @@ class MessageManager {
         // Don't forget to perform follow-up actions after the response if any
 
         this.checkTokensAndWarn(data.totalTokens);
-        this.uiManager.storageManager.saveCurrentProfileMessages();
     }
 
     // Add this method to get the ID of the last message
@@ -302,7 +304,7 @@ class MessageManager {
                 },
             }).then((value) => {
                 if (value === "delete") {
-                    this.deleteMessageInStorage(messageId);
+                    this.deleteMessage(messageId);
                     swal("Message deleted", { icon: "success", buttons: false, timer: 1000 });
                 }
             });
@@ -315,7 +317,7 @@ class MessageManager {
         const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
         messageElement.remove();
         this.uiManager.app.prompts.removePrompt(messageId);
-        this.uiManager.storageManager.deleteMessageFromStorage(messageId);
+        this.uiManager.storageManager.deleteMessage(messageId);
         this.uiManager.updateSlider();
         this.uiManager.isDeleting = false;
     }
