@@ -323,6 +323,7 @@ class UIManager {
         if (isNewTopic) {
             this.chatHistoryManager.createChatHistory(chatId);
         } else {
+            this.syncManager.syncMessages(chatId);
             // Load chat messages by chatId
             this.loadMessagesByChatId(this.currentChatId);
         }
