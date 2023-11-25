@@ -1,13 +1,12 @@
 //components/ChatHistoryManager.js
 import { generateTitle } from "../utils/api.js";
 import { v4 as uuidv4 } from "uuid";
-import StorageManager from "./StorageManager.js";
 
 
 
 class ChatHistoryManager {
-    constructor() {
-        this.storageManager = new StorageManager(this);
+    constructor(uiManager) {
+        this.uiManager = uiManager;
         this.chatHistoryKeyPrefix = "chatHistory_";
         this.subscribers = [];
     }
@@ -27,8 +26,8 @@ class ChatHistoryManager {
 
     // Use these functions like this
     getChatHistory() {
-        const username = this.storageManager.getCurrentUsername();
-        const chatHistory = this.storageManager.getChatHistory(username);
+        const username = this.uiManager.storageManager.getCurrentUsername();
+        const chatHistory = this.uiManager.storageManager.getChatHistory(username);
         
         return chatHistory.sort((a, b) => {
             return new Date(b.updatedAt) - new Date(a.updatedAt);
@@ -36,7 +35,7 @@ class ChatHistoryManager {
     }
 
     async generateChatHistory() {
-        const username = this.storageManager.getCurrentUsername();
+        const username = this.uiManager.storageManager.getCurrentUsername();
 
         // 获取所有的localStorage keys
         const keys = Object.keys(localStorage);
@@ -53,7 +52,7 @@ class ChatHistoryManager {
     // 创建新的聊天历史记录
     async createChatHistory(chatId) {
         const profileName = chatId.split("_")[1];
-        const messages = this.storageManager.getMessages(chatId);
+        const messages = this.uiManager.storageManager.getMessages(chatId);
         let title = "untitled";
         if (messages.length) {
             title = await generateTitle(messages[0].content);
@@ -67,7 +66,7 @@ class ChatHistoryManager {
             updatedAt: new Date().toISOString()
         };
 
-        this.storageManager.createChatHistory(newChatHistory);
+        this.uiManager.storageManager.createChatHistory(newChatHistory);
         this.notifySubscribers("create", newChatHistory);
     }
 
@@ -76,7 +75,7 @@ class ChatHistoryManager {
     async updateChatHistory(chatId, forceGenerateTitle=false, title="") {
         const chatHistory = this.getChatHistory();
         const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
-        const messages = this.storageManager.getMessages(chatId);
+        const messages = this.uiManager.storageManager.getMessages(chatId);
         if (!messages.length) return;
         if (chatHistoryToUpdate) {
             if (title) chatHistoryToUpdate.title = title;
@@ -85,7 +84,7 @@ class ChatHistoryManager {
                 chatHistoryToUpdate.title = title;
             }
             chatHistoryToUpdate.updatedAt = new Date().toISOString();
-            this.storageManager.updateChatHistory(chatHistoryToUpdate);
+            this.uiManager.storageManager.updateChatHistory(chatHistoryToUpdate);
             this.notifySubscribers("update", chatHistoryToUpdate);
         } else {
             await this.createChatHistory(chatId);
@@ -94,8 +93,8 @@ class ChatHistoryManager {
 
     // 删除聊天历史记录
     deleteChatHistory(chatId) {
-        const chatHistoryToDelete = this.storageManager.readChatHistory(chatId);
-        this.storageManager.deleteChatHistory(chatId);
+        const chatHistoryToDelete = this.uiManager.storageManager.readChatHistory(chatId);
+        this.uiManager.storageManager.deleteChatHistory(chatId);
         this.notifySubscribers("delete", chatHistoryToDelete);
     }
 

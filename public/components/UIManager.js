@@ -31,7 +31,7 @@ class UIManager {
         this.messageManager = new MessageManager(this);
         this.storageManager = new StorageManager(this);
         this.syncManager = new SyncManager(this.storageManager);
-        this.chatHistoryManager = new ChatHistoryManager();
+        this.chatHistoryManager = new ChatHistoryManager(this);
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
         this.setupChatHistoryListClickHandler();
     }
@@ -226,11 +226,14 @@ class UIManager {
         usernameLabel.textContent = this.storageManager.getCurrentUsername();
         await this.syncManager.syncChatHistories();
         const chatHistory = await this.chatHistoryManager.getChatHistory();
-        const savedCurrentProfile = this.storageManager.getCurrentProfile();
-        if (!savedCurrentProfile) {
-            this.storageManager.setCurrentProfile(this.profiles[0]);
+        let savedCurrentProfile = this.storageManager.getCurrentProfile();
+        // Check if savedCurrentProfile's name is within data.profiles
+        const profileNames = new Set(this.profiles.map(profile => profile.name));
+        if (!savedCurrentProfile || !profileNames.has(savedCurrentProfile.name)) {
+            savedCurrentProfile = this.profiles[0];
+            this.storageManager.setCurrentProfile(savedCurrentProfile);
         }
-
+        
         const currentProfile = this.storageManager.getCurrentProfile();
         //empty menu list
         const menuList = document.querySelector("#menu-list");
