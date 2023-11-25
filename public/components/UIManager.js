@@ -302,8 +302,9 @@ class UIManager {
 
         // check if chatId is current chatId
         if (this.currentChatId !== chatId) {
+            const currentChatHisory = this.storageManager.readChatHistory(this.currentChatId);
             // check if messages are empty
-            if (this.storageManager.getMessages(this.currentChatId).length === 0) {
+            if (this.storageManager.getMessages(this.currentChatId).length === 0 && !currentChatHisory.timestamp) {
                 // delete current chat history
                 this.chatHistoryManager.deleteChatHistory(this.currentChatId);
             }
@@ -528,7 +529,7 @@ class UIManager {
             this.domManager.appendChatHistoryItem(chatHistoryItem, this.storageManager.getCurrentProfile());
         } else if (action === "update") {
             this.domManager.updateChatHistoryItem(chatHistoryItem, profile);
-            this.syncManager.syncChatHistoryUpdate(chatHistoryItem);
+            this.syncManager.syncChatHistoryCreateOrUpdate(chatHistoryItem);
         } else if (action === "delete") {
             this.domManager.removeChatHistoryItem(chatHistoryItem.id);
             this.storageManager.removeMessagesByChatId(chatHistoryItem.id);

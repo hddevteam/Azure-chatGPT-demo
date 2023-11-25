@@ -103,6 +103,40 @@ exports.updateCloudChatHistory = async (req, res) => {
     }
 };
 
+exports.createOrUpdateCloudChatHistory = async (req, res) => {
+    try {
+        let chatHistory = req.body;
+        console.log(chatHistory);
+        let parsed;
+        try {
+            parsed = parseChatId(chatHistory.id);
+        } catch (error) {
+            console.error(error.message);
+            return res.status(400).json({ message: error.message });
+        }
+
+        const { username, profileName, uuid } = parsed; // I assume profileName is not required for the operation itself
+        console.log(username, profileName, uuid);
+
+        chatHistory = {
+            ...chatHistory,
+            partitionKey: username,
+            rowKey: uuid,
+        };
+
+        const tableClient = getTableClient("ChatHistories");
+        await tableClient.upsertEntity(chatHistory);
+
+        console.log(`chat history upserted: ${uuid}`);
+        const upsertedEntity = await tableClient.getEntity(username, uuid);
+        res.status(200).json({ data: upsertedEntity });
+    } catch (error) {
+        console.error(`Failed to upsert chat history: ${error.message}`);
+        res.status(500).send(error.message);
+    }
+};
+
+
 
 exports.deleteCloudChatHistory = async (req, res) => {
     console.log("deleteCloudChatHistory");

@@ -1,7 +1,6 @@
 // /public/workers/syncWorker.js
 import {
-    createCloudChatHistory,
-    updateCloudChatHistory,
+    createOrUpdateCloudChatHistory,
     deleteCloudChatHistory,
     createCloudMessage,
     updateCloudMessage,
@@ -34,12 +33,9 @@ async function syncChatHistory(syncItem) {
     console.log("syncChatHistory in worker: ", syncItem);
     let response;
     switch (syncItem.action) {
-    case "create":
-        response = await createCloudChatHistory(syncItem.data);
-        break;
-    case "update":
-        console.log("syncChatHistory update in worker: ", syncItem.data);
-        response = await updateCloudChatHistory(syncItem.data);
+    case "upsert":
+        console.log("syncChatHistory upsert in worker: ", syncItem.data);
+        response = await createOrUpdateCloudChatHistory(syncItem.data);
         break;
     case "delete":
         await deleteCloudChatHistory(syncItem.data.id);

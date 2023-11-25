@@ -143,15 +143,9 @@ export async function fetchCloudChatHistories(username) {
     return response.data.data;
 }
 
-export async function createCloudChatHistory(chatHistoryData) {
+export async function createOrUpdateCloudChatHistory(chatHistoryData) {
     const response = await axios.post("/chatHistories", chatHistoryData);
     // The response should be the created entity
-    return response.data.data;
-}
-
-export async function updateCloudChatHistory(chatHistoryData, username, chatId) {
-    const response = await axios.put(`/chatHistories/${encodeURIComponent(chatId)}`, chatHistoryData);
-    // The response should be the updated entity
     return response.data.data;
 }
 

@@ -63,7 +63,7 @@ class SyncManager {
                     const cloudTimestamp = new Date(cloudHistory.timestamp);
             
                     if (localTimestamp > cloudTimestamp) {
-                        this.enqueueSyncItem({ type: "chatHistory", action: "update", data: localHistory });
+                        this.enqueueSyncItem({ type: "chatHistory", action: "upsert", data: localHistory });
                     } else if (localTimestamp < cloudTimestamp) {
                         this.uiManager.storageManager.updateChatHistory(cloudHistory);
                     }
@@ -77,14 +77,14 @@ class SyncManager {
         // 遍历本地历史，如果在云端不存在，则上传
         localHistories.forEach(localHistory => {
             if(!cloudHistories.find(ch => ch.id === localHistory.id)) {
-                this.enqueueSyncItem({ type: "chatHistory", action: "create", data: localHistory });
+                this.enqueueSyncItem({ type: "chatHistory", action: "upsert", data: localHistory });
             }
         });
     }
 
-    syncChatHistoryCreate(newChatHistory) {
+    syncChatHistoryCreateOrUpdate(chatHistory) {
         // 将创建操作添加到同步队列
-        this.enqueueSyncItem({ type: "chatHistory", action: "create", data: newChatHistory });
+        this.enqueueSyncItem({ type: "chatHistory", action: "upsert", data: chatHistory });
     }
 
     syncChatHistoryDelete(chatHistoryId) {
@@ -92,10 +92,6 @@ class SyncManager {
         this.enqueueSyncItem({ type: "chatHistory", action: "delete", data: { id: chatHistoryId } });
     }
 
-    syncChatHistoryUpdate(updatedChatHistory) {
-        // 将更新操作添加到同步队列
-        this.enqueueSyncItem({ type: "chatHistory", action: "update", data: updatedChatHistory });
-    }
 
     // /public/components/SyncManager.js
 

@@ -3,7 +3,8 @@ const {
     getCloudChatHistories,
     createCloudChatHistory,
     updateCloudChatHistory,
-    deleteCloudChatHistory
+    deleteCloudChatHistory,
+    createOrUpdateCloudChatHistory
 } = require("../controllers/chatHistoryController");
   
 const { getTableClient } = require("../services/azureTableStorage");
@@ -126,6 +127,40 @@ describe("ChatHistory Controller", () => {
         const updatedEntity = await tableClient.getEntity(username, testUUID);
         expect(updatedEntity.title).toEqual(newTitle);
     }, timeout);
+
+    test("Upsert ChatHistory in Azure Table Storage", async () => {
+        const req = setupMockRequest({
+            id: chatId,
+            title: "ChatHistory",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        });
+        const res = setupMockResponse();
+    
+        await createOrUpdateCloudChatHistory(req, res);
+    
+        const expectedStatusCode = 200;
+        expect(res.status).toHaveBeenCalledWith(expectedStatusCode);
+        expect(res.json).toHaveBeenCalled();
+
+        const reqUpdate = setupMockRequest({
+            id: chatId,
+            title: "Updated ChatHistory",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        });
+        const resUpdate = setupMockResponse();
+        await createOrUpdateCloudChatHistory(reqUpdate, resUpdate);
+        expect(resUpdate.status).toHaveBeenCalledWith(expectedStatusCode);
+        expect(resUpdate.json).toHaveBeenCalled();
+    
+        const result = await tableClient.getEntity(username, testUUID);
+        console.log(result);
+        expect(result.rowKey).toEqual(testUUID);
+        expect(result.title).toEqual("Updated ChatHistory");
+    }, timeout);
+    
+
   
     test("Delete a ChatHistory and associated Messages from Azure Table Storage", async () => {
         
