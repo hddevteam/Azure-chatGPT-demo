@@ -528,9 +528,15 @@ class UIManager {
 
         // 5. 将当前消息以及后续的消息移动到新的话题中
         followingMessages.forEach(msg => {
-            this.messageManager.addMessage(msg.dataset.sender, msg.dataset.message, msg.dataset.messageId, msg.classList.contains("active"));
+            const newMessageItem = {
+                role: msg.dataset.sender,
+                content: msg.dataset.message,
+                messageId: msg.dataset.messageId,
+                isActive: msg.classList.contains("active"),
+            };
+            this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive);
+            this.storageManager.saveMessage(this.currentChatId, newMessageItem);
         });
-        this.storageManager.saveCurrentProfileMessages();
         this.chatHistoryManager.updateChatHistory(this.currentChatId, true);
     }
 
