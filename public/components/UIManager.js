@@ -215,7 +215,7 @@ class UIManager {
         loader.classList.remove("hidden");
         return { submitButton, buttonIcon, loader };
     }
-    createListItem(item, currentProfile, parentElement, isCreate) {
+    createListItem(item, currentProfile, parentElement,isNewTopic=false) {
         let li = document.createElement("li");
         li.dataset.profile = item.name;
         if (item.name === currentProfile.name) {
@@ -233,23 +233,18 @@ class UIManager {
         // add click event listener
         li.addEventListener("click", function () {
             const profileName = li.dataset.profile;
-            const chatHistory = self.chatHistoryManager.getChatHistory();
-            const latestChat = chatHistory.find(history => history.profileName === profileName);
-            if (latestChat) {
-                const chatId = latestChat.id;
-                self.changeChatTopic(chatId);
-                if (isCreate) {
-                    self.setupChatHistoryListClickHandler();
-                    // self.handleAddTopicClick();
-
-                }
-            } else {
+            if  (isNewTopic) {
                 const chatId = self.chatHistoryManager.generateChatId(self.storageManager.getCurrentUsername(), profileName);
                 self.changeChatTopic(chatId, true);
-                if (isCreate) {
-                    self.setupChatHistoryListClickHandler();
-                    self.handleAddTopicClick();
-
+            } else {
+                const chatHistory = self.chatHistoryManager.getChatHistory();
+                const latestChat = chatHistory.find(history => history.profileName === profileName);
+                if (latestChat) {
+                    const chatId = latestChat.id;
+                    self.changeChatTopic(chatId);
+                } else {
+                    const chatId = self.chatHistoryManager.generateChatId(self.storageManager.getCurrentUsername(), profileName);
+                    self.changeChatTopic(chatId, true);
                 }
             }
         });
@@ -308,7 +303,7 @@ class UIManager {
         // check if chatId is current chatId
         if (this.currentChatId !== chatId) {
             // check if messages are empty
-            if (document.querySelectorAll(".message").length === 0) {
+            if (this.storageManager.getMessages(this.currentChatId).length === 0) {
                 // delete current chat history
                 this.chatHistoryManager.deleteChatHistory(this.currentChatId);
             }
@@ -529,8 +524,8 @@ class UIManager {
         const profile = this.profiles.find(profile => profile.name === chatHistoryItem.profileName);
         if (!profile) return;
         if (action === "create") {
+            // no need to sync chat history create for now because it is empty.
             this.domManager.appendChatHistoryItem(chatHistoryItem, this.storageManager.getCurrentProfile());
-            this.syncManager.syncChatHistoryCreate(chatHistoryItem);
         } else if (action === "update") {
             this.domManager.updateChatHistoryItem(chatHistoryItem, profile);
             this.syncManager.syncChatHistoryUpdate(chatHistoryItem);
