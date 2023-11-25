@@ -30,7 +30,7 @@ class UIManager {
         this.eventManager = new EventManager(this);
         this.messageManager = new MessageManager(this);
         this.storageManager = new StorageManager(this);
-        this.syncManager = new SyncManager(this.storageManager);
+        this.syncManager = new SyncManager(this);
         this.chatHistoryManager = new ChatHistoryManager(this);
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
         this.setupChatHistoryListClickHandler();
