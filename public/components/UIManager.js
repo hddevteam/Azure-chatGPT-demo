@@ -215,6 +215,46 @@ class UIManager {
         loader.classList.remove("hidden");
         return { submitButton, buttonIcon, loader };
     }
+    createListItem(item, currentProfile, parentElement, isCreate) {
+        let li = document.createElement("li");
+        li.dataset.profile = item.name;
+        if (item.name === currentProfile.name) {
+            li.classList.add("active");
+        }
+        let icon = document.createElement("i");
+        icon.className = `${item.icon}`;
+        let span = document.createElement("span");
+        span.textContent = item.displayName;
+        li.appendChild(icon);
+        li.appendChild(span);
+        parentElement.appendChild(li);
+
+        const self = this;
+        // add click event listener
+        li.addEventListener("click", function () {
+            const profileName = li.dataset.profile;
+            const chatHistory = self.chatHistoryManager.getChatHistory();
+            const latestChat = chatHistory.find(history => history.profileName === profileName);
+            if (latestChat) {
+                const chatId = latestChat.id;
+                self.changeChatTopic(chatId);
+                if (isCreate) {
+                    self.setupChatHistoryListClickHandler();
+                    // self.handleAddTopicClick();
+
+                }
+            } else {
+                const chatId = self.chatHistoryManager.generateChatId(self.storageManager.getCurrentUsername(), profileName);
+                self.changeChatTopic(chatId, true);
+                if (isCreate) {
+                    self.setupChatHistoryListClickHandler();
+                    self.handleAddTopicClick();
+
+                }
+            }
+        });
+
+    }
 
     // render menu list from data
     // it only happens when user submit the username or the page is loaded
@@ -238,38 +278,15 @@ class UIManager {
         //empty menu list
         const menuList = document.querySelector("#menu-list");
         menuList.innerHTML = "";
+        //empty aiActorlist
+        const aiActorList = document.querySelector("#ai-actor-list");
+        aiActorList.innerHTML = "";
         const aiProfile = document.querySelector("#ai-profile");
         aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
-        //add menu items
         this.profiles.forEach(item => {
-            let li = document.createElement("li");
-            li.dataset.profile = item.name;
-            // set current selected menu item to active
-            if (item.name === currentProfile.name) {
-                li.classList.add("active");
-            }
-            let icon = document.createElement("i");
-            icon.className = `${item.icon}`;
-            let span = document.createElement("span");
-            span.textContent = item.displayName;
-            li.appendChild(icon);
-            li.appendChild(span);
-            menuList.appendChild(li);
-            // Capture the 'this' of UIManager instance
-            const self = this;
-            //add click event listener
-            li.addEventListener("click", function () {
-                const profileName = li.dataset.profile;
-                const chatHistory = self.chatHistoryManager.getChatHistory();
-                const latestChat = chatHistory.find(history => history.profileName === profileName);
-                if (latestChat) {
-                    const chatId = latestChat.id;
-                    self.changeChatTopic(chatId);
-                } else {
-                    const chatId = self.chatHistoryManager.generateChatId(self.storageManager.getCurrentUsername(), profileName);
-                    self.changeChatTopic(chatId, true);
-                }
-            });
+            this.createListItem(item, currentProfile, menuList, false);
+            this.createListItem(item, currentProfile, aiActorList, true);
+
         });
 
         let latestChat;
@@ -283,6 +300,7 @@ class UIManager {
             this.currentChatId = chatId;
             this.changeChatTopic(chatId);
         }
+
     }
 
     changeChatTopic(chatId, isNewTopic = false) {
@@ -293,7 +311,7 @@ class UIManager {
             if (document.querySelectorAll(".message").length === 0) {
                 // delete current chat history
                 this.chatHistoryManager.deleteChatHistory(this.currentChatId);
-            } 
+            }
         }
         this.currentChatId = chatId;
 
@@ -307,6 +325,9 @@ class UIManager {
         // Set active profile menu item
         document.querySelector("#menu-list li.active")?.classList.remove("active");
         document.querySelector(`#menu-list li[data-profile="${profileName}"]`).classList.add("active");
+        //Set active profile aiActor item
+        document.querySelector("#ai-actor-list li.active")?.classList.remove("active");
+        document.querySelector(`#ai-actor-list li[data-profile="${profileName}"]`).classList.add("active");
 
         // Set active chat history item
         document.querySelector("#chat-history-list li.active")?.classList.remove("active");
@@ -332,6 +353,35 @@ class UIManager {
             this.loadMessagesByChatId(this.currentChatId);
         }
     }
+    toggleAIActorList() {
+        document.querySelector(".modal-overlay").addEventListener("click", this.toggleAIActorList);
+        const aiActorList = document.getElementById("ai-actor-container");
+        const isVisible = aiActorList.getAttribute("data-visible") === "true";
+        const overlay = document.querySelector(".modal-overlay");
+        function hideAIActorOnOutsideClick(event) {
+            const profileListAIActor = document.getElementById("new-chat-button");
+
+            if (event.target !== aiActorList && event.target !== profileListAIActor && !profileListAIActor.contains(event.target)) {
+                aiActorList.style.display = "none";
+                aiActorList.setAttribute("data-visible", false);
+                overlay.style.display = "none";
+                document.removeEventListener("click", hideAIActorOnOutsideClick);
+            }
+        }
+
+        if (isVisible) {
+            aiActorList.style.display = "none";
+            aiActorList.setAttribute("data-visible", false);
+            overlay.style.display = "none";
+            document.removeEventListener("click", hideAIActorOnOutsideClick);
+        } else {
+            aiActorList.style.display = "block";
+            aiActorList.setAttribute("data-visible", true);
+            overlay.style.display = "block";
+            document.addEventListener("click", hideAIActorOnOutsideClick);
+        }
+    }
+
 
 
     loadMessagesByChatId(chatId) {
@@ -496,8 +546,6 @@ class UIManager {
     }
 
     setupChatHistoryListClickHandler() {
-        const addTopicButton = document.querySelector("#add-topic");
-        addTopicButton.addEventListener("click", this.handleAddTopicClick.bind(this));
         const chatHistoryListElement = document.querySelector("#chat-history-list");
         chatHistoryListElement.addEventListener("click", this.handleChatHistoryItemClick.bind(this));
     }
@@ -614,6 +662,7 @@ class UIManager {
 
         });
     }
+
 }
 
 export default UIManager;

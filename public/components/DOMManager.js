@@ -8,7 +8,6 @@ class DOMManager {
         this.deleteChatHistoryHandler = deleteChatHistoryHandler;
         this.editChatHistoryHandler = editChatHistoryHandler;
     }
-
     // Create a new method for creating the delete element
     createDeleteElement() {
         const deleteElement = document.createElement("i");
@@ -243,8 +242,7 @@ class DOMManager {
 
         return popupMenuElement;
     }
-
-
+     
 
 
 }
