@@ -3,6 +3,9 @@ import {
     createCloudChatHistory,
     updateCloudChatHistory,
     deleteCloudChatHistory,
+    createCloudMessage,
+    updateCloudMessage,
+    deleteCloudMessage
 } from "../utils/api.js";
 
 self.addEventListener("message", (event) => {
@@ -39,12 +42,6 @@ async function syncChatHistory(syncItem) {
         case "update":
             response = await updateCloudChatHistory(syncItem.data);
             break;
-        case "update-local":
-        // 已在主循环中通过fetchChatHistories处理
-            break;
-        case "download":
-        // 已在主循环中通过fetchChatHistories处理
-            break;
         case "delete":
             await deleteCloudChatHistory(syncItem.data.id);
             break;
@@ -53,17 +50,39 @@ async function syncChatHistory(syncItem) {
             console.log("syncChatHistory Response in worker: ", response);
             console.log("syncItem in worker: ", syncItem);
             // 发送成功同步的res以及更新localStorage中的timestamp
-            self.postMessage({ action: "synced", payload: { data: syncItem, res: response } });
+            self.postMessage({ action: "synced", payload: syncItem, res: response });
         }
     } catch (error) {
-        self.postMessage({ action: "failed", payload: syncItem });
+        self.postMessage({ action: "failed", payload: syncItem, res: error });
         console.error(`Error syncing chat history: ${error}`);
     }
 }
 
+// syncWorker.js
 async function syncMessage(syncItem){
-    console.log("syncMessage", syncItem);
-    return;
+    try {
+        let response;
+        switch(syncItem.action) {
+        case "create":
+            response = await createCloudMessage(syncItem.data.message, syncItem.data.chatId);
+            break;
+        case "update":
+            response = await updateCloudMessage(syncItem.data.message, syncItem.data.chatId, syncItem.data.message.messageId);
+            break;
+        case "delete":
+            await deleteCloudMessage(syncItem.data.chatId, syncItem.data.messageId);
+            break;
+        }
+        if(response) {
+            // If there's a response, it means the sync action succeeded
+            self.postMessage({ action: "synced", payload: syncItem, res: response });
+        }
+    } catch (error) {
+        // If there's an error, it means the sync action failed
+        self.postMessage({ action: "failed", payload: syncItem });
+        console.error(`Error syncing message: ${error}`);
+    }
 }
+
 
   
