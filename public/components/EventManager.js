@@ -37,6 +37,8 @@ class EventManager {
 
         const isActive = messageElement.classList.contains("active");
         this.uiManager.storageManager.saveMessageActiveStatus(messageId, isActive);
+        const updatedMessage = this.uiManager.storageManager.getMessage(messageId);
+        this.uiManager.syncManager.syncMessageUpdate(this.uiManager.currentChatId, updatedMessage);
     }
 
     // Create a new method for attaching a toggle active message event listener

@@ -103,6 +103,7 @@ class MessageManager {
         this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive);
         this.uiManager.app.prompts.addPrompt(newMessage);
         this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId,newMessage);
+        this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
         this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
         // return validationResult if input is valid and processed successfully.
@@ -138,6 +139,7 @@ class MessageManager {
                 const newMessage = { role: "assistant", content: data.message, messageId: messageId, isActive: true };
                 this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive);
                 this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
+                this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
                 this.uiManager.app.prompts.addPrompt(newMessage);
                 await this.sendFollowUpQuestions();
             }
@@ -304,7 +306,7 @@ class MessageManager {
                 },
             }).then((value) => {
                 if (value === "delete") {
-                    this.deleteMessage(messageId);
+                    this.deleteMessageInStorage(messageId);
                     swal("Message deleted", { icon: "success", buttons: false, timer: 1000 });
                 }
             });
@@ -318,6 +320,7 @@ class MessageManager {
         messageElement.remove();
         this.uiManager.app.prompts.removePrompt(messageId);
         this.uiManager.storageManager.deleteMessage(messageId);
+        this.uiManager.syncManager.syncMessageDelete(this.uiManager.currentChatId, messageId);
         this.uiManager.updateSlider();
         this.uiManager.isDeleting = false;
     }

@@ -57,6 +57,8 @@ slider.addEventListener("input", function () {
             messageElement.classList.remove("active");
             uiManager.storageManager.saveMessageActiveStatus(messageId, false);
         }
+        const updatedMessage = uiManager.storageManager.getMessage(messageId);
+        uiManager.syncManager.syncMessageUpdate(uiManager.currentChatId, updatedMessage);
     });
 
     // save current onLengthChange callback
@@ -71,7 +73,6 @@ slider.addEventListener("input", function () {
     // restore onLengthChange callback
     app.prompts.onLengthChange = originalOnLengthChange;
 });
-
 
 const messageForm = document.querySelector("#message-form");
 const messageInput = document.querySelector("#message-input");

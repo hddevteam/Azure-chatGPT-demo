@@ -95,7 +95,7 @@ exports.updateCloudMessage = async (req, res) => {
         entity.content = blobUrl || message.content;
         entity.isContentInBlob = !!blobUrl;
 
-        await tableClient.updateEntity({ partitionKey: chatId, rowKey: messageId, ...entity }, "Replace");
+        await tableClient.updateEntity({ partitionKey: chatId, rowKey: messageId, ...entity }, "Merge");
         console.log("message updated");
         const updatedEntity = await tableClient.getEntity(chatId, message.messageId);
         res.status(200).json({ data: updatedEntity });

@@ -102,6 +102,7 @@ class StorageManager {
     }
     
     saveMessageActiveStatus(messageId, isActive) {
+        console.log("saveMessageActiveStatus: ", messageId, isActive);
         const savedMessages = this.getMessages(this.uiManager.currentChatId);
 
         const updatedMessages = savedMessages.map(savedMessage => {
@@ -113,6 +114,11 @@ class StorageManager {
             }
         });
         this.saveMessages(this.uiManager.currentChatId, updatedMessages);
+    }
+
+    getMessage(messageId) {
+        const savedMessages = this.getMessages(this.uiManager.currentChatId);
+        return savedMessages.find(savedMessage => savedMessage.messageId === messageId);
     }
 
     deleteMessage(messageId) {

@@ -97,6 +97,7 @@ class UIManager {
 
             this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive);
             this.storageManager.saveMessage(this.currentChatId, newMessageItem);
+            this.syncManager.syncMessageCreate(this.currentChatId, newMessageItem);
         } catch (error) {
             console.error(error);
             let messageId = this.generateId();
@@ -537,6 +538,7 @@ class UIManager {
             };
             this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive);
             this.storageManager.saveMessage(this.currentChatId, newMessageItem);
+            this.syncManager.syncMessageCreate(this.currentChatId, newMessageItem);
         });
         this.chatHistoryManager.updateChatHistory(this.currentChatId, true);
     }

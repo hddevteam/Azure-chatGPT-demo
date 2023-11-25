@@ -105,10 +105,15 @@ class SyncManager {
 
         cloudMessages.forEach(cloudMessage => {
             const localMessage = localMessages.find(lm => lm.messageId === cloudMessage.messageId);
-            if (localMessage) {
+            if (cloudMessage.isDeleted) {
+                // 如果云端消息标记为删除，删除本地消息
+                if (localMessage) {
+                    this.storageManager.deleteMessage(cloudMessage.messageId);
+                }
+            } else if (localMessage) {
             // 比较时间戳，以确定是否需要更新本地消息
                 const localMessageTimestamp = new Date(localMessage.timestamp);
-                const cloudMessageTimestamp = new Date(cloudMessage.Timestamp);
+                const cloudMessageTimestamp = new Date(cloudMessage.timestamp);
 
                 if (!localMessage.timestamp || localMessageTimestamp < cloudMessageTimestamp) {
                 // 如果本地消息较旧或不存在时间戳，使用云端消息更新本地存储
@@ -159,25 +164,27 @@ class SyncManager {
         }
   
         this.syncQueue.push(syncItem);
-        console.log("syncQueue: ", this.syncQueue.length);
+        console.log("enqueueSyncItem syncQueue: ", this.syncQueue.length);
         if (!this.isSyncing) {
             this.processNextSyncItem();
         }
     }
   
     processNextSyncItem() {
-        console.log("syncQueue: ", this.syncQueue.length);
+        console.log("processNextSyncItem syncQueue: ", this.syncQueue.length);
         if (this.syncQueue.length === 0) {
             this.isSyncing = false;
             return;
         }
         this.isSyncing = true;
         const nextItem = this.syncQueue.shift();
+        console.log("processNextSyncItem nextItem: ", nextItem);
+        console.log("current syncQueue: ", this.syncQueue);
         this.webWorker.postMessage(nextItem);
     }
   
     handleSyncedItem(syncedItem, res) {
-        console.log("handleSyncedItem: ", syncedItem);
+        console.log("handleSyncedItem: ", syncedItem, res);
         if (syncedItem && ["create", "update"].includes(syncedItem.action) && res && syncedItem.type === "chatHistory") {
             console.log("syncedItem: ", syncedItem);
             // 更新LocalStorage中的timestamp
