@@ -1,5 +1,5 @@
 // /public/components/SyncManager.js
-import { fetchCloudChatHistories } from "../utils/api.js";
+import { fetchCloudChatHistories, fetchCloudMessages } from "../utils/api.js";
   
 class SyncManager {
     constructor(storageManager) {
@@ -15,17 +15,15 @@ class SyncManager {
     initializeSyncWorker() {
         this.webWorker.onmessage = (event) => {
         // Handle messages from web worker
-            console.log("event: ", event);
-            const { action, payload } = event.data;
+            console.log("SyncManager onmessage: ");
+            const { action, payload, res} = event.data;
             console.log("action: ", action);
-  
+            console.log("payload: ", payload);
+            console.log("res: ", res);
+            
             switch (action) {
             case "synced":
-                this.handleSyncedItem(payload);
-                break;
-            case "update-local":
-                // 处理来自服务器的最新数据
-                this.storageManager.updateChatHistory(payload);
+                this.handleSyncedItem(payload, res);
                 break;
             case "failed":
                 this.enqueueSyncItem(payload, true); // re-enqueue with retry incremented
@@ -98,6 +96,58 @@ class SyncManager {
         // 将更新操作添加到同步队列
         this.enqueueSyncItem({ type: "chatHistory", action: "update", data: updatedChatHistory });
     }
+
+    // /public/components/SyncManager.js
+
+    async syncMessages(chatId) {
+        const localMessages = this.storageManager.getMessages(chatId);
+        const cloudMessages = await fetchCloudMessages(chatId).catch(e => console.error(e));
+
+        cloudMessages.forEach(cloudMessage => {
+            const localMessage = localMessages.find(lm => lm.messageId === cloudMessage.messageId);
+            if (localMessage) {
+            // 比较时间戳，以确定是否需要更新本地消息
+                const localMessageTimestamp = new Date(localMessage.timestamp);
+                const cloudMessageTimestamp = new Date(cloudMessage.Timestamp);
+
+                if (!localMessage.timestamp || localMessageTimestamp < cloudMessageTimestamp) {
+                // 如果本地消息较旧或不存在时间戳，使用云端消息更新本地存储
+                    this.storageManager.saveMessage(chatId, cloudMessage);
+                } else if (localMessageTimestamp > cloudMessageTimestamp) {
+                // 如果本地消息较新，上传更新到云端
+                    this.enqueueSyncItem({ type: "message", action: "update", data: { chatId, message: localMessage } });
+                }
+            } else if (!cloudMessage.isActive) {
+            // 如果云端消息标记为不活动，且本地不存在，不做操作
+            } else {
+            // 如果本地不存在这条消息，从云端下载这条消息
+                this.storageManager.saveMessage(chatId, cloudMessage);
+            }
+        });
+
+        // 遍历本地消息，如果在云端不存在，则上传
+        localMessages.forEach(localMessage => {
+            if (!cloudMessages.find(cm => cm.messageId === localMessage.messageId)) {
+                this.enqueueSyncItem({ type: "message", action: "create", data: { chatId, message: localMessage } });
+            }
+        });
+    }
+
+    // SyncManager.js
+
+    syncMessageCreate(chatId, newMessage) {
+        this.enqueueSyncItem({ type: "message", action: "create", data: { chatId, message: newMessage } });
+    }
+
+    syncMessageUpdate(chatId, updatedMessage) {
+        this.enqueueSyncItem({ type: "message", action: "update", data: { chatId, message: updatedMessage } });
+    }
+
+    syncMessageDelete(chatId, messageId) {
+        this.enqueueSyncItem({ type: "message", action: "delete", data: { chatId, messageId } });
+    }
+
+
   
     enqueueSyncItem(syncItem, retry = false) {
         if (retry) {
@@ -126,15 +176,16 @@ class SyncManager {
         this.webWorker.postMessage(nextItem);
     }
   
-    handleSyncedItem(syncedItem) {
+    handleSyncedItem(syncedItem, res) {
         console.log("handleSyncedItem: ", syncedItem);
-        if (syncedItem && ["create", "update"].includes(syncedItem.data.action) && syncedItem.res && syncedItem.data.type === "chatHistory") {
+        if (syncedItem && ["create", "update"].includes(syncedItem.action) && res && syncedItem.type === "chatHistory") {
             console.log("syncedItem: ", syncedItem);
             // 更新LocalStorage中的timestamp
-            this.storageManager.updateChatHistoryTimestamp(syncedItem.res.id, syncedItem.res.timestamp);
-        } else if (syncedItem.data.type === "message") {
-            // 消息类型的处理逻辑
-            // this.storageManager.updateMessageTimestamp(syncedItem.data.id, syncedItem.res.timestamp);
+            this.storageManager.updateChatHistoryTimestamp(res.id, res.timestamp);
+        } else if (syncedItem && ["create", "update"].includes(syncedItem.action) && res && syncedItem.type === "message") {
+            console.log("syncedItem: ", syncedItem);
+            // 更新LocalStorage中的timestamp
+            this.storageManager.updateMessageTimestamp(syncedItem.data.chatId, res.rowKey, res.timestamp);
         }
     }
   
