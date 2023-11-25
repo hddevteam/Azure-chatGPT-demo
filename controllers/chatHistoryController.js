@@ -117,21 +117,38 @@ exports.deleteCloudChatHistory = async (req, res) => {
         }
         const { username, profileName, uuid } = parsed;
         console.log(username, profileName, uuid);
+
+        // Get the Messages table client
+        const messagesTableClient = getTableClient("Messages");
+        // Query all messages for this chatId
+        const messagesIterator = messagesTableClient.listEntities({
+            queryOptions: { filter: `PartitionKey eq '${chatId}'` }
+        });
+        
+        for await (const message of messagesIterator) {
+            // Delete the message entity
+            await messagesTableClient.deleteEntity(message.partitionKey, message.rowKey);
+        }
+
+        // Continue deleting the ChatHistory
         const tableClient = getTableClient("ChatHistories");
-        // Soft delete the chat history by setting 'isDeleted' to true
         let chatHistoryData = await tableClient.getEntity(username, uuid);
         console.log(chatHistoryData);
-        chatHistoryData.isDeleted = true;
-        await tableClient.updateEntity({
-            partitionKey: username,
-            rowKey: uuid,
-            ...chatHistoryData
-        });
-        console.log("chat history deleted");
-        await tableClient.getEntity(username, uuid);
+
+        // Assuming that there might be cases where the data may not exist and we don't want to throw an error
+        if (chatHistoryData) {
+            chatHistoryData.isDeleted = true;
+            await tableClient.updateEntity({
+                partitionKey: username,
+                rowKey: uuid,
+                ...chatHistoryData
+            });
+        }
+        console.log("chat history marked as deleted");
+
         res.status(204).end();
     } catch (error) {
         console.error(`Failed to delete chat history: ${error.message}`);
         res.status(500).send(error.message);
     }
-};
+}; 

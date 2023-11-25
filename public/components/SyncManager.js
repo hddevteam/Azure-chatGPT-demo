@@ -53,7 +53,6 @@ class SyncManager {
                 if (localHistory) {
                     console.log("deleteLocalChatHistory: ", localHistory.id);
                     this.storageManager.deleteChatHistory(cloudHistory.id);
-                    this.storageManager.removeMessagesByChatId(cloudHistory.id);
                 }
             } else if (localHistory) {
                 // Check if localHistory has a timestamp
@@ -89,7 +88,6 @@ class SyncManager {
         // 将创建操作添加到同步队列
         this.enqueueSyncItem({ type: "chatHistory", action: "create", data: newChatHistory });
     }
-
 
     syncChatHistoryDelete(chatHistoryId) {
         // 将删除操作添加到同步队列

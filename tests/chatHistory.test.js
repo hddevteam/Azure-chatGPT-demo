@@ -35,6 +35,8 @@ const username = "testUser";
 const profileName = "testProfile";
 const chatId = `${username}_${profileName}_${testUUID}`;
 const tableClient = getTableClient("ChatHistories");
+const messagesTableClient = getTableClient("Messages");
+const messageId = Math.random().toString(36).slice(2, 10);
   
 // This function is used to clear the table after each test
 async function clearTableEntity(partitionKey, rowKey) {
@@ -46,9 +48,23 @@ async function clearTableEntity(partitionKey, rowKey) {
 }
   
 describe("ChatHistory Controller", () => {
+
+    beforeAll(async () => {
+        // Create a new message in the table
+        const message = {
+            partitionKey: chatId,
+            rowKey: messageId,
+            messageId: messageId,
+            role: "user",
+            content: "Hello, Azure!",
+            isActive: true
+        };
+        await messagesTableClient.createEntity(message);
+    });
   
     afterAll(async () => {
         await clearTableEntity(username, testUUID);
+        await clearTableEntity(chatId, messageId);
     });
   
     test("Create a new ChatHistory in Azure Table Storage", async () => {
@@ -111,17 +127,40 @@ describe("ChatHistory Controller", () => {
         expect(updatedEntity.title).toEqual(newTitle);
     }, timeout);
   
-    test("Delete a ChatHistory from Azure Table Storage", async () => {
+    test("Delete a ChatHistory and associated Messages from Azure Table Storage", async () => {
+        
+
         const req = setupMockRequest({}, {}, { chatId: chatId });
         const res = setupMockResponse();
-  
+    
+        const messagesTableClient = getTableClient("Messages");  // Mocked in test setup
+        const chatHistoriesTableClient = getTableClient("ChatHistories");  // Mocked in test setup
+    
         await deleteCloudChatHistory(req, res);
-
+    
         expect(res.status).toHaveBeenCalledWith(204);
-
-        // 检索实体以确认isDeleted字段已设置为true
-        const deletedEntity = await tableClient.getEntity(username, testUUID);
+        
+        // verify that messages are deleted
+        const messagesIterator = messagesTableClient.listEntities({
+            queryOptions: { filter: `PartitionKey eq '${chatId}'` }
+        });
+    
+        let messageExists = false;
+        
+        for await (const message of messagesIterator) {
+            console.log(message);
+            messageExists = true;
+            break;
+        }
+        
+        expect(messageExists).toBeFalsy();
+    
+        // Verify that the ChatHistory is marked as isDeleted
+        
+        const deletedEntity = await chatHistoriesTableClient.getEntity(username, testUUID);
         expect(deletedEntity.isDeleted).toBeTruthy();
-    }, timeout);
+        
+    }, timeout); 
+    
 }, timeout);
   
