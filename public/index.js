@@ -175,7 +175,7 @@ getPromptRepo(getCurrentUsername())
         console.error("Error:", error);
     });
 
-
+    
 // Send message on form submit
 messageForm.addEventListener("submit", (event) => {
     //uiManager.js中已经写过这个方法，直接调用
@@ -187,7 +187,7 @@ document.addEventListener("keydown", (event) => {
     if (event.getModifierState("Alt") && event.code === "KeyS") {
         uiManager.handleMessageFormSubmit(messageInput);
     }
-});
+});    
 // popup the Swal when user click the username label
 usernameLabel.addEventListener("click", function () {
     swal({
@@ -226,7 +226,7 @@ usernameLabel.addEventListener("click", function () {
 
 
 document.getElementById("ai-profile").addEventListener("click", handleClick);
-
+document.getElementById("new-chat-button").addEventListener("click",handleAIActor);
 // 添加事件监听器到最小化窗口图标
 const systemMessageWindowIcon = document.querySelector("#window-icon");
 
@@ -340,6 +340,15 @@ function loadProfileList() {
     profileListMenu.style.height = `${menuHeight}px`;
 }
 
+
+function handleAIActor(event){
+    event.stopPropagation();
+    uiManager.toggleAIActorList();
+} 
+    
+
+
+
 // toggle the menu when user click the ai profile
 function toggleMenu() {
     const menu = document.getElementById("menu");
@@ -396,4 +405,4 @@ window.addEventListener("message", function (event) {
         }
     }
 }, false);
-
+ 

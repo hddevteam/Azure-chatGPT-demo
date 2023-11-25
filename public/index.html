@@ -8,6 +8,7 @@
 </head>
 
 <body>
+  <div class="modal-overlay"></div>
   <div id="toast"></div>
   <div id="header">
     <button id="toggle-chat-topic"><i class="fas fa-bars"></i></button>
@@ -65,12 +66,25 @@
               placeholder="Feel free to ask anything. You can use '@' to ask a specific expert, even if they're not listed in the menu. For example, '@App Designer: How to design a great app?'"
               tabindex="1"></textarea>
             <i id="clear-input" class="fas fa-times" title="Clear input"></i>
-            <i id="add-topic" class="fa-solid fa-wand-sparkles" title="New topic"></i>
             <div class="button-row">
               <div id="voice-input-container">
                 <button id="voice-input-button" type="button"><i class="fas fa-microphone"
                     aria-hidden="true"></i></button>
               </div>
+              
+          <div id="new-chat-container">
+            <button id="new-chat-button" type="button" title="Click to create a new chat"><i class="fas fa-plus " aria-hidden="true"></i></button>
+            <div id="ai-actor-container">
+              <div id="ai-actor-header">
+                <i class="fa-solid fa-check-to-slot"></i>
+                <span>Choose AI Actor</span>
+
+              </div>
+              <ul id="ai-actor-list">
+                
+              </ul>
+            </div>
+          </div>
               <button id="submitButton" type="submit" tabindex="2">
                 <div id="submit-button-icon"><i class="fas fa-paper-plane"></i></div>
                 <div id="submit-loader" class="hidden">
