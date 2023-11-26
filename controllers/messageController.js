@@ -1,15 +1,26 @@
 // controllers/messageController.js
 const { getTableClient } = require("../services/azureTableStorage");
 const { uploadTextToBlob, getTextFromBlob, deleteBlob } = require("../services/azureBlobStorage");
+
 exports.getCloudMessages = async (req, res) => {
     const chatId = req.params.chatId;
-    const messages = [];
+    const lastTimestamp = req.query.lastTimestamp; // Obtained from query parameter if it exists
+
     try {
         const tableClient = getTableClient("Messages");
-        const iterator = tableClient.listEntities({
-            queryOptions: { filter: `PartitionKey eq '${chatId}'` }
-        });
+        let queryOptions = { filter: `PartitionKey eq '${chatId}'` };
 
+        // If lastTimestamp is specified, modify the query to include a time filter.
+        if (lastTimestamp) {
+            const timeStampFilter = `Timestamp gt datetime'${lastTimestamp}'`;
+            queryOptions.filter = `(${queryOptions.filter}) and (${timeStampFilter})`;
+        }
+
+        const iterator = tableClient.listEntities({
+            queryOptions: queryOptions
+        });
+        
+        const messages = [];
         for await (const entity of iterator) {
             messages.push(entity);
         }

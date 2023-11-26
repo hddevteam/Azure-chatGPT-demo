@@ -40,19 +40,20 @@ class SyncManager {
         const username = this.uiManager.storageManager.getCurrentUsername();
         const localHistories = await this.uiManager.storageManager.getChatHistory(username);
         // get max timestamp from localHistories
-        const lastTimestamp = localHistories.reduce((max, history) => {
-            const timestamp = new Date(history.timestamp);
-            return timestamp > max ? timestamp : max;
-        }, new Date(0));
-        console.log("lastTimestamp: ", lastTimestamp.toISOString());
+        const lastTimestamp = localHistories.reduce((maxStr, history) => {
+            const currentTimestamp = new Date(history.timestamp);
+            const maxTimestamp = new Date(maxStr);
+            
+            return currentTimestamp > maxTimestamp ? history.timestamp : maxStr;
+        }, "1970-01-01T00:00:00.000Z"); // ISO string representation for new Date(0)
+        console.log("lastTimestamp: ", lastTimestamp);
 
-        const cloudHistories = await fetchCloudChatHistories(username, lastTimestamp.toISOString()).catch(e => console.error(e));
+        const cloudHistories = await fetchCloudChatHistories(username, lastTimestamp).catch(e => console.error(e));
+        console.log("syncChatHistories: ", {localHistories}, {cloudHistories});
         
         // 对于cloudHistories，将每个history与localHistories进行比较
         cloudHistories.forEach(cloudHistory => {
             const localHistory = localHistories.find(lh => lh.id === cloudHistory.id);
-            console.log("cloudHistory: ", cloudHistory);
-            console.log("localHistory: ", localHistory);
             if (cloudHistory.isDeleted) {
                 // If it's marked as deleted, remove it from Local Storage
                 if (localHistory) {
@@ -105,8 +106,17 @@ class SyncManager {
     // /public/components/SyncManager.js
 
     async syncMessages(chatId) {
+        console.log("syncMessages: ", chatId);
         const localMessages = this.uiManager.storageManager.getMessages(chatId);
-        const cloudMessages = await fetchCloudMessages(chatId).catch(e => console.error(e));
+        const lastTimestamp = localMessages.reduce((maxStr, message) => {
+            const currentTimestamp = new Date(message.timestamp);
+            const maxTimestamp = new Date(maxStr);
+            
+            return currentTimestamp > maxTimestamp ? message.timestamp : maxStr;
+        }, "1970-01-01T00:00:00.000Z"); // ISO string representation for new Date(0)
+        console.log("lastTimestamp: ", lastTimestamp);
+
+        const cloudMessages = await fetchCloudMessages(chatId, lastTimestamp).catch(e => console.error(e));
         console.log("syncMessages: ", {localMessages}, {cloudMessages});
 
         cloudMessages.forEach(cloudMessage => {
@@ -135,7 +145,7 @@ class SyncManager {
 
         // 遍历本地消息，如果在云端不存在，则上传
         localMessages.forEach(localMessage => {
-            if (!cloudMessages.find(cm => cm.messageId === localMessage.messageId)) {
+            if (!localMessage.timestamp) {
                 this.enqueueSyncItem({ type: "message", action: "create", data: { chatId, message: localMessage } });
             }
         });

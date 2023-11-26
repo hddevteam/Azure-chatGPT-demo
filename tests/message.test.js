@@ -17,6 +17,9 @@ const tableClient = getTableClient("Messages");
 const chatHistoryId = `testChat_${uuidv4()}`;
 const messageId = Math.random().toString(36).slice(2, 10);
 const longMessageId = Math.random().toString(36).slice(2, 10);
+const pastMessageId = Math.random().toString(36).slice(2, 10);
+const futureMessageId = Math.random().toString(36).slice(2, 10);
+
 const timeout = 30000;
   
 async function clearTableEntity(partitionKey, rowKey) {
@@ -45,10 +48,26 @@ function setupMockResponse() {
 }
   
 describe("Message Controller", () => {
+
+    beforeAll(async () => {
+
+        // Create an older message in the table
+        await tableClient.createEntity({
+            partitionKey: chatHistoryId,
+            rowKey: pastMessageId,
+            content: "Past Message",
+            isActive: true,
+        });
+
+    });
   
     afterAll(async () => {
         await clearTableEntity(chatHistoryId, messageId);
         await clearTableEntity(chatHistoryId, longMessageId);
+        
+        await clearTableEntity(chatHistoryId, pastMessageId);
+        await clearTableEntity(chatHistoryId, futureMessageId);
+        
     });
   
     test("Create a new Message in Azure Table Storage", async () => {
@@ -86,6 +105,44 @@ describe("Message Controller", () => {
                 expect.objectContaining({
                     partitionKey: chatHistoryId,
                     rowKey: messageId
+                })
+            ])
+        );
+    }, timeout);
+
+    test("should only return messages with timestamp after the provided lastTimestamp", async () => {
+        const req = setupMockRequest({}, { lastTimestamp: new Date().toISOString() }, { chatId: chatHistoryId });
+
+        // Create a future message in the table        
+        await tableClient.createEntity({
+            partitionKey: chatHistoryId,
+            rowKey: futureMessageId,
+            content: "Future Message",
+            isActive: true,
+        });
+        
+        const res = setupMockResponse();
+
+        await getCloudMessages(req, res);
+
+        expect(res.json).toHaveBeenCalled();
+        const result = res.json.mock.calls[0][0];
+
+        // Should only include the future message that is newer than now
+        expect(result.data).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    partitionKey: chatHistoryId,
+                    rowKey: futureMessageId
+                })
+            ])
+        );
+
+        // Should not include the past message that is older than now
+        expect(result.data).not.toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    rowKey: pastMessageId
                 })
             ])
         );

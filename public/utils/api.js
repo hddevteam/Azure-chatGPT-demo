@@ -158,8 +158,9 @@ export async function deleteCloudChatHistory(chatId) {
     // If that's not the case, we might need to adjust the server or this method according to that.
 }
 
-export async function fetchCloudMessages(chatId) {
-    const response = await axios.get(`/messages/${encodeURIComponent(chatId)}`);
+export async function fetchCloudMessages(chatId, lastTimestamp = null) {
+    const queryParams = lastTimestamp ? `?lastTimestamp=${encodeURIComponent(lastTimestamp)}` : "";
+    const response = await axios.get(`/messages/${encodeURIComponent(chatId)}${queryParams}`);
     // The response should be an array of messages
     return response.data.data || [];
 }
