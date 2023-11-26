@@ -4,9 +4,9 @@ import EventManager from "./EventManager.js";
 import MessageManager from "./MessageManager.js";
 import StorageManager from "./StorageManager.js";
 import ChatHistoryManager from "./ChatHistoryManager.js";
-import { getCurrentUsername, getCurrentProfile, setCurrentUsername, setCurrentProfile, getMessages, removeMessagesByChatId } from "../utils/storage.js";
 import { textToImage, getTts } from "../utils/api.js";
 import swal from "sweetalert";
+import SyncManager from "./SyncManager.js";
 
 
 class UIManager {
@@ -30,7 +30,8 @@ class UIManager {
         this.eventManager = new EventManager(this);
         this.messageManager = new MessageManager(this);
         this.storageManager = new StorageManager(this);
-        this.chatHistoryManager = new ChatHistoryManager();
+        this.syncManager = new SyncManager(this);
+        this.chatHistoryManager = new ChatHistoryManager(this);
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
         this.setupChatHistoryListClickHandler();
     }
@@ -85,15 +86,18 @@ class UIManager {
             const thumbnailWidth = 300;
             const thumbnailHeight = 300;
             // Wrap the <img> tag and caption text in a <div>
-            this.messageManager.addMessage(
-                "assistant",
-                `<div>
-           <img src="${imageUrl}" alt="${caption}" width="${thumbnailWidth}" height="${thumbnailHeight}" style="object-fit: contain;" />
-           <p style="margin-top: 4px;">${caption}</p>
-         </div>`,
-                messageId
-            );
-            this.storageManager.saveCurrentProfileMessages();
+            const newMessageItem = {
+                role: "assistant",
+                content: `<img src="${imageUrl}" alt="${caption}" width="${thumbnailWidth}" height="${thumbnailHeight}" style="object-fit: contain;" />
+                <p style="margin-top: 4px;">${caption}</p>
+              </div>`,
+                messageId: messageId,
+                isActive: true,
+            };
+
+            this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive);
+            this.storageManager.saveMessage(this.currentChatId, newMessageItem);
+            this.syncManager.syncMessageCreate(this.currentChatId, newMessageItem);
         } catch (error) {
             console.error(error);
             let messageId = this.generateId();
@@ -113,7 +117,7 @@ class UIManager {
         const editButton = document.querySelector("#edit-system-message");
         editButton.addEventListener("click", () => {
             // 使用window.open可以在新标签页中打开，并将当前的profile name传递过去
-            window.open(`profile-manager.html?profileName=${getCurrentProfile().name}`, "_blank");
+            window.open(`profile-manager.html?profileName=${this.storageManager.getCurrentProfile().name}`, "_blank");
         });
     }
 
@@ -127,17 +131,6 @@ class UIManager {
         const maxSliderValue = Math.max(this.messageLimit, counversationCount);
         const slider = document.querySelector("#slider");
         slider.max = maxSliderValue;
-    }
-
-
-    // Clear message input except the first message
-    clearMessage() {
-        const messagesContainer = document.getElementById("messages");
-        // clear messages in DOM except the first message
-        messagesContainer.innerHTML = "";
-        this.storageManager.saveCurrentProfileMessages();
-        const messageInput = document.getElementById("message-input");
-        messageInput.value = "";
     }
 
     getLastAssistantMessage() {
@@ -222,7 +215,7 @@ class UIManager {
         loader.classList.remove("hidden");
         return { submitButton, buttonIcon, loader };
     }
-    createListItem(item, currentProfile, parentElement, isCreate) {
+    createListItem(item, currentProfile, parentElement,isNewTopic=false) {
         let li = document.createElement("li");
         li.dataset.profile = item.name;
         if (item.name === currentProfile.name) {
@@ -240,29 +233,20 @@ class UIManager {
         // add click event listener
         li.addEventListener("click", function () {
             const profileName = li.dataset.profile;
-            const chatHistory = self.chatHistoryManager.getChatHistory();
-            const latestChat = chatHistory.find(history => history.profileName === profileName);
-            if (latestChat) {
-                const chatId = latestChat.id;
-                self.changeChatTopic(chatId);
-                if (isCreate) {
-                    self.setupChatHistoryListClickHandler();
-                    self.handleAddTopicClick();
-
-                }
-
-            } else {
-                const chatId = self.chatHistoryManager.generateChatId(getCurrentUsername(), profileName);
+            if  (isNewTopic) {
+                const chatId = self.chatHistoryManager.generateChatId(self.storageManager.getCurrentUsername(), profileName);
                 self.changeChatTopic(chatId, true);
-                if (isCreate) {
-                    self.setupChatHistoryListClickHandler();
-                    self.handleAddTopicClick();
-
+            } else {
+                const chatHistory = self.chatHistoryManager.getChatHistory();
+                const latestChat = chatHistory.find(history => history.profileName === profileName);
+                if (latestChat) {
+                    const chatId = latestChat.id;
+                    self.changeChatTopic(chatId);
+                } else {
+                    const chatId = self.chatHistoryManager.generateChatId(self.storageManager.getCurrentUsername(), profileName);
+                    self.changeChatTopic(chatId, true);
                 }
             }
-
-
-
         });
 
     }
@@ -271,18 +255,21 @@ class UIManager {
     // it only happens when user submit the username or the page is loaded
     async renderMenuList(data) {
         this.profiles = data.profiles;
-        setCurrentUsername(data.username);
+        this.storageManager.setCurrentUsername(data.username);
         await this.showChatHistory();
         const usernameLabel = document.querySelector("#username-label");
-        usernameLabel.textContent = getCurrentUsername();
-        const chatHistory = this.chatHistoryManager.getChatHistory();
-        const savedCurrentProfile = getCurrentProfile();
-        if (!savedCurrentProfile) {
-            setCurrentProfile(this.profiles[0]);
+        usernameLabel.textContent = this.storageManager.getCurrentUsername();
+        await this.syncManager.syncChatHistories();
+        const chatHistory = await this.chatHistoryManager.getChatHistory();
+        let savedCurrentProfile = this.storageManager.getCurrentProfile();
+        // Check if savedCurrentProfile's name is within data.profiles
+        const profileNames = new Set(this.profiles.map(profile => profile.name));
+        if (!savedCurrentProfile || !profileNames.has(savedCurrentProfile.name)) {
+            savedCurrentProfile = this.profiles[0];
+            this.storageManager.setCurrentProfile(savedCurrentProfile);
         }
-        const currentProfile = getCurrentProfile();
-
-
+        
+        const currentProfile = this.storageManager.getCurrentProfile();
         //empty menu list
         const menuList = document.querySelector("#menu-list");
         menuList.innerHTML = "";
@@ -294,12 +281,13 @@ class UIManager {
         this.profiles.forEach(item => {
             this.createListItem(item, currentProfile, menuList, false);
             this.createListItem(item, currentProfile, aiActorList, true);
+
         });
 
         let latestChat;
         latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
         if (!latestChat) {
-            const chatId = this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
+            const chatId = this.chatHistoryManager.generateChatId(this.storageManager.getCurrentUsername(), currentProfile.name);
             this.currentChatId = chatId;
             this.changeChatTopic(chatId, true);
         } else {
@@ -314,8 +302,9 @@ class UIManager {
 
         // check if chatId is current chatId
         if (this.currentChatId !== chatId) {
-            // check if messages are empty
-            if (document.querySelectorAll(".message").length === 0) {
+            const currentChatHisory = this.storageManager.readChatHistory(this.currentChatId);
+            // check if messages are empty and currentChatHisory is not empty
+            if (this.storageManager.getMessages(this.currentChatId).length === 0 && currentChatHisory && !currentChatHisory.timestamp) {
                 // delete current chat history
                 this.chatHistoryManager.deleteChatHistory(this.currentChatId);
             }
@@ -325,8 +314,8 @@ class UIManager {
         const profileName = chatId.split("_")[1];
 
         // Update current profile and chat ID
-        setCurrentProfile(this.profiles.find(p => p.name === profileName));
-        this.setSystemMessage(getCurrentProfile().prompt);
+        this.storageManager.setCurrentProfile(this.profiles.find(p => p.name === profileName));
+        this.setSystemMessage(this.storageManager.getCurrentProfile().prompt);
         console.log("profileName: ", profileName);
 
         // Set active profile menu item
@@ -346,7 +335,7 @@ class UIManager {
 
         // Update UI
         const aiProfile = document.querySelector("#ai-profile");
-        aiProfile.innerHTML = `<i class="${getCurrentProfile().icon}"></i> ${getCurrentProfile().displayName}`;
+        aiProfile.innerHTML = `<i class="${this.storageManager.getCurrentProfile().icon}"></i> ${this.storageManager.getCurrentProfile().displayName}`;
 
         // Clear current chat messages and prompts
         document.querySelector("#messages").innerHTML = "";
@@ -355,6 +344,7 @@ class UIManager {
         if (isNewTopic) {
             this.chatHistoryManager.createChatHistory(chatId);
         } else {
+            this.syncManager.syncMessages(chatId);
             // Load chat messages by chatId
             this.loadMessagesByChatId(this.currentChatId);
         }
@@ -392,7 +382,7 @@ class UIManager {
 
     loadMessagesByChatId(chatId) {
         // load chat messages by chatId
-        const savedMessages = getMessages(chatId);
+        const savedMessages = this.storageManager.getMessages(chatId);
         const startingIndex = savedMessages.length > this.messageLimit ? savedMessages.length - this.messageLimit : 0;
         savedMessages.slice(startingIndex).forEach((message, index, arr) => {
             let isActive = message.isActive || false;
@@ -405,7 +395,7 @@ class UIManager {
 
     setupPracticeMode() {
         const ttsContainer = document.querySelector("#tts-container");
-        if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
+        if (this.storageManager.getCurrentProfile() && this.storageManager.getCurrentProfile().tts === "enabled") {
             // if ttsContainer is not display, then display it
             ttsContainer.style.display = "inline-block";
         } else {
@@ -521,7 +511,7 @@ class UIManager {
 
 
     async showChatHistory() {
-        const username = getCurrentUsername();
+        const username = this.storageManager.getCurrentUsername();
         if (!localStorage.getItem(this.chatHistoryManager.chatHistoryKeyPrefix + username)) {
             this.chatHistoryManager.generateChatHistory();
         } else {
@@ -535,12 +525,15 @@ class UIManager {
         const profile = this.profiles.find(profile => profile.name === chatHistoryItem.profileName);
         if (!profile) return;
         if (action === "create") {
-            this.domManager.appendChatHistoryItem(chatHistoryItem, getCurrentProfile());
+            // no need to sync chat history create for now because it is empty.
+            this.domManager.appendChatHistoryItem(chatHistoryItem, this.storageManager.getCurrentProfile());
         } else if (action === "update") {
             this.domManager.updateChatHistoryItem(chatHistoryItem, profile);
+            this.syncManager.syncChatHistoryCreateOrUpdate(chatHistoryItem);
         } else if (action === "delete") {
             this.domManager.removeChatHistoryItem(chatHistoryItem.id);
-            removeMessagesByChatId(chatHistoryItem.id);
+            this.storageManager.removeMessagesByChatId(chatHistoryItem.id);
+            this.syncManager.syncChatHistoryDelete(chatHistoryItem.id);
         }
 
         // Set active chat history item
@@ -554,8 +547,8 @@ class UIManager {
     }
 
     handleAddTopicClick() {
-        const profileName = getCurrentProfile().name;
-        const username = getCurrentUsername();
+        const profileName = this.storageManager.getCurrentProfile().name;
+        const username = this.storageManager.getCurrentUsername();
         const chatId = this.chatHistoryManager.generateChatId(username, profileName);
 
         // Change the current chat topic to the newly created chat ID
@@ -584,9 +577,16 @@ class UIManager {
 
         // 5. 将当前消息以及后续的消息移动到新的话题中
         followingMessages.forEach(msg => {
-            this.messageManager.addMessage(msg.dataset.sender, msg.dataset.message, msg.dataset.messageId, msg.classList.contains("active"));
+            const newMessageItem = {
+                role: msg.dataset.sender,
+                content: msg.dataset.message,
+                messageId: msg.dataset.messageId,
+                isActive: msg.classList.contains("active"),
+            };
+            this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive);
+            this.storageManager.saveMessage(this.currentChatId, newMessageItem);
+            this.syncManager.syncMessageCreate(this.currentChatId, newMessageItem);
         });
-        this.storageManager.saveCurrentProfileMessages();
         this.chatHistoryManager.updateChatHistory(this.currentChatId, true);
     }
 
@@ -618,11 +618,11 @@ class UIManager {
                 this.chatHistoryManager.deleteChatHistory(chatId);
                 if (this.currentChatId === chatId) {
                     const chatHistory = this.chatHistoryManager.getChatHistory();
-                    const currentProfile = getCurrentProfile();
+                    const currentProfile = this.storageManager.getCurrentProfile();
                     let latestChat;
                     latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
                     if (!latestChat) {
-                        const chatId = this.chatHistoryManager.generateChatId(getCurrentUsername(), currentProfile.name);
+                        const chatId = this.chatHistoryManager.generateChatId(this.storageManager.getCurrentUsername(), currentProfile.name);
                         this.changeChatTopic(chatId, true);
                     } else {
                         const chatId = latestChat.id;

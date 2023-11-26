@@ -1,7 +1,6 @@
 // index.js
 // purpose: entry point of the application. It is responsible for creating the App object and passing it to the UIManager object. It also contains the event listeners for the message form and the modal form.
 
-import { getCurrentUsername, getCurrentProfile, setCurrentProfile } from "./utils/storage.js";
 import { getAppName, getPromptRepo } from "./utils/api.js";
 import { setupVoiceInput } from "./utils/input-audio.js";
 import swal from "sweetalert";
@@ -58,6 +57,8 @@ slider.addEventListener("input", function () {
             messageElement.classList.remove("active");
             uiManager.storageManager.saveMessageActiveStatus(messageId, false);
         }
+        const updatedMessage = uiManager.storageManager.getMessage(messageId);
+        uiManager.syncManager.syncMessageUpdate(uiManager.currentChatId, updatedMessage);
     });
 
     // save current onLengthChange callback
@@ -72,7 +73,6 @@ slider.addEventListener("input", function () {
     // restore onLengthChange callback
     app.prompts.onLengthChange = originalOnLengthChange;
 });
-
 
 const messageForm = document.querySelector("#message-form");
 const messageInput = document.querySelector("#message-input");
@@ -166,7 +166,7 @@ const usernameLabel = document.querySelector("#username-label");
 // generate current user menulist and render it
 let profileNameList = [];
 
-getPromptRepo(getCurrentUsername())
+getPromptRepo(uiManager.storageManager.getCurrentUsername())
     .then(data => {
         uiManager.renderMenuList(data);
         profileNameList = data.profiles.map(profile => profile.displayName);
@@ -398,9 +398,9 @@ window.addEventListener("message", function (event) {
     if (event.data.type === "PROFILE_UPDATED") {
         const updatedProfile = event.data.data;
         // Check if the updated profile is the current profile
-        if (updatedProfile.name === getCurrentProfile().name) {
+        if (updatedProfile.name === uiManager.storageManager.getCurrentProfile().name) {
             // Update the system message
-            setCurrentProfile(updatedProfile);
+            uiManager.storageManager.setCurrentProfile(updatedProfile);
             uiManager.setSystemMessage(updatedProfile.prompt);
         }
     }

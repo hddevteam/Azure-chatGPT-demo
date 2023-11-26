@@ -1,6 +1,14 @@
 // public/api.js
 // purpose: client-side code to make requests to the server side api.
 
+
+// Consider using Axios for more fine-grained control of the HTTP requests
+import axios from "axios";
+
+axios.defaults.baseURL = "/api";
+axios.defaults.headers.post["Content-Type"] = "application/json";
+axios.defaults.headers.put["Content-Type"] = "application/json";
+
 // get app name
 export async function getAppName() {
     const response = await fetch("/api/app_name");
@@ -76,7 +84,6 @@ export async function getStt(audioBlob) {
     return response;
 }
 
-// /public/api.js
 export async function getDefaultParams() {
     const response = await fetch("/api/gpt-default-params");
     if (!response.ok) {
@@ -96,7 +103,7 @@ export async function generateTitle(content) {
     return await response.text();
 }
 
-// public/api.js
+
 
 export async function getFollowUpQuestions(prompt) {
     const response = await fetch("/api/generate-followup-questions", {
@@ -117,4 +124,56 @@ export async function getFollowUpQuestions(prompt) {
     }
 
     return data;
+}
+
+// public/utils/api.js
+// Use interceptors to handle errors globally
+axios.interceptors.response.use(null, error => {
+    const expectedError = error.response && error.response.status >= 400 && error.response.status < 500;
+    if (!expectedError) {
+        console.log("Logging the error", error);
+        alert("An unexpected error occurred.");
+    }
+    return Promise.reject(error);
+});
+
+export async function fetchCloudChatHistories(username) {
+    const response = await axios.get(`/chatHistories/${encodeURIComponent(username)}`);
+    // The response should be an array of chat histories
+    return response.data.data;
+}
+
+export async function createOrUpdateCloudChatHistory(chatHistoryData) {
+    const response = await axios.post("/chatHistories", chatHistoryData);
+    // The response should be the created entity
+    return response.data.data;
+}
+
+export async function deleteCloudChatHistory(chatId) {
+    await axios.delete(`/chatHistories/${encodeURIComponent(chatId)}`);
+    // Server should be returning the just-deleted entity
+    // If that's not the case, we might need to adjust the server or this method according to that.
+}
+
+export async function fetchCloudMessages(chatId) {
+    const response = await axios.get(`/messages/${encodeURIComponent(chatId)}`);
+    // The response should be an array of messages
+    return response.data.data || [];
+}
+
+export async function createCloudMessage(messageData, chatId) {
+    const response = await axios.post(`/messages/${encodeURIComponent(chatId)}`, messageData);
+    // The response should be the created entity
+    return response.data.data;
+}
+
+export async function updateCloudMessage(messageData, chatId, messageId) {
+    const response = await axios.put(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, messageData);
+    // The response should be the updated entity
+    return response.data.data;
+}
+
+export async function deleteCloudMessage(chatId, messageId) {
+    await axios.delete(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`);
+    // Similar to deleteCloudChatHistory, the response handling might need revision based on actual server response.
 }

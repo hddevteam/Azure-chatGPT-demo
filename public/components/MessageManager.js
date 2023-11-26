@@ -1,6 +1,5 @@
 // MessageManager.js
 import { getGpt, getFollowUpQuestions } from "../utils/api.js";
-import { getCurrentProfile, getMessages } from "../utils/storage.js";
 import swal from "sweetalert";
 import { marked } from "marked";
 
@@ -54,7 +53,7 @@ class MessageManager {
             this.uiManager.eventManager.attachRetryMessageEventListener(retryElement, messageId);
         }
 
-        if (getCurrentProfile() && getCurrentProfile().tts === "enabled") {
+        if (this.uiManager.storageManager.getCurrentProfile() && this.uiManager.storageManager.getCurrentProfile().tts === "enabled") {
             const speakerElement = this.uiManager.domManager.createSpeakerElement();
             iconGroup.appendChild(speakerElement);
         }
@@ -100,9 +99,11 @@ class MessageManager {
         }
 
         let messageId = this.uiManager.generateId();
-        this.addMessage("user", message, messageId);
-        this.uiManager.app.prompts.addPrompt({ role: "user", content: message, messageId: messageId, isActive: true });
-        this.uiManager.storageManager.saveCurrentProfileMessages();
+        const newMessage = { role: "user", content: message, messageId: messageId, isActive: true };
+        this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive);
+        this.uiManager.app.prompts.addPrompt(newMessage);
+        this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId,newMessage);
+        this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
         this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
         // return validationResult if input is valid and processed successfully.
@@ -135,8 +136,11 @@ class MessageManager {
                 this.uiManager.app.prompts.addPrompt({ role: "assistant", content: content, messageId: messageId, isActive: false });
             } else {
                 let messageId = this.uiManager.generateId();
-                this.addMessage("assistant", data.message, messageId);
-                this.uiManager.app.prompts.addPrompt({ role: "assistant", content: data.message, messageId: messageId, isActive: true });
+                const newMessage = { role: "assistant", content: data.message, messageId: messageId, isActive: true };
+                this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive);
+                this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
+                this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
+                this.uiManager.app.prompts.addPrompt(newMessage);
                 await this.sendFollowUpQuestions();
             }
             return data;
@@ -234,7 +238,6 @@ class MessageManager {
         // Don't forget to perform follow-up actions after the response if any
 
         this.checkTokensAndWarn(data.totalTokens);
-        this.uiManager.storageManager.saveCurrentProfileMessages();
     }
 
     // Add this method to get the ID of the last message
@@ -316,7 +319,8 @@ class MessageManager {
         const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
         messageElement.remove();
         this.uiManager.app.prompts.removePrompt(messageId);
-        this.uiManager.storageManager.deleteMessageFromStorage(messageId);
+        this.uiManager.storageManager.deleteMessage(messageId);
+        this.uiManager.syncManager.syncMessageDelete(this.uiManager.currentChatId, messageId);
         this.uiManager.updateSlider();
         this.uiManager.isDeleting = false;
     }
@@ -393,7 +397,7 @@ class MessageManager {
         }
 
         const messagesContainer = document.querySelector("#messages");
-        const savedMessages = getMessages(this.uiManager.currentChatId);
+        const savedMessages = this.uiManager.storageManager.getMessages(this.uiManager.currentChatId);
         const currentMessagesCount = messagesContainer.children.length;
         const messageLimit = this.uiManager.messageLimit;
         const startingIndex = savedMessages.length - currentMessagesCount - messageLimit > 0 ? savedMessages.length - currentMessagesCount - messageLimit : 0;
@@ -473,7 +477,7 @@ class MessageManager {
     }
 
     async sendFollowUpQuestions() {       
-        const currentProfile = getCurrentProfile();
+        const currentProfile = this.uiManager.storageManager.getCurrentProfile();
         const activeMessages = [...document.querySelectorAll(".message.active")];
         let content = "";
         const lastFourMessages = activeMessages.slice(-2); // This will still work even if there are fewer than 4 messages
