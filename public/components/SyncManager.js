@@ -12,7 +12,6 @@ class SyncManager {
         this.initializeSyncWorker();
     }
     
-
     initializeSyncWorker() {
         this.webWorker.onmessage = (event) => {
         // Handle messages from web worker
@@ -37,10 +36,17 @@ class SyncManager {
     }
 
     async syncChatHistories() {
+        console.log("syncChatHistories");
         const username = this.uiManager.storageManager.getCurrentUsername();
         const localHistories = await this.uiManager.storageManager.getChatHistory(username);
-    
-        const cloudHistories = await fetchCloudChatHistories(username).catch(e => console.error(e));
+        // get max timestamp from localHistories
+        const lastTimestamp = localHistories.reduce((max, history) => {
+            const timestamp = new Date(history.timestamp);
+            return timestamp > max ? timestamp : max;
+        }, new Date(0));
+        console.log("lastTimestamp: ", lastTimestamp.toISOString());
+
+        const cloudHistories = await fetchCloudChatHistories(username, lastTimestamp.toISOString()).catch(e => console.error(e));
         
         // 对于cloudHistories，将每个history与localHistories进行比较
         cloudHistories.forEach(cloudHistory => {
@@ -75,12 +81,13 @@ class SyncManager {
             }                       
         });
 
-        // 遍历本地历史，如果在云端不存在，则上传
+        // find the localHistory do not have .timestamp property
         localHistories.forEach(localHistory => {
-            if(!cloudHistories.find(ch => ch.id === localHistory.id)) {
+            if (!localHistory.timestamp) {
                 this.enqueueSyncItem({ type: "chatHistory", action: "upsert", data: localHistory });
             }
         });
+
         await this.uiManager.refreshChatHistoryUI();
     }
 

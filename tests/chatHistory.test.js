@@ -38,6 +38,11 @@ const chatId = `${username}_${profileName}_${testUUID}`;
 const tableClient = getTableClient("ChatHistories");
 const messagesTableClient = getTableClient("Messages");
 const messageId = Math.random().toString(36).slice(2, 10);
+const pastUUID = uuidv4();
+const futureUUID = uuidv4();
+// Timestamps set to test behavior correctly
+const pastDate = new Date(new Date().getTime() - 1000 * 60 * 60 * 24).toISOString(); // 24 hours in the past
+const futureDate = new Date(new Date().getTime() + 1000 * 60 * 60 * 24).toISOString(); // 24 hours in the future
   
 // This function is used to clear the table after each test
 async function clearTableEntity(partitionKey, rowKey) {
@@ -61,11 +66,24 @@ describe("ChatHistory Controller", () => {
             isActive: true
         };
         await messagesTableClient.createEntity(message);
+
+        await tableClient.createEntity({
+            PartitionKey: username,
+            RowKey: pastUUID,
+            title: "Past ChatHistory",
+            profileName: profileName,
+            createdAt: pastDate,
+            updatedAt: pastDate,
+        });
+
     });
   
     afterAll(async () => {
         await clearTableEntity(username, testUUID);
         await clearTableEntity(chatId, messageId);
+
+        await tableClient.deleteEntity(username, pastUUID);
+        await tableClient.deleteEntity(username, futureUUID);
     });
   
     test("Create a new ChatHistory in Azure Table Storage", async () => {
@@ -103,6 +121,47 @@ describe("ChatHistory Controller", () => {
                 expect.objectContaining({
                     partitionKey: username,
                     rowKey: testUUID
+                })
+            ])
+        );
+    }, timeout);
+
+    test("Retrieve updated ChatHistories after a specific timestamp", async () => {
+
+        const req = setupMockRequest({}, { lastTimestamp: new Date().toISOString() }, { username: username });
+
+        await tableClient.createEntity({
+            PartitionKey: username,
+            RowKey: futureUUID,
+            profileName: profileName,
+            title: "Future ChatHistory",
+            createdAt: futureDate,
+            updatedAt: futureDate,
+        });
+        
+        const res = setupMockResponse();
+
+        await getCloudChatHistories(req, res);
+
+        expect(res.json).toHaveBeenCalled();
+        const result = res.json.mock.calls[0][0];
+
+        // Should only return the chat history that is in the future
+        expect(result.data).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    partitionKey: username,
+                    rowKey: futureUUID,
+                    title: "Future ChatHistory"
+                })
+            ])
+        );
+
+        // Should not return the chat history that is in the past
+        expect(result.data).not.toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    rowKey: pastUUID
                 })
             ])
         );

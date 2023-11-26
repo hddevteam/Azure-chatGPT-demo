@@ -137,9 +137,12 @@ axios.interceptors.response.use(null, error => {
     return Promise.reject(error);
 });
 
-export async function fetchCloudChatHistories(username) {
-    const response = await axios.get(`/chatHistories/${encodeURIComponent(username)}`);
-    // The response should be an array of chat histories
+export async function fetchCloudChatHistories(username, lastTimestamp = null) {
+    const queryParams = lastTimestamp ? `?lastTimestamp=${encodeURIComponent(lastTimestamp)}` : "";
+    const url = `/chatHistories/${encodeURIComponent(username)}${queryParams}`;
+
+    const response = await axios.get(url);
+    // 响应应当是聊天历史数组
     return response.data.data;
 }
 

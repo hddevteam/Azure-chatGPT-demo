@@ -13,19 +13,27 @@ const parseChatId = (chatId) => {
     return { username, profileName, uuid };
 };
 
-
 exports.getCloudChatHistories = async (req, res) => {
     const username = req.params.username;
+    const lastTimestamp = req.query.lastTimestamp; // 从查询参数中获取timestamp
+
     if (!username) {
-        return res.status(400).json({ message: "username parameter required" });
+        return res.status(400).json({ message: "Username parameter is required." });
     }
 
     const chatHistories = [];
     try {
         const tableClient = getTableClient("ChatHistories");
-        const iterator = tableClient.listEntities({
-            queryOptions: { filter: `PartitionKey eq '${username}'` }
-        });
+
+        let query = { queryOptions: { filter: `PartitionKey eq '${username}'` } };
+
+        if (lastTimestamp) {
+            // 增加时间戳筛选条件
+            query.queryOptions.filter += ` and Timestamp gt datetime'${lastTimestamp}'`;
+        }
+
+        // 使用筛选条件查询
+        const iterator = tableClient.listEntities(query);
 
         for await (const entity of iterator) {
             chatHistories.push(entity);
@@ -37,6 +45,7 @@ exports.getCloudChatHistories = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
+
 
 exports.createCloudChatHistory = async (req, res) => {
     try {
