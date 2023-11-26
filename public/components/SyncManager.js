@@ -11,6 +11,7 @@ class SyncManager {
         this.webWorker = new Worker(new URL("../workers/syncWorker.js", import.meta.url), { type: "module" });
         this.initializeSyncWorker();
     }
+    
 
     initializeSyncWorker() {
         this.webWorker.onmessage = (event) => {
@@ -80,6 +81,7 @@ class SyncManager {
                 this.enqueueSyncItem({ type: "chatHistory", action: "upsert", data: localHistory });
             }
         });
+        await this.uiManager.refreshChatHistoryUI();
     }
 
     syncChatHistoryCreateOrUpdate(chatHistory) {
@@ -98,6 +100,7 @@ class SyncManager {
     async syncMessages(chatId) {
         const localMessages = this.uiManager.storageManager.getMessages(chatId);
         const cloudMessages = await fetchCloudMessages(chatId).catch(e => console.error(e));
+        console.log("syncMessages: ", {localMessages}, {cloudMessages});
 
         cloudMessages.forEach(cloudMessage => {
             const localMessage = localMessages.find(lm => lm.messageId === cloudMessage.messageId);
@@ -118,10 +121,7 @@ class SyncManager {
                 // 如果本地消息较新，上传更新到云端
                     this.enqueueSyncItem({ type: "message", action: "update", data: { chatId, message: localMessage } });
                 }
-            } else if (!cloudMessage.isActive) {
-            // 如果云端消息标记为不活动，且本地不存在，不做操作
             } else {
-            // 如果本地不存在这条消息，从云端下载这条消息
                 this.uiManager.storageManager.saveMessage(chatId, cloudMessage);
             }
         });
@@ -132,9 +132,9 @@ class SyncManager {
                 this.enqueueSyncItem({ type: "message", action: "create", data: { chatId, message: localMessage } });
             }
         });
-    }
 
-    // SyncManager.js
+        this.uiManager.refreshMessagesUI(chatId);
+    }
 
     syncMessageCreate(chatId, newMessage) {
         this.enqueueSyncItem({ type: "message", action: "create", data: { chatId, message: newMessage } });

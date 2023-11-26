@@ -36,6 +36,18 @@ class UIManager {
         this.setupChatHistoryListClickHandler();
     }
 
+    async refreshChatHistoryUI() {
+        console.log("refreshChatHistoryUI");
+        await this.showChatHistory();
+    }
+
+    refreshMessagesUI(chatId) {
+        console.log("refreshMessagesUI");
+        if (this.currentChatId === chatId) {
+            this.loadMessagesByChatId(chatId);
+        }
+    }
+
     setClientLanguage(language) {
         this.clientLanguage = language || "en-US";
     }
@@ -338,10 +350,10 @@ class UIManager {
         aiProfile.innerHTML = `<i class="${this.storageManager.getCurrentProfile().icon}"></i> ${this.storageManager.getCurrentProfile().displayName}`;
 
         // Clear current chat messages and prompts
-        document.querySelector("#messages").innerHTML = "";
         this.app.prompts.clear();
 
         if (isNewTopic) {
+            document.querySelector("#messages").innerHTML = "";
             this.chatHistoryManager.createChatHistory(chatId);
         } else {
             this.syncManager.syncMessages(chatId);
@@ -378,9 +390,9 @@ class UIManager {
         }
     }
 
-
-
     loadMessagesByChatId(chatId) {
+        // clear messages container
+        document.querySelector("#messages").innerHTML = "";
         // load chat messages by chatId
         const savedMessages = this.storageManager.getMessages(chatId);
         const startingIndex = savedMessages.length > this.messageLimit ? savedMessages.length - this.messageLimit : 0;
