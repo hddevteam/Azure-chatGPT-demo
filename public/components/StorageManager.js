@@ -38,7 +38,6 @@ class StorageManager {
         let chatHistories = this.getChatHistory(username);
         chatHistories = chatHistories.filter(history => history.id !== chatId);
         this.saveChatHistory(username, chatHistories);
-        this.removeMessagesByChatId(chatId);
     }
 
     // 添加这个方法来更新聊天历史记录的timestamp

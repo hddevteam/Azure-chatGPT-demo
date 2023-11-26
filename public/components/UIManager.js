@@ -303,8 +303,8 @@ class UIManager {
         // check if chatId is current chatId
         if (this.currentChatId !== chatId) {
             const currentChatHisory = this.storageManager.readChatHistory(this.currentChatId);
-            // check if messages are empty
-            if (this.storageManager.getMessages(this.currentChatId).length === 0 && !currentChatHisory.timestamp) {
+            // check if messages are empty and currentChatHisory is not empty
+            if (this.storageManager.getMessages(this.currentChatId).length === 0 && currentChatHisory && !currentChatHisory.timestamp) {
                 // delete current chat history
                 this.chatHistoryManager.deleteChatHistory(this.currentChatId);
             }
