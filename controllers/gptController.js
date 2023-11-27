@@ -115,7 +115,7 @@ exports.createChatProfile = async (req, res) => {
                 "name": "dotNETCoreExpert",
                 "icon": "fas fa-code",
                 "displayName": ".NET Core Expert",
-                "prompt": "I want you to act as a .NET Core expert. I will provide some details about a project or problem, and it will be your job to come up with solutions using .NET Core. This could involve creating code snippets, debugging existing code, or providing advice on best practices. 
+                "prompt": "I want you to act as an expert in .NET Core expert. I will provide some details about a project or problem, and it will be your job to come up with solutions using .NET Core. This could involve creating code snippets, debugging existing code, or providing advice on best practices. 
             }
 
             Output:`,
@@ -132,6 +132,7 @@ exports.createChatProfile = async (req, res) => {
             frequency_penalty: defaultParams.frequency_penalty,
             presence_penalty: defaultParams.presence_penalty,
             max_tokens: defaultParams.max_tokens,
+            response_format: { "type": "json_object" }
         },
     };
 
@@ -179,6 +180,7 @@ exports.summarizeConversation = async (req, res) => {
             frequency_penalty: defaultParams.frequency_penalty,
             presence_penalty: defaultParams.presence_penalty,
             max_tokens: 2000,
+            response_format: { "type": "json_object" }
         },
     };
 
@@ -234,6 +236,7 @@ exports.generateTitle = async (req, res) => {
 };
 
 exports.generateFollowUpQuestions = async (req, res) => {
+    console.log("generateFollowUpQuestions", req.body);
     const prompt = JSON.parse(req.body.prompt);
 
     const requestData = {
@@ -245,6 +248,7 @@ exports.generateFollowUpQuestions = async (req, res) => {
             max_tokens: 1000,
             presence_penalty: 0.0,
             frequency_penalty: 0.0,
+            response_format: { "type": "json_object" }
         },
     };
 
