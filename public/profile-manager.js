@@ -3,8 +3,9 @@
 
 // purpose: to manage the ai profiles(system prompt) of current user
 
-import StorageManager  from "./components/storage.js";
+import StorageManager  from "./components/StorageManager.js";
 import { getDefaultParams } from "./utils/api.js";
+
 
 const showAlert = (type, message) => {
     var alertHtml = `
@@ -27,9 +28,11 @@ async function init() {
     $("#max_tokens").attr("placeholder", defaultParams.max_tokens + " (default)");
 }
 
+const storageManager = new StorageManager();
+
 $(function () {
     init();
-    const storageManager = new StorageManager();
+    console.log("Current username: ", storageManager.getCurrentUsername());
     if (storageManager.getCurrentUsername() === "guest") {
         showAlert("warning", "You are currently logged in as guest. You can not edit the profile.");
     }
@@ -97,7 +100,7 @@ function openEditProfileDialog(name) {
 let profiles = [];
 
 function fetchProfiles() {
-    return fetch("/api/profiles?username=" + getCurrentUsername())
+    return fetch("/api/profiles?username=" + storageManager.getCurrentUsername())
         .then(response => response.json())
         .then(data => {
             profiles = data;
@@ -114,7 +117,7 @@ $("#profile-list").on("click", ".edit-profile", function () {
 $("#profile-list").on("click", ".delete-profile", function () {
     const name = $(this).attr("name");
 
-    fetch(`/api/profiles/${name}?username=${getCurrentUsername()}`, {
+    fetch(`/api/profiles/${name}?username=${storageManager.getCurrentUsername()}`, {
         method: "DELETE"
     })
         .then(response => response.json())
@@ -129,7 +132,7 @@ $("#profile-list").on("click", ".duplicate-profile", function () {
 
     const newProfile = { ...profile, name: `${profile.name}-copy`, displayName: `${profile.displayName} (Copy)` };
 
-    fetch(`/api/profiles?username=${getCurrentUsername()}`, {
+    fetch(`/api/profiles?username=${storageManager.getCurrentUsername()}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -191,7 +194,7 @@ function updateProfile(oldName) {
         updatedProfile.displayName = updatedProfile.name;
     }
 
-    fetch(`/api/profiles/${oldName}?username=${getCurrentUsername()}`, {
+    fetch(`/api/profiles/${oldName}?username=${storageManager.getCurrentUsername()}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
@@ -230,7 +233,7 @@ function saveProfile() {
         newProfile.displayName = newProfile.name;
     }
 
-    fetch(`/api/profiles?username=${getCurrentUsername()}`, {
+    fetch(`/api/profiles?username=${storageManager.getCurrentUsername()}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

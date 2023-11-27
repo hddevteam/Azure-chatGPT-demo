@@ -1,7 +1,6 @@
 // public/api.js
 // purpose: client-side code to make requests to the server side api.
 
-
 // Consider using Axios for more fine-grained control of the HTTP requests
 import axios from "axios";
 
