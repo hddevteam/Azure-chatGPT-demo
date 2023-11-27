@@ -76,11 +76,29 @@ class ChatHistoryManager {
         const chatHistory = this.getChatHistory();
         const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
         const messages = this.uiManager.storageManager.getMessages(chatId);
+
+        const generateExcerpt = (content, start, middle, end) => {
+            const contentLength = content.length;
+            if (contentLength <= (start + middle + end)) {
+                // Content is short enough, no need to trim
+                return content;
+            }
+            
+            const startText = content.slice(0, start);
+            const middleText = content.slice((contentLength / 2) - (middle / 2), (contentLength / 2) + (middle / 2));
+            const endText = content.slice(-end);
+        
+            return `${startText}...${middleText}...${endText}`;
+        };
+
         if (!messages.length) return;
         if (chatHistoryToUpdate) {
             if (title) chatHistoryToUpdate.title = title;
             if ((messages.length === 1) || forceGenerateTitle) {
-                title = await generateTitle(messages[0].content.length>5000?messages[0].content.slice(0,5000)+"...":messages[0].content);
+                // Assuming messages[0].content is already defined and contains text.
+                const titleExcerpt = generateExcerpt(messages[0].content, 2000, 1000, 2000);
+                const title = await generateTitle(titleExcerpt);
+                
                 chatHistoryToUpdate.title = title;
             }
             chatHistoryToUpdate.updatedAt = new Date().toISOString();
