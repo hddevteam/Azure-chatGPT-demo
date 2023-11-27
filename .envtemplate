@@ -5,8 +5,10 @@ API_URL=https://your-gpt-url.openai.azure.com/openai/deployments/your-model-name
 GPT_4_API_KEY=your-api-key
 GPT_4_API_URL=https://your-gpt-url.openai.azure.com/openai/deployments/your-gpt4-modelname/chat/completions?api-version=2023-03-15-preview
 
-API_DALLE_URL=https://your-dalle-url.openai.azure.com/dalle/text-to-image?api-version=2023-06-01-preview
 PROMPT_REPO_URLS={"guest":"", "user2":"", "user3":""}
 AZURE_TTS={"subscriptionKey":"your-tts-key","endpoint":"https://eastus.tts.speech.microsoft.com"}
 
 AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
+
+API_DALLE_KEY=your-dalle-api-key
+API_DALLE_URL=https://your-dalle-url.openai.azure.com/dalle/text-to-image?api-version=2023-06-01-preview

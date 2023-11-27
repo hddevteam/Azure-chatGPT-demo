@@ -5,7 +5,7 @@ let apiKey;
 if(devMode){
     apiKey = process.env.API_KEY_DEV;
 }else{
-    apiKey = process.env.API_KEY;
+    apiKey = process.env.API_DALLE_KEY;
 }
 
 async function textToImageHandler(req, res) {

@@ -1,6 +1,6 @@
 # 🤖 Powerful chatGPT for Azure OpenAI GPT model 
 
-Welcome to Azure chatGPT demo, a fascinating chatGPT website built with Node.js and Azure OpenAI gpt-35-turbo (version 0301)/gpt4 model. This project serves as a great starting point for developers who are interested in developing chatbot applications using JavaScript and Azure OpenAI API.
+Welcome to Azure chatGPT , a fascinating chatGPT web app built with Node.js and Azure OpenAI gpt-35-turbo/gpt4 model. This project serves as a great starting point for developers who are interested in developing chatbot applications using JavaScript and Azure OpenAI API.
 
 ## 🌟 Features
 - **You can now fully control messages in your current conversation. You have the ability to delete, hide, or unhide any message in the conversation. This means you can control the AI's memory for the conversation, allowing you to get more out of your conversations.💫**
@@ -12,6 +12,7 @@ Welcome to Azure chatGPT demo, a fascinating chatGPT website built with Node.js 
 - Manage AI profiles and support to Create new AI profile by using GPT-4 model in seconds 🤖!
 ![Manage AI profile](screenshot_profile_manager.png)
 
+- **Support for syncing conversation to other devices via Azure Table Storage 📡**
 - **Support for Azure Text-to-Speech engine 📢**
 - **Support generating image from text by using DALL-E API 🖼️**
 - **Support Speech-to-Text by using Azure Speech-to-Text engine 🎙️**
@@ -41,6 +42,7 @@ Welcome to Azure chatGPT demo, a fascinating chatGPT website built with Node.js 
    API_URL=https://$yourendpoint
    GPT_4_API_KEY=yourgpt4apikey
    GPT_4_API_URL=https://$yourgpt4endpoint
+   AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
    ```
 
 4. (Optional) Add extra features with `PROMPT_REPO_URLS` and `AZURE_TTS`:
@@ -59,6 +61,7 @@ Welcome to Azure chatGPT demo, a fascinating chatGPT website built with Node.js 
    - `API_DALLE_URL` is the endpoint of the DALL-E API service:
      ```
      API_DALLE_URL=yourdalleapiurl
+     API_DALLE_KEY=yourdalleapikey
      ```
      
 5. Install the necessary packages:
