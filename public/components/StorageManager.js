@@ -196,53 +196,52 @@ class StorageManager {
 
     // StorageManager.js
 
+    // Optimized function to compute local storage usage
     getLocalStorageUsage() {
         let total = 0;
-        for (let x in localStorage) {
-            let amount = (localStorage[x].length * 2) / 1024 / 1024;
-            // check if it's a number
-            if (!isNaN(amount)) {
-                total += amount;
-            }
-        }
-        return total.toFixed(2); // 返回以MB为单位的总使用量
+        Object.keys(localStorage).forEach(key => {
+            let amount = localStorage[key].length * 2;
+            // It's safe to assume localStorage contains strings, so no isNaN check needed
+            total += amount;
+        });
+        // Convert the total size to MB outside the loop
+        total = total / 1024 / 1024;
+        return total.toFixed(2);
     }
 
     cleanUpUserChatHistories(username) {
         console.log("cleanUpUserChatHistories: ", username);
-        let localStorageUsage = this.getLocalStorageUsage();
+        let localStorageUsage = parseFloat(this.getLocalStorageUsage());
         console.log("localStorageUsage: ", localStorageUsage);
         let chatHistories = this.getChatHistory(username);
-        console.log("chatHistories: ", chatHistories);
-
-        // 过滤出已经同步的记录（即包含时间戳的记录）
-        chatHistories = chatHistories.filter(history => history.timestamp);
+        // console.log("chatHistories: ", chatHistories);
 
         if (!chatHistories.length) {
-        // 如果没有同步的记录，不再继续清理工作
             return;
         }
-        // 按时间戳升序排序，确定最旧的记录
-        chatHistories.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        // 确保LocalStorage使用低于安全水平，这里我们设定的是4.5MB的安全阈值，5MB为上限
-        while (localStorageUsage > 4.5) {
-        // 聊天记录已按时间戳排序，最旧的在前面
-            for (let i = 0; i < chatHistories.length; i++) {
-                const chatHistory = chatHistories[i];
-                // 删除对应的消息
-                let messages = this.getMessages(chatHistory.id);
-                console.log("Before cleanUpUserChatHistories: ", chatHistory.id, messages.length);
-                // 过滤出没有时间戳的消息
-                messages = messages.filter(message => !message.timestamp); 
-                this.saveMessages(chatHistory.id, messages); // 更新LocalStorage的消息记录
-                console.log("After cleanUpUserChatHistories: ", chatHistory.id, messages.length);
-                if (!messages.length) {
-                // 如果删除所有消息后，这个聊天历史记录没有任何消息，则移除这个聊天的消息记录
-                    localStorage.removeItem(chatHistory.id);
-                }
+
+        chatHistories = chatHistories.filter(history => history.timestamp);
+        // Sort by timestamp, assumed to be a number for efficiency
+        chatHistories.sort((a, b) => a.timestamp - b.timestamp);
+
+        for (let i = 0; i < chatHistories.length && localStorageUsage > 4.5; i++) {
+            const historyId = chatHistories[i].id;
+            let historySize = localStorage[historyId].length * 2 / 1024 / 1024;
+            let messages = this.getMessages(historyId).filter(message => !message.timestamp);
+            this.saveMessages(historyId, messages);
+            // console.log(`After cleanUp: ${historyId}, remaining: ${messages.length}`);
+            const remainedSize = localStorage[historyId].length * 2 / 1024 / 1024;
+            const removedSize = historySize - remainedSize;
+            if (!messages.length) {
+                // Remove chat record if no messages left
+                localStorage.removeItem(historyId);
             }
-            localStorageUsage = this.getLocalStorageUsage();
-            console.log("localStorageUsage: ", localStorageUsage);
+            localStorageUsage -= removedSize; // Decrement total usage by size of removed item
+            console.log(`localStorageUsage after cleanup of ${historyId}: `, localStorageUsage);
+        }
+
+        if (localStorageUsage < 4.5) {
+            console.log("cleanUpUserChatHistories: LocalStorage usage is below 4.5MB, cleanup done.");
         }
     }
 }
