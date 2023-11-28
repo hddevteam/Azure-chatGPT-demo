@@ -238,7 +238,10 @@ class MessageManager {
 
         // Don't forget to perform follow-up actions after the response if any
 
-        this.checkTokensAndWarn(data.totalTokens);
+        if (data && data.totalTokens)
+        {
+            this.checkTokensAndWarn(data.totalTokens);
+        }
     }
 
     // Add this method to get the ID of the last message
