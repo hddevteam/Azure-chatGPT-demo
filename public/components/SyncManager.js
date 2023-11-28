@@ -90,6 +90,7 @@ class SyncManager {
         });
 
         await this.uiManager.refreshChatHistoryUI();
+        this.uiManager.storageManager.cleanUpUserChatHistories(username);
     }
 
     syncChatHistoryCreateOrUpdate(chatHistory) {
