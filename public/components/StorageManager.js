@@ -226,23 +226,37 @@ class StorageManager {
 
         for (let i = 0; i < chatHistories.length && localStorageUsage > 4.5; i++) {
             const historyId = chatHistories[i].id;
-            let historySize = localStorage[historyId].length * 2 / 1024 / 1024;
-            let messages = this.getMessages(historyId).filter(message => !message.timestamp);
-            this.saveMessages(historyId, messages);
-            // console.log(`After cleanUp: ${historyId}, remaining: ${messages.length}`);
-            const remainedSize = localStorage[historyId].length * 2 / 1024 / 1024;
-            const removedSize = historySize - remainedSize;
-            if (!messages.length) {
-                // Remove chat record if no messages left
-                localStorage.removeItem(historyId);
+            // Check if the history exists in localStorage
+            if(localStorage.getItem(historyId)) {
+                let historySize = localStorage[historyId].length * 2 / 1024 / 1024;
+                let messages = this.getMessages(historyId).filter(message => !message.timestamp);
+                this.saveMessages(historyId, messages);
+        
+                // It's prudent to recheck here if the item still exists after saveMessages operation
+                if(localStorage.getItem(historyId)) {
+                    const remainedSize = localStorage[historyId].length * 2 / 1024 / 1024;
+                    const removedSize = historySize - remainedSize;
+                    localStorageUsage -= removedSize; 
+                } else {
+                    // The item doesn't exist anymore, so assume its size is now 0
+                    localStorageUsage -= historySize;
+                }
+        
+                if (!messages.length) {
+                    // Now we are certain that historyId exists before trying to remove it
+                    localStorage.removeItem(historyId);
+                }
+        
+                console.log(`localStorageUsage after cleanup of ${historyId}: `, localStorageUsage);
+            } else {
+                console.warn(`History with id ${historyId} does not exist in localStorage.`);
             }
-            localStorageUsage -= removedSize; // Decrement total usage by size of removed item
-            console.log(`localStorageUsage after cleanup of ${historyId}: `, localStorageUsage);
         }
-
+        
         if (localStorageUsage < 4.5) {
             console.log("cleanUpUserChatHistories: LocalStorage usage is below 4.5MB, cleanup done.");
         }
+        
     }
 }
 
