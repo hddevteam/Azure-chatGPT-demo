@@ -355,6 +355,7 @@ class UIManager {
         if (isNewTopic) {
             document.querySelector("#messages").innerHTML = "";
             this.chatHistoryManager.createChatHistory(chatId);
+            this.messageManager.sendFollowUpQuestions();
         } else {
             this.syncManager.syncMessages(chatId);
             // Load chat messages by chatId

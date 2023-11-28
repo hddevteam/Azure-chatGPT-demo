@@ -512,11 +512,11 @@ class MessageManager {
             content: `Output json format: {
                 "suggestedUserResponses": []
             }
-            Please give your follow-up ideas less than 15 words, limit to 3 follow-up ideas.
+            Please give your follow-up ideas less than 15 words, limit to 3 follow-up ideas based on the following context or his/her profile above.
             ===
             ${content}
             ===
-            Please use the tone of I'd like to know, How can I, How does it work, I'd like to find out, I'd like to learn, I'd like to understand, I'd like to explore, I'd like to discover, I'd like to know more about...
+            Please use the tone of: I'd like to know, How can I, How does it work, I'd like to find out, I'd like to learn, I'd like to understand, I'd like to explore, I'd like to discover, I'd like to know more about...
             Please use ${this.uiManager.clientLanguage}.
             Output:` };
         const prompts = [systemPrompt, userPrompt];
