@@ -2,6 +2,7 @@
 import { getGpt, getFollowUpQuestions } from "../utils/api.js";
 import swal from "sweetalert";
 import { marked } from "marked";
+import { generateExcerpt } from "../utils/textUtils.js";
 
 
 const modelConfig = {
@@ -485,9 +486,8 @@ class MessageManager {
             // const dataSender = message.getAttribute("data-sender");
             let dataMessage = message.getAttribute("data-message");
             // if dataMessage is longer than 5000 characters, truncate first 1000 characters, add ellipsis, then get middle 500 characters, add ellipsis, then get last 1000 characters.
-            if (dataMessage.length > 5000) {
-                dataMessage = dataMessage.substring(0, 1000) + "..." + dataMessage.substring(dataMessage.length / 2 - 250, dataMessage.length / 2 + 250) + "..." + dataMessage.substring(dataMessage.length - 1000, dataMessage.length);
-            }
+            dataMessage = generateExcerpt(dataMessage, 1000, 500, 1000);
+
             const dataRole = message.getAttribute("data-sender");
             if (dataRole === "user") {
                 content += ` You: \n\n
