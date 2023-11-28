@@ -543,7 +543,6 @@ class MessageManager {
 
         const followUpResponsesData = await getFollowUpQuestions(questionPromptText);
         console.log(followUpResponsesData.suggestedUserResponses);
-
         this.addFollowUpQuestions(followUpResponsesData.suggestedUserResponses);
     }
 

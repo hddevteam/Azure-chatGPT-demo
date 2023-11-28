@@ -34,7 +34,83 @@ class UIManager {
         this.chatHistoryManager = new ChatHistoryManager(this);
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
         this.setupChatHistoryListClickHandler();
+        this.setupUploadFunctionality();
     }
+
+
+    setupUploadFunctionality() {
+        const uploadContainer = document.querySelector("#upload-container");
+        const fileInput = document.createElement("input");
+
+        fileInput.type = "file";
+        fileInput.accept = ".md";
+        fileInput.style.display = "none"; // 隐藏 file input 控件
+
+        uploadContainer.addEventListener("click", () => {
+            fileInput.value = null; // 清空文件选择，这会触发浏览器重新检查文件
+            fileInput.click(); // 触发文件选择
+            console.log("fileInput click event");
+        });
+        
+
+        fileInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const mdContent = e.target.result;
+                    this.importChatHistory(mdContent);
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        document.body.appendChild(fileInput);
+    }
+
+    importChatHistory(mdContent) {
+
+        const messages = [];
+        const blocks = mdContent.split(/\n*(###\s(user|assistant))\n+/);
+    
+        for (let i = 1; i < blocks.length; i += 3) {
+            const sender = blocks[i + 1].trim();
+            const messageBlock = blocks[i + 2].trim();
+            let message = messageBlock.split(/\n*(###\s(?:user|assistant))\n+/)[0];
+    
+            if (sender !== "user" && sender !== "assistant") {
+                console.error(`Invalid message sender: ${sender}`);
+                continue; // 跳过这个无效的消息
+            }
+            messages.push({ sender, message });
+        }
+        
+        console.log("messages: ", messages);
+        if (messages.length === 0) {
+            swal("Error!", "No valid messages found in file.", "error");
+            return;
+        }
+        
+        this.messageManager.clearFollowUpQuestions();
+        
+        messages.forEach(({ sender, message }) => {
+            const active = true; 
+            const messageId = this.generateId();
+            const newMessage = {
+                role: sender,
+                content: message,
+                messageId: messageId,
+                isActive: active,
+                createdAt: new Date().toISOString(),
+            };
+            this.messageManager.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive);
+            this.app.prompts.addPrompt(newMessage);
+            this.storageManager.saveMessage(this.currentChatId,newMessage);
+            this.syncManager.syncMessageCreate(this.currentChatId, newMessage);
+            this.chatHistoryManager.updateChatHistory(this.currentChatId);
+        });
+    }
+    
 
     async refreshChatHistoryUI() {
         console.log("refreshChatHistoryUI");
