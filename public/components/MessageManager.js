@@ -480,18 +480,25 @@ class MessageManager {
         const currentProfile = this.uiManager.storageManager.getCurrentProfile();
         const activeMessages = [...document.querySelectorAll(".message.active")];
         let content = "";
-        const lastFourMessages = activeMessages.slice(-2); // This will still work even if there are fewer than 4 messages
-        lastFourMessages.forEach(message => {
+        const lastMessages = activeMessages.slice(-2); // This will still work even if there are fewer than 4 messages
+        lastMessages.forEach(message => {
             // const dataSender = message.getAttribute("data-sender");
-            const dataMessage = message.getAttribute("data-message");
+            let dataMessage = message.getAttribute("data-message");
+            // if dataMessage is longer than 5000 characters, truncate first 1000 characters, add ellipsis, then get middle 500 characters, add ellipsis, then get last 1000 characters.
+            if (dataMessage.length > 5000) {
+                dataMessage = dataMessage.substring(0, 1000) + "..." + dataMessage.substring(dataMessage.length / 2 - 250, dataMessage.length / 2 + 250) + "..." + dataMessage.substring(dataMessage.length - 1000, dataMessage.length);
+            }
+            const dataRole = message.getAttribute("data-sender");
+            if (dataRole === "user") {
+                content += ` You: \n\n
+                 ${dataMessage}\n\n`;
+            } else {
+                content += `
+                Him/Her (${currentProfile.displayName}): \n\n
+                : ${dataMessage}\n\n`;
+            }
             content += `${dataMessage}\n\n`;
         });
-
-        // check if content is longer than 5000 characters, if so, truncate it to 5000 characters and add ellipsis
-        if (content.length > 5000) {
-            content = content.substring(0, 5000) + "...";
-        }
-
         
         const systemPrompt = { role: "system", 
             content: ` You are a critical thinker. You are talking with ${currentProfile.displayName},
@@ -502,14 +509,14 @@ class MessageManager {
                       ` };
         console.log(this.uiManager.clientLanguage);
         const userPrompt = { role: "user", 
-            content: `Output: {
+            content: `Output json format: {
                 "suggestedUserResponses": []
             }
-            Please give your follow-up content idea based on the following content:
+            Please give your follow-up ideas less than 15 words, limit to 3 follow-up ideas.
             ===
             ${content}
             ===
-            Please note that the follow-up idea should be short, each idea should not exceed 15 words, the number should be no less than 2 but no more than 5, and must be strictly in accordance with the JSON format.
+            Please use the tone of I'd like to know, How can I, How does it work, I'd like to find out, I'd like to learn, I'd like to understand, I'd like to explore, I'd like to discover, I'd like to know more about...
             Please use ${this.uiManager.clientLanguage}.
             Output:` };
         const prompts = [systemPrompt, userPrompt];

@@ -44,7 +44,7 @@ class UIManager {
     refreshMessagesUI(chatId) {
         console.log("refreshMessagesUI");
         if (this.currentChatId === chatId) {
-            this.loadMessagesByChatId(chatId);
+            this.loadMessagesByChatId(chatId, false);
         }
     }
 
@@ -390,7 +390,7 @@ class UIManager {
         }
     }
 
-    loadMessagesByChatId(chatId) {
+    loadMessagesByChatId(chatId, sendFollowUpQuestions = true) {
         // clear messages container
         document.querySelector("#messages").innerHTML = "";
         // load chat messages by chatId
@@ -403,6 +403,9 @@ class UIManager {
             }
             this.messageManager.addMessage(message.role, message.content, message.messageId, isActive);
         });
+        if (sendFollowUpQuestions) {
+            this.messageManager.sendFollowUpQuestions();
+        }
     }
 
     setupPracticeMode() {
