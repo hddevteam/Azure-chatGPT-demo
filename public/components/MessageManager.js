@@ -279,6 +279,19 @@ class MessageManager {
 
     editMessage(message, messageId) {
         this.inactiveMessage(messageId);
+        // inactive the following messages
+        const messages = document.querySelectorAll(".message");
+        let isFollowing = false;
+        for (let i = 0; i < messages.length; i++) {
+            if (messages[i].dataset.messageId === messageId) {
+                isFollowing = true;
+            }
+            if (isFollowing) {
+                const msgId = messages[i].dataset.messageId;
+                this.inactiveMessage(msgId);
+            }
+        }
+
         this.uiManager.messageInput.value = message;
         this.uiManager.messageInput.focus();
     }

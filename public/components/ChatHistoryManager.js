@@ -78,8 +78,6 @@ class ChatHistoryManager {
         const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
         const messages = this.uiManager.storageManager.getMessages(chatId);
 
-
-
         if (!messages.length) return;
         if (chatHistoryToUpdate) {
             if (title) chatHistoryToUpdate.title = title;
