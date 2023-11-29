@@ -431,7 +431,6 @@ class UIManager {
         if (isNewTopic) {
             document.querySelector("#messages").innerHTML = "";
             this.chatHistoryManager.createChatHistory(chatId);
-            this.messageManager.sendFollowUpQuestions();
         } else {
             this.syncManager.syncMessages(chatId);
             // Load chat messages by chatId
@@ -467,7 +466,7 @@ class UIManager {
         }
     }
 
-    loadMessagesByChatId(chatId, sendFollowUpQuestions = true) {
+    loadMessagesByChatId(chatId, sendFollowUpQuestions = false) {
         // clear messages container
         document.querySelector("#messages").innerHTML = "";
         // load chat messages by chatId

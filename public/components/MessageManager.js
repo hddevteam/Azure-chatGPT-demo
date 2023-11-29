@@ -497,12 +497,12 @@ class MessageManager {
         const currentProfile = this.uiManager.storageManager.getCurrentProfile();
         const activeMessages = [...document.querySelectorAll(".message.active")];
         let content = "";
-        const lastMessages = activeMessages.slice(-2); // This will still work even if there are fewer than 4 messages
+        const lastMessages = activeMessages.slice(-2); // get last 2 messages
         lastMessages.forEach(message => {
             // const dataSender = message.getAttribute("data-sender");
             let dataMessage = message.getAttribute("data-message");
             // if dataMessage is longer than 5000 characters, truncate first 1000 characters, add ellipsis, then get middle 500 characters, add ellipsis, then get last 1000 characters.
-            dataMessage = generateExcerpt(dataMessage, 1000, 500, 1000);
+            dataMessage = generateExcerpt(dataMessage, 500, 250, 500);
 
             const dataRole = message.getAttribute("data-sender");
             if (dataRole === "user") {

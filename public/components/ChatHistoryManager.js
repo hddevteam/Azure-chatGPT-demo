@@ -83,7 +83,7 @@ class ChatHistoryManager {
             if (title) chatHistoryToUpdate.title = title;
             if ((messages.length === 1) || forceGenerateTitle) {
                 // Assuming messages[0].content is already defined and contains text.
-                const titleExcerpt = generateExcerpt(messages[0].content, 2000, 1000, 2000);
+                const titleExcerpt = generateExcerpt(messages[0].content, 1000, 500, 1000);
                 const title = await generateTitle(titleExcerpt);
                 chatHistoryToUpdate.title = title;
             }
