@@ -142,7 +142,6 @@ class MessageManager {
                 this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
                 this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
                 this.uiManager.app.prompts.addPrompt(newMessage);
-                await this.sendFollowUpQuestions();
             }
             return data;
         } catch (error) {
@@ -237,11 +236,12 @@ class MessageManager {
         this.uiManager.finishSubmitProcessing();
 
         // Don't forget to perform follow-up actions after the response if any
-
         if (data && data.totalTokens)
         {
             this.checkTokensAndWarn(data.totalTokens);
         }
+
+        await this.sendFollowUpQuestions();
     }
 
     // Add this method to get the ID of the last message
