@@ -25,6 +25,10 @@ class MessageManager {
         messageElement.appendChild(conversationElement);
         this.uiManager.eventManager.attachToggleActiveMessageEventListener(conversationElement);
 
+        const maximizeElement = this.uiManager.domManager.createMaximizeButtonElement();
+        messageElement.appendChild(maximizeElement);
+        this.uiManager.eventManager.attachMaximizeMessageEventListener(maximizeElement);
+
         const menuButtonElement = this.uiManager.domManager.createMenuButtonElement();
         messageElement.appendChild(menuButtonElement);
 

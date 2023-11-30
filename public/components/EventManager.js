@@ -95,6 +95,19 @@ class EventManager {
         });
     }
 
+    attachMaximizeMessageEventListener(maximizeElement) {
+        maximizeElement.addEventListener("click", () => {
+            const messageElement = maximizeElement.parentElement;
+            const messageContentElement = messageElement.querySelector(".message-content");
+            const isCurrentlyMaximized = messageContentElement.classList.contains("maximized");
+            if (isCurrentlyMaximized) {
+                messageContentElement.classList.remove("maximized");
+            } else {
+                messageContentElement.classList.add("maximized");
+            }
+        });
+    }
+
     attachCodeBlockCopyEvent(codeBlock, copyElement) {
         // 实例化clipboard.js
         var clipboard = new ClipboardJS(copyElement, {

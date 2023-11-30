@@ -205,6 +205,15 @@ class DOMManager {
         return menuButtonElement;
     }
 
+    createMaximizeButtonElement() {
+        const maximizeButtonElement = document.createElement("i");
+        maximizeButtonElement.classList.add("maximize-button");
+        maximizeButtonElement.classList.add("fas");
+        maximizeButtonElement.classList.add("fa-angles-down");
+        maximizeButtonElement.title = "Maximize the message content area";
+        return maximizeButtonElement;
+    }
+
     createPopupMenuElement(isCollapsed) {
         const popupMenuElement = document.createElement("ul");
         popupMenuElement.classList.add("popup-menu");

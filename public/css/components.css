@@ -160,6 +160,10 @@
     max-height: 40vh;
 }
 
+.message-content.maximized {
+    max-height: fit-content;
+}
+
 .user-message.active {
     background-color: #e0e0e0;
     color: #333333;
@@ -247,6 +251,14 @@
     position: absolute;
     top: 0.2em;
     right: 0.5em;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.maximize-button {
+    position: absolute;
+    top: 0.2em;
+    right: 2em;
     font-size: 1em;
     cursor: pointer;
 }
