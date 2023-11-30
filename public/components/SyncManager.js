@@ -5,11 +5,11 @@ class SyncManager {
     constructor(uiManager) {
         this.uiManager = uiManager;
         this.syncQueue = [];
-        this.isSyncing = false;
         this.maxRetryAttempts = 3;
         // 在SyncManager类的构造器中使用模块化Worker
         this.webWorker = new Worker(new URL("../workers/syncWorker.js", import.meta.url), { type: "module" });
         this.initializeSyncWorker();
+        this.isWorkerBusy = false;
     }
     
     initializeSyncWorker() {
@@ -31,6 +31,7 @@ class SyncManager {
             }
   
             // Process next item in the queue
+            this.isWorkerBusy = false;
             this.processNextSyncItem();
         };
     }
@@ -179,21 +180,19 @@ class SyncManager {
   
         this.syncQueue.push(syncItem);
         console.log("enqueueSyncItem syncQueue: ", this.syncQueue.length);
-        if (!this.isSyncing) {
-            this.processNextSyncItem();
-        }
+        this.processNextSyncItem();
     }
   
     processNextSyncItem() {
         console.log("processNextSyncItem syncQueue: ", this.syncQueue.length);
-        if (this.syncQueue.length === 0) {
-            this.isSyncing = false;
+        if (this.isWorkerBusy || !this.syncQueue.length) {
+            console.log ("processNextSyncItem return because isWorkerBusy: ", this.isWorkerBusy, " syncQueue: ", this.syncQueue.length);
             return;
         }
-        this.isSyncing = true;
         const nextItem = this.syncQueue.shift();
         console.log("processNextSyncItem nextItem: ", nextItem);
         console.log("current syncQueue: ", this.syncQueue);
+        this.isWorkerBusy = true;
         this.webWorker.postMessage(nextItem);
     }
   

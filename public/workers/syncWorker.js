@@ -38,15 +38,16 @@ async function syncChatHistory(syncItem) {
         response = await createOrUpdateCloudChatHistory(syncItem.data);
         break;
     case "delete":
+        console.log("syncChatHistory delete in worker: ", syncItem.data);
         await deleteCloudChatHistory(syncItem.data.id);
+        response = { deleted: true };
         break;
     }
-    if (response) {
-        console.log("syncChatHistory Response in worker: ", response);
-        console.log("syncItem in worker: ", syncItem);
-        // 发送成功同步的res以及更新localStorage中的timestamp
-        self.postMessage({ action: "synced", payload: syncItem, res: response });
-    }
+    
+    console.log("syncChatHistory Response in worker: ", response);
+    console.log("syncItem in worker: ", syncItem);
+    // 发送成功同步的res以及更新localStorage中的timestamp
+    self.postMessage({ action: "synced", payload: syncItem, res: response });
 
 }
 
@@ -63,12 +64,11 @@ async function syncMessage(syncItem){
         break;
     case "delete":
         await deleteCloudMessage(syncItem.data.chatId, syncItem.data.messageId);
+        response = { deleted: true };
         break;
     }
-    if(response) {
-        // If there's a response, it means the sync action succeeded
-        self.postMessage({ action: "synced", payload: syncItem, res: response });
-    }
+    // If there's a response, it means the sync action succeeded
+    self.postMessage({ action: "synced", payload: syncItem, res: response });
 
 }
 
