@@ -55,14 +55,14 @@
     width: 34px;
     position: absolute;
     top: 10px;
-    right: 5px;
+    right: 10px;
 }
 
 #message-input-container.split-view #voice-input-button {
     height: 34px;
     width: 34px;
     top: 54px;
-    right: 5px;
+    right: 10px;
     left: unset;
     border-radius: 5px;
 }
@@ -71,7 +71,7 @@
     height: 34px;
     width: 34px;
     top: 98px;
-    right: 5px;
+    right: 10px;
     left: unset;
     border-radius: 5px;
 }

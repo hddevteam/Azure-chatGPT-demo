@@ -256,8 +256,8 @@
 
 .maximize-button {
     position: absolute;
-    top: 0.2em;
-    right: 2em;
+    bottom: 1em;
+    right: 0.5em;
     font-size: 1em;
     cursor: pointer;
 }
@@ -325,6 +325,7 @@ li.menu-item:hover {
 
 .icon-group {
     margin-top: 0.5em;
+    margin-right: 2em;
     display: flex;
     justify-content: space-between;
     position: relative;
@@ -802,12 +803,12 @@ button.action-button.invisible {
 }
 
 #ai-actor-container {
-    display: none; 
+    display: none;
     position: fixed;
     max-width: 70vw;
     max-height: 50vh;
-    width: auto; 
-    height: auto; 
+    width: auto;
+    height: auto;
     border-radius: 0.5em;
     background-color: #FFFFFF;
     box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
@@ -830,7 +831,6 @@ button.action-button.invisible {
 }
 
 #ai-actor-header span {
-    
     font-size: 18px;
     font-family: 'Roboto';
 }
@@ -839,6 +839,7 @@ button.action-button.invisible {
     margin: 0;
     padding: 0;
 }
+
 #ai-actor-container li:hover,
 #ai-actor-container li.active {
     background-color: #424141;
@@ -859,8 +860,8 @@ button.action-button.invisible {
     overflow-y: auto;
     overflow-x: hidden;
     z-index: 9999;
-    align-items: center; 
-    justify-content: center; 
+    align-items: center;
+    justify-content: center;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);

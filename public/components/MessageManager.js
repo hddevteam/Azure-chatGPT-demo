@@ -86,8 +86,9 @@ class MessageManager {
             this.uiManager.eventManager.attachCodeBlockCopyEvent(codeBlock, copyElement);
         });
 
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        setTimeout(() => this.uiManager.eventManager.updateMaximizeButtonVisibility(messageElement), 0);
 
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
         this.uiManager.updateSlider();
     }
 
@@ -452,6 +453,8 @@ class MessageManager {
             newCodeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
                 this.uiManager.eventManager.attachCodeBlockCopyEvent(codeBlock, copyElement);
             });
+
+            this.uiManager.eventManager.updateMaximizeButtonVisibility(messageElement);
 
             const toggleItem = messageElement.querySelector(".toggle-item");
             if (toggleItem) {

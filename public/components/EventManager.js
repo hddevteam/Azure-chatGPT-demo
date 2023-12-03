@@ -102,10 +102,23 @@ class EventManager {
             const isCurrentlyMaximized = messageContentElement.classList.contains("maximized");
             if (isCurrentlyMaximized) {
                 messageContentElement.classList.remove("maximized");
+                //<i class="maximize-button fas fa-angles-down" title="Maximize the message content area" aria-hidden="true" style="display: none;"></i>
+                // replace the fas fa-angles-down with fas fa-angles-up
+                maximizeElement.classList.remove("fa-angles-up");
+                maximizeElement.classList.add("fa-angles-down");
             } else {
                 messageContentElement.classList.add("maximized");
+                maximizeElement.classList.remove("fa-angles-down");
+                maximizeElement.classList.add("fa-angles-up");
             }
         });
+    }
+
+    updateMaximizeButtonVisibility(messageElement) {
+        const messageContentElement = messageElement.querySelector(".message-content");
+        const maximizeButtonElement = messageElement.querySelector(".maximize-button");
+        const isOverflowing = messageContentElement.scrollHeight > messageContentElement.clientHeight;
+        maximizeButtonElement.style.display = isOverflowing ? "block" : "none";
     }
 
     attachCodeBlockCopyEvent(codeBlock, copyElement) {

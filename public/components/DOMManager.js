@@ -211,6 +211,7 @@ class DOMManager {
         maximizeButtonElement.classList.add("fas");
         maximizeButtonElement.classList.add("fa-angles-down");
         maximizeButtonElement.title = "Maximize the message content area";
+        maximizeButtonElement.style.display = "none"; // 默认隐藏
         return maximizeButtonElement;
     }
 
