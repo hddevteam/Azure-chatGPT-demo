@@ -96,7 +96,7 @@
     border: 1px solid #333; 
     border-radius: 4px; 
     padding: 10px;
-    padding-right: 40px;
+    padding-right: 50px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); 
     transition: box-shadow 0.3s, border-color 0.3s; 
     line-height: 1.5; 
