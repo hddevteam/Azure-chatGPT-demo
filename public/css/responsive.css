@@ -168,6 +168,7 @@
     #voice-input-container {
         width: 100%;
         display: flex;
+        font-size: 20px;
         justify-content: center;
     }
 
@@ -175,6 +176,7 @@
     #voice-input-button {
         width: 100% !important;
         position: static !important;
+        font-size: 20px;
         border-radius: 0px 0px 0px 0px;
         height: 34px;
     }
@@ -183,6 +185,7 @@
         display: none;
         position: fixed;
         max-width: 80vw;
+        width: 80%;
     }
 
     #menu {

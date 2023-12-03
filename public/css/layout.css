@@ -50,7 +50,7 @@ html {
 
 
 #chat-history-container {
-    background: linear-gradient(to bottom, #999, #333);
+    background: linear-gradient(to bottom, #4B4E53, #2C2F33);
     border: none;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     padding: 10px;
@@ -139,7 +139,6 @@ html {
     resize: none;
     width: 100%;
     padding: 5px 50px 0px 5px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     border: 2px solid #eee;
     border-radius: 5px;
     background-color: #f5f5f5;
@@ -148,6 +147,7 @@ html {
     scrollbar-width: thin;
     scrollbar-color: #bbb transparent;
     line-height: 120%;
+    font-size: 16px;
 }
 
 #input-container {
