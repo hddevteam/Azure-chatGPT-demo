@@ -1,8 +1,9 @@
 @media screen and (max-width: 1440px) {
-    #menu {
+    /* #menu {
         display: none;
-    }
+    } */
 }
+
 
 @media screen and (max-width: 1024px) {
     /* #chat-history-container {
@@ -10,20 +11,24 @@
     } */
 }
 
-@media (min-width: 1024px) { 
+@media (min-width: 1024px) {
     /* #toggle-chat-topic {
       display: none;
     } */
-  }
+}
 
-@media (min-width: 1440px) { 
+@media (min-width: 1440px) {
     /* #ai-profile {
       display: none;
     } */
-  }
+}
 
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
+    #toggle-layout {
+        display: none;
+    }
+
     #app-outer-wrapper {
         flex: 100;
         height: 100%;
@@ -35,7 +40,7 @@
         top: 2.7em;
         right: 1em;
         border-radius: 0.5em;
-        width: 70vw;
+        width: 80vw;
         max-width: max-content;
         background-color: #FFFFFF;
         box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
@@ -149,7 +154,7 @@
         width: 100% !important;
         position: static !important;
         font-size: 20px;
-        border-radius: 0px 0px 5px 0px;
+        border-radius: 0px 0px 0px 0px;
     }
 
     .button-row {
@@ -159,17 +164,33 @@
         width: 100%;
     }
 
-    #new-chat-container,#voice-input-container {
+    #new-chat-container,
+    #voice-input-container {
         width: 100%;
         display: flex;
         justify-content: center;
     }
 
-    #new-chat-button,#voice-input-button {
+    #new-chat-button,
+    #voice-input-button {
         width: 100% !important;
         position: static !important;
-        border-radius: 0px 0px 0px 5px;
+        border-radius: 0px 0px 0px 0px;
         height: 34px;
+    }
+
+    #ai-actor-container {
+        display: none;
+        position: fixed;
+        max-width: 80vw;
+    }
+
+    #menu {
+        display: none;
+    }
+
+    #chat-history-container {
+        display: none;
     }
 
 }

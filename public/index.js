@@ -225,7 +225,7 @@ usernameLabel.addEventListener("click", function () {
 });
 
 
-document.getElementById("ai-profile").addEventListener("click", handleClick);
+
 document.getElementById("new-chat-button").addEventListener("click",handleAIActor);
 // 添加事件监听器到最小化窗口图标
 const systemMessageWindowIcon = document.querySelector("#window-icon");
@@ -347,54 +347,6 @@ function handleAIActor(event){
     uiManager.toggleAIActorList();
 } 
 
-// toggle the menu when user click the ai profile
-function toggleMenu() {
-    const menu = document.getElementById("menu");
-
-    // Toggle the 'is-visible' class instead of using inline styles
-    menu.classList.toggle("hidden");
-
-    // If the menu is now visible, attach the click listener to hide the menu
-    if (menu.classList.contains("hidden") && window.innerWidth <= 768) {
-        attachOutsideClickListener();
-    }
-}
-
-function attachOutsideClickListener() {
-    function hideMenuOnOutsideClick(event) {
-        const menu = document.getElementById("menu");
-        const profileListMenu = document.getElementById("ai-profile");
-
-        // Check if the menu or profile list menu is not the event target
-        if (!menu.contains(event.target) && !profileListMenu.contains(event.target)) {
-            menu.classList.remove("hidden");
-            // Remove the click listener since the menu is now hidden
-            document.removeEventListener("click", hideMenuOnOutsideClick);
-        }
-    }
-
-    // Delay the attachment of the click listener to avoid immediately triggering after the click that opened the menu
-    setTimeout(() => {
-        document.addEventListener("click", hideMenuOnOutsideClick);
-    }, 0);
-}
-
-
-
-const chatHistoryContainer = document.getElementById("chat-history-container");
-const toggleButton = document.getElementById("toggle-chat-topic");
-
-toggleButton.addEventListener("click", function (event) {
-    event.stopPropagation();
-    chatHistoryContainer.style.display = chatHistoryContainer.style.display === "none" ? "block" : "none";
-    chatHistoryContainer.style.minWidth = "300px";
-});
-
-// handle the click event on the ai profile
-function handleClick(event) {
-    event.stopPropagation();
-    toggleMenu();
-}
 
 window.addEventListener("message", function (event) {
     if (event.data.type === "PROFILE_UPDATED") {
@@ -431,3 +383,74 @@ function toggleLayout() {
 
 // Adding event listeners to buttons
 toggleLayoutBtn.addEventListener("click", toggleLayout);
+
+
+const toggleButton = document.getElementById("toggle-chat-topic");
+toggleButton.addEventListener("click", function(event) {
+    event.stopPropagation();
+    const chatHistoryContainer = document.getElementById("chat-history-container");
+    toggleVisibility(chatHistoryContainer);
+  
+    if (window.innerWidth <= 768) {
+        attachOutsideClickListener("chat-history-container");
+    }
+});
+  
+const aiProfile = document.getElementById("ai-profile");
+aiProfile.addEventListener("click", function(event) {
+    event.stopPropagation();
+    const menu = document.getElementById("menu");
+    toggleVisibility(menu);
+  
+    if (window.innerWidth <= 768) {
+        attachOutsideClickListener("menu");
+    }
+});
+  
+  
+function createClickListener(elementId) {
+    return function hideElementOnOutsideClick(event) {
+        const element = document.getElementById(elementId);
+        if (!event.target.closest(`#${elementId}`) && element.style.display !== "none") {
+            element.style.display = "none";
+            detachOutsideClickListener(elementId);
+        }
+    };
+}
+  
+function attachOutsideClickListener(elementId) {
+    // Generate a unique listener function for the given element ID
+    const listener = createClickListener(elementId); 
+    document.addEventListener("click", listener);
+    // Associate the listener with the element ID for removal later
+    activeOutsideClickListeners[elementId] = listener; 
+}
+  
+function detachOutsideClickListener(elementId) {
+    const listener = activeOutsideClickListeners[elementId];
+    if (listener) {
+        document.removeEventListener("click", listener);
+        delete activeOutsideClickListeners[elementId];
+    }
+}
+  
+const activeOutsideClickListeners = {};
+  
+function toggleVisibility(element) {
+    element.style.display = element.style.display === "block" ? "none" : "block";
+}
+  
+// Call this function to set initial display status based on the device type
+// 在页面加载时设置初始可见性状态
+function setInitialVisibility() {
+    const isMobile = window.innerWidth <= 768;
+    const menu = document.getElementById("menu");
+    const chatHistoryContainer = document.getElementById("chat-history-container");
+    
+    // 确保初始状态与isMobile一致
+    menu.style.display = isMobile ? "none" : "block";
+    chatHistoryContainer.style.display = isMobile ? "none" : "block";
+}
+  
+window.onload = setInitialVisibility;
+window.addEventListener("resize", setInitialVisibility);

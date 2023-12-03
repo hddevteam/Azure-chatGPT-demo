@@ -23,6 +23,7 @@ html {
 #chat-history-container,
 #menu {
     flex: 15;
+    min-width: 200px;
 }
 
 #app-outer-wrapper {
