@@ -252,9 +252,6 @@ function toggleSystemMessage() {
 
 setupVoiceInput(uiManager);
 
-// 设置textarea的max-height为屏幕高度的一半
-messageInput.style.maxHeight = `${halfScreenHeight}px`;
-
 messageInput.addEventListener("focus", function () {
     uiManager.handleInput(initFocusHeight, halfScreenHeight);
 });
@@ -290,9 +287,13 @@ window.addEventListener("resize", () => {
     updateVh();
 });
 
-const messageInputContainer = document.querySelector(".message-input-container");
+const messageInputContainer = document.querySelector("#message-input-container");
 const mainContainer = document.querySelector("#app-container");
 let ro = new ResizeObserver(entries => {
+    if (mainContainer.classList.contains("split-view")) {
+        // 在 split-view 模式下，我们不改变 mainContainer 的高度，因为 message-input-container 高度是固定的
+        return;
+    }
     for (let entry of entries) {
         let newHeight = `calc(var(--vh, 1vh) * 99.5 - ${entry.contentRect.height + 40}px)`;
         mainContainer.style.height = newHeight;
@@ -345,30 +346,39 @@ function handleAIActor(event){
     event.stopPropagation();
     uiManager.toggleAIActorList();
 } 
-    
-
-
 
 // toggle the menu when user click the ai profile
 function toggleMenu() {
     const menu = document.getElementById("menu");
-    const isVisible = menu.getAttribute("data-visible") === "true";
 
-    menu.style.display = isVisible ? "none" : "block";
-    menu.setAttribute("data-visible", !isVisible);
+    // Toggle the 'is-visible' class instead of using inline styles
+    menu.classList.toggle("hidden");
 
-    if (window.innerWidth <= 768) {
-        document.addEventListener("click", function hideMenuOnOutsideClick(event) {
-            const profileListMenu = document.getElementById("ai-profile");
-
-            if (event.target !== menu && event.target !== profileListMenu && !profileListMenu.contains(event.target)) {
-                menu.style.display = "none";
-                menu.setAttribute("data-visible", false);
-                document.removeEventListener("click", hideMenuOnOutsideClick);
-            }
-        });
+    // If the menu is now visible, attach the click listener to hide the menu
+    if (menu.classList.contains("hidden") && window.innerWidth <= 768) {
+        attachOutsideClickListener();
     }
 }
+
+function attachOutsideClickListener() {
+    function hideMenuOnOutsideClick(event) {
+        const menu = document.getElementById("menu");
+        const profileListMenu = document.getElementById("ai-profile");
+
+        // Check if the menu or profile list menu is not the event target
+        if (!menu.contains(event.target) && !profileListMenu.contains(event.target)) {
+            menu.classList.remove("hidden");
+            // Remove the click listener since the menu is now hidden
+            document.removeEventListener("click", hideMenuOnOutsideClick);
+        }
+    }
+
+    // Delay the attachment of the click listener to avoid immediately triggering after the click that opened the menu
+    setTimeout(() => {
+        document.addEventListener("click", hideMenuOnOutsideClick);
+    }, 0);
+}
+
 
 
 const chatHistoryContainer = document.getElementById("chat-history-container");
@@ -379,14 +389,6 @@ toggleButton.addEventListener("click", function (event) {
     chatHistoryContainer.style.display = chatHistoryContainer.style.display === "none" ? "block" : "none";
     chatHistoryContainer.style.minWidth = "300px";
 });
-
-document.addEventListener("click", function (event) {
-    // checks if the click was outside the toggleButton and if the toggleButton is being displayed
-    if (!toggleButton.contains(event.target) && window.getComputedStyle(toggleButton).display !== "none") {
-        chatHistoryContainer.style.display = "none";
-    }
-});
-
 
 // handle the click event on the ai profile
 function handleClick(event) {
@@ -405,4 +407,27 @@ window.addEventListener("message", function (event) {
         }
     }
 }, false);
- 
+
+// split layout
+
+// Selecting elements that will be changed by layout toggling
+const appBar = document.getElementById("app-outer-wrapper");
+const messageContainer = document.getElementById("messages");
+
+// Selecting buttons for adding event listeners
+const toggleLayoutBtn = document.getElementById("toggle-layout");
+
+// Function to toggle the CSS class for the split layout
+function toggleLayout() {
+    mainContainer.classList.toggle("split-view");
+    appBar.classList.toggle("split-view");
+    messageContainer.classList.toggle("split-view");
+    messageInputContainer.classList.toggle("split-view");
+    if (mainContainer.classList.contains("split-view")) {
+        mainContainer.style.height = "";
+        messageInput.style.maxHeight = "";
+    }
+}
+
+// Adding event listeners to buttons
+toggleLayoutBtn.addEventListener("click", toggleLayout);

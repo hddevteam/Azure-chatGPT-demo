@@ -9,13 +9,21 @@
 
 <body>
   <div class="modal-overlay"></div>
+  <div id="ai-actor-container">
+    <div id="ai-actor-header">
+    </div>
+    <ul id="ai-actor-list"></ul>
+  </div>
   <div id="toast"></div>
   <div id="header">
-    <button id="toggle-chat-topic"><i class="fas fa-bars"></i></button>
     <h1 id="app-name"></h1>
-    <button id="ai-profile"><i class="fas fa-robot"></i>
-      <span>AI</span>
-    </button>
+    <div id="header-buttons">
+      <button id="toggle-chat-topic"><i class="fas fa-rectangle-list"></i>History</button>
+      <button id="ai-profile"><i class="fas fa-robot"></i>
+        <span>AI</span>
+      </button>
+      <button id="toggle-layout"><i class="fas fa-grip"></i> Toggle Layout</button>
+    </div>
   </div>
   <div id="main-container">
     <div id="chat-history-container">
@@ -33,7 +41,7 @@
           <span class="info-chip"><i class="fas fa-info-circle"></i><span id="tokens"></span></span>
         </div>
       </div>
-      <div class="message-input-container">
+      <div id="message-input-container">
         <div class="mini-toolbar-container">
           <div class="mini-toolbar">
             <div class="interactive-elements">
@@ -69,30 +77,21 @@
               tabindex="1"></textarea>
             <i id="clear-input" class="fas fa-times" title="Clear input"></i>
             <div class="button-row">
-              <div id="voice-input-container">
-                <button id="voice-input-button" type="button"><i class="fas fa-microphone"
-                    aria-hidden="true"></i></button>
-              </div>
-              
-          <div id="new-chat-container">
-            <button id="new-chat-button" type="button" title="Click to create a new chat"><i class="fas fa-plus " aria-hidden="true"></i></button>
-            <div id="ai-actor-container">
-              <div id="ai-actor-header">
-                <i class="fa-solid fa-check-to-slot"></i>
-                <span>Choose AI Actor</span>
-
-              </div>
-              <ul id="ai-actor-list">
-                
-              </ul>
-            </div>
-          </div>
               <button id="submitButton" type="submit" tabindex="2">
                 <div id="submit-button-icon"><i class="fas fa-paper-plane"></i></div>
                 <div id="submit-loader" class="hidden">
                   <object type="image/svg+xml" data="./images/processing.svg"></object>
                 </div>
               </button>
+              <div id="voice-input-container">
+                <button id="voice-input-button" type="button"><i class="fas fa-microphone"
+                    aria-hidden="true"></i></button>
+              </div>
+              <div id="new-chat-container">
+                <button id="new-chat-button" type="button" title="Click to create a new chat"><i class="fas fa-plus "
+                    aria-hidden="true"></i></button>
+              </div>
+
             </div>
           </div>
         </form>

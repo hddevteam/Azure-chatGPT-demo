@@ -5,21 +5,21 @@
 }
 
 @media screen and (max-width: 1024px) {
-    #chat-history-container {
+    /* #chat-history-container {
         display: none;
-    }
+    } */
 }
 
 @media (min-width: 1024px) { 
-    #toggle-chat-topic {
+    /* #toggle-chat-topic {
       display: none;
-    }
+    } */
   }
 
 @media (min-width: 1440px) { 
-    #ai-profile {
+    /* #ai-profile {
       display: none;
-    }
+    } */
   }
 
 /* for the mobile devices */

@@ -1,0 +1,109 @@
+#main-container.split-view {
+    flex-direction: row;
+}
+
+#app-outer-wrapper.split-view{
+    display: flex;
+    height: 100%;
+    flex-direction: row;
+}
+
+#app-container.split-view {
+    height: calc(100vh - 40px);
+    flex: 1; 
+}
+
+#messages.split-view {
+    flex: 1; 
+}
+
+#message-input-container.split-view {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    position: relative; 
+    height: 100%;
+    bottom: auto; 
+    left: auto; 
+    width: auto; 
+    max-width: unset; 
+}
+
+#message-input-container.split-view #message-form {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#message-input-container.split-view #message-form #input-container {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#message-input-container.split-view #message-form #input-container #message-input {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#message-input-container.split-view #message-form button[type="submit"] {
+    height: 34px;
+    width: 34px;
+    position: absolute;
+    top: 10px;
+    right: 5px;
+}
+
+#message-input-container.split-view #voice-input-button {
+    height: 34px;
+    width: 34px;
+    top: 54px;
+    right: 5px;
+    left: unset;
+    border-radius: 5px;
+}
+
+#message-input-container.split-view #new-chat-button {
+    height: 34px;
+    width: 34px;
+    top: 98px;
+    right: 5px;
+    left: unset;
+    border-radius: 5px;
+}
+
+#message-input-container.split-view .mini-toolbar {
+    background-color: #656464;
+    color: #fff;
+    padding: 5px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    border: 0px;
+    border-radius: 0px;
+    display: flex;
+    gap: 5px;
+    justify-content: space-between;
+    flex: 1;
+    width: 100%;
+}
+
+#message-input-container.split-view #message-input {
+    background-color: #1A1A1A; 
+    color: #E0E0E0; 
+    border: 1px solid #333; 
+    border-radius: 4px; 
+    padding: 10px;
+    padding-right: 40px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); 
+    transition: box-shadow 0.3s, border-color 0.3s; 
+    line-height: 1.5; 
+}
+
+#message-input-container.split-view #message-input:focus {
+    border-color: #555;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); 
+}
+

@@ -32,7 +32,6 @@
     padding: 5px;
     background-color: #4CAF50;
     border-radius: 5px;
-    margin-right: 5px;
     cursor: pointer;
     align-items: center;
     white-space: nowrap;
@@ -62,7 +61,7 @@
     position: absolute;
     right: 0px;
     top: 5px;
-  }
+}
 
 #menu-header i {
     font-size: 20px;
@@ -239,7 +238,7 @@
 #window-icon {
     position: absolute;
     top: 0em;
-    right: 1.2em;
+    left: 1.2em;
     font-size: 1em;
     cursor: pointer;
     z-index: 2;
@@ -266,16 +265,16 @@
 ul.popup-menu {
     display: none;
     position: absolute;
-    top: 0; 
+    top: 0;
     right: 0;
-    margin-top: 1em; 
+    margin-top: 1em;
     padding: 0;
     background-color: #fff;
     border: 1px solid #ddd;
-    border-radius: 4px; 
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
-    z-index: 100; 
-    animation: fadeIn 0.3s ease-in-out; 
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
 @keyframes fadeIn {
@@ -283,6 +282,7 @@ ul.popup-menu {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -290,22 +290,21 @@ ul.popup-menu {
 }
 
 li.menu-item {
-    padding: 5px 10px; 
-    list-style: none; 
+    padding: 5px 10px;
+    list-style: none;
     cursor: pointer;
     margin: 0;
     font-size: 12px;
-    transition: background-color 0.3s ease-in-out; 
+    transition: background-color 0.3s ease-in-out;
 }
 
-li.menu-item i
-{
+li.menu-item i {
     margin-right: 10px;
 }
 
 li.menu-item:hover {
-    background-color: #007BFF; 
-    color: white; 
+    background-color: #007BFF;
+    color: white;
 }
 
 
@@ -445,8 +444,6 @@ textarea::-webkit-scrollbar-thumb:hover {
     margin-right: 5px;
 }
 
-
-
 #clear-input {
     position: absolute;
     right: -20px;
@@ -467,7 +464,8 @@ textarea::-webkit-scrollbar-thumb:hover {
     top: 5px;
     right: 5px;
 }
-#new-chat-button{
+
+#new-chat-button {
     height: 34px;
     width: 34px;
     position: absolute;
@@ -476,14 +474,14 @@ textarea::-webkit-scrollbar-thumb:hover {
     left: 45px;
     color: #fff;
     background-color: cornflowerblue;
-    font-size: 20px;
     cursor: pointer;
     border-radius: 5px 5px 0 0;
     transition: background-color 0.2s ease-in-out;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
+
 #new-chat-button:hover {
-    background-color:lightblue ;
+    background-color: lightblue;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
 }
 
@@ -496,7 +494,6 @@ textarea::-webkit-scrollbar-thumb:hover {
     left: 5px;
     color: #fff;
     background-color: #E53935;
-    font-size: 20px;
     cursor: pointer;
     border-radius: 5px 5px 0 0;
     transition: background-color 0.2s ease-in-out;
@@ -664,12 +661,15 @@ svg rect {
 }
 
 #chat-history-list::-webkit-scrollbar {
-    display: none;  /* for Chrome, Safari */
+    display: none;
+    /* for Chrome, Safari */
 }
 
 #chat-history-list {
-    -ms-overflow-style: none;  /* for IE and Edge */
-    scrollbar-width: none; /* for Firefox */
+    -ms-overflow-style: none;
+    /* for IE and Edge */
+    scrollbar-width: none;
+    /* for Firefox */
 }
 
 
@@ -731,10 +731,10 @@ button.action-button {
     margin: 0 3px;
     padding: 3px;
     font-size: 1em;
-    color: #ffffff; 
+    color: #ffffff;
     opacity: 0.5;
     border-radius: 5px;
-    background: #333; 
+    background: #333;
 }
 
 button.action-button:hover {
@@ -743,7 +743,7 @@ button.action-button:hover {
     padding: 3px;
     font-size: 1em;
     border-radius: 5px;
-    color: #666; 
+    color: #666;
     background-color: #fff;
 }
 
@@ -771,39 +771,49 @@ button.action-button.invisible {
     padding: 10px 24px;
     box-shadow: 0 3px 5px rgba(0, 0, 0, 0.19), 0 2px 10px rgba(0, 0, 0, 0.23);
     transition-duration: 0.4s;
-  }
-  
-  .follow-up-questions button:hover {
+}
+
+.follow-up-questions button:hover {
     background-color: #ddd;
     color: black;
     border: none;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.22);
-  }
-  
-  .follow-up-questions button:active {
+}
+
+.follow-up-questions button:active {
     background-color: #ccc;
     box-shadow: 0 7px 20px rgba(0, 0, 0, 0.5), 0 5px 10px rgba(0, 0, 0, 0.22);
     transform: translateY(4px);
-  }
-.message-input-container{
+}
+
+#message-input-container {
     max-width: 100%;
 }
 
-#ai-actor-container {
-    display: none;
+.modal-overlay {
     position: fixed;
-    bottom: 7em;
-   left: calc(35vh);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 99;
+}
+
+#ai-actor-container {
+    display: none; 
+    position: fixed;
+    max-width: 70vw;
+    max-height: 50vh;
+    width: auto; 
+    height: auto; 
     border-radius: 0.5em;
-    width: 70vw;
-    max-width: max-content;
     background-color: #FFFFFF;
     box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     overflow-y: auto;
-    overflow-x:hidden;
-    height: calc(50vh);
-    max-height: max-content;
+    overflow-x: hidden;
     z-index: 9999;
 }
 
@@ -825,7 +835,6 @@ button.action-button.invisible {
     font-family: 'Roboto';
 }
 
-
 #ai-actor-list li span {
     margin: 0;
     padding: 0;
@@ -836,29 +845,23 @@ button.action-button.invisible {
     color: #e6f2ff;
     cursor: pointer;
 }
-#ai-actor-header{
-    display: flex;
-    width: 100%;
-    justify-content: left;
-    margin-bottom: 10px;
-    padding: 10px 0;
-    color: #333;
-    border-bottom: 1px solid #ccc;
-    font-size: 20px;
-    padding: 5px;
-    margin-right: 10px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #f1f1f1;
+
+#ai-actor-container {
+    position: fixed;
+    max-width: 70%;
+    max-height: 70vh;
+    width: 50%;
+    height: auto;
+    border-radius: 0.5em;
+    background-color: #FFFFFF;
+    box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 9999;
+    align-items: center; 
+    justify-content: center; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
-.modal-overlay {
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    background-color: rgba(0, 0, 0, 0.5); 
-    display: none; 
-    z-index: 99; 
-  }

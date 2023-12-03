@@ -579,6 +579,13 @@ class UIManager {
     handleInput(initFocusHeight, halfScreenHeight) {
         // add a delay to avoid other events can't respond when the input is focused
         // 判断messageInput是否失去焦点
+        const mainContainer = document.querySelector("#app-container");
+        if (mainContainer.classList.contains("split-view")) {
+            // 在 split-view 模式下，我们不改变 mainContainer 的高度，因为 message-input-container 高度是固定的
+            return;
+        }
+        
+        this.messageInput.style.maxHeight = `${halfScreenHeight}px`;
         if (!this.messageInput.matches(":focus")) {
             if (this.messageInput.value === "") {
                 this.messageInput.style.height = "";
