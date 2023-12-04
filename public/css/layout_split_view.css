@@ -11,6 +11,7 @@
 #app-container.split-view {
     height: calc(100vh - 40px);
     flex: 1; 
+    background-color:teal;
 }
 
 #messages.split-view {
