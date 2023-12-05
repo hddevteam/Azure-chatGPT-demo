@@ -154,15 +154,6 @@
     overflow-wrap: anywhere;
 }
 
-.message-content {
-    overflow-y: auto;
-    max-height: 40vh;
-}
-
-.message-content.maximized {
-    max-height: fit-content;
-}
-
 .user-message.active {
     background-color: #e0e0e0;
     color: #333333;
@@ -189,6 +180,16 @@
 .error-message {
     color: #990000;
 }
+
+.message-content {
+    overflow-y: auto;
+    max-height: 40vh;
+}
+
+.message-content.maximized {
+    max-height: fit-content;
+}
+
 
 #system-message {
     padding: 10px;
