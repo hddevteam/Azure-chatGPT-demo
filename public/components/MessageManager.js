@@ -246,7 +246,8 @@ class MessageManager {
             this.checkTokensAndWarn(data.totalTokens);
         }
 
-        await this.sendFollowUpQuestions();
+        // await this.sendFollowUpQuestions();
+        // temporary disable follow-up questions because it consumes too much tokens
     }
 
     // Add this method to get the ID of the last message
