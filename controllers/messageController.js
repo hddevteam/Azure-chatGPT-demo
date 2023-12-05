@@ -28,7 +28,15 @@ exports.getCloudMessages = async (req, res) => {
         // Fetch content from Blob Storage if necessary
         for (const message of messages) {
             if (message.isContentInBlob) {
-                message.content = await getTextFromBlob(message.content);
+                try {
+                    message.content = await getTextFromBlob(message.content);
+                } catch (blobError) {
+                    console.warn(`Blob for message ${message.RowKey} not found`);
+                    // Handle the missing blob as needed:
+                    // e.g., set the message content to null or a placeholder text
+                    message.content = null; // Or a placeholder value like 'Content not available'
+                    
+                }
             }
         }
 
