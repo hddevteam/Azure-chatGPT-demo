@@ -373,6 +373,8 @@ const toggleLayoutBtn = document.getElementById("toggle-layout");
 function toggleLayout() {
     const menu = document.getElementById("menu");
     const chatHistoryContainer = document.getElementById("chat-history-container");
+    const systemMessage = document.querySelector("#system-message");
+
     mainContainer.classList.toggle("split-view");
     appBar.classList.toggle("split-view");
     messageContainer.classList.toggle("split-view");
@@ -382,9 +384,11 @@ function toggleLayout() {
         messageInput.style.maxHeight = "";
         menu.style.display =  "none";
         chatHistoryContainer.style.display = "none";
+        systemMessage.style.display = "none";
     } else {
         menu.style.display =  "block";
         chatHistoryContainer.style.display = "block";
+        systemMessage.style.display = "block";
     }
 }
 
