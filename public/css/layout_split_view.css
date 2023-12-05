@@ -28,23 +28,32 @@
     border-left: 5px solid #f3ba2f;
 }
 
-#messages.split-view .user-message {
-    background-color: #505050;
-    color: #dddddd;
-}
-
 #messages.split-view .assistant-message.active {
     background-color: #526d95;
+    color: #ffffff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     border-left: 5px solid #8198af;
 }
 
-#messages.split-view .assistant-message {
-    background-color: #404e69;
-    color: #d0d7e0;
+#messages.split-view .user-message.active .fa-quote-left,
+#messages.split-view .assistant-message.active .fa-quote-left {
+    color: #ffffff;
 }
 
+#messages.split-view .user-message {
+    background-color: #505050;
+    color: #999999; /* 降低对比度，使字体颜色不那么突出 */
+}
 
+#messages.split-view .assistant-message {
+    background-color: #404e69;
+    color: #999999; /* 同样降低字体颜色的对比度 */
+}
+
+#messages.split-view .user-message .fa-quote-left,
+#messages.split-view .assistant-message .fa-quote-left {
+    color: #999999;
+}
 
 #message-input-container.split-view {
     flex: 1; 
