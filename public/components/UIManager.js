@@ -35,6 +35,7 @@ class UIManager {
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
         this.setupChatHistoryListClickHandler();
         this.setupUploadFunctionality();
+        this.boundHideAIActorOnOutsideClick = this.hideAIActorOnOutsideClick.bind(this);
     }
 
 
@@ -437,34 +438,6 @@ class UIManager {
             this.loadMessagesByChatId(this.currentChatId);
         }
     }
-    toggleAIActorList() {
-        document.querySelector(".modal-overlay").addEventListener("click", this.toggleAIActorList);
-        const aiActorList = document.getElementById("ai-actor-container");
-        const isVisible = aiActorList.getAttribute("data-visible") === "true";
-        const overlay = document.querySelector(".modal-overlay");
-        function hideAIActorOnOutsideClick(event) {
-            const profileListAIActor = document.getElementById("new-chat-button");
-
-            if (event.target !== aiActorList && event.target !== profileListAIActor && !profileListAIActor.contains(event.target)) {
-                aiActorList.style.display = "none";
-                aiActorList.setAttribute("data-visible", false);
-                overlay.style.display = "none";
-                document.removeEventListener("click", hideAIActorOnOutsideClick);
-            }
-        }
-
-        if (isVisible) {
-            aiActorList.style.display = "none";
-            aiActorList.setAttribute("data-visible", false);
-            overlay.style.display = "none";
-            document.removeEventListener("click", hideAIActorOnOutsideClick);
-        } else {
-            aiActorList.style.display = "block";
-            aiActorList.setAttribute("data-visible", true);
-            overlay.style.display = "block";
-            document.addEventListener("click", hideAIActorOnOutsideClick);
-        }
-    }
 
     loadMessagesByChatId(chatId, sendFollowUpQuestions = false) {
         // clear messages container
@@ -653,41 +626,6 @@ class UIManager {
         this.changeChatTopic(chatId, true);
     }
 
-    async moveToNewTopic(messageId) {
-        // 1. 从messages容器中得到当前消息，以及后续的消息
-        // 这里 assumes 在消息列表中找到当前的消息后，其后面所有的消息都是后续的消息
-        const allMessages = document.querySelectorAll(".message");
-        let followingMessages = [];
-        let found = false;
-        allMessages.forEach(msg => {
-            if ((msg.dataset.messageId == messageId) || found) {
-                found = true;
-                followingMessages.push(msg);
-            }
-        });
-
-        // 2. 在当前messages容器中删除当前消息，以及后续的消息
-        followingMessages.forEach(msg => {
-            this.messageManager.deleteMessage(msg.dataset.messageId, true);
-        });
-
-        this.handleAddTopicClick();
-
-        // 5. 将当前消息以及后续的消息移动到新的话题中
-        followingMessages.forEach(msg => {
-            const newMessageItem = {
-                role: msg.dataset.sender,
-                content: msg.dataset.message,
-                messageId: msg.dataset.messageId,
-                isActive: msg.classList.contains("active"),
-            };
-            this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive);
-            this.storageManager.saveMessage(this.currentChatId, newMessageItem);
-            this.syncManager.syncMessageCreate(this.currentChatId, newMessageItem);
-        });
-        this.chatHistoryManager.updateChatHistory(this.currentChatId, true);
-    }
-
 
     handleChatHistoryItemClick(e) {
         const listItemElement = e.target.closest(".chat-history-item");
@@ -756,6 +694,125 @@ class UIManager {
 
         });
     }
+
+    // UIManager.js 或者相应的文件里
+
+    showAIActorList() {
+        const aiActorList = document.getElementById("ai-actor-container");
+        const overlay = document.querySelector(".modal-overlay");
+  
+        aiActorList.style.display = "block";
+        aiActorList.setAttribute("data-visible", "true");
+        overlay.style.display = "block";
+  
+        // 延迟注册事件处理器以避免立即捕获到触发显示选项框的同一点击事件
+        setTimeout(() => {
+            document.addEventListener("click", this.boundHideAIActorOnOutsideClick);
+        }, 0); // 可以设置更长的时间，如100或200毫秒，如果0仍然过短
+    }
+  
+    hideAIActorList() {
+        const aiActorList = document.getElementById("ai-actor-container");
+        const overlay = document.querySelector(".modal-overlay");
+    
+        if (aiActorList.getAttribute("data-visible") === "true") {
+            aiActorList.style.display = "none";
+            aiActorList.setAttribute("data-visible", "false");
+            overlay.style.display = "none";
+      
+            // 触发自定义事件，通知UIManager ai-actor-container关闭了
+            const event = new Event("aiActorListHidden");
+            document.dispatchEvent(event);
+      
+            // 注销点击外部隐藏对话框的事件
+            document.removeEventListener("click", this.boundHideAIActorOnOutsideClick);
+        }
+    }
+  
+    // 需要绑定正确的 this 上下文
+    hideAIActorOnOutsideClick(event) {
+    // 需要确保这个方法能够访问到 aiActorList 和 overlay 变量，
+    // 可以将它们作为 UIManager 类的属性存储
+        const aiActorList = document.getElementById("ai-actor-container");
+        const profileListAIActor = document.getElementById("new-chat-button");
+    
+        if (event.target !== aiActorList && event.target !== profileListAIActor && !profileListAIActor.contains(event.target)) {
+            console.log("hideAIActorOnOutsideClick", event.target, event);
+            this.hideAIActorList(); // 调用 UIManager 的方法来隐藏列表并处理后续操作
+        }
+    }
+
+    async moveToNewTopic(messageId) {
+        // 1. 从messages容器中得到当前消息，以及后续的消息
+        // 这里 assumes 在消息列表中找到当前的消息后，其后面所有的消息都是后续的消息
+        const allMessages = document.querySelectorAll(".message");
+        let followingMessages = [];
+        let found = false;
+        allMessages.forEach(msg => {
+            if ((msg.dataset.messageId == messageId) || found) {
+                found = true;
+                followingMessages.push(msg);
+            }
+        });
+        
+        const chatId = this.currentChatId;
+
+        await new Promise((resolve) => {
+            // 显示列表
+            this.showAIActorList();
+    
+            const handleActorListHidden = () => {
+                document.removeEventListener("aiActorListHidden", handleActorListHidden);
+                resolve();
+            };
+    
+            // 监听 ai-actor-container 被隐藏的事件
+            document.addEventListener("aiActorListHidden", handleActorListHidden);
+        });
+
+        if (this.currentChatId == chatId) {
+            return;
+        } else {
+            // 2. 在之前的话题中删除当前消息以及后续的消息
+            followingMessages.forEach(msg => {
+                messageId = msg.dataset.messageId;
+                this.app.prompts.removePrompt(messageId);
+                this.storageManager.deleteMessage(chatId, messageId);
+                this.syncManager.syncMessageDelete(chatId, messageId);
+            });
+        }
+        console.log("before add message storage:", this.storageManager.getMessages(this.currentChatId));
+
+        // 5. 将当前消息以及后续的消息移动到新的话题中
+        followingMessages.forEach(msg => {
+            const newMessageItem = {
+                role: msg.dataset.sender,
+                content: msg.dataset.message,
+                messageId: msg.dataset.messageId,
+                isActive: msg.classList.contains("active"),
+            };
+            let isActive = newMessageItem.isActive || false;
+            if (isActive) {
+                this.app.prompts.addPrompt(newMessageItem);
+            }
+            this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive);
+            this.storageManager.saveMessage(this.currentChatId, newMessageItem);
+            this.syncManager.syncMessageCreate(this.currentChatId, newMessageItem);
+        });
+        // console.log("after movie prompts",this.app.prompts);
+
+        this.chatHistoryManager.updateChatHistory(this.currentChatId, true);
+    }
+
+    toggleAIActorList() {
+        const aiActorList = document.getElementById("ai-actor-container");
+        if (aiActorList.getAttribute("data-visible") === "true") {
+            this.hideAIActorList();
+        } else {
+            this.showAIActorList();
+        }
+    }
+  
 
 }
 

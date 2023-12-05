@@ -100,9 +100,9 @@ class StorageManager {
         localStorage.setItem(this.chatHistoryKeyPrefix + username, JSON.stringify(chatHistory));
     }
     
-    saveMessageActiveStatus(messageId, isActive) {
+    saveMessageActiveStatus(chatId, messageId, isActive) {
         console.log("saveMessageActiveStatus: ", messageId, isActive);
-        const savedMessages = this.getMessages(this.uiManager.currentChatId);
+        const savedMessages = this.getMessages(chatId);
 
         const updatedMessages = savedMessages.map(savedMessage => {
             if (savedMessage.messageId === messageId) {
@@ -112,19 +112,19 @@ class StorageManager {
                 return savedMessage;
             }
         });
-        this.saveMessages(this.uiManager.currentChatId, updatedMessages);
+        this.saveMessages(chatId, updatedMessages);
     }
 
-    getMessage(messageId) {
-        const savedMessages = this.getMessages(this.uiManager.currentChatId);
+    getMessage(chatId, messageId) {
+        const savedMessages = this.getMessages(chatId);
         return savedMessages.find(savedMessage => savedMessage.messageId === messageId);
     }
 
-    deleteMessage(messageId) {
-        const savedMessages = this.getMessages(this.uiManager.currentChatId);
+    deleteMessage(chatId, messageId) {
+        const savedMessages = this.getMessages(chatId);
         const updatedMessages = savedMessages.filter(savedMessage => savedMessage.messageId !== messageId);
 
-        this.saveMessages(this.uiManager.currentChatId, updatedMessages);
+        this.saveMessages(chatId, updatedMessages);
     }
 
     // create or update a message

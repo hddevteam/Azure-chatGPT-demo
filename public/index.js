@@ -52,12 +52,12 @@ slider.addEventListener("input", function () {
         const messageId = messageElement.dataset.messageId;
         if (index >= messages.length - sliderValue) {
             messageElement.classList.add("active");
-            uiManager.storageManager.saveMessageActiveStatus(messageId, true);
+            uiManager.storageManager.saveMessageActiveStatus(uiManager.currentChatId, messageId, true);
         } else {
             messageElement.classList.remove("active");
-            uiManager.storageManager.saveMessageActiveStatus(messageId, false);
+            uiManager.storageManager.saveMessageActiveStatus(uiManager.currentChatId, messageId, false);
         }
-        const updatedMessage = uiManager.storageManager.getMessage(messageId);
+        const updatedMessage = uiManager.storageManager.getMessage(this.uiManager.currentChatId, messageId);
         uiManager.syncManager.syncMessageUpdate(uiManager.currentChatId, updatedMessage);
     });
 

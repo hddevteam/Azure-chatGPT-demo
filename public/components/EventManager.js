@@ -36,8 +36,8 @@ class EventManager {
         }
 
         const isActive = messageElement.classList.contains("active");
-        this.uiManager.storageManager.saveMessageActiveStatus(messageId, isActive);
-        const updatedMessage = this.uiManager.storageManager.getMessage(messageId);
+        this.uiManager.storageManager.saveMessageActiveStatus(this.uiManager.currentChatId, messageId, isActive);
+        const updatedMessage = this.uiManager.storageManager.getMessage(this.uiManager.currentChatId, messageId);
         this.uiManager.syncManager.syncMessageUpdate(this.uiManager.currentChatId, updatedMessage);
     }
 

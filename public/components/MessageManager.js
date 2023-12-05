@@ -341,7 +341,7 @@ class MessageManager {
         const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
         messageElement.remove();
         this.uiManager.app.prompts.removePrompt(messageId);
-        this.uiManager.storageManager.deleteMessage(messageId);
+        this.uiManager.storageManager.deleteMessage(this.uiManager.currentChatId, messageId);
         this.uiManager.syncManager.syncMessageDelete(this.uiManager.currentChatId, messageId);
         this.uiManager.updateSlider();
         this.uiManager.isDeleting = false;

@@ -126,7 +126,7 @@ class SyncManager {
             if (cloudMessage.isDeleted) {
                 // 如果云端消息标记为删除，删除本地消息
                 if (localMessage) {
-                    this.uiManager.storageManager.deleteMessage(cloudMessage.messageId);
+                    this.uiManager.storageManager.deleteMessage(chatId, cloudMessage.messageId);
                 }
             } else if (localMessage) {
             // 比较时间戳，以确定是否需要更新本地消息
