@@ -371,6 +371,8 @@ const toggleLayoutBtn = document.getElementById("toggle-layout");
 
 // Function to toggle the CSS class for the split layout
 function toggleLayout() {
+    const menu = document.getElementById("menu");
+    const chatHistoryContainer = document.getElementById("chat-history-container");
     mainContainer.classList.toggle("split-view");
     appBar.classList.toggle("split-view");
     messageContainer.classList.toggle("split-view");
@@ -378,6 +380,11 @@ function toggleLayout() {
     if (mainContainer.classList.contains("split-view")) {
         mainContainer.style.height = "";
         messageInput.style.maxHeight = "";
+        menu.style.display =  "none";
+        chatHistoryContainer.style.display = "none";
+    } else {
+        menu.style.display =  "block";
+        chatHistoryContainer.style.display = "block";
     }
 }
 
