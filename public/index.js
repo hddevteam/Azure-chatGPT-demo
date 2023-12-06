@@ -57,7 +57,7 @@ slider.addEventListener("input", function () {
             messageElement.classList.remove("active");
             uiManager.storageManager.saveMessageActiveStatus(uiManager.currentChatId, messageId, false);
         }
-        const updatedMessage = uiManager.storageManager.getMessage(this.uiManager.currentChatId, messageId);
+        const updatedMessage = uiManager.storageManager.getMessage(uiManager.currentChatId, messageId);
         uiManager.syncManager.syncMessageUpdate(uiManager.currentChatId, updatedMessage);
     });
 
