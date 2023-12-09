@@ -131,9 +131,12 @@ class UIManager {
 
     clearMessageInput() {
         this.messageInput.value = "";
-        setTimeout(() => {
-            this.messageInput.focus();
-        }, 0);
+        //check if it's in mobile view
+        if (window.innerWidth >= 768) {
+            setTimeout(() => {
+                this.messageInput.focus();
+            }, 0);
+        }
     }
 
     // generate unique id
