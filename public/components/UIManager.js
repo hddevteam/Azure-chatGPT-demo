@@ -131,6 +131,9 @@ class UIManager {
 
     clearMessageInput() {
         this.messageInput.value = "";
+        setTimeout(() => {
+            this.messageInput.focus();
+        }, 0);
     }
 
     // generate unique id
