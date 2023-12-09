@@ -25,9 +25,6 @@
 
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
-    #toggle-layout {
-        display: none;
-    }
 
     #app-outer-wrapper {
         flex: 100;

@@ -454,18 +454,15 @@ function toggleVisibility(element) {
 // Call this function to set initial display status based on the device type
 // 在页面加载时设置初始可见性状态
 function setInitialVisibility() {
-    const isMobile = window.innerWidth <= 768;
     const isSplitView = document.getElementById("app-container").classList.contains("split-view");
     const menu = document.getElementById("menu");
     const chatHistoryContainer = document.getElementById("chat-history-container");
     
-    // 确保初始状态与isMobile一致
-    menu.style.display = isMobile ? "none" : "block";
-    chatHistoryContainer.style.display = isMobile ? "none" : "block";
-
-    if (isSplitView) {
+    if (window.innerWidth <= 768 || isSplitView) {
+        // 如果是移动设备，则默认隐藏菜单和聊天历史记录
         menu.style.display = "none";
         chatHistoryContainer.style.display = "none";
+        toggleSystemMessage();
     }
 }
   
