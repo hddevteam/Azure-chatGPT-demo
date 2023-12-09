@@ -448,11 +448,13 @@ textarea::-webkit-scrollbar-thumb:hover {
 
 #clear-input {
     position: absolute;
-    right: -20px;
-    top: 5px;
+    left: -25px;
+    top: 0px;
     font-size: 1em;
     color: #ccc;
     cursor: pointer;
+    background-color: transparent;
+    border: none;
 }
 
 #clear-input:hover {
