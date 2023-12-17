@@ -32,9 +32,6 @@ switchElement.addEventListener("click", function () {
     }
 });
 
-const halfScreenHeight = window.innerHeight / 2;
-const initFocusHeight = window.innerHeight / 5;
-
 
 const slider = document.getElementById("slider");
 const currentValue = document.getElementById("currentValue");
@@ -72,14 +69,6 @@ slider.addEventListener("input", function () {
 
     // restore onLengthChange callback
     app.prompts.onLengthChange = originalOnLengthChange;
-});
-
-const messageForm = document.querySelector("#message-form");
-const messageInput = document.querySelector("#message-input");
-const clearInput = document.getElementById("clear-input");
-clearInput.addEventListener("click", function () {
-    uiManager.clearMessageInput();
-    uiManager.handleInput(initFocusHeight, halfScreenHeight);
 });
 
 // get and set page title and header h1 text from /api/app-name
@@ -176,11 +165,7 @@ getPromptRepo(uiManager.storageManager.getCurrentUsername())
     });
 
     
-// Send message on form submit
-messageForm.addEventListener("submit", (event) => {
-    //uiManager.js中已经写过这个方法，直接调用
-    uiManager.handleMessageFormSubmit(messageInput);
-});
+const messageInput = document.querySelector("#message-input");
 // Listening for keydown event
 document.addEventListener("keydown", (event) => {
     // Check if Option/Alt + S was pressed on macOS
@@ -252,71 +237,10 @@ function toggleSystemMessage() {
 
 setupVoiceInput(uiManager);
 
-messageInput.addEventListener("focus", function () {
-    uiManager.handleInput(initFocusHeight, halfScreenHeight);
-});
-
-let composing = false;
-
-messageInput.addEventListener("compositionstart", function () {
-    composing = true;
-});
-
-messageInput.addEventListener("compositionend", function () {
-    composing = false;
-    // 在这里进行处理
-    uiManager.handleInput(initFocusHeight, halfScreenHeight);
-});
-
-messageInput.addEventListener("input", function () {
-    if (!composing) {
-        // 在这里进行处理
-        uiManager.handleInput(initFocusHeight, halfScreenHeight);
-    }
-});
-
-function updateVh() {
-    vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty("--vh", `${vh}px`);
-}
-let vh;
-// 获取视口高度，并将其设置为一个CSS变量
-updateVh();
-
-window.addEventListener("resize", () => {
-    updateVh();
-});
-
-const messageInputContainer = document.querySelector("#message-input-container");
-const mainContainer = document.querySelector("#app-container");
-let ro = new ResizeObserver(entries => {
-    if (mainContainer.classList.contains("split-view")) {
-        // 在 split-view 模式下，我们不改变 mainContainer 的高度，因为 message-input-container 高度是固定的
-        return;
-    }
-    for (let entry of entries) {
-        let newHeight = `calc(var(--vh, 1vh) * 99.5 - ${entry.contentRect.height + 40}px)`;
-        mainContainer.style.height = newHeight;
-    }
-});
-
-ro.observe(messageInputContainer);
-
 
 const profileListMenu = document.getElementById("chat-profile-list-menu");
 const profileListElement = document.getElementById("profile-list");
 
-
-messageInput.addEventListener("keyup", function (event) {
-    const value = event.target.value.trim();
-    const cursorPosition = messageInput.selectionStart;
-    if (value.charAt(0) === "@" && cursorPosition === 1) {
-        loadProfileList();
-        profileListMenu.classList.remove("hidden");
-    } else {
-        profileListMenu.classList.add("hidden");
-    }
-});
 
 profileListMenu.addEventListener("click", function (event) {
     if (event.target.tagName.toLowerCase() === "li") {
@@ -359,41 +283,6 @@ window.addEventListener("message", function (event) {
         }
     }
 }, false);
-
-// split layout
-
-// Selecting elements that will be changed by layout toggling
-const appBar = document.getElementById("app-outer-wrapper");
-const messageContainer = document.getElementById("messages");
-
-// Selecting buttons for adding event listeners
-const toggleLayoutBtn = document.getElementById("toggle-layout");
-
-// Function to toggle the CSS class for the split layout
-function toggleLayout() {
-    const menu = document.getElementById("menu");
-    const chatHistoryContainer = document.getElementById("chat-history-container");
-    const systemMessage = document.querySelector("#system-message");
-
-    mainContainer.classList.toggle("split-view");
-    appBar.classList.toggle("split-view");
-    messageContainer.classList.toggle("split-view");
-    messageInputContainer.classList.toggle("split-view");
-    if (mainContainer.classList.contains("split-view")) {
-        mainContainer.style.height = "";
-        messageInput.style.maxHeight = "";
-        menu.style.display =  "none";
-        chatHistoryContainer.style.display = "none";
-        systemMessage.style.display = "none";
-    } else {
-        menu.style.display =  "block";
-        chatHistoryContainer.style.display = "block";
-        systemMessage.style.display = "block";
-    }
-}
-
-// Adding event listeners to buttons
-toggleLayoutBtn.addEventListener("click", toggleLayout);
 
 
 const toggleButton = document.getElementById("toggle-chat-topic");
@@ -446,11 +335,158 @@ function detachOutsideClickListener(elementId) {
 }
   
 const activeOutsideClickListeners = {};
-  
+const resizeHandle = document.getElementById("resize-handle");
+// const messageInputContainer = document.getElementById('input-container');
+let startY, startHeight;
+
+// 按下鼠标时准备调整大小
+resizeHandle.addEventListener("mousedown", function(e) {
+    startY = e.clientY;
+    startHeight = messageInputContainer.offsetHeight; // 直接获取容器高度而不是计算得出的样式值
+    document.addEventListener("mousemove", resize);
+    document.addEventListener("mouseup", stopResize);
+    e.preventDefault();
+});
+
+// 执行调整大小的操作
+function resize(e) {
+    const currentY = e.clientY;
+    const heightDelta = currentY - startY;
+    
+    // 计算新的高度，但要确保其不低于最小值，并且不超过窗口总高度
+    const newHeight = Math.max(startHeight - heightDelta, 50);  // 50px 作为最小高度
+    messageInputContainer.style.height = `${newHeight}px`;
+    const inputContainter = document.getElementById("input-container");
+    inputContainter.style.paddingBottom = "50px";
+}
+
+// 停止调整大小的操作
+function stopResize(e) {
+    document.removeEventListener("mousemove", resize);
+    document.removeEventListener("mouseup", stopResize);
+}
+
+
+const messageForm = document.querySelector("#message-form");
+const clearInput = document.getElementById("clear-input");
+const halfScreenHeight = window.innerHeight / 2;
+const initFocusHeight = window.innerHeight / 5;
+clearInput.addEventListener("click", function () {
+    uiManager.clearMessageInput();
+    uiManager.handleInput(initFocusHeight, halfScreenHeight);
+});
+
+messageInput.addEventListener("keyup", function (event) {
+    const value = event.target.value.trim();
+    const cursorPosition = messageInput.selectionStart;
+    if (value.charAt(0) === "@" && cursorPosition === 1) {
+        loadProfileList();
+        profileListMenu.classList.remove("hidden");
+    } else {
+        profileListMenu.classList.add("hidden");
+    }
+});
+
+// Send message on form submit
+messageForm.addEventListener("submit", (event) => {
+    //uiManager.js中已经写过这个方法，直接调用
+    uiManager.handleMessageFormSubmit(messageInput);
+});
+
+messageInput.addEventListener("focus", function () {
+    uiManager.handleInput(initFocusHeight, halfScreenHeight);
+});
+
+let composing = false;
+
+messageInput.addEventListener("compositionstart", function () {
+    composing = true;
+});
+
+messageInput.addEventListener("compositionend", function () {
+    composing = false;
+    // 在这里进行处理
+    uiManager.handleInput(initFocusHeight, halfScreenHeight);
+});
+
+messageInput.addEventListener("input", function () {
+    if (!composing) {
+        // 在这里进行处理
+        uiManager.handleInput(initFocusHeight, halfScreenHeight);
+    }
+});
+
+function updateVh() {
+    vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty("--vh", `${vh}px`);
+}
+let vh;
+// 获取视口高度，并将其设置为一个CSS变量
+updateVh();
+
+window.addEventListener("resize", () => {
+    updateVh();
+});
+
+const messageInputContainer = document.querySelector("#message-input-container");
+const mainContainer = document.querySelector("#app-container");
+let ro = new ResizeObserver(entries => {
+    if (mainContainer.classList.contains("split-view")) {
+        // 在 split-view 模式下，我们不改变 mainContainer 的高度，因为 message-input-container 高度是固定的
+        return;
+    }
+    for (let entry of entries) {
+        let newHeight = `calc(var(--vh, 1vh) * 99.5 - ${entry.contentRect.height + 40}px)`;
+        mainContainer.style.height = newHeight;
+    }
+});
+
+ro.observe(messageInputContainer);
+
+// split layout
+
+// Selecting elements that will be changed by layout toggling
+const appBar = document.getElementById("app-outer-wrapper");
+const messageContainer = document.getElementById("messages");
+
+// Selecting buttons for adding event listeners
+const toggleLayoutBtn = document.getElementById("toggle-layout");
+
+// Function to toggle the CSS class for the split layout
+function toggleLayout() {
+    const menu = document.getElementById("menu");
+    const chatHistoryContainer = document.getElementById("chat-history-container");
+    const systemMessage = document.querySelector("#system-message");
+    const inputContainter = document.getElementById("input-container");
+
+    // 重置高度
+    inputContainter.style = "";
+    messageInputContainer.style = "";
+    
+    mainContainer.classList.toggle("split-view");
+    appBar.classList.toggle("split-view");
+    messageContainer.classList.toggle("split-view");
+    messageInputContainer.classList.toggle("split-view");
+    if (mainContainer.classList.contains("split-view")) {
+        mainContainer.style.height = "";
+        messageInput.style.maxHeight = "";
+        menu.style.display =  "none";
+        chatHistoryContainer.style.display = "none";
+        systemMessage.style.display = "none";
+    } else {
+        menu.style.display =  "block";
+        chatHistoryContainer.style.display = "block";
+        systemMessage.style.display = "block";
+    }
+}
+
+// Adding event listeners to buttons
+toggleLayoutBtn.addEventListener("click", toggleLayout);
+
 function toggleVisibility(element) {
     element.style.display = element.style.display === "block" ? "none" : "block";
 }
-  
+
 // Call this function to set initial display status based on the device type
 // 在页面加载时设置初始可见性状态
 function setInitialVisibility() {
