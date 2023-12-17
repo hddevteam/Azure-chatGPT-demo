@@ -12,8 +12,18 @@
     flex: 1; 
 }
 
-/* left view */
+#app-outer-wrapper.split-view #horizontal-resize-handle {
+    background: #999;
+    width: 5px;
+    cursor: ew-resize;
+    flex-shrink: 0;
+}
 
+#app-outer-wrapper.split-view #horizontal-resize-handle {
+    display: block;
+}
+
+/* left view */
 #app-container.split-view {
     height: calc(100vh - 40px);
     flex: 1; 
@@ -68,7 +78,6 @@
 }
 
 /* right view */
-
 #message-input-container.split-view {
     flex: 1; 
     display: flex;
@@ -152,7 +161,7 @@
     width: 100%;
 }
 
-#message-input-container.split-view #message-input {
+#message-input-container.split-view #message-form #input-container #message-input {
     border-radius: 4px; 
     padding: 10px;
     padding-right: 50px;
@@ -233,4 +242,3 @@
 #message-input-container.split-view #new-chat-button {
     transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
-

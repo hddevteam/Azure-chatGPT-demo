@@ -159,7 +159,7 @@ html {
 }
 
 #resize-handle {
-    height: 10px; /* 给把手设定一个高度 */
+    height: 5px; /* 给把手设定一个高度 */
     background: #ccc; /* 把手的背景颜色 */
     cursor: ns-resize; /* 光标变为南北调整的形状，表示可垂直调整 */
 }

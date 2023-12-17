@@ -335,6 +335,7 @@ function detachOutsideClickListener(elementId) {
 }
   
 const activeOutsideClickListeners = {};
+
 const resizeHandle = document.getElementById("resize-handle");
 // const messageInputContainer = document.getElementById('input-container');
 let startY, startHeight;
@@ -457,11 +458,13 @@ function toggleLayout() {
     const menu = document.getElementById("menu");
     const chatHistoryContainer = document.getElementById("chat-history-container");
     const systemMessage = document.querySelector("#system-message");
-    const inputContainter = document.getElementById("input-container");
+    const inputContainter = document.querySelector("#input-container");
+    const appContainer = document.querySelector("#app-container");
 
     // 重置高度
     inputContainter.style = "";
     messageInputContainer.style = "";
+    appContainer.style = "";
     
     mainContainer.classList.toggle("split-view");
     appBar.classList.toggle("split-view");
@@ -493,6 +496,13 @@ function setInitialVisibility() {
     const isSplitView = document.getElementById("app-container").classList.contains("split-view");
     const menu = document.getElementById("menu");
     const chatHistoryContainer = document.getElementById("chat-history-container");
+    const inputContainter = document.querySelector("#input-container");
+    const messageInputContainer = document.querySelector("#message-input-container");
+    const appContainer = document.querySelector("#app-container");
+
+    inputContainter.style = "";
+    messageInputContainer.style = "";
+    appContainer.style = "";
     
     if (window.innerWidth <= 768 || isSplitView) {
         // 如果是移动设备，则默认隐藏菜单和聊天历史记录
@@ -504,3 +514,43 @@ function setInitialVisibility() {
   
 window.onload = setInitialVisibility;
 window.addEventListener("resize", setInitialVisibility);
+
+// 获取`horizontal-resize-handle`和要调整大小的容器
+const horizontalResizeHandle = document.getElementById("horizontal-resize-handle");
+const appContainer = document.getElementById("app-container");
+
+let startHorizX, startHorizWidthAppContainer;
+
+// 当用户按下鼠标按钮准备拖动时，设置初始宽度和鼠标位置
+horizontalResizeHandle.addEventListener("mousedown", function(e) {
+    startHorizX = e.clientX;
+    startHorizWidthAppContainer = appContainer.getBoundingClientRect().width; // 获取当前的宽度
+
+    appContainer.style.flex = "none"; // 在拖动开始时将flex设置为none，以使用固定宽度
+    appContainer.style.width = `${startHorizWidthAppContainer}px`; // 设置固定宽度
+    
+    document.addEventListener("mousemove", doHorizontalDrag, false);
+    document.addEventListener("mouseup", stopHorizontalDrag, false);
+    e.preventDefault();
+}, false);
+
+function doHorizontalDrag(e) {
+    // 计算拖动产生的宽度变化
+    let newWidthAppContainer = startHorizWidthAppContainer + e.clientX - startHorizX;
+
+    // 如果新宽度小于某一个最小值（比如最小宽度为100px），
+    // 或者超过了一定的最大值（比如剩余空间的90%），则停止调整宽度
+    newWidthAppContainer = Math.max(newWidthAppContainer, 100); // 这里设定最小宽度
+    newWidthAppContainer = Math.min(newWidthAppContainer, window.innerWidth * 0.9); // 这里设定最大宽度
+
+    // 更新app-container的宽度
+    appContainer.style.width = `${newWidthAppContainer}px`;
+
+    e.preventDefault();
+}
+
+function stopHorizontalDrag(e) {
+    // 移除拖动事件的监听器
+    document.removeEventListener("mousemove", doHorizontalDrag, false);    
+    document.removeEventListener("mouseup", stopHorizontalDrag, false);
+}
