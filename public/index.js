@@ -5,6 +5,9 @@ import { getAppName, getPromptRepo } from "./utils/api.js";
 import { setupVoiceInput } from "./utils/input-audio.js";
 import swal from "sweetalert";
 import MarkdownManager from "./components/MarkdownManager.js";
+import { addHorizontalResizeHandleListeners } from "./utils/horizontal-resize.js";
+import { addVerticalResizeHandleListeners } from "./utils/vertical-resize.js";
+
 import setup from "./setup.js";
 
 const uiManager = setup();
@@ -336,37 +339,6 @@ function detachOutsideClickListener(elementId) {
   
 const activeOutsideClickListeners = {};
 
-const resizeHandle = document.getElementById("resize-handle");
-// const messageInputContainer = document.getElementById('input-container');
-let startY, startHeight;
-
-// 按下鼠标时准备调整大小
-resizeHandle.addEventListener("mousedown", function(e) {
-    startY = e.clientY;
-    startHeight = messageInputContainer.offsetHeight; // 直接获取容器高度而不是计算得出的样式值
-    document.addEventListener("mousemove", resize);
-    document.addEventListener("mouseup", stopResize);
-    e.preventDefault();
-});
-
-// 执行调整大小的操作
-function resize(e) {
-    const currentY = e.clientY;
-    const heightDelta = currentY - startY;
-    
-    // 计算新的高度，但要确保其不低于最小值，并且不超过窗口总高度
-    const newHeight = Math.max(startHeight - heightDelta, 50);  // 50px 作为最小高度
-    messageInputContainer.style.height = `${newHeight}px`;
-    const inputContainter = document.getElementById("input-container");
-    inputContainter.style.paddingBottom = "50px";
-}
-
-// 停止调整大小的操作
-function stopResize(e) {
-    document.removeEventListener("mousemove", resize);
-    document.removeEventListener("mouseup", stopResize);
-}
-
 
 const messageForm = document.querySelector("#message-form");
 const clearInput = document.getElementById("clear-input");
@@ -512,45 +484,9 @@ function setInitialVisibility() {
     }
 }
   
-window.onload = setInitialVisibility;
+window.onload = () => {
+    setInitialVisibility();
+    addHorizontalResizeHandleListeners(); // Add horizontal resize functionality
+    addVerticalResizeHandleListeners(); // Add vertical resize functionality
+};
 window.addEventListener("resize", setInitialVisibility);
-
-// 获取`horizontal-resize-handle`和要调整大小的容器
-const horizontalResizeHandle = document.getElementById("horizontal-resize-handle");
-const appContainer = document.getElementById("app-container");
-
-let startHorizX, startHorizWidthAppContainer;
-
-// 当用户按下鼠标按钮准备拖动时，设置初始宽度和鼠标位置
-horizontalResizeHandle.addEventListener("mousedown", function(e) {
-    startHorizX = e.clientX;
-    startHorizWidthAppContainer = appContainer.getBoundingClientRect().width; // 获取当前的宽度
-
-    appContainer.style.flex = "none"; // 在拖动开始时将flex设置为none，以使用固定宽度
-    appContainer.style.width = `${startHorizWidthAppContainer}px`; // 设置固定宽度
-    
-    document.addEventListener("mousemove", doHorizontalDrag, false);
-    document.addEventListener("mouseup", stopHorizontalDrag, false);
-    e.preventDefault();
-}, false);
-
-function doHorizontalDrag(e) {
-    // 计算拖动产生的宽度变化
-    let newWidthAppContainer = startHorizWidthAppContainer + e.clientX - startHorizX;
-
-    // 如果新宽度小于某一个最小值（比如最小宽度为100px），
-    // 或者超过了一定的最大值（比如剩余空间的90%），则停止调整宽度
-    newWidthAppContainer = Math.max(newWidthAppContainer, 100); // 这里设定最小宽度
-    newWidthAppContainer = Math.min(newWidthAppContainer, window.innerWidth * 0.9); // 这里设定最大宽度
-
-    // 更新app-container的宽度
-    appContainer.style.width = `${newWidthAppContainer}px`;
-
-    e.preventDefault();
-}
-
-function stopHorizontalDrag(e) {
-    // 移除拖动事件的监听器
-    document.removeEventListener("mousemove", doHorizontalDrag, false);    
-    document.removeEventListener("mouseup", stopHorizontalDrag, false);
-}

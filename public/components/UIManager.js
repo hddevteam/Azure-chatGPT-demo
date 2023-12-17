@@ -536,7 +536,7 @@ class UIManager {
         }
 
         // Clear the input field and handle the UI
-        // this.clearMessageInput();
+        this.clearMessageInput();
         this.messageInput.blur();
         this.handleInput();
     }

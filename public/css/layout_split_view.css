@@ -23,6 +23,10 @@
     display: block;
 }
 
+#app-outer-wrapper.split-view #horizontal-resize-handle:hover {
+    background-color: #0056b3; 
+}
+
 /* left view */
 #app-container.split-view {
     height: calc(100vh - 40px);

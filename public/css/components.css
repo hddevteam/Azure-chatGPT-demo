@@ -868,3 +868,11 @@ button.action-button.invisible {
 #ai-actor-container::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
 }
+
+#horizontal-resize-handle, #resize-handle {
+    transition: background-color 0.25s;
+}
+
+#resize-handle:hover {
+    background-color: #0056b3; 
+}
