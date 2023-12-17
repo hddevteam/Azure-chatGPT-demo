@@ -370,18 +370,21 @@ textarea::-webkit-scrollbar-thumb:hover {
     display: flex;
     gap: 5px;
     justify-content: space-between;
+    flex-wrap: wrap;
 }
 
 .interactive-elements {
     display: flex;
     align-items: center;
     gap: 5px;
+    flex-wrap: wrap;
 }
 
 .btns {
     display: flex;
     align-items: center;
     gap: 5px;
+    flex-wrap: wrap;
 }
 
 .btn {
