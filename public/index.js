@@ -470,11 +470,9 @@ function setInitialVisibility() {
     const chatHistoryContainer = document.getElementById("chat-history-container");
     const inputContainter = document.querySelector("#input-container");
     const messageInputContainer = document.querySelector("#message-input-container");
-    const appContainer = document.querySelector("#app-container");
 
     inputContainter.style = "";
     messageInputContainer.style = "";
-    appContainer.style = "";
     
     if (window.innerWidth <= 768 || isSplitView) {
         // 如果是移动设备，则默认隐藏菜单和聊天历史记录
