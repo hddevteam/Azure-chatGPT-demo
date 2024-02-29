@@ -44,6 +44,10 @@
     border-left: 5px solid #f3ba2f;
 }
 
+#messages.split-view td {
+    color: #000;
+}
+
 #messages.split-view .assistant-message.active {
     background-color: #526d95;
     color: #E6E6E6;
