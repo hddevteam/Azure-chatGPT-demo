@@ -699,17 +699,29 @@ class UIManager {
 
     showAIActorList() {
         const aiActorList = document.getElementById("ai-actor-container");
+        const activeItem = aiActorList.querySelector(".active");
         const overlay = document.querySelector(".modal-overlay");
   
         aiActorList.style.display = "block";
         aiActorList.setAttribute("data-visible", "true");
         overlay.style.display = "block";
-  
+
+        // scroll to active item
+        if (activeItem) {
+            activeItem.scrollIntoView({
+                behavior: "smooth", // 平滑滚动
+                block: "nearest",    // 垂直方向
+                inline: "start"      // 水平方向
+            });
+        }
+
         // 延迟注册事件处理器以避免立即捕获到触发显示选项框的同一点击事件
         setTimeout(() => {
             document.addEventListener("click", this.boundHideAIActorOnOutsideClick);
         }, 0); // 可以设置更长的时间，如100或200毫秒，如果0仍然过短
     }
+
+    
   
     hideAIActorList() {
         const aiActorList = document.getElementById("ai-actor-container");
