@@ -5,6 +5,7 @@ import { getAppName, getPromptRepo } from "./utils/api.js";
 import { setupVoiceInput } from "./utils/input-audio.js";
 import swal from "sweetalert";
 import MarkdownManager from "./components/MarkdownManager.js";
+import ModelDropdownManager from "./utils/ModelDropdownManager.js";
 import { addHorizontalResizeHandleListeners } from "./utils/horizontal-resize.js";
 import { addVerticalResizeHandleListeners } from "./utils/vertical-resize.js";
 
@@ -12,28 +13,14 @@ import setup from "./setup.js";
 
 const uiManager = setup();
 const app = uiManager.app;
+new ModelDropdownManager(app, "#model-switch", "#model-dropdown");
 
 //get client language
 const clientLanguage = navigator.language;
 console.log(clientLanguage);
 uiManager.setClientLanguage(clientLanguage);
 
-const switchElement = document.querySelector("#model-switch");
-let model = "gpt-3.5-turbo"; // default model
 
-switchElement.addEventListener("click", function () {
-    model = model === "gpt-3.5-turbo" ? "gpt-4" : "gpt-3.5-turbo";
-    this.textContent = model === "gpt-4" ? "GPT4" : "GPT3.5";
-    app.model = model;
-
-    if (model === "gpt-4") {
-        this.classList.remove("gpt-3");
-        this.classList.add("gpt-4");
-    } else {
-        this.classList.remove("gpt-4");
-        this.classList.add("gpt-3");
-    }
-});
 
 
 const slider = document.getElementById("slider");

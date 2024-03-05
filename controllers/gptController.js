@@ -1,18 +1,18 @@
 // controllers/gptController.js
 
 const devMode = process.env.DEV_MODE ? eval(process.env.DEV_MODE) : false;
-let apiKey, apiUrl, gpt4Apikey, gpt4ApiUrl;
+let apiKey, apiUrl, gpt4Apikey, gpt4ApiUrl, gpt4LastApiKey, gpt4LastApiUrl;
 if (devMode) {
     apiKey = process.env.API_KEY_DEV;
     apiUrl = process.env.API_URL_DEV;
-    gpt4Apikey = process.env.GPT_4_API_KEY_DEV;
-    gpt4ApiUrl = process.env.GPT_4_API_URL_DEV;
 } else {
     apiKey = process.env.API_KEY;
     apiUrl = process.env.API_URL;
-    gpt4Apikey = process.env.GPT_4_API_KEY;
-    gpt4ApiUrl = process.env.GPT_4_API_URL;
 }
+gpt4Apikey = process.env.GPT_4_API_KEY;
+gpt4ApiUrl = process.env.GPT_4_API_URL;
+gpt4LastApiKey = process.env.GPT_4_LAST_API_KEY;
+gpt4LastApiUrl = process.env.GPT_4_LAST_API_URL;
 
 const defaultParams = {
     temperature: 0.8,
@@ -70,8 +70,25 @@ exports.generateResponse = async (req, res) => {
         return res.status(400).send("Invalid prompt");
     }
 
-    const currentApiKey = model === "gpt-3.5-turbo" ? apiKey : gpt4Apikey;
-    const currentApiUrl = model === "gpt-3.5-turbo" ? apiUrl : gpt4ApiUrl;
+    let currentApiKey, currentApiUrl;
+    console.log("model", model);
+    switch (model) {
+    case "gpt-3.5-turbo":
+        currentApiKey = apiKey;
+        currentApiUrl = apiUrl;
+        break;
+    case "gpt-4":
+        currentApiKey = gpt4Apikey;
+        currentApiUrl = gpt4ApiUrl;
+        break;
+    case "gpt-4-last":
+        currentApiKey = gpt4LastApiKey;
+        currentApiUrl = gpt4LastApiUrl;
+        break;
+    default:
+        return res.status(400).send("Invalid model specified");
+    }
+
 
     const requestData = {
         apiKey: currentApiKey,
