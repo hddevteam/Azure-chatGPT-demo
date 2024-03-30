@@ -7,6 +7,8 @@ import ChatHistoryManager from "./ChatHistoryManager.js";
 import { textToImage, getTts } from "../utils/api.js";
 import swal from "sweetalert";
 import SyncManager from "./SyncManager.js";
+import ProfileFormManager from "./ProfileFormManager.js";
+
 
 
 class UIManager {
@@ -18,7 +20,7 @@ class UIManager {
         this.clientLanguage = "en-US";
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.addEventListener("scroll", () => {
-            if (messagesContainer.scrollTop === 0) {
+            if (messagesContainer.scrollTop === 0 && messagesContainer.innerHTML!=="") {
                 this.messageManager.loadMoreMessages();
             }
         });
@@ -36,6 +38,15 @@ class UIManager {
         this.setupChatHistoryListClickHandler();
         this.setupUploadFunctionality();
         this.boundHideAIActorOnOutsideClick = this.hideAIActorOnOutsideClick.bind(this);
+        this.handleClickOutsideCreateAIActorModal = this.handleClickOutsideCreateAIActorModal.bind(this);
+        this.profileFormManager = new ProfileFormManager(this.storageManager, (updatedProfile) => {
+            // Logic to handle the updated profile
+            console.log("Updated Profile:", updatedProfile);
+            // Example: Update the profile in the storage
+            this.storageManager.setCurrentProfile(updatedProfile);
+            // Optionally, show a confirmation message
+        });
+        document.getElementById("new-ai-actor").addEventListener("click", this.showNewAIActorModal.bind(this));
     }
 
 
@@ -196,21 +207,6 @@ class UIManager {
         }
     }
 
-    setSystemMessage(message) {
-        // 获取显示系统消息的元素
-        this.app.prompts.setSystemPrompt(message);
-        const systemMessageElement = document.querySelector("#system-message");
-        systemMessageElement.innerHTML = `${message}<button id="edit-system-message"><i class="fas fa-edit"></i></button>`;
-
-        // 定义编辑按钮的点击事件
-        const editButton = document.querySelector("#edit-system-message");
-        editButton.addEventListener("click", () => {
-            // 使用window.open可以在新标签页中打开，并将当前的profile name传递过去
-            window.open(`profile-manager.html?profileName=${this.storageManager.getCurrentProfile().name}`, "_blank");
-        });
-    }
-
-
     updateSlider() {
         const messageCount = document.querySelectorAll(".message").length;
         document.querySelector("#maxValue").textContent = messageCount;
@@ -359,18 +355,14 @@ class UIManager {
         }
         
         const currentProfile = this.storageManager.getCurrentProfile();
-        //empty menu list
-        const menuList = document.querySelector("#menu-list");
-        menuList.innerHTML = "";
+
         //empty aiActorlist
         const aiActorList = document.querySelector("#ai-actor-list");
         aiActorList.innerHTML = "";
         const aiProfile = document.querySelector("#ai-profile");
         aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
         this.profiles.forEach(item => {
-            this.createListItem(item, currentProfile, menuList, false);
             this.createListItem(item, currentProfile, aiActorList, true);
-
         });
 
         let latestChat;
@@ -384,11 +376,9 @@ class UIManager {
             this.currentChatId = chatId;
             this.changeChatTopic(chatId);
         }
-
     }
 
     changeChatTopic(chatId, isNewTopic = false) {
-
         // check if chatId is current chatId
         if (this.currentChatId !== chatId) {
             const currentChatHisory = this.storageManager.readChatHistory(this.currentChatId);
@@ -404,12 +394,14 @@ class UIManager {
 
         // Update current profile and chat ID
         this.storageManager.setCurrentProfile(this.profiles.find(p => p.name === profileName));
-        this.setSystemMessage(this.storageManager.getCurrentProfile().prompt);
+        
+        const currentProfile = this.storageManager.getCurrentProfile();
+
+        this.profileFormManager.bindProfileData(currentProfile);
+        this.profileFormManager.oldName = currentProfile.name;
+
         console.log("profileName: ", profileName);
 
-        // Set active profile menu item
-        document.querySelector("#menu-list li.active")?.classList.remove("active");
-        document.querySelector(`#menu-list li[data-profile="${profileName}"]`).classList.add("active");
         //Set active profile aiActor item
         document.querySelector("#ai-actor-list li.active")?.classList.remove("active");
         document.querySelector(`#ai-actor-list li[data-profile="${profileName}"]`).classList.add("active");
@@ -694,65 +686,7 @@ class UIManager {
 
         });
     }
-
-    // UIManager.js 或者相应的文件里
-
-    showAIActorList() {
-        const aiActorList = document.getElementById("ai-actor-container");
-        const activeItem = aiActorList.querySelector(".active");
-        const overlay = document.querySelector(".modal-overlay");
-  
-        aiActorList.style.display = "block";
-        aiActorList.setAttribute("data-visible", "true");
-        overlay.style.display = "block";
-
-        // scroll to active item
-        if (activeItem) {
-            activeItem.scrollIntoView({
-                behavior: "smooth", // 平滑滚动
-                block: "nearest",    // 垂直方向
-                inline: "start"      // 水平方向
-            });
-        }
-
-        // 延迟注册事件处理器以避免立即捕获到触发显示选项框的同一点击事件
-        setTimeout(() => {
-            document.addEventListener("click", this.boundHideAIActorOnOutsideClick);
-        }, 0); // 可以设置更长的时间，如100或200毫秒，如果0仍然过短
-    }
-
-    
-  
-    hideAIActorList() {
-        const aiActorList = document.getElementById("ai-actor-container");
-        const overlay = document.querySelector(".modal-overlay");
-    
-        if (aiActorList.getAttribute("data-visible") === "true") {
-            aiActorList.style.display = "none";
-            aiActorList.setAttribute("data-visible", "false");
-            overlay.style.display = "none";
-      
-            // 触发自定义事件，通知UIManager ai-actor-container关闭了
-            const event = new Event("aiActorListHidden");
-            document.dispatchEvent(event);
-      
-            // 注销点击外部隐藏对话框的事件
-            document.removeEventListener("click", this.boundHideAIActorOnOutsideClick);
-        }
-    }
-  
-    // 需要绑定正确的 this 上下文
-    hideAIActorOnOutsideClick(event) {
-    // 需要确保这个方法能够访问到 aiActorList 和 overlay 变量，
-    // 可以将它们作为 UIManager 类的属性存储
-        const aiActorList = document.getElementById("ai-actor-container");
-        const profileListAIActor = document.getElementById("new-chat-button");
-    
-        if (event.target !== aiActorList && event.target !== profileListAIActor && !profileListAIActor.contains(event.target)) {
-            console.log("hideAIActorOnOutsideClick", event.target, event);
-            this.hideAIActorList(); // 调用 UIManager 的方法来隐藏列表并处理后续操作
-        }
-    }
+   
 
     async moveToNewTopic(messageId) {
         // 1. 从messages容器中得到当前消息，以及后续的消息
@@ -816,6 +750,59 @@ class UIManager {
         this.chatHistoryManager.updateChatHistory(this.currentChatId, true);
     }
 
+    showAIActorList() {
+        const aiActorWrapper = document.getElementById("ai-actor-wrapper"); // 修改为新的外层容器ID
+        const aiActorList = document.getElementById("ai-actor-container"); // 仍然需要访问以控制滚动到激活项
+        const activeItem = aiActorList.querySelector(".active");
+        const overlay = document.querySelector(".modal-overlay");
+    
+        aiActorWrapper.style.display = "flex"; // 显示外层包裹容器
+        aiActorWrapper.setAttribute("data-visible", "true");
+        overlay.style.display = "block";
+    
+        // scroll to active item
+        if (activeItem) {
+            activeItem.scrollIntoView({
+                behavior: "smooth", // 平滑滚动
+                block: "nearest",    // 垂直方向
+                inline: "start"      // 水平方向
+            });
+        }
+    
+        // 延迟注册事件处理器以避免立即捕获到触发显示选项框的同一点击事件
+        setTimeout(() => {
+            document.addEventListener("click", this.boundHideAIActorOnOutsideClick);
+        }, 0); 
+    }
+    
+    hideAIActorList() {
+        const aiActorWrapper = document.getElementById("ai-actor-wrapper"); // 修改为新的外层容器ID
+        const overlay = document.querySelector(".modal-overlay");
+    
+        if (aiActorWrapper.getAttribute("data-visible") === "true") {
+            aiActorWrapper.style.display = "none"; // 隐藏外层包裹容器
+            aiActorWrapper.setAttribute("data-visible", "false");
+            overlay.style.display = "none";
+    
+            // 触发自定义事件，通知UIManager ai-actor-wrapper关闭了
+            const event = new Event("aiActorListHidden");
+            document.dispatchEvent(event);
+    
+            // 注销点击外部隐藏对话框的事件
+            document.removeEventListener("click", this.boundHideAIActorOnOutsideClick);
+        }
+    }
+    
+    hideAIActorOnOutsideClick(event) {
+        const aiActorWrapper = document.getElementById("ai-actor-wrapper"); // 修改为新的外层容器ID
+        const profileListAIActor = document.getElementById("new-chat-button"); 
+    
+        if (event.target !== aiActorWrapper && event.target !== profileListAIActor && !aiActorWrapper.contains(event.target)) {
+            console.log("hideAIActorOnOutsideClick", event.target, event);
+            this.hideAIActorList(); // 调用方法来隐藏列表并处理后续操作
+        }
+    } 
+
     toggleAIActorList() {
         const aiActorList = document.getElementById("ai-actor-container");
         if (aiActorList.getAttribute("data-visible") === "true") {
@@ -824,7 +811,43 @@ class UIManager {
             this.showAIActorList();
         }
     }
-  
+    
+    showNewAIActorModal() {
+        this.hideAIActorList(); // 确保先隐藏aiActorList
+        // 显示模态覆盖层
+        document.querySelector(".modal-overlay").style.display = "block";
+        // 显示ai-actor-settings-inner-form-wrapper作为模态框
+        document.getElementById("ai-actor-settings-inner-form-wrapper").classList.add("modal-mode", "modal-mode-visible");
+        // 绑定模态外点击事件，关闭模态框
+        setTimeout(() => { // 使用setTimeout防止立即触发
+            document.addEventListener("click", this.handleClickOutsideCreateAIActorModal);
+        }, 0);
+    }
+
+    handleClickOutsideCreateAIActorModal(event) {
+        const chatSettingsSidebar = document.getElementById("ai-actor-settings-inner-form-wrapper");
+        // 检查点击是否在ai-actor-settings-inner-form-wrapper或其子元素之外
+        if (!chatSettingsSidebar.contains(event.target)) {
+            // 如果是，则隐藏模态框和覆盖层
+            this.hideNewAIActorModal();
+            // 移除此事件监听器以避免不必要的检查
+            document.removeEventListener("click", this.handleClickOutsideCreateAIActorModal);
+            event.stopPropagation(); // 防止事件进一步传播
+        }
+    }
+    
+    hideNewAIActorModal() {
+        document.querySelector(".modal-overlay").style.display = "none"; // 隐藏覆盖层
+        document.getElementById("ai-actor-settings-inner-form-wrapper").classList.remove("modal-mode", "modal-mode-visible"); // 隐藏ai-actor-settings-inner-form-wrapper模态框
+    }
+
+    // createAIActor() {
+    //     document.querySelector("#messages").innerHTML = "";
+    //     this.app.prompts.clear();
+    //     this.profileFormManager.resetForm();
+    //     this.profileFormManager.oldName = "";
+    //     this.hideAIActorList();
+    // }
 
 }
 

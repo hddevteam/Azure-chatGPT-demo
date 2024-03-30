@@ -31,7 +31,7 @@
         height: 100%;
     }
 
-    #menu {
+    #ai-actor-settings-wrapper {
         display: none;
         position: fixed;
         top: 2.7em;
@@ -46,28 +46,6 @@
         height: calc(75vh);
         max-height: max-content;
         z-index: 9999;
-    }
-
-    #menu li {
-        margin: 0;
-        padding: 10px;
-    }
-
-    #menu-header i,
-    #menu li i {
-        margin: 0 0.5em 0 0;
-        font-size: 1em;
-        padding: 0.2em;
-    }
-
-    #menu-header span {
-        font-size: 1em;
-        font-weight: normal;
-    }
-
-    #menu-list li span {
-        margin: 0;
-        padding: 0;
     }
 
     #chat-container {
@@ -190,7 +168,7 @@
         width: 80%;
     }
 
-    #menu {
+    #ai-actor-settings-wrapper {
         display: none;
     }
 

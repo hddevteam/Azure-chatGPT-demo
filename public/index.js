@@ -202,31 +202,8 @@ usernameLabel.addEventListener("click", function () {
 
 
 document.getElementById("new-chat-button").addEventListener("click",handleAIActor);
-// 添加事件监听器到最小化窗口图标
-const systemMessageWindowIcon = document.querySelector("#window-icon");
-
-systemMessageWindowIcon.addEventListener("click", toggleSystemMessage);
-
-// 切换系统消息
-function toggleSystemMessage() {
-    const systemMessage = document.querySelector("#system-message");
-    if (systemMessage.style.display === "none") {
-        systemMessage.style.display = "block";
-        systemMessageWindowIcon.setAttribute("title", "Hide system message");
-        systemMessageWindowIcon.classList.remove("fa-window-maximize");
-        systemMessageWindowIcon.classList.add("fa-window-minimize");
-
-    } else {
-        systemMessage.style.display = "none";
-        systemMessageWindowIcon.setAttribute("title", "Show system message");
-        systemMessageWindowIcon.classList.remove("fa-window-minimize");
-        systemMessageWindowIcon.classList.add("fa-window-maximize");
-
-    }
-}
 
 setupVoiceInput(uiManager);
-
 
 const profileListMenu = document.getElementById("chat-profile-list-menu");
 const profileListElement = document.getElementById("profile-list");
@@ -260,19 +237,6 @@ function handleAIActor(event){
     event.stopPropagation();
     uiManager.toggleAIActorList();
 } 
-
-
-window.addEventListener("message", function (event) {
-    if (event.data.type === "PROFILE_UPDATED") {
-        const updatedProfile = event.data.data;
-        // Check if the updated profile is the current profile
-        if (updatedProfile.name === uiManager.storageManager.getCurrentProfile().name) {
-            // Update the system message
-            uiManager.storageManager.setCurrentProfile(updatedProfile);
-            uiManager.setSystemMessage(updatedProfile.prompt);
-        }
-    }
-}, false);
 
 
 const toggleButton = document.getElementById("toggle-chat-topic");
@@ -414,7 +378,7 @@ const toggleLayoutBtn = document.getElementById("toggle-layout");
 
 // Function to toggle the CSS class for the split layout
 function toggleLayout() {
-    const menu = document.getElementById("menu");
+    const actorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
     const chatHistoryContainer = document.getElementById("chat-history-container");
     const systemMessage = document.querySelector("#system-message");
     const inputContainter = document.querySelector("#input-container");
@@ -432,11 +396,11 @@ function toggleLayout() {
     if (mainContainer.classList.contains("split-view")) {
         mainContainer.style.height = "";
         messageInput.style.maxHeight = "";
-        menu.style.display =  "none";
+        actorSettingsWrapper.style.display =  "none";
         chatHistoryContainer.style.display = "none";
         systemMessage.style.display = "none";
     } else {
-        menu.style.display =  "block";
+        actorSettingsWrapper.style.display =  "block";
         chatHistoryContainer.style.display = "block";
         systemMessage.style.display = "block";
     }
@@ -465,7 +429,6 @@ function setInitialVisibility() {
         // 如果是移动设备，则默认隐藏菜单和聊天历史记录
         menu.style.display = "none";
         chatHistoryContainer.style.display = "none";
-        toggleSystemMessage();
     }
 }
   
@@ -475,3 +438,4 @@ window.onload = () => {
     addVerticalResizeHandleListeners(); // Add vertical resize functionality
 };
 window.addEventListener("resize", setInitialVisibility);
+

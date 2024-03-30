@@ -39,58 +39,10 @@
     text-overflow: ellipsis;
 }
 
-
-#menu-header {
-    display: flex;
-    width: 100%;
-    justify-content: left;
-    margin-bottom: 10px;
-    padding: 10px 0;
-    color: #333;
-    border-bottom: 1px solid #ccc;
-    font-size: 20px;
-    padding: 5px;
-    margin-right: 10px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #f1f1f1;
-}
-
 #manage-profile {
     position: absolute;
     right: 0px;
     top: 5px;
-}
-
-#menu-header i {
-    font-size: 20px;
-    margin-right: 10px;
-    margin-left: 5px;
-}
-
-#menu-header span {
-    font-size: 18px;
-    font-family: 'Roboto';
-}
-
-#menu-list {
-    -webkit-overflow-scrolling: touch;
-}
-
-#menu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-#menu li {
-    display: flex;
-    align-items: center;
-    padding: 5px;
-    padding-left: 10px;
-    margin-bottom: 5px;
-    color: #333;
 }
 
 .markdown-modal {
@@ -122,23 +74,6 @@
     font-size: 16px;
     font-family: 'Roboto';
     line-height: 150%;
-}
-
-#menu li i {
-    font-size: 16px;
-    margin-right: 10px;
-}
-
-#menu li span {
-    font-size: 14px;
-    line-height: 120%;
-}
-
-#menu li:hover,
-#menu li.active {
-    background-color: #424141;
-    color: #e6f2ff;
-    cursor: pointer;
 }
 
 .message {
@@ -337,21 +272,21 @@ li.menu-item:hover {
 }
 
 /* Custom scrollbar for Webkit browsers */
-#menu::-webkit-scrollbar,
+#ai-actor-settings-wrapper::-webkit-scrollbar,
 #messages::-webkit-scrollbar,
 textarea::-webkit-scrollbar {
     width: 6px;
     background-color: transparent;
 }
 
-#menu::-webkit-scrollbar-thumb,
+#ai-actor-settings-wrapper::-webkit-scrollbar-thumb,
 #messages::-webkit-scrollbar-thumb,
 textarea::-webkit-scrollbar-thumb {
     background-color: #bbb;
     border-radius: 6px;
 }
 
-#menu::-webkit-scrollbar-thumb::hover,
+#ai-actor-settings-wrapper::-webkit-scrollbar-thumb::hover,
 #messages::-webkit-scrollbar-thumb::hover,
 textarea::-webkit-scrollbar-thumb:hover {
     background-color: #999;
@@ -808,13 +743,32 @@ button.action-button.invisible {
     z-index: 99;
 }
 
+#ai-actor-settings-inner-form-wrapper.modal-mode-visible {
+    display: block;
+}
+
+#ai-actor-settings-inner-form-wrapper.modal-mode {
+    display: none;
+    position: fixed;
+    z-index: 11;
+    left: 50%;
+    top: 50%;
+    width: 80vw;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 9999;
+}
+
+#ai-actor-settings-inner-form-wrapper.modal-mode-visible {
+    display: block;
+}
+
 #ai-actor-container li {
     margin: 0;
     padding: 10px;
     border-bottom: 1px solid #1f2a36;
 }
 
-#ai-actor-header i,
 #ai-actor-container li i {
     margin: 0 0.5em 0 0;
     font-size: 1em;
@@ -842,34 +796,76 @@ button.action-button.invisible {
     cursor: pointer;
 }
 
-#ai-actor-container {
-    position: fixed;
+/* 新外层容器样式，以适配整体布局 */
+#ai-actor-wrapper {
     max-width: 70%;
-    max-height: 70vh;
     width: 50%;
-    height: auto;
-    border-radius: 0.5em;
-    background-color: #17212b; /* 深色背景色，适合夜间模式 */
-    color: #8899A6; /* 淡蓝灰色字体颜色，低对比度且不刺眼 */
-    box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    overflow-y: auto;
-    overflow-x: hidden;
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
+    height: 70vh; /* 定义高度，确保容器适应内容 */
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    border-radius: 0.5em;
+    background-color: #17212b; /* 深色背景色 */
+    color: #8899A6; /* 淡蓝灰色字体色 */
+    box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
     display: none;
-    /* no scroll bar for Internet Explorer, Edge, and Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    flex-direction: column;
 }
 
-/* This needs to be a separate block */
+/* 更新ai-actor-container以适应列表滚动 */
+#ai-actor-container {
+    height: 100%;
+    flex-grow: 1; /* 使容器填充剩余空间，确保列表可滚动 */
+    overflow-y: auto; /* 允许垂直方向滚动 */
+    overflow-x: hidden; /* 隐藏水平滚动条 */
+    -ms-overflow-style: none; /* IE和Edge */
+    scrollbar-width: none; /* Firefox */
+    margin-bottom: 8px;
+}
+
 #ai-actor-container::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none; /* 对于Chrome, Safari和Opera */
+}
+
+#ai-actor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #3391FF; /* Adds a subtle divider */
+}
+
+#ai-actor-header .new-button {
+    background-color: cornflowerblue; /* Matches the active state color */
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#ai-actor-header .new-button:hover {
+    background-color: deepskyblue; /* Lighter blue for hover state */
+}
+
+#ai-actor-header .new-button i {
+    color: #ffffff; /* Ensures icon is legible against the button background */
+    font-size: 1.2em; /* Slightly larger icon for prominence */
+}
+
+#ai-actor-header .new-button:focus {
+    outline: none; /* Removes outline for aesthetics; consider a custom focus style for accessibility */
+}
+
+/* Ensure text does not select on double click for better UX */
+#ai-actor-header span,
+#ai-actor-header .new-button {
+    -webkit-user-select: none; /* Chrome/Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+    user-select: none; /* Standard syntax */
 }
 
 #horizontal-resize-handle, #resize-handle {
@@ -916,3 +912,79 @@ button.action-button.invisible {
     background-color: #ebebeb; /* Light grey background on hover */
     cursor: pointer; /* Change cursor to indicate clickable items */
 }
+
+
+/* 基本布局和样式调整 */
+#ai-actor-settings-inner-form-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-family: 'Arial', sans-serif;
+    max-height: 100%; 
+    overflow-y: auto; /* 超出内容区域时显示滚动条 */
+}
+
+#ai-actor-settings-inner-form-wrapper h5 {
+    color: #333;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.setting-item {
+    margin-bottom: 5px;
+}
+
+.setting-item label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
+    font-size: 14px; /* 调小标签字体 */
+}
+
+.setting-item input[type="text"],
+.setting-item input[type="number"],
+.setting-item textarea,
+.setting-item select {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    font-size: 14px; /* 调整输入框和选择框的字体大小 */
+}
+
+#save-profile {
+    background-color: #4CAF50;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px; /* 适应整体字体调小 */
+}
+
+#save-profile:hover {
+    background-color: #45a049;
+}
+
+#ai-actor-settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 保持响应式布局调整 */
+@media screen and (max-width: 768px) {
+    #ai-actor-settings-inner-form-wrapper {
+        margin: 10px;
+        padding: 10px;
+    }
+
+    .setting-item label {
+        font-size: 12px; /* 在更小的屏幕上进一步减小字体 */
+    }
+}
+

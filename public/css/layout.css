@@ -21,7 +21,7 @@ html {
 }
 
 #chat-history-container,
-#menu {
+#ai-actor-settings-wrapper {
     flex: 15;
     min-width: 200px;
 }
@@ -60,14 +60,9 @@ html {
 }
 
 
-#menu {
+#ai-actor-settings-wrapper {
     background-color: #f1f1f1;
     border-left: 1px solid #ccc;
-    border-radius: 0 5px 5px 0;
-    overflow: hidden;
-    height: calc(100vh - 40px);
-    padding-bottom: 50px;
-
 }
 
 
@@ -88,12 +83,6 @@ html {
 
 #header-buttons > button {
     margin-right: 5px;
-}
-
-#menu-list{
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
 }
 
 #profile-content {
@@ -127,7 +116,6 @@ html {
 
 #messages {
     position: relative;
-    margin-top: 10px;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px;
