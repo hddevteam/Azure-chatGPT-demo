@@ -1,8 +1,9 @@
 // ProfileFormManager.js
 export default class ProfileFormManager {
-    constructor(storageManager,saveProfileCallback) {
+    constructor(storageManager,saveProfileCallback, showMessageCallback) {
         this.storageManager = storageManager; // Instance of StorageManager
         this.saveProfileCallback = saveProfileCallback; // Callback function to save profile data
+        this.showMessageCallback = showMessageCallback;
         this.initForm();
         this.bindEvents();
         this.oldName = ""; // Initialize without an old name
@@ -28,7 +29,53 @@ export default class ProfileFormManager {
     bindEvents() {
         // Bind the save action
         document.getElementById("save-profile").addEventListener("click", () => this.saveProfile());
+        // 修改此处：为"generate-prompt"按钮添加点击事件监听器
+        document.getElementById("generate-prompt").addEventListener("click", () => {
+        // 从prompt字段获取当前内容
+            const promptContent = this.formElements.prompt.value;
+            this.showMessageCallback("Generating profile...", "info");
+            // 将prompt字段的内容作为参数传递给generateProfile方法
+            this.generateProfile(promptContent);
+        });
+        this.formElements.icon.addEventListener("change", () => {
+            // 获取icon输入框的值
+            const iconClass = this.formElements.icon.value;
+            // 将icon-preview的class设置为icon输入框的值
+            document.getElementById("icon-preview").className = iconClass;
+        });
     }
+
+    /**
+     * 生成AI角色的配置文件
+     * @param {*} profession 
+     * @returns 
+     */
+    generateProfile(profession) {
+        return fetch("/api/create-chat-profile", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ profession })
+        })
+            .then(response => response.json())
+            .then(data => {
+                // 将获取到的数据动态填充到表单中
+                this.formElements.prompt.value = data.prompt;
+                if (this.formElements.name.value === "") {
+                    this.formElements.name.value = data.name;
+                }
+                this.formElements.icon.value = data.icon;
+                this.formElements.displayName.value = data.displayName;
+                // 更新icon-preview的类
+                document.getElementById("icon-preview").className = data.icon;
+                this.showMessageCallback("Profile generated successfully.", "success");
+            })
+            .catch(error => {
+                console.error("Error generating profile:", error);
+                this.showMessageCallback("Error generating profile. Please try again.", "error");});
+    }
+
 
     bindProfileData(profileData) {
         // Directly bind provided profile data to form inputs
@@ -55,11 +102,12 @@ export default class ProfileFormManager {
             presence_penalty: document.getElementById("presence_penalty").value,
             max_tokens: document.getElementById("max_tokens").value,
         };
-
+        console.log("Saving profile:", profile);
+        const username = this.storageManager.getCurrentUsername();
         // Decide between creating a new profile or updating an existing one
         if (this.oldName) {
             // Update operation
-            fetch(`/api/profiles/${this.oldName}?username=${this.storageManager.getCurrentUsername()}`, {
+            fetch(`/api/profiles/${this.oldName}?username=${username}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -77,7 +125,7 @@ export default class ProfileFormManager {
                 .catch(error => console.error("Error updating profile:", error));
         } else {
             // Create operation
-            fetch(`/api/profiles?username=${this.storageManager.getCurrentUsername()}`, {
+            fetch(`/api/profiles?username=${username}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

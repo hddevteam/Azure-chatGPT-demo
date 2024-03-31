@@ -717,10 +717,10 @@ button.action-button.invisible {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 99;
+    z-index: 1;
 }
 
-#ai-actor-settings-inner-form-wrapper.modal-mode {
+.modal-mode {
     position: fixed;
     z-index: 11;
     left: 50%;
@@ -728,7 +728,11 @@ button.action-button.invisible {
     width: 80vw;
     transform: translate(-50%, -50%);
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 9999;
+    z-index: 99;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: block;
+    max-width: 600px;
 }
 
 #ai-actor-container li {
@@ -783,14 +787,18 @@ button.action-button.invisible {
 
 /* 更新ai-actor-container以适应列表滚动 */
 #ai-actor-container {
-    height: 100%;
-    flex-grow: 1; /* 使容器填充剩余空间，确保列表可滚动 */
+    height: calc(70vh - 50px); /* 适应新容器高度 */
     overflow-y: auto; /* 允许垂直方向滚动 */
     overflow-x: hidden; /* 隐藏水平滚动条 */
     -ms-overflow-style: none; /* IE和Edge */
     scrollbar-width: none; /* Firefox */
     margin-bottom: 8px;
 }
+
+#ai-actor-header {
+    height: 50px; 
+}
+
 
 #ai-actor-container::-webkit-scrollbar {
     display: none; /* 对于Chrome, Safari和Opera */
@@ -854,10 +862,7 @@ button.action-button.invisible {
     z-index: 1;
     overflow-y: auto;
     max-height: 80px;
-    display: none; /* Keep the dropdown hidden by default */
     transition: opacity 0.2s ease-in-out; /* Transition for smooth appearance */
-    opacity: 0; /* Set initial opacity */
-    
 }
 
 .model-dropdown .dropdown-item {
@@ -881,8 +886,6 @@ button.action-button.invisible {
     max-width: 600px;
     margin: 0 auto;
     padding: 10px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     font-family: 'Arial', sans-serif;
     max-height: 100%; 
     overflow-y: auto; /* 超出内容区域时显示滚动条 */
@@ -937,6 +940,19 @@ button.action-button.invisible {
     justify-content: space-between;
     align-items: center;
 }
+
+.textarea-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+
+#generate-prompt {
+    position: absolute;
+    bottom: 10px; /* Adjust spacing from bottom */
+    right: 5px; /* Adjust spacing from right */
+  }
+
 
 /* 保持响应式布局调整 */
 @media screen and (max-width: 768px) {

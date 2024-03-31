@@ -46,6 +46,15 @@ class UIManager {
             this.storageManager.setCurrentProfile(updatedProfile);
             // Optionally, show a confirmation message
             this.showToast("Profile updated successfully!");
+        }, (message, messageType) => {
+            // 根据消息类型显示不同的swal对话框
+            if (messageType === "success") {
+                swal(message, {icon: "success", button: false, timer: 1500});
+            } else if (messageType === "error") {
+                swal(message, {icon: "error"});
+            } else {
+                swal(message, {icon: "info", button: false, timer: 1500});
+            }
         });
         document.getElementById("new-ai-actor").addEventListener("click", this.showNewAIActorModal.bind(this));
     }
@@ -762,7 +771,6 @@ class UIManager {
         const aiActorList = document.getElementById("ai-actor-container");
         const activeItem = aiActorList.querySelector(".active");
         const overlay = document.querySelector(".modal-overlay");
-    
         this.visibleElement(aiActorWrapper);
         aiActorWrapper.setAttribute("data-visible", "true");
         this.visibleElement(overlay);
@@ -818,8 +826,10 @@ class UIManager {
     
     showNewAIActorModal() {
         this.hideAIActorList();
+        this.profileFormManager.resetForm();
+        this.profileFormManager.oldName = "";
         const modalOverlay = document.querySelector(".modal-overlay");
-        const aiActorSettingsInnerFormWrapper = document.getElementById("ai-actor-settings-inner-form-wrapper");
+        const aiActorSettingsInnerFormWrapper = document.getElementById("ai-actor-settings-wrapper");
         
         this.visibleElement(modalOverlay);
         if (!aiActorSettingsInnerFormWrapper.classList.contains("modal-mode")) {
@@ -833,7 +843,7 @@ class UIManager {
     
     hideNewAIActorModal() {
         const modalOverlay = document.querySelector(".modal-overlay");
-        const aiActorSettingsInnerFormWrapper = document.getElementById("ai-actor-settings-inner-form-wrapper");
+        const aiActorSettingsInnerFormWrapper = document.getElementById("ai-actor-settings-wrapper");
         this.hiddenElement(modalOverlay);
         if (aiActorSettingsInnerFormWrapper.classList.contains("modal-mode")) {
             aiActorSettingsInnerFormWrapper.classList.remove("modal-mode");
@@ -841,7 +851,7 @@ class UIManager {
     }
     
     handleClickOutsideCreateAIActorModal(event) {
-        const chatSettingsSidebar = document.getElementById("ai-actor-settings-inner-form-wrapper");
+        const chatSettingsSidebar = document.getElementById("ai-actor-settings-wrapper");
         // 检查点击是否在ai-actor-settings-inner-form-wrapper或其子元素之外
         if (!chatSettingsSidebar.contains(event.target)) {
             // 如果是，则隐藏模态框和覆盖层
@@ -852,7 +862,6 @@ class UIManager {
         }
     }
     
-
     toggleVisibility(element) {
         if (element.classList.contains("visible")) {
             element.classList.remove("visible");

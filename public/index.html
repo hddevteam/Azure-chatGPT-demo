@@ -116,7 +116,10 @@
         </div>
         <div class="setting-item">
           <label for="prompt">Prompt</label>
-          <textarea id="prompt" rows="12" required></textarea>
+          <div class="textarea-container">
+            <textarea id="prompt" rows="12" required></textarea>
+            <button id="generate-prompt" title="Automatic generate prompt based on your content"><i class="fas fa-magic"></i></button>
+          </div>
         </div>
         <div class="setting-item">
           <label for="temperature">Temperature</label>
@@ -144,7 +147,7 @@
           <input type="text" id="name" required>
         </div>
         <div class="setting-item">
-          <label for="icon">Icon</label>
+          <label for="icon">Icon<i id="icon-preview"></i></label>
           <input type="text" id="icon" required><i id="icon-preview"></i>
         </div>
         <div class="setting-item">
