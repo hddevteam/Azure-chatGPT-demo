@@ -56,7 +56,7 @@ class UIManager {
 
         fileInput.type = "file";
         fileInput.accept = ".md";
-        fileInput.style.display = "none"; // 隐藏 file input 控件
+        this.hiddenElement(fileInput); // 隐藏 file input 控件
 
         uploadContainer.addEventListener("click", () => {
             fileInput.value = null; // 清空文件选择，这会触发浏览器重新检查文件
@@ -342,8 +342,8 @@ class UIManager {
         this.profiles = data.profiles;
         this.storageManager.setCurrentUsername(data.username);
         await this.showChatHistory();
-        const usernameLabel = document.querySelector("#username-label");
-        usernameLabel.textContent = this.storageManager.getCurrentUsername();
+        const userBtn = document.querySelector("#user");
+        userBtn.title = this.storageManager.getCurrentUsername();
         await this.syncManager.syncChatHistories();
         const chatHistory = await this.chatHistoryManager.getChatHistory();
         let savedCurrentProfile = this.storageManager.getCurrentProfile();
@@ -763,9 +763,9 @@ class UIManager {
         // scroll to active item
         if (activeItem) {
             activeItem.scrollIntoView({
-                behavior: "smooth", // 平滑滚动
-                block: "nearest",    // 垂直方向
-                inline: "start"      // 水平方向
+                behavior: "smooth", 
+                block: "nearest",    
+                inline: "start"      
             });
         }
     
@@ -797,7 +797,7 @@ class UIManager {
         const aiActorWrapper = document.getElementById("ai-actor-wrapper"); // 修改为新的外层容器ID
         const profileListAIActor = document.getElementById("new-chat-button"); 
     
-        if (event.target !== aiActorWrapper && event.target !== profileListAIActor && !aiActorWrapper.contains(event.target)) {
+        if (event.target !== aiActorWrapper && event.target !== profileListAIActor) {
             console.log("hideAIActorOnOutsideClick", event.target, event);
             this.hideAIActorList(); // 调用方法来隐藏列表并处理后续操作
         }
@@ -839,6 +839,26 @@ class UIManager {
     hideNewAIActorModal() {
         document.querySelector(".modal-overlay").style.display = "none"; // 隐藏覆盖层
         document.getElementById("ai-actor-settings-inner-form-wrapper").classList.remove("modal-mode", "modal-mode-visible"); // 隐藏ai-actor-settings-inner-form-wrapper模态框
+    }
+
+    toggleVisibility(element) {
+        if (element.classList.contains("visible")) {
+            element.classList.remove("visible");
+            element.classList.add("hidden");
+        } else {
+            element.classList.remove("hidden");
+            element.classList.add("visible");
+        }
+    }
+    
+    hiddenElement(element) {
+        element.classList.remove("visible");
+        element.classList.add("hidden");
+    }
+    
+    visibleElement(element) {
+        element.classList.remove("hidden");
+        element.classList.add("visible");
     }
 
     // createAIActor() {

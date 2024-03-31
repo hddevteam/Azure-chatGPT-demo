@@ -73,7 +73,7 @@ getAppName()
 
 // get tts container element
 const ttsContainer = document.querySelector("#tts-container");
-ttsContainer.style.display = "none";
+uiManager.hiddenElement(ttsContainer);
 
 const practiceMode = document.querySelector("#tts-container");
 
@@ -140,7 +140,7 @@ document.getElementById("delete-container").addEventListener("click", () => {
 });
 
 // 获取模态对话框元素和触发器元素
-const usernameLabel = document.querySelector("#username-label");
+const userBtn = document.querySelector("#user");
 
 // generate current user menulist and render it
 let profileNameList = [];
@@ -164,7 +164,7 @@ document.addEventListener("keydown", (event) => {
     }
 });    
 // popup the Swal when user click the username label
-usernameLabel.addEventListener("click", function () {
+userBtn.addEventListener("click", function () {
     swal({
         text: "Enter your username",
         content: "input",
@@ -225,7 +225,7 @@ function loadProfileList() {
         li.textContent = name;
         profileListElement.appendChild(li);
     }
-    // adjust menu height
+    // adjust ai-actor-settings-inner-form-wrapper height
     const inputRect = messageInput.getBoundingClientRect();
     const inputHeight = inputRect.height;
     const menuHeight = inputHeight - 16; // 1em = 16px
@@ -243,7 +243,7 @@ const toggleButton = document.getElementById("toggle-chat-topic");
 toggleButton.addEventListener("click", function(event) {
     event.stopPropagation();
     const chatHistoryContainer = document.getElementById("chat-history-container");
-    toggleVisibility(chatHistoryContainer);
+    uiManager.toggleVisibility(chatHistoryContainer);
   
     if (window.innerWidth <= 768) {
         attachOutsideClickListener("chat-history-container");
@@ -253,20 +253,19 @@ toggleButton.addEventListener("click", function(event) {
 const aiProfile = document.getElementById("ai-profile");
 aiProfile.addEventListener("click", function(event) {
     event.stopPropagation();
-    const menu = document.getElementById("menu");
-    toggleVisibility(menu);
+    const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
+    uiManager.toggleVisibility(aiActorSettings);
   
     if (window.innerWidth <= 768) {
-        attachOutsideClickListener("menu");
+        attachOutsideClickListener("aiActorSettings");
     }
 });
-  
   
 function createClickListener(elementId) {
     return function hideElementOnOutsideClick(event) {
         const element = document.getElementById(elementId);
-        if (!event.target.closest(`#${elementId}`) && element.style.display !== "none") {
-            element.style.display = "none";
+        if (!event.target.closest(`#${elementId}`) && !element.classList.contains("hidden")) {
+            element.classList.add("hidden");
             detachOutsideClickListener(elementId);
         }
     };
@@ -380,7 +379,6 @@ const toggleLayoutBtn = document.getElementById("toggle-layout");
 function toggleLayout() {
     const actorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
     const chatHistoryContainer = document.getElementById("chat-history-container");
-    const systemMessage = document.querySelector("#system-message");
     const inputContainter = document.querySelector("#input-container");
     const appContainer = document.querySelector("#app-container");
 
@@ -396,28 +394,23 @@ function toggleLayout() {
     if (mainContainer.classList.contains("split-view")) {
         mainContainer.style.height = "";
         messageInput.style.maxHeight = "";
-        actorSettingsWrapper.style.display =  "none";
-        chatHistoryContainer.style.display = "none";
-        systemMessage.style.display = "none";
+        uiManager.hiddenElement(actorSettingsWrapper);
+        uiManager.hiddenElement(chatHistoryContainer);
     } else {
-        actorSettingsWrapper.style.display =  "block";
-        chatHistoryContainer.style.display = "block";
-        systemMessage.style.display = "block";
+        uiManager.visibleElement(actorSettingsWrapper);
+        uiManager.visibleElement(chatHistoryContainer);
     }
 }
 
 // Adding event listeners to buttons
 toggleLayoutBtn.addEventListener("click", toggleLayout);
 
-function toggleVisibility(element) {
-    element.style.display = element.style.display === "block" ? "none" : "block";
-}
 
 // Call this function to set initial display status based on the device type
 // 在页面加载时设置初始可见性状态
 function setInitialVisibility() {
     const isSplitView = document.getElementById("app-container").classList.contains("split-view");
-    const menu = document.getElementById("menu");
+    const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
     const chatHistoryContainer = document.getElementById("chat-history-container");
     const inputContainter = document.querySelector("#input-container");
     const messageInputContainer = document.querySelector("#message-input-container");
@@ -427,8 +420,8 @@ function setInitialVisibility() {
     
     if (window.innerWidth <= 768 || isSplitView) {
         // 如果是移动设备，则默认隐藏菜单和聊天历史记录
-        menu.style.display = "none";
-        chatHistoryContainer.style.display = "none";
+        uiManager.hiddenElement(aiActorSettings);
+        uiManager.hiddenElement(chatHistoryContainer);
     }
 }
   

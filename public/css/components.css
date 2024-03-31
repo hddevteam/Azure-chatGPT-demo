@@ -25,20 +25,6 @@
     text-overflow: ellipsis;
 }
 
-#ai-profile {
-    text-decoration: none;
-    color: #e6f2ff;
-    display: flex;
-    padding: 5px;
-    background-color: #4CAF50;
-    border-radius: 5px;
-    cursor: pointer;
-    align-items: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 #manage-profile {
     position: absolute;
     right: 0px;
@@ -332,10 +318,6 @@ textarea::-webkit-scrollbar-thumb:hover {
     transition: all 0.3s ease;
 }
 
-#user {
-    background-color: #3e8e41;
-}
-
 .btn:hover {
     background-color: #555;
 }
@@ -560,10 +542,6 @@ tr:hover {
     transition: all 0.2s;
 }
 
-.hidden {
-    display: none;
-}
-
 svg path,
 svg rect {
     fill: #fff;
@@ -743,10 +721,6 @@ button.action-button.invisible {
     z-index: 99;
 }
 
-#ai-actor-settings-inner-form-wrapper.modal-mode-visible {
-    display: block;
-}
-
 #ai-actor-settings-inner-form-wrapper.modal-mode {
     display: none;
     position: fixed;
@@ -757,10 +731,6 @@ button.action-button.invisible {
     transform: translate(-50%, -50%);
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     z-index: 9999;
-}
-
-#ai-actor-settings-inner-form-wrapper.modal-mode-visible {
-    display: block;
 }
 
 #ai-actor-container li {
@@ -891,11 +861,6 @@ button.action-button.invisible {
     transition: opacity 0.2s ease-in-out; /* Transition for smooth appearance */
     opacity: 0; /* Set initial opacity */
     
-}
-
-.visible {
-    display: block;
-    opacity: 1;
 }
 
 .model-dropdown .dropdown-item {
