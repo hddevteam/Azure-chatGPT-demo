@@ -49,6 +49,9 @@ class UIManager {
         document.getElementById("new-ai-actor").addEventListener("click", this.showNewAIActorModal.bind(this));
     }
 
+    setCurrentSystemPrompt(prompt) {
+        this.app.prompts.setSystemPrompt(prompt);
+    }
 
     setupUploadFunctionality() {
         const uploadContainer = document.querySelector("#upload-container");
@@ -432,6 +435,8 @@ class UIManager {
     }
 
     loadMessagesByChatId(chatId, sendFollowUpQuestions = false) {
+        this.app.prompts.clear();
+        console.log("loadMessagesByChatId start", this.app.prompts);
         // clear messages container
         document.querySelector("#messages").innerHTML = "";
         // load chat messages by chatId
@@ -447,6 +452,7 @@ class UIManager {
         if (sendFollowUpQuestions) {
             this.messageManager.sendFollowUpQuestions();
         }
+        console.log("loadMessagesByChatId", this.app.prompts);
     }
 
     setupPracticeMode() {
@@ -798,7 +804,6 @@ class UIManager {
         const profileListAIActor = document.getElementById("new-chat-button"); 
     
         if (event.target !== aiActorWrapper && event.target !== profileListAIActor) {
-            console.log("hideAIActorOnOutsideClick", event.target, event);
             this.hideAIActorList(); // 调用方法来隐藏列表并处理后续操作
         }
     } 
