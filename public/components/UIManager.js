@@ -45,6 +45,7 @@ class UIManager {
             // Example: Update the profile in the storage
             this.storageManager.setCurrentProfile(updatedProfile);
             // Optionally, show a confirmation message
+            this.showToast("Profile updated successfully!");
         });
         document.getElementById("new-ai-actor").addEventListener("click", this.showNewAIActorModal.bind(this));
     }
@@ -757,44 +758,42 @@ class UIManager {
     }
 
     showAIActorList() {
-        const aiActorWrapper = document.getElementById("ai-actor-wrapper"); // 修改为新的外层容器ID
-        const aiActorList = document.getElementById("ai-actor-container"); // 仍然需要访问以控制滚动到激活项
+        const aiActorWrapper = document.getElementById("ai-actor-wrapper");
+        const aiActorList = document.getElementById("ai-actor-container");
         const activeItem = aiActorList.querySelector(".active");
         const overlay = document.querySelector(".modal-overlay");
     
-        aiActorWrapper.style.display = "flex"; // 显示外层包裹容器
+        this.visibleElement(aiActorWrapper);
         aiActorWrapper.setAttribute("data-visible", "true");
-        overlay.style.display = "block";
-    
-        // scroll to active item
+        this.visibleElement(overlay);
+        
+        // Scroll to active item
         if (activeItem) {
             activeItem.scrollIntoView({
-                behavior: "smooth", 
-                block: "nearest",    
-                inline: "start"      
+                behavior: "smooth",
+                block: "nearest",
+                inline: "start"
             });
         }
-    
-        // 延迟注册事件处理器以避免立即捕获到触发显示选项框的同一点击事件
+        
         setTimeout(() => {
             document.addEventListener("click", this.boundHideAIActorOnOutsideClick);
         }, 0); 
     }
     
+    
     hideAIActorList() {
-        const aiActorWrapper = document.getElementById("ai-actor-wrapper"); // 修改为新的外层容器ID
+        const aiActorWrapper = document.getElementById("ai-actor-wrapper");
         const overlay = document.querySelector(".modal-overlay");
     
         if (aiActorWrapper.getAttribute("data-visible") === "true") {
-            aiActorWrapper.style.display = "none"; // 隐藏外层包裹容器
+            this.hiddenElement(aiActorWrapper);
             aiActorWrapper.setAttribute("data-visible", "false");
-            overlay.style.display = "none";
+            this.hiddenElement(overlay);
     
-            // 触发自定义事件，通知UIManager ai-actor-wrapper关闭了
             const event = new Event("aiActorListHidden");
             document.dispatchEvent(event);
     
-            // 注销点击外部隐藏对话框的事件
             document.removeEventListener("click", this.boundHideAIActorOnOutsideClick);
         }
     }
@@ -818,17 +817,29 @@ class UIManager {
     }
     
     showNewAIActorModal() {
-        this.hideAIActorList(); // 确保先隐藏aiActorList
-        // 显示模态覆盖层
-        document.querySelector(".modal-overlay").style.display = "block";
-        // 显示ai-actor-settings-inner-form-wrapper作为模态框
-        document.getElementById("ai-actor-settings-inner-form-wrapper").classList.add("modal-mode", "modal-mode-visible");
-        // 绑定模态外点击事件，关闭模态框
-        setTimeout(() => { // 使用setTimeout防止立即触发
+        this.hideAIActorList();
+        const modalOverlay = document.querySelector(".modal-overlay");
+        const aiActorSettingsInnerFormWrapper = document.getElementById("ai-actor-settings-inner-form-wrapper");
+        
+        this.visibleElement(modalOverlay);
+        if (!aiActorSettingsInnerFormWrapper.classList.contains("modal-mode")) {
+            aiActorSettingsInnerFormWrapper.classList.add("modal-mode");
+        }
+    
+        setTimeout(() => {
             document.addEventListener("click", this.handleClickOutsideCreateAIActorModal);
         }, 0);
     }
-
+    
+    hideNewAIActorModal() {
+        const modalOverlay = document.querySelector(".modal-overlay");
+        const aiActorSettingsInnerFormWrapper = document.getElementById("ai-actor-settings-inner-form-wrapper");
+        this.hiddenElement(modalOverlay);
+        if (aiActorSettingsInnerFormWrapper.classList.contains("modal-mode")) {
+            aiActorSettingsInnerFormWrapper.classList.remove("modal-mode");
+        }
+    }
+    
     handleClickOutsideCreateAIActorModal(event) {
         const chatSettingsSidebar = document.getElementById("ai-actor-settings-inner-form-wrapper");
         // 检查点击是否在ai-actor-settings-inner-form-wrapper或其子元素之外
@@ -841,10 +852,6 @@ class UIManager {
         }
     }
     
-    hideNewAIActorModal() {
-        document.querySelector(".modal-overlay").style.display = "none"; // 隐藏覆盖层
-        document.getElementById("ai-actor-settings-inner-form-wrapper").classList.remove("modal-mode", "modal-mode-visible"); // 隐藏ai-actor-settings-inner-form-wrapper模态框
-    }
 
     toggleVisibility(element) {
         if (element.classList.contains("visible")) {
@@ -865,15 +872,6 @@ class UIManager {
         element.classList.remove("hidden");
         element.classList.add("visible");
     }
-
-    // createAIActor() {
-    //     document.querySelector("#messages").innerHTML = "";
-    //     this.app.prompts.clear();
-    //     this.profileFormManager.resetForm();
-    //     this.profileFormManager.oldName = "";
-    //     this.hideAIActorList();
-    // }
-
 }
 
 export default UIManager;

@@ -717,12 +717,10 @@ button.action-button.invisible {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    display: none;
     z-index: 99;
 }
 
 #ai-actor-settings-inner-form-wrapper.modal-mode {
-    display: none;
     position: fixed;
     z-index: 11;
     left: 50%;
@@ -780,7 +778,6 @@ button.action-button.invisible {
     color: #8899A6; /* 淡蓝灰色字体色 */
     box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
     z-index: 9999;
-    display: none;
     flex-direction: column;
 }
 
