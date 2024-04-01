@@ -366,20 +366,6 @@ textarea::-webkit-scrollbar-thumb:hover {
     margin-right: 5px;
 }
 
-#clear-input {
-    position: absolute;
-    left: -25px;
-    top: 0px;
-    font-size: 1em;
-    color: #ccc;
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-}
-
-#clear-input:hover {
-    color: #999;
-}
 
 #message-form button[type="submit"] {
     height: 34px;

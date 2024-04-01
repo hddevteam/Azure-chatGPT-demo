@@ -146,16 +146,6 @@
     border-radius: 5px;
 }
 
-#message-input-container.split-view #clear-input {
-    height: 34px;
-    width: 34px;
-    top: 142px;
-    right: 10px;
-    left: unset;
-    padding: unset;
-    margin: unset;
-    border-radius: 5px;
-}
 
 #message-input-container.split-view .mini-toolbar {
     padding: 5px;
@@ -205,7 +195,6 @@
 
 /* 按钮和工具条的背景色，明亮度应介于右侧背景和输入框背景之间 */
 #message-input-container.split-view .mini-toolbar,
-#message-input-container.split-view #clear-input,
 #message-input-container.split-view button[type="submit"],
 #message-input-container.split-view #voice-input-button,
 #message-input-container.split-view #new-chat-button {
@@ -216,7 +205,6 @@
 /* 调整按钮的样式以适配新的颜色方案 */
 #message-input-container.split-view button[type="submit"],
 #message-input-container.split-view #voice-input-button,
-#message-input-container.split-view #clear-input,
 #message-input-container.split-view #new-chat-button {
     border: 1px solid #4C4C4C; /* 边框颜色稍深于按钮背景色 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 降低阴影透明度以融合背景 */
@@ -226,7 +214,6 @@
 #message-input-container.split-view .mini-toolbar .btn:hover,
 #message-input-container.split-view button[type="submit"]:hover,
 #message-input-container.split-view #voice-input-button:hover,
-#message-input-container.split-view #clear-input:hover,
 #message-input-container.split-view #new-chat-button:hover {
     background-color: #6e6e6e; /* 鼠标悬浮时的背景色 */
     cursor: pointer; /* 将鼠标光标变为指针形状 */
@@ -235,7 +222,6 @@
 /* Buttons active effect */
 #message-input-container.split-view .mini-toolbar .btn:active,
 #message-input-container.split-view button[type="submit"]:active,
-#message-input-container.split-view #clear-input:active,
 #message-input-container.split-view #voice-input-button:active,
 #message-input-container.split-view #new-chat-button:active {
     background-color: #4c4c4c; /* 按钮被点击时的背景色 */
@@ -244,7 +230,6 @@
 
 /* 给按钮增加过渡效果以平滑 hover 和 active 状态的变化 */
 #message-input-container.split-view .mini-toolbar .btn,
-#message-input-container.split-view #clear-input,
 #message-input-container.split-view button[type="submit"],
 #message-input-container.split-view #voice-input-button,
 #message-input-container.split-view #new-chat-button {

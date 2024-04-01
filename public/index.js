@@ -276,13 +276,8 @@ const activeOutsideClickListeners = {};
 
 
 const messageForm = document.querySelector("#message-form");
-const clearInput = document.getElementById("clear-input");
 const halfScreenHeight = window.innerHeight / 2;
 const initFocusHeight = window.innerHeight / 5;
-clearInput.addEventListener("click", function () {
-    uiManager.clearMessageInput();
-    uiManager.handleInput(initFocusHeight, halfScreenHeight);
-});
 
 messageInput.addEventListener("keyup", function (event) {
     const value = event.target.value.trim();
