@@ -34,7 +34,7 @@
     </div>
   </div>
   <div id="main-container">
-    <div id="chat-history-container">
+    <div id="chat-history-container" class="visible">
       <h2>Chat History</h2>
       <ul id="chat-history-list"></ul>
     </div>
@@ -86,7 +86,6 @@
             <textarea id="message-input" name="message" autocomplete="off"
               placeholder="Feel free to ask anything. You can use '@' to ask a specific expert, even if they're not listed in the menu. For example, '@App Designer: How to design a great app?'"
               tabindex="1" rows="5"></textarea>
-            <button id="clear-input"><i class="fas fa-trash-can" title="Clear input"></i></button>
             <div class="button-row">
               <button id="submitButton" type="submit" tabindex="2">
                 <div id="submit-button-icon"><i class="fas fa-paper-plane"></i></div>
@@ -108,7 +107,7 @@
         </form>
       </div>
     </div>
-    <div id="ai-actor-settings-wrapper">
+    <div id="ai-actor-settings-wrapper" class="visible">
       <div id="ai-actor-settings-inner-form-wrapper">
         <div id="ai-actor-settings-header">
           <span>AI Actor</span>
