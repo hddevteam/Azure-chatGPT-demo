@@ -24,6 +24,7 @@ html {
 #ai-actor-settings-wrapper {
     flex: 15;
     min-width: 200px;
+    max-height: calc(100vh - 40px);
 }
 
 #app-outer-wrapper {

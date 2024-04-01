@@ -1,9 +1,12 @@
+import { getPromptRepo } from "../utils/api.js";
+
 // ProfileFormManager.js
 export default class ProfileFormManager {
-    constructor(storageManager,saveProfileCallback, showMessageCallback) {
+    constructor(storageManager,saveProfileCallback, showMessageCallback, deleteProfileCallback) {
         this.storageManager = storageManager; // Instance of StorageManager
         this.saveProfileCallback = saveProfileCallback; // Callback function to save profile data
         this.showMessageCallback = showMessageCallback;
+        this.deleteProfileCallback = deleteProfileCallback;
         this.initForm();
         this.bindEvents();
         this.oldName = ""; // Initialize without an old name
@@ -43,7 +46,35 @@ export default class ProfileFormManager {
             // 将icon-preview的class设置为icon输入框的值
             document.getElementById("icon-preview").className = iconClass;
         });
+
+        document.getElementById("delete-profile").addEventListener("click", () => this.deleteCurrentProfile());
     }
+
+    // ProfileFormManager.js 中新增方法
+    deleteCurrentProfile() {
+        const currentProfileName = this.storageManager.getCurrentProfile().name;
+        const username = this.storageManager.getCurrentUsername();
+        fetch(`/api/profiles/${currentProfileName}?username=${username}`, {
+            method: "DELETE"
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(() => {
+                console.log("Profile deleted successfully.");
+                getPromptRepo(username).then(data => {
+                    this.deleteProfileCallback(data);
+                });
+            })
+            .catch(error => {
+                console.error("Error during profile deletion:", error);
+                this.showMessageCallback("Failed to delete profile.", "error");
+            });
+    }
+
 
     /**
      * 生成AI角色的配置文件

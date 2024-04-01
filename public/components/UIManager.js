@@ -57,6 +57,9 @@ class UIManager {
                 } else {
                     swal(message, {icon: "info", button: false, timer: 1500});
                 }
+            },async (data) => { // 处理Profile的删除
+                await this.renderMenuList(data);
+                swal("Profile deleted successfully.", {icon: "success", button: false, timer: 1500});
             });
         document.getElementById("new-ai-actor").addEventListener("click", this.showNewAIActorModal.bind(this));
     }
@@ -83,7 +86,6 @@ class UIManager {
                 });
         });
     }
-
 
     populateProfileList(profiles) {
         let profileNameList = [];

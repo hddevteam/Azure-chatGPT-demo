@@ -946,6 +946,21 @@ button.action-button.invisible {
     display: inline-block;
     width: 100%;
   }
+.bottom-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+.bottom-buttons button.danger {
+    background-color: #656464;
+    color: white;
+  }
+  
+.bottom-buttons button.danger:hover {
+    background-color: #da190b;
+  }
+
 
 #generate-prompt {
     position: absolute;
