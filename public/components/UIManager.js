@@ -8,7 +8,7 @@ import { textToImage, getTts } from "../utils/api.js";
 import swal from "sweetalert";
 import SyncManager from "./SyncManager.js";
 import ProfileFormManager from "./ProfileFormManager.js";
-
+import { getPromptRepo } from "../utils/api.js";
 
 
 class UIManager {
@@ -39,24 +39,71 @@ class UIManager {
         this.setupUploadFunctionality();
         this.boundHideAIActorOnOutsideClick = this.hideAIActorOnOutsideClick.bind(this);
         this.handleClickOutsideCreateAIActorModal = this.handleClickOutsideCreateAIActorModal.bind(this);
-        this.profileFormManager = new ProfileFormManager(this.storageManager, (updatedProfile) => {
-            // Logic to handle the updated profile
-            console.log("Updated Profile:", updatedProfile);
-            // Example: Update the profile in the storage
-            this.storageManager.setCurrentProfile(updatedProfile);
-            // Optionally, show a confirmation message
-            this.showToast("Profile updated successfully!");
-        }, (message, messageType) => {
+        this.profileFormManager = new ProfileFormManager(this.storageManager, 
+            async (updatedProfile, isNewProfile) => { // 注意此处使用async标记这个函数是异步的
+                await this.refreshProfileList(); // 使用await等待refreshProfileList完成
+                if (isNewProfile) {
+                    // 如果是新Profile，需要创建新的Chat History并切换到该Chat History
+                    const chatId = this.chatHistoryManager.generateChatId(this.storageManager.getCurrentUsername(), updatedProfile.name);
+                    this.currentChatId = chatId;
+                    this.changeChatTopic(chatId, true); // 第二个参数设置为true表示这是一个新的话题
+                }
+            }, (message, messageType) => {
             // 根据消息类型显示不同的swal对话框
-            if (messageType === "success") {
-                swal(message, {icon: "success", button: false, timer: 1500});
-            } else if (messageType === "error") {
-                swal(message, {icon: "error"});
-            } else {
-                swal(message, {icon: "info", button: false, timer: 1500});
-            }
-        });
+                if (messageType === "success") {
+                    swal(message, {icon: "success", button: false, timer: 1500});
+                } else if (messageType === "error") {
+                    swal(message, {icon: "error"});
+                } else {
+                    swal(message, {icon: "info", button: false, timer: 1500});
+                }
+            });
         document.getElementById("new-ai-actor").addEventListener("click", this.showNewAIActorModal.bind(this));
+    }
+
+    // 确保refreshProfileList返回一个Promise
+    refreshProfileList() {
+        const username = this.storageManager.getCurrentUsername();
+        // 将整个操作包裹在一个新的Promise中，并在操作完成时调用resolve或reject
+        return new Promise((resolve, reject) => {
+            getPromptRepo(username)
+                .then(data => {
+                    this.profiles = data.profiles;
+                    // 更新AI Actor列表和Profile下拉菜单
+                    this.populateAIActorList(this.storageManager.getCurrentProfile(), this.profiles);
+                    this.populateProfileList(this.profiles);
+                    // 关闭Modal Dialog
+                    this.hideNewAIActorModal();
+                    resolve(); // 如果一切正常，则完成Promise
+                })
+                .catch(error => {
+                    console.error("Error refreshing profile list:", error);
+                    swal("Failed to refresh profile list.", {icon: "error"});
+                    reject(error); // 如果发生错误，则拒绝Promise
+                });
+        });
+    }
+
+
+    populateProfileList(profiles) {
+        let profileNameList = [];
+        const profileListElement = document.getElementById("profile-list");
+        profileNameList = profiles.map(profile => profile.displayName);
+        profileListElement.innerHTML = "";
+        for (let name of profileNameList) {
+            let li = document.createElement("li");
+            li.textContent = name;
+            profileListElement.appendChild(li);
+        }
+    }
+
+    populateAIActorList(currentProfile, profiles) {
+        //empty aiActorlist
+        const aiActorList = document.querySelector("#ai-actor-list");
+        aiActorList.innerHTML = "";
+        profiles.forEach(item => {
+            this.createListItem(item, currentProfile, aiActorList, true);
+        });
     }
 
     setCurrentSystemPrompt(prompt) {
@@ -368,15 +415,11 @@ class UIManager {
         }
         
         const currentProfile = this.storageManager.getCurrentProfile();
-
-        //empty aiActorlist
-        const aiActorList = document.querySelector("#ai-actor-list");
-        aiActorList.innerHTML = "";
         const aiProfile = document.querySelector("#ai-profile");
         aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
-        this.profiles.forEach(item => {
-            this.createListItem(item, currentProfile, aiActorList, true);
-        });
+
+        this.populateAIActorList(currentProfile, this.profiles);
+        this.populateProfileList(this.profiles);
 
         let latestChat;
         latestChat = chatHistory.find(history => history.profileName === currentProfile.name);

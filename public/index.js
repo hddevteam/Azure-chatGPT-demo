@@ -143,12 +143,10 @@ document.getElementById("delete-container").addEventListener("click", () => {
 const userBtn = document.querySelector("#user");
 
 // generate current user menulist and render it
-let profileNameList = [];
 
 getPromptRepo(uiManager.storageManager.getCurrentUsername())
     .then(data => {
         uiManager.renderMenuList(data);
-        profileNameList = data.profiles.map(profile => profile.displayName);
     })
     .catch(error => {
         console.error("Error:", error);
@@ -206,7 +204,6 @@ document.getElementById("new-chat-button").addEventListener("click",handleAIActo
 setupVoiceInput(uiManager);
 
 const profileListMenu = document.getElementById("chat-profile-list-menu");
-const profileListElement = document.getElementById("profile-list");
 
 
 profileListMenu.addEventListener("click", function (event) {
@@ -218,19 +215,7 @@ profileListMenu.addEventListener("click", function (event) {
     }
 });
 
-function loadProfileList() {
-    profileListElement.innerHTML = "";
-    for (let name of profileNameList) {
-        let li = document.createElement("li");
-        li.textContent = name;
-        profileListElement.appendChild(li);
-    }
-    // adjust ai-actor-settings-inner-form-wrapper height
-    const inputRect = messageInput.getBoundingClientRect();
-    const inputHeight = inputRect.height;
-    const menuHeight = inputHeight - 16; // 1em = 16px
-    profileListMenu.style.height = `${menuHeight}px`;
-}
+
 
 
 function handleAIActor(event){
@@ -303,7 +288,10 @@ messageInput.addEventListener("keyup", function (event) {
     const value = event.target.value.trim();
     const cursorPosition = messageInput.selectionStart;
     if (value.charAt(0) === "@" && cursorPosition === 1) {
-        loadProfileList();
+        const inputRect = messageInput.getBoundingClientRect();
+        const inputHeight = inputRect.height;
+        const menuHeight = inputHeight - 16; // 1em = 16px
+        profileListMenu.style.height = `${menuHeight}px`;
         profileListMenu.classList.remove("hidden");
     } else {
         profileListMenu.classList.add("hidden");

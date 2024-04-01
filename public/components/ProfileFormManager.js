@@ -104,46 +104,30 @@ export default class ProfileFormManager {
         };
         console.log("Saving profile:", profile);
         const username = this.storageManager.getCurrentUsername();
-        // Decide between creating a new profile or updating an existing one
-        if (this.oldName) {
-            // Update operation
-            fetch(`/api/profiles/${this.oldName}?username=${username}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(profile)
+        const isNewProfile = !this.oldName;
+        const method = isNewProfile ? "POST" : "PUT";
+        const endpoint = `/api/profiles${isNewProfile ? "" : "/" + this.oldName}?username=${username}`;
+
+        fetch(endpoint, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(profile)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
             })
-                .then(response => response.json())
-                .then(() => {
-                    console.log("Profile updated successfully.");
-                    this.saveProfileCallback(profile); 
-                // Optionally:
-                // this.resetForm();
-                // fetchProfiles(); // Assuming fetchProfiles is a method to refresh the profiles list
-                })
-                .catch(error => console.error("Error updating profile:", error));
-        } else {
-            // Create operation
-            fetch(`/api/profiles?username=${username}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(profile)
+            .then(() => {
+                this.storageManager.setCurrentProfile(profile); // 设置新保存的Profile为当前Profile
+                console.log("Profile saved successfully.");                
+                this.saveProfileCallback(profile, isNewProfile); 
+                this.showMessageCallback(isNewProfile ? "Profile created successfully!" : "Profile updated successfully!", "success"); 
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Network response was not ok");
-                    }
-                    return response.json();
-                })
-                .then(() => {
-                    console.log("Profile saved successfully.");
-                    this.saveProfileCallback(profile); 
-                })
-                .catch(error => console.error("Error saving profile:", error));
-        }
+            .catch(error => console.error("Error saving profile:", error));
     }
     
     resetForm() {
