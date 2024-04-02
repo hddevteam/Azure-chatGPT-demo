@@ -39,23 +39,28 @@ export async function textToImage(caption) {
 
 //get gpt response
 export async function getGpt(promptText, model) {
-    const response = await fetch("/api/gpt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: promptText, model: model }),
-    });
-
-    // Get the response data
-    const data = await response.json();
-
-    // If the response is not okay, throw an error with the status and message
-    if (!response.ok) {
-        let errMsg = data.error ? data.error.message : "Error generating response.";
-        throw new Error(`Error ${response.status}: ${errMsg}`);
+    try {
+        const response = await axios.post("/gpt", {
+            prompt: promptText,
+            model: model
+        });
+        return response.data; // Axios automatically handles the response as JSON
+    } catch (error) {
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            let errMsg = error.response.data.error ? error.response.data.error.message : "Error generating response.";
+            throw new Error(`Error ${error.response.status}: ${errMsg}`);
+        } else if (error.request) {
+            // The request was made but no response was received
+            throw new Error("The server did not respond. Please try again later.");
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            throw new Error(error.message);
+        }
     }
-
-    return data;
 }
+
 
 
 

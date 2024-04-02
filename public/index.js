@@ -73,7 +73,7 @@ getAppName()
 
 // get tts container element
 const ttsContainer = document.querySelector("#tts-container");
-ttsContainer.style.display = "none";
+uiManager.hiddenElement(ttsContainer);
 
 const practiceMode = document.querySelector("#tts-container");
 
@@ -140,21 +140,19 @@ document.getElementById("delete-container").addEventListener("click", () => {
 });
 
 // 获取模态对话框元素和触发器元素
-const usernameLabel = document.querySelector("#username-label");
+const userBtn = document.querySelector("#user");
 
 // generate current user menulist and render it
-let profileNameList = [];
 
 getPromptRepo(uiManager.storageManager.getCurrentUsername())
     .then(data => {
         uiManager.renderMenuList(data);
-        profileNameList = data.profiles.map(profile => profile.displayName);
     })
     .catch(error => {
         console.error("Error:", error);
     });
 
-    
+
 const messageInput = document.querySelector("#message-input");
 // Listening for keydown event
 document.addEventListener("keydown", (event) => {
@@ -162,9 +160,9 @@ document.addEventListener("keydown", (event) => {
     if (event.getModifierState("Alt") && event.code === "KeyS") {
         uiManager.handleMessageFormSubmit(messageInput);
     }
-});    
+});
 // popup the Swal when user click the username label
-usernameLabel.addEventListener("click", function () {
+userBtn.addEventListener("click", function () {
     swal({
         text: "Enter your username",
         content: "input",
@@ -199,148 +197,18 @@ usernameLabel.addEventListener("click", function () {
         });
 });
 
-
-
-document.getElementById("new-chat-button").addEventListener("click",handleAIActor);
-// 添加事件监听器到最小化窗口图标
-const systemMessageWindowIcon = document.querySelector("#window-icon");
-
-systemMessageWindowIcon.addEventListener("click", toggleSystemMessage);
-
-// 切换系统消息
-function toggleSystemMessage() {
-    const systemMessage = document.querySelector("#system-message");
-    if (systemMessage.style.display === "none") {
-        systemMessage.style.display = "block";
-        systemMessageWindowIcon.setAttribute("title", "Hide system message");
-        systemMessageWindowIcon.classList.remove("fa-window-maximize");
-        systemMessageWindowIcon.classList.add("fa-window-minimize");
-
-    } else {
-        systemMessage.style.display = "none";
-        systemMessageWindowIcon.setAttribute("title", "Show system message");
-        systemMessageWindowIcon.classList.remove("fa-window-minimize");
-        systemMessageWindowIcon.classList.add("fa-window-maximize");
-
-    }
-}
-
 setupVoiceInput(uiManager);
 
-
-const profileListMenu = document.getElementById("chat-profile-list-menu");
-const profileListElement = document.getElementById("profile-list");
-
-
-profileListMenu.addEventListener("click", function (event) {
-    if (event.target.tagName.toLowerCase() === "li") {
-        const selectedName = event.target.textContent;
-        messageInput.value = `@${selectedName}: ` + messageInput.value.slice(1);
-        messageInput.focus();
-        profileListMenu.classList.add("hidden");
-    }
-});
-
-function loadProfileList() {
-    profileListElement.innerHTML = "";
-    for (let name of profileNameList) {
-        let li = document.createElement("li");
-        li.textContent = name;
-        profileListElement.appendChild(li);
-    }
-    // adjust menu height
-    const inputRect = messageInput.getBoundingClientRect();
-    const inputHeight = inputRect.height;
-    const menuHeight = inputHeight - 16; // 1em = 16px
-    profileListMenu.style.height = `${menuHeight}px`;
-}
-
-
-function handleAIActor(event){
-    event.stopPropagation();
-    uiManager.toggleAIActorList();
-} 
-
-
-window.addEventListener("message", function (event) {
-    if (event.data.type === "PROFILE_UPDATED") {
-        const updatedProfile = event.data.data;
-        // Check if the updated profile is the current profile
-        if (updatedProfile.name === uiManager.storageManager.getCurrentProfile().name) {
-            // Update the system message
-            uiManager.storageManager.setCurrentProfile(updatedProfile);
-            uiManager.setSystemMessage(updatedProfile.prompt);
-        }
-    }
-}, false);
-
-
-const toggleButton = document.getElementById("toggle-chat-topic");
-toggleButton.addEventListener("click", function(event) {
-    event.stopPropagation();
-    const chatHistoryContainer = document.getElementById("chat-history-container");
-    toggleVisibility(chatHistoryContainer);
-  
-    if (window.innerWidth <= 768) {
-        attachOutsideClickListener("chat-history-container");
-    }
-});
-  
-const aiProfile = document.getElementById("ai-profile");
-aiProfile.addEventListener("click", function(event) {
-    event.stopPropagation();
-    const menu = document.getElementById("menu");
-    toggleVisibility(menu);
-  
-    if (window.innerWidth <= 768) {
-        attachOutsideClickListener("menu");
-    }
-});
-  
-  
-function createClickListener(elementId) {
-    return function hideElementOnOutsideClick(event) {
-        const element = document.getElementById(elementId);
-        if (!event.target.closest(`#${elementId}`) && element.style.display !== "none") {
-            element.style.display = "none";
-            detachOutsideClickListener(elementId);
-        }
-    };
-}
-  
-function attachOutsideClickListener(elementId) {
-    // Generate a unique listener function for the given element ID
-    const listener = createClickListener(elementId); 
-    document.addEventListener("click", listener);
-    // Associate the listener with the element ID for removal later
-    activeOutsideClickListeners[elementId] = listener; 
-}
-  
-function detachOutsideClickListener(elementId) {
-    const listener = activeOutsideClickListeners[elementId];
-    if (listener) {
-        document.removeEventListener("click", listener);
-        delete activeOutsideClickListeners[elementId];
-    }
-}
-  
-const activeOutsideClickListeners = {};
-
-
 const messageForm = document.querySelector("#message-form");
-const clearInput = document.getElementById("clear-input");
-const halfScreenHeight = window.innerHeight / 2;
-const initFocusHeight = window.innerHeight / 5;
-clearInput.addEventListener("click", function () {
-    uiManager.clearMessageInput();
-    uiManager.handleInput(initFocusHeight, halfScreenHeight);
-});
 
 messageInput.addEventListener("keyup", function (event) {
     const value = event.target.value.trim();
     const cursorPosition = messageInput.selectionStart;
     if (value.charAt(0) === "@" && cursorPosition === 1) {
-        loadProfileList();
+        const inputRect = messageInput.getBoundingClientRect();
+        const inputHeight = inputRect.height;
+        const menuHeight = inputHeight - 16; // 1em = 16px
+        profileListMenu.style.height = `${menuHeight}px`;
         profileListMenu.classList.remove("hidden");
     } else {
         profileListMenu.classList.add("hidden");
@@ -351,29 +219,6 @@ messageInput.addEventListener("keyup", function (event) {
 messageForm.addEventListener("submit", (event) => {
     //uiManager.js中已经写过这个方法，直接调用
     uiManager.handleMessageFormSubmit(messageInput);
-});
-
-messageInput.addEventListener("focus", function () {
-    uiManager.handleInput(initFocusHeight, halfScreenHeight);
-});
-
-let composing = false;
-
-messageInput.addEventListener("compositionstart", function () {
-    composing = true;
-});
-
-messageInput.addEventListener("compositionend", function () {
-    composing = false;
-    // 在这里进行处理
-    uiManager.handleInput(initFocusHeight, halfScreenHeight);
-});
-
-messageInput.addEventListener("input", function () {
-    if (!composing) {
-        // 在这里进行处理
-        uiManager.handleInput(initFocusHeight, halfScreenHeight);
-    }
 });
 
 function updateVh() {
@@ -403,6 +248,75 @@ let ro = new ResizeObserver(entries => {
 
 ro.observe(messageInputContainer);
 
+const profileListMenu = document.getElementById("chat-profile-list-menu");
+
+
+profileListMenu.addEventListener("click", function (event) {
+    if (event.target.tagName.toLowerCase() === "li") {
+        const selectedName = event.target.textContent;
+        messageInput.value = `@${selectedName}: ` + messageInput.value.slice(1);
+        messageInput.focus();
+        profileListMenu.classList.add("hidden");
+    }
+});
+
+function handleAIActor(event) {
+    event.stopPropagation();
+    uiManager.toggleAIActorList();
+}
+
+document.getElementById("new-chat-button").addEventListener("click", handleAIActor);
+
+const toggleButton = document.getElementById("toggle-chat-topic");
+toggleButton.addEventListener("click", function (event) {
+    event.stopPropagation();
+    const chatHistoryContainer = document.getElementById("chat-history-container");
+    uiManager.toggleVisibility(chatHistoryContainer);
+
+    if (window.innerWidth <= 768) {
+        attachOutsideClickListener("chat-history-container");
+    }
+});
+
+const aiProfile = document.getElementById("ai-profile");
+aiProfile.addEventListener("click", function (event) {
+    event.stopPropagation();
+    const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
+    uiManager.toggleVisibility(aiActorSettings);
+
+    if (window.innerWidth <= 768) {
+        attachOutsideClickListener("aiActorSettings");
+    }
+});
+
+function createClickListener(elementId) {
+    return function hideElementOnOutsideClick(event) {
+        const element = document.getElementById(elementId);
+        if (!event.target.closest(`#${elementId}`) && !element.classList.contains("hidden")) {
+            element.classList.add("hidden");
+            detachOutsideClickListener(elementId);
+        }
+    };
+}
+
+function attachOutsideClickListener(elementId) {
+    // Generate a unique listener function for the given element ID
+    const listener = createClickListener(elementId);
+    document.addEventListener("click", listener);
+    // Associate the listener with the element ID for removal later
+    activeOutsideClickListeners[elementId] = listener;
+}
+
+function detachOutsideClickListener(elementId) {
+    const listener = activeOutsideClickListeners[elementId];
+    if (listener) {
+        document.removeEventListener("click", listener);
+        delete activeOutsideClickListeners[elementId];
+    }
+}
+
+const activeOutsideClickListeners = {};
+
 // split layout
 
 // Selecting elements that will be changed by layout toggling
@@ -414,9 +328,8 @@ const toggleLayoutBtn = document.getElementById("toggle-layout");
 
 // Function to toggle the CSS class for the split layout
 function toggleLayout() {
-    const menu = document.getElementById("menu");
+    const actorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
     const chatHistoryContainer = document.getElementById("chat-history-container");
-    const systemMessage = document.querySelector("#system-message");
     const inputContainter = document.querySelector("#input-container");
     const appContainer = document.querySelector("#app-container");
 
@@ -424,7 +337,7 @@ function toggleLayout() {
     inputContainter.style = "";
     messageInputContainer.style = "";
     appContainer.style = "";
-    
+
     mainContainer.classList.toggle("split-view");
     appBar.classList.toggle("split-view");
     messageContainer.classList.toggle("split-view");
@@ -432,46 +345,54 @@ function toggleLayout() {
     if (mainContainer.classList.contains("split-view")) {
         mainContainer.style.height = "";
         messageInput.style.maxHeight = "";
-        menu.style.display =  "none";
-        chatHistoryContainer.style.display = "none";
-        systemMessage.style.display = "none";
+        uiManager.hiddenElement(actorSettingsWrapper);
+        uiManager.hiddenElement(chatHistoryContainer);
     } else {
-        menu.style.display =  "block";
-        chatHistoryContainer.style.display = "block";
-        systemMessage.style.display = "block";
+        uiManager.visibleElement(actorSettingsWrapper);
+        uiManager.visibleElement(chatHistoryContainer);
     }
 }
 
 // Adding event listeners to buttons
 toggleLayoutBtn.addEventListener("click", toggleLayout);
 
-function toggleVisibility(element) {
-    element.style.display = element.style.display === "block" ? "none" : "block";
-}
-
 // Call this function to set initial display status based on the device type
 // 在页面加载时设置初始可见性状态
 function setInitialVisibility() {
     const isSplitView = document.getElementById("app-container").classList.contains("split-view");
-    const menu = document.getElementById("menu");
+    const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
     const chatHistoryContainer = document.getElementById("chat-history-container");
     const inputContainter = document.querySelector("#input-container");
     const messageInputContainer = document.querySelector("#message-input-container");
 
     inputContainter.style = "";
     messageInputContainer.style = "";
-    
+
     if (window.innerWidth <= 768 || isSplitView) {
         // 如果是移动设备，则默认隐藏菜单和聊天历史记录
-        menu.style.display = "none";
-        chatHistoryContainer.style.display = "none";
-        toggleSystemMessage();
+        uiManager.hiddenElement(aiActorSettings);
+        uiManager.hiddenElement(chatHistoryContainer);
+    } else {
+        // 如果是桌面设备，则默认显示菜单和聊天历史记录
+        uiManager.visibleElement(aiActorSettings);
+        uiManager.visibleElement(chatHistoryContainer);
     }
 }
-  
+
+document.addEventListener("DOMContentLoaded", function () {
+    const chatHistoryContainer = document.getElementById("chat-history-container");
+    const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
+
+    // 根据元素初始的显示状态来初始化按钮状态
+    uiManager.updateButtonActiveState(chatHistoryContainer.id, chatHistoryContainer.classList.contains("visible"));
+    uiManager.updateButtonActiveState(aiActorSettings.id, aiActorSettings.classList.contains("visible"));
+}); 
+
+
 window.onload = () => {
     setInitialVisibility();
     addHorizontalResizeHandleListeners(); // Add horizontal resize functionality
     addVerticalResizeHandleListeners(); // Add vertical resize functionality
 };
 window.addEventListener("resize", setInitialVisibility);
+

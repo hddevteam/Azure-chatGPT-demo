@@ -59,7 +59,9 @@ class StorageManager {
     }
     
     setCurrentProfile(profile) {
+        console.log("setCurrentProfile: ", profile);
         this.currentUserData.currentProfile = profile;
+        this.uiManager.setCurrentSystemPrompt(profile.prompt);
         this.saveCurrentUserData();
     }
     

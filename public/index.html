@@ -8,34 +8,38 @@
 </head>
 
 <body>
-  <div class="modal-overlay"></div>
-  <div id="ai-actor-container">
+  <div class="modal-overlay hidden"></div>
+  <div id="ai-actor-wrapper" class="hidden">
     <div id="ai-actor-header">
+      <span>AI Actor</span>
+      <button id="new-ai-actor" class="new-button" aria-label="Create New"><i class="fas fa-plus"
+          aria-hidden="true"></i></button>
     </div>
-    <ul id="ai-actor-list"></ul>
+    <div id="ai-actor-container">
+      <ul id="ai-actor-list">
+        <!-- 列表项 -->
+      </ul>
+    </div>
   </div>
   <div id="toast"></div>
   <div id="header">
     <h1 id="app-name"></h1>
     <div id="header-buttons">
-      <button id="toggle-chat-topic"><i class="fas fa-rectangle-list"></i>History</button>
+      <button id="toggle-chat-topic" title="Show/Hide history topic"><i class="fas fa-history"></i></button>
       <button id="ai-profile"><i class="fas fa-robot"></i>
         <span>AI</span>
       </button>
-      <button id="toggle-layout"><i class="fas fa-grip"></i> Toggle Layout</button>
+      <button id="toggle-layout" title="Toggle layout"><i class="fas fa-grip"></i> </button>
+      <button id="user"><i class="fas fa-user-circle"></i></button>
     </div>
   </div>
   <div id="main-container">
-    <div id="chat-history-container">
+    <div id="chat-history-container" class="visible">
       <h2>Chat History</h2>
       <ul id="chat-history-list"></ul>
     </div>
     <div id="app-outer-wrapper">
-      <i id="window-icon" class="fa fa-window-minimize" title="Hide system message"></i>
       <div id="app-container">
-        <div id="profile-content">
-          <div id="system-message"></div>
-        </div>
         <div id="messages"></div>
         <div class="information">
           <span class="info-chip"><i class="fas fa-info-circle"></i><span id="tokens"></span></span>
@@ -52,7 +56,7 @@
                 <span class="dropdown-item" data-model="gpt-4">GPT4</span>
                 <span class="dropdown-item" data-model="gpt-4-last">GPT4-0125</span>
                 <!-- Add more models as needed -->
-            </div>
+              </div>
               <div class="slider-container">
                 <label id="maxValue">10</label>
                 <input type="range" id="slider" min="0" max="2" value="2" step="1">
@@ -68,8 +72,7 @@
                   class="fa-brands fa-markdown"></i><span class="btn-text">md</span></span>
               <span class="btn" id="delete-container" title="Click to delete all active messages"><i
                   class="fas fa-trash-alt"></i><span class="btn-text">Delete</span></span>
-              <span class="btn" id="user"><i class="fas fa-user-circle"></i><span
-                  id="username-label">Guest</span></span>
+
             </div>
           </div>
         </div>
@@ -82,8 +85,7 @@
             </div>
             <textarea id="message-input" name="message" autocomplete="off"
               placeholder="Feel free to ask anything. You can use '@' to ask a specific expert, even if they're not listed in the menu. For example, '@App Designer: How to design a great app?'"
-              tabindex="1"></textarea>
-            <button id="clear-input" ><i class="fas fa-trash-can" title="Clear input"></i></button>
+              tabindex="1" rows="5"></textarea>
             <div class="button-row">
               <button id="submitButton" type="submit" tabindex="2">
                 <div id="submit-button-icon"><i class="fas fa-paper-plane"></i></div>
@@ -105,17 +107,69 @@
         </form>
       </div>
     </div>
-    <div id="menu">
-      <div id="menu-header">
-        <i class="fas fa-list"></i>
-        <span>AI Actor</span><a href="profile-manager.html" target="_blank"><span id="manage-profile"><i
-              class="fas fa-cog"></i></span></a>
+    <div id="ai-actor-settings-wrapper" class="visible">
+      <div id="ai-actor-settings-inner-form-wrapper">
+        <div id="ai-actor-settings-header">
+          <span>AI Actor</span>
+          <button type="button" id="save-profile">Save</button>
+        </div>
+        <div class="setting-item">
+          <label for="prompt">Prompt</label>
+          <div class="textarea-container">
+            <textarea id="prompt" rows="12" required></textarea>
+            <button id="generate-prompt" title="Automatic generate prompt based on your content"><i
+                class="fas fa-magic"></i></button>
+          </div>
+        </div>
+        <div class="setting-item">
+          <label for="temperature">Temperature</label>
+          <input type="number" id="temperature" min="0" max="1" step="0.1" placeholder="0.8 (default)">
+        </div>
+        <div class="setting-item">
+          <label for="top_p">Top P</label>
+          <input type="number" id="top_p" min="0" max="1" step="0.05" placeholder="0.95 (default)">
+        </div>
+        <div class="setting-item">
+          <label for="frequency_penalty">Frequency Penalty</label>
+          <input type="number" id="frequency_penalty" min="0" max="1" step="0.1" placeholder="0 (default)">
+        </div>
+        <div class="setting-item">
+          <label for="presence_penalty">Presence Penalty</label>
+          <input type="number" id="presence_penalty" min="0" max="1" step="0.1" placeholder="0 (default)">
+        </div>
+        <div class="setting-item">
+          <label for="max_tokens">Max Tokens</label>
+          <input type="number" id="max_tokens" min="1" step="1" placeholder="2000 (default)">
+        </div>
+        <h5>Profile Settings</h5>
+        <div class="setting-item">
+          <label for="name">Name</label>
+          <input type="text" id="name" required>
+        </div>
+        <div class="setting-item">
+          <label for="icon">Icon<i id="icon-preview"></i></label>
+          <input type="text" id="icon" required><i id="icon-preview"></i>
+        </div>
+        <div class="setting-item">
+          <label for="displayName">Display Name</label>
+          <input type="text" id="displayName">
+        </div>
+        <div class="setting-item">
+          <label for="tts">Text to Speech</label>
+          <select id="tts">
+            <option value="disabled">Disabled</option>
+            <option value="enabled">Enabled</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label for="sortedIndex">Sorted Index</label>
+          <input type="number" id="sortedIndex" min="0" required>
+        </div>
+        <div class="bottom-buttons">
+          <button type="button" id="delete-profile" class="danger"><i class="fas fa-trash-alt"></i></button>
+        </div>
       </div>
-      <ul id="menu-list">
-      </ul>
     </div>
-  </div>
-
   </div>
 </body>
 <script src="https://kit.fontawesome.com/be011bd8b4.js" crossorigin="anonymous"></script>

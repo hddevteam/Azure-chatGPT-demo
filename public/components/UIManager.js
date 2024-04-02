@@ -7,6 +7,8 @@ import ChatHistoryManager from "./ChatHistoryManager.js";
 import { textToImage, getTts } from "../utils/api.js";
 import swal from "sweetalert";
 import SyncManager from "./SyncManager.js";
+import ProfileFormManager from "./ProfileFormManager.js";
+import { getPromptRepo } from "../utils/api.js";
 
 
 class UIManager {
@@ -18,7 +20,7 @@ class UIManager {
         this.clientLanguage = "en-US";
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.addEventListener("scroll", () => {
-            if (messagesContainer.scrollTop === 0) {
+            if (messagesContainer.scrollTop === 0 && messagesContainer.innerHTML!=="") {
                 this.messageManager.loadMoreMessages();
             }
         });
@@ -36,8 +38,79 @@ class UIManager {
         this.setupChatHistoryListClickHandler();
         this.setupUploadFunctionality();
         this.boundHideAIActorOnOutsideClick = this.hideAIActorOnOutsideClick.bind(this);
+        this.handleClickOutsideCreateAIActorModal = this.handleClickOutsideCreateAIActorModal.bind(this);
+        this.profileFormManager = new ProfileFormManager(this.storageManager, 
+            async (updatedProfile, isNewProfile) => { // 注意此处使用async标记这个函数是异步的
+                await this.refreshProfileList(); // 使用await等待refreshProfileList完成
+                if (isNewProfile) {
+                    // 如果是新Profile，需要创建新的Chat History并切换到该Chat History
+                    const chatId = this.chatHistoryManager.generateChatId(this.storageManager.getCurrentUsername(), updatedProfile.name);
+                    this.currentChatId = chatId;
+                    this.changeChatTopic(chatId, true); // 第二个参数设置为true表示这是一个新的话题
+                }
+            }, (message, messageType) => {
+            // 根据消息类型显示不同的swal对话框
+                if (messageType === "success") {
+                    swal(message, {icon: "success", button: false, timer: 1500});
+                } else if (messageType === "error") {
+                    swal(message, {icon: "error"});
+                } else {
+                    swal(message, {icon: "info", button: false, timer: 1500});
+                }
+            },async (data) => { // 处理Profile的删除
+                await this.renderMenuList(data);
+                swal("Profile deleted successfully.", {icon: "success", button: false, timer: 1500});
+            });
+        document.getElementById("new-ai-actor").addEventListener("click", this.showNewAIActorModal.bind(this));
     }
 
+    // 确保refreshProfileList返回一个Promise
+    refreshProfileList() {
+        const username = this.storageManager.getCurrentUsername();
+        // 将整个操作包裹在一个新的Promise中，并在操作完成时调用resolve或reject
+        return new Promise((resolve, reject) => {
+            getPromptRepo(username)
+                .then(data => {
+                    this.profiles = data.profiles;
+                    // 更新AI Actor列表和Profile下拉菜单
+                    this.populateAIActorList(this.storageManager.getCurrentProfile(), this.profiles);
+                    this.populateProfileList(this.profiles);
+                    // 关闭Modal Dialog
+                    this.hideNewAIActorModal();
+                    resolve(); // 如果一切正常，则完成Promise
+                })
+                .catch(error => {
+                    console.error("Error refreshing profile list:", error);
+                    swal("Failed to refresh profile list.", {icon: "error"});
+                    reject(error); // 如果发生错误，则拒绝Promise
+                });
+        });
+    }
+
+    populateProfileList(profiles) {
+        let profileNameList = [];
+        const profileListElement = document.getElementById("profile-list");
+        profileNameList = profiles.map(profile => profile.displayName);
+        profileListElement.innerHTML = "";
+        for (let name of profileNameList) {
+            let li = document.createElement("li");
+            li.textContent = name;
+            profileListElement.appendChild(li);
+        }
+    }
+
+    populateAIActorList(currentProfile, profiles) {
+        //empty aiActorlist
+        const aiActorList = document.querySelector("#ai-actor-list");
+        aiActorList.innerHTML = "";
+        profiles.forEach(item => {
+            this.createListItem(item, currentProfile, aiActorList, true);
+        });
+    }
+
+    setCurrentSystemPrompt(prompt) {
+        this.app.prompts.setSystemPrompt(prompt);
+    }
 
     setupUploadFunctionality() {
         const uploadContainer = document.querySelector("#upload-container");
@@ -45,7 +118,7 @@ class UIManager {
 
         fileInput.type = "file";
         fileInput.accept = ".md";
-        fileInput.style.display = "none"; // 隐藏 file input 控件
+        this.hiddenElement(fileInput); // 隐藏 file input 控件
 
         uploadContainer.addEventListener("click", () => {
             fileInput.value = null; // 清空文件选择，这会触发浏览器重新检查文件
@@ -196,21 +269,6 @@ class UIManager {
         }
     }
 
-    setSystemMessage(message) {
-        // 获取显示系统消息的元素
-        this.app.prompts.setSystemPrompt(message);
-        const systemMessageElement = document.querySelector("#system-message");
-        systemMessageElement.innerHTML = `${message}<button id="edit-system-message"><i class="fas fa-edit"></i></button>`;
-
-        // 定义编辑按钮的点击事件
-        const editButton = document.querySelector("#edit-system-message");
-        editButton.addEventListener("click", () => {
-            // 使用window.open可以在新标签页中打开，并将当前的profile name传递过去
-            window.open(`profile-manager.html?profileName=${this.storageManager.getCurrentProfile().name}`, "_blank");
-        });
-    }
-
-
     updateSlider() {
         const messageCount = document.querySelectorAll(".message").length;
         document.querySelector("#maxValue").textContent = messageCount;
@@ -346,8 +404,8 @@ class UIManager {
         this.profiles = data.profiles;
         this.storageManager.setCurrentUsername(data.username);
         await this.showChatHistory();
-        const usernameLabel = document.querySelector("#username-label");
-        usernameLabel.textContent = this.storageManager.getCurrentUsername();
+        const userBtn = document.querySelector("#user");
+        userBtn.title = this.storageManager.getCurrentUsername();
         await this.syncManager.syncChatHistories();
         const chatHistory = await this.chatHistoryManager.getChatHistory();
         let savedCurrentProfile = this.storageManager.getCurrentProfile();
@@ -359,19 +417,11 @@ class UIManager {
         }
         
         const currentProfile = this.storageManager.getCurrentProfile();
-        //empty menu list
-        const menuList = document.querySelector("#menu-list");
-        menuList.innerHTML = "";
-        //empty aiActorlist
-        const aiActorList = document.querySelector("#ai-actor-list");
-        aiActorList.innerHTML = "";
         const aiProfile = document.querySelector("#ai-profile");
         aiProfile.innerHTML = `<i class="${currentProfile.icon}"></i> ${currentProfile.displayName}`;
-        this.profiles.forEach(item => {
-            this.createListItem(item, currentProfile, menuList, false);
-            this.createListItem(item, currentProfile, aiActorList, true);
 
-        });
+        this.populateAIActorList(currentProfile, this.profiles);
+        this.populateProfileList(this.profiles);
 
         let latestChat;
         latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
@@ -384,11 +434,9 @@ class UIManager {
             this.currentChatId = chatId;
             this.changeChatTopic(chatId);
         }
-
     }
 
     changeChatTopic(chatId, isNewTopic = false) {
-
         // check if chatId is current chatId
         if (this.currentChatId !== chatId) {
             const currentChatHisory = this.storageManager.readChatHistory(this.currentChatId);
@@ -404,12 +452,14 @@ class UIManager {
 
         // Update current profile and chat ID
         this.storageManager.setCurrentProfile(this.profiles.find(p => p.name === profileName));
-        this.setSystemMessage(this.storageManager.getCurrentProfile().prompt);
+        
+        const currentProfile = this.storageManager.getCurrentProfile();
+
+        this.profileFormManager.bindProfileData(currentProfile);
+        this.profileFormManager.oldName = currentProfile.name;
+
         console.log("profileName: ", profileName);
 
-        // Set active profile menu item
-        document.querySelector("#menu-list li.active")?.classList.remove("active");
-        document.querySelector(`#menu-list li[data-profile="${profileName}"]`).classList.add("active");
         //Set active profile aiActor item
         document.querySelector("#ai-actor-list li.active")?.classList.remove("active");
         document.querySelector(`#ai-actor-list li[data-profile="${profileName}"]`).classList.add("active");
@@ -440,6 +490,8 @@ class UIManager {
     }
 
     loadMessagesByChatId(chatId, sendFollowUpQuestions = false) {
+        this.app.prompts.clear();
+        console.log("loadMessagesByChatId start", this.app.prompts);
         // clear messages container
         document.querySelector("#messages").innerHTML = "";
         // load chat messages by chatId
@@ -455,6 +507,7 @@ class UIManager {
         if (sendFollowUpQuestions) {
             this.messageManager.sendFollowUpQuestions();
         }
+        console.log("loadMessagesByChatId", this.app.prompts);
     }
 
     setupPracticeMode() {
@@ -538,7 +591,6 @@ class UIManager {
         // Clear the input field and handle the UI
         this.clearMessageInput();
         this.messageInput.blur();
-        this.handleInput();
     }
 
     handleProfileListMenuClick(event) {
@@ -548,38 +600,6 @@ class UIManager {
             this.clearProfileListMenu();
         }
     }
-
-    handleInput(initFocusHeight, halfScreenHeight) {
-        // add a delay to avoid other events can't respond when the input is focused
-        // 判断messageInput是否失去焦点
-        // const mainContainer = document.querySelector("#app-container");
-        // if (mainContainer.classList.contains("split-view")) {
-        //     // 在 split-view 模式下，我们不改变 mainContainer 的高度，因为 message-input-container 高度是固定的
-        //     return;
-        // }
-        
-        // this.messageInput.style.maxHeight = `${halfScreenHeight}px`;
-        // if (!this.messageInput.matches(":focus")) {
-        //     if (this.messageInput.value === "") {
-        //         this.messageInput.style.height = "";
-        //     } else {
-        //         this.messageInput.style.height = `${initFocusHeight}px`;
-        //     }
-        //     return;
-        // }
-        // // 如果输入框的内容为空，将高度恢复为初始高度
-        // if (this.messageInput.value === "") {
-        //     this.messageInput.style.height = `${initFocusHeight}px`;
-        // } else {
-        //     // 然后设为scrollHeight，但不超过屏幕的一半
-        //     this.messageInput.style.height = `${Math.min(this.messageInput.scrollHeight, halfScreenHeight)}px`;
-        //     if (this.messageInput.scrollHeight < initFocusHeight) {
-        //         this.messageInput.style.height = `${initFocusHeight}px`;
-        //     }
-        // }
-        return;
-    }
-
 
     async showChatHistory() {
         const username = this.storageManager.getCurrentUsername();
@@ -694,65 +714,7 @@ class UIManager {
 
         });
     }
-
-    // UIManager.js 或者相应的文件里
-
-    showAIActorList() {
-        const aiActorList = document.getElementById("ai-actor-container");
-        const activeItem = aiActorList.querySelector(".active");
-        const overlay = document.querySelector(".modal-overlay");
-  
-        aiActorList.style.display = "block";
-        aiActorList.setAttribute("data-visible", "true");
-        overlay.style.display = "block";
-
-        // scroll to active item
-        if (activeItem) {
-            activeItem.scrollIntoView({
-                behavior: "smooth", // 平滑滚动
-                block: "nearest",    // 垂直方向
-                inline: "start"      // 水平方向
-            });
-        }
-
-        // 延迟注册事件处理器以避免立即捕获到触发显示选项框的同一点击事件
-        setTimeout(() => {
-            document.addEventListener("click", this.boundHideAIActorOnOutsideClick);
-        }, 0); // 可以设置更长的时间，如100或200毫秒，如果0仍然过短
-    }
-
-    
-  
-    hideAIActorList() {
-        const aiActorList = document.getElementById("ai-actor-container");
-        const overlay = document.querySelector(".modal-overlay");
-    
-        if (aiActorList.getAttribute("data-visible") === "true") {
-            aiActorList.style.display = "none";
-            aiActorList.setAttribute("data-visible", "false");
-            overlay.style.display = "none";
-      
-            // 触发自定义事件，通知UIManager ai-actor-container关闭了
-            const event = new Event("aiActorListHidden");
-            document.dispatchEvent(event);
-      
-            // 注销点击外部隐藏对话框的事件
-            document.removeEventListener("click", this.boundHideAIActorOnOutsideClick);
-        }
-    }
-  
-    // 需要绑定正确的 this 上下文
-    hideAIActorOnOutsideClick(event) {
-    // 需要确保这个方法能够访问到 aiActorList 和 overlay 变量，
-    // 可以将它们作为 UIManager 类的属性存储
-        const aiActorList = document.getElementById("ai-actor-container");
-        const profileListAIActor = document.getElementById("new-chat-button");
-    
-        if (event.target !== aiActorList && event.target !== profileListAIActor && !profileListAIActor.contains(event.target)) {
-            console.log("hideAIActorOnOutsideClick", event.target, event);
-            this.hideAIActorList(); // 调用 UIManager 的方法来隐藏列表并处理后续操作
-        }
-    }
+   
 
     async moveToNewTopic(messageId) {
         // 1. 从messages容器中得到当前消息，以及后续的消息
@@ -816,6 +778,55 @@ class UIManager {
         this.chatHistoryManager.updateChatHistory(this.currentChatId, true);
     }
 
+    showAIActorList() {
+        const aiActorWrapper = document.getElementById("ai-actor-wrapper");
+        const aiActorList = document.getElementById("ai-actor-container");
+        const activeItem = aiActorList.querySelector(".active");
+        const overlay = document.querySelector(".modal-overlay");
+        this.visibleElement(aiActorWrapper);
+        aiActorWrapper.setAttribute("data-visible", "true");
+        this.visibleElement(overlay);
+        
+        // Scroll to active item
+        if (activeItem) {
+            activeItem.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "start"
+            });
+        }
+        
+        setTimeout(() => {
+            document.addEventListener("click", this.boundHideAIActorOnOutsideClick);
+        }, 0); 
+    }
+    
+    
+    hideAIActorList() {
+        const aiActorWrapper = document.getElementById("ai-actor-wrapper");
+        const overlay = document.querySelector(".modal-overlay");
+    
+        if (aiActorWrapper.getAttribute("data-visible") === "true") {
+            this.hiddenElement(aiActorWrapper);
+            aiActorWrapper.setAttribute("data-visible", "false");
+            this.hiddenElement(overlay);
+    
+            const event = new Event("aiActorListHidden");
+            document.dispatchEvent(event);
+    
+            document.removeEventListener("click", this.boundHideAIActorOnOutsideClick);
+        }
+    }
+    
+    hideAIActorOnOutsideClick(event) {
+        const aiActorWrapper = document.getElementById("ai-actor-wrapper"); // 修改为新的外层容器ID
+        const profileListAIActor = document.getElementById("new-chat-button"); 
+    
+        if (event.target !== aiActorWrapper && event.target !== profileListAIActor) {
+            this.hideAIActorList(); // 调用方法来隐藏列表并处理后续操作
+        }
+    } 
+
     toggleAIActorList() {
         const aiActorList = document.getElementById("ai-actor-container");
         if (aiActorList.getAttribute("data-visible") === "true") {
@@ -824,8 +835,89 @@ class UIManager {
             this.showAIActorList();
         }
     }
-  
+    
+    showNewAIActorModal() {
+        this.hideAIActorList();
+        this.profileFormManager.resetForm();
+        this.profileFormManager.oldName = "";
+        const modalOverlay = document.querySelector(".modal-overlay");
+        const aiActorSettingsInnerFormWrapper = document.getElementById("ai-actor-settings-wrapper");
+        
+        this.visibleElement(modalOverlay);
+        if (!aiActorSettingsInnerFormWrapper.classList.contains("modal-mode")) {
+            aiActorSettingsInnerFormWrapper.classList.add("modal-mode");
+        }
+    
+        setTimeout(() => {
+            document.addEventListener("click", this.handleClickOutsideCreateAIActorModal);
+        }, 0);
+    }
+    
+    hideNewAIActorModal() {
+        const modalOverlay = document.querySelector(".modal-overlay");
+        const aiActorSettingsInnerFormWrapper = document.getElementById("ai-actor-settings-wrapper");
+        this.hiddenElement(modalOverlay);
+        if (aiActorSettingsInnerFormWrapper.classList.contains("modal-mode")) {
+            aiActorSettingsInnerFormWrapper.classList.remove("modal-mode");
+        }
+    }
+    
+    handleClickOutsideCreateAIActorModal(event) {
+        const chatSettingsSidebar = document.getElementById("ai-actor-settings-wrapper");
+        // 检查点击是否在ai-actor-settings-inner-form-wrapper或其子元素之外
+        if (!chatSettingsSidebar.contains(event.target)) {
+            // 如果是，则隐藏模态框和覆盖层
+            this.hideNewAIActorModal();
+            // 移除此事件监听器以避免不必要的检查
+            document.removeEventListener("click", this.handleClickOutsideCreateAIActorModal);
+            event.stopPropagation(); // 防止事件进一步传播
+        }
+    }
+    
+    toggleVisibility(element) {
+        if (element.classList.contains("visible")) {
+            element.classList.remove("visible", "active");
+            element.classList.add("hidden");
+        } else {
+            element.classList.remove("hidden");
+            element.classList.add("visible", "active");
+        }
+        // 调整按钮的活动状态
+        this.updateButtonActiveState(element.id, element.classList.contains("visible"));
+    }
 
+    hiddenElement(element) {
+        element.classList.remove("visible", "active");
+        element.classList.add("hidden");
+        this.updateButtonActiveState(element.id, false);
+    }
+
+    visibleElement(element) {
+        element.classList.remove("hidden");
+        element.classList.add("visible", "active");
+        this.updateButtonActiveState(element.id, true);
+    }
+    
+    updateButtonActiveState(elementId, isVisible) {
+        // 根据提供的元素ID更新对应的按钮状态。
+        let button;
+        switch(elementId) {
+        case "chat-history-container":
+            button = document.getElementById("toggle-chat-topic");
+            break;
+        case "ai-actor-settings-wrapper":
+            button = document.getElementById("ai-profile");
+            break;
+            // 添加更多的case来处理其他按钮
+        }
+        if(button) {
+            if(isVisible) {
+                button.classList.add("active");
+            } else {
+                button.classList.remove("active");
+            }
+        }
+    }
 }
 
 export default UIManager;
