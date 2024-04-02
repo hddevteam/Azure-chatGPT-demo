@@ -464,8 +464,12 @@ button {
     transition: background-color 0.2s ease-in-out;
 }
 
-button:hover {
-    background-color: #3e8e41;
+button.active {
+    background-color: #2E7D32; /* 更深的绿色表示激活状态 */
+}
+
+button:not(.active):hover {
+    background-color: #3e8e41; /* 只有非激活状态的按钮才会在悬浮时变色 */
 }
 
 .switch-container {

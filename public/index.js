@@ -152,7 +152,7 @@ getPromptRepo(uiManager.storageManager.getCurrentUsername())
         console.error("Error:", error);
     });
 
-    
+
 const messageInput = document.querySelector("#message-input");
 // Listening for keydown event
 document.addEventListener("keydown", (event) => {
@@ -160,7 +160,7 @@ document.addEventListener("keydown", (event) => {
     if (event.getModifierState("Alt") && event.code === "KeyS") {
         uiManager.handleMessageFormSubmit(messageInput);
     }
-});    
+});
 // popup the Swal when user click the username label
 userBtn.addEventListener("click", function () {
     swal({
@@ -197,87 +197,9 @@ userBtn.addEventListener("click", function () {
         });
 });
 
-
-
-document.getElementById("new-chat-button").addEventListener("click",handleAIActor);
-
 setupVoiceInput(uiManager);
 
-const profileListMenu = document.getElementById("chat-profile-list-menu");
-
-
-profileListMenu.addEventListener("click", function (event) {
-    if (event.target.tagName.toLowerCase() === "li") {
-        const selectedName = event.target.textContent;
-        messageInput.value = `@${selectedName}: ` + messageInput.value.slice(1);
-        messageInput.focus();
-        profileListMenu.classList.add("hidden");
-    }
-});
-
-
-
-
-function handleAIActor(event){
-    event.stopPropagation();
-    uiManager.toggleAIActorList();
-} 
-
-
-const toggleButton = document.getElementById("toggle-chat-topic");
-toggleButton.addEventListener("click", function(event) {
-    event.stopPropagation();
-    const chatHistoryContainer = document.getElementById("chat-history-container");
-    uiManager.toggleVisibility(chatHistoryContainer);
-  
-    if (window.innerWidth <= 768) {
-        attachOutsideClickListener("chat-history-container");
-    }
-});
-  
-const aiProfile = document.getElementById("ai-profile");
-aiProfile.addEventListener("click", function(event) {
-    event.stopPropagation();
-    const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
-    uiManager.toggleVisibility(aiActorSettings);
-  
-    if (window.innerWidth <= 768) {
-        attachOutsideClickListener("aiActorSettings");
-    }
-});
-  
-function createClickListener(elementId) {
-    return function hideElementOnOutsideClick(event) {
-        const element = document.getElementById(elementId);
-        if (!event.target.closest(`#${elementId}`) && !element.classList.contains("hidden")) {
-            element.classList.add("hidden");
-            detachOutsideClickListener(elementId);
-        }
-    };
-}
-  
-function attachOutsideClickListener(elementId) {
-    // Generate a unique listener function for the given element ID
-    const listener = createClickListener(elementId); 
-    document.addEventListener("click", listener);
-    // Associate the listener with the element ID for removal later
-    activeOutsideClickListeners[elementId] = listener; 
-}
-  
-function detachOutsideClickListener(elementId) {
-    const listener = activeOutsideClickListeners[elementId];
-    if (listener) {
-        document.removeEventListener("click", listener);
-        delete activeOutsideClickListeners[elementId];
-    }
-}
-  
-const activeOutsideClickListeners = {};
-
-
 const messageForm = document.querySelector("#message-form");
-const halfScreenHeight = window.innerHeight / 2;
-const initFocusHeight = window.innerHeight / 5;
 
 messageInput.addEventListener("keyup", function (event) {
     const value = event.target.value.trim();
@@ -297,29 +219,6 @@ messageInput.addEventListener("keyup", function (event) {
 messageForm.addEventListener("submit", (event) => {
     //uiManager.js中已经写过这个方法，直接调用
     uiManager.handleMessageFormSubmit(messageInput);
-});
-
-messageInput.addEventListener("focus", function () {
-    uiManager.handleInput(initFocusHeight, halfScreenHeight);
-});
-
-let composing = false;
-
-messageInput.addEventListener("compositionstart", function () {
-    composing = true;
-});
-
-messageInput.addEventListener("compositionend", function () {
-    composing = false;
-    // 在这里进行处理
-    uiManager.handleInput(initFocusHeight, halfScreenHeight);
-});
-
-messageInput.addEventListener("input", function () {
-    if (!composing) {
-        // 在这里进行处理
-        uiManager.handleInput(initFocusHeight, halfScreenHeight);
-    }
 });
 
 function updateVh() {
@@ -349,6 +248,75 @@ let ro = new ResizeObserver(entries => {
 
 ro.observe(messageInputContainer);
 
+const profileListMenu = document.getElementById("chat-profile-list-menu");
+
+
+profileListMenu.addEventListener("click", function (event) {
+    if (event.target.tagName.toLowerCase() === "li") {
+        const selectedName = event.target.textContent;
+        messageInput.value = `@${selectedName}: ` + messageInput.value.slice(1);
+        messageInput.focus();
+        profileListMenu.classList.add("hidden");
+    }
+});
+
+function handleAIActor(event) {
+    event.stopPropagation();
+    uiManager.toggleAIActorList();
+}
+
+document.getElementById("new-chat-button").addEventListener("click", handleAIActor);
+
+const toggleButton = document.getElementById("toggle-chat-topic");
+toggleButton.addEventListener("click", function (event) {
+    event.stopPropagation();
+    const chatHistoryContainer = document.getElementById("chat-history-container");
+    uiManager.toggleVisibility(chatHistoryContainer);
+
+    if (window.innerWidth <= 768) {
+        attachOutsideClickListener("chat-history-container");
+    }
+});
+
+const aiProfile = document.getElementById("ai-profile");
+aiProfile.addEventListener("click", function (event) {
+    event.stopPropagation();
+    const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
+    uiManager.toggleVisibility(aiActorSettings);
+
+    if (window.innerWidth <= 768) {
+        attachOutsideClickListener("aiActorSettings");
+    }
+});
+
+function createClickListener(elementId) {
+    return function hideElementOnOutsideClick(event) {
+        const element = document.getElementById(elementId);
+        if (!event.target.closest(`#${elementId}`) && !element.classList.contains("hidden")) {
+            element.classList.add("hidden");
+            detachOutsideClickListener(elementId);
+        }
+    };
+}
+
+function attachOutsideClickListener(elementId) {
+    // Generate a unique listener function for the given element ID
+    const listener = createClickListener(elementId);
+    document.addEventListener("click", listener);
+    // Associate the listener with the element ID for removal later
+    activeOutsideClickListeners[elementId] = listener;
+}
+
+function detachOutsideClickListener(elementId) {
+    const listener = activeOutsideClickListeners[elementId];
+    if (listener) {
+        document.removeEventListener("click", listener);
+        delete activeOutsideClickListeners[elementId];
+    }
+}
+
+const activeOutsideClickListeners = {};
+
 // split layout
 
 // Selecting elements that will be changed by layout toggling
@@ -369,7 +337,7 @@ function toggleLayout() {
     inputContainter.style = "";
     messageInputContainer.style = "";
     appContainer.style = "";
-    
+
     mainContainer.classList.toggle("split-view");
     appBar.classList.toggle("split-view");
     messageContainer.classList.toggle("split-view");
@@ -388,7 +356,6 @@ function toggleLayout() {
 // Adding event listeners to buttons
 toggleLayoutBtn.addEventListener("click", toggleLayout);
 
-
 // Call this function to set initial display status based on the device type
 // 在页面加载时设置初始可见性状态
 function setInitialVisibility() {
@@ -400,14 +367,28 @@ function setInitialVisibility() {
 
     inputContainter.style = "";
     messageInputContainer.style = "";
-    
+
     if (window.innerWidth <= 768 || isSplitView) {
         // 如果是移动设备，则默认隐藏菜单和聊天历史记录
         uiManager.hiddenElement(aiActorSettings);
         uiManager.hiddenElement(chatHistoryContainer);
+    } else {
+        // 如果是桌面设备，则默认显示菜单和聊天历史记录
+        uiManager.visibleElement(aiActorSettings);
+        uiManager.visibleElement(chatHistoryContainer);
     }
 }
-  
+
+document.addEventListener("DOMContentLoaded", function () {
+    const chatHistoryContainer = document.getElementById("chat-history-container");
+    const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
+
+    // 根据元素初始的显示状态来初始化按钮状态
+    uiManager.updateButtonActiveState(chatHistoryContainer.id, chatHistoryContainer.classList.contains("visible"));
+    uiManager.updateButtonActiveState(aiActorSettings.id, aiActorSettings.classList.contains("visible"));
+}); 
+
+
 window.onload = () => {
     setInitialVisibility();
     addHorizontalResizeHandleListeners(); // Add horizontal resize functionality
