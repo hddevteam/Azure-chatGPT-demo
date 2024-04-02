@@ -109,7 +109,7 @@ class MessageManager {
         const newMessage = { role: "user", content: message, messageId: messageId, isActive: true };
         this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive);
         this.uiManager.app.prompts.addPrompt(newMessage);
-        this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId,newMessage);
+        this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
         this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
         this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
@@ -132,15 +132,12 @@ class MessageManager {
         return await this.uiManager.generateImage(imageCaption);
     }
 
-
     async wrapWithGetGptErrorHandler(dataPromise) {
         try {
             const data = await dataPromise;
             if (!data) {
-                let messageId = this.uiManager.generateId();
-                const content = "The AI did not return any results. Please repeat your question or ask me a different question.";
-                this.addMessage("assistant", content, messageId, false);
-                this.uiManager.app.prompts.addPrompt({ role: "assistant", content: content, messageId: messageId, isActive: false });
+                const errorMessage = "The AI did not return any results. Please repeat your question or ask a different question.";
+                swal(errorMessage, { icon: "error" });
             } else {
                 let messageId = this.uiManager.generateId();
                 const newMessage = { role: "assistant", content: data.message, messageId: messageId, isActive: true };
@@ -151,15 +148,16 @@ class MessageManager {
             }
             return data;
         } catch (error) {
-            let messageId = this.uiManager.generateId();
-            this.addMessage("assistant", error.message, messageId, true, "bottom", true);
+            // Enhanced error message handling, focusing on network issues
+            let errorMessage = (navigator.onLine)
+                ? `Error: ${error.message}. Please try again.`
+                : "You are currently offline. Please check your internet connection.";
+            swal(errorMessage, { icon: "error" });
             this.uiManager.finishSubmitProcessing();
         }
     }
 
-
     checkTokensAndWarn(tokens) {
-
         const tokensSpan = document.querySelector("#tokens");
         tokensSpan.textContent = `${tokens}t`;
         tokensSpan.parentNode.classList.add("updated");
@@ -242,8 +240,7 @@ class MessageManager {
         this.uiManager.finishSubmitProcessing();
 
         // Don't forget to perform follow-up actions after the response if any
-        if (data && data.totalTokens)
-        {
+        if (data && data.totalTokens) {
             this.checkTokensAndWarn(data.totalTokens);
         }
 
@@ -502,7 +499,7 @@ class MessageManager {
         }
     }
 
-    async sendFollowUpQuestions() {       
+    async sendFollowUpQuestions() {
         const currentProfile = this.uiManager.storageManager.getCurrentProfile();
         const activeMessages = [...document.querySelectorAll(".message.active")];
         let content = "";
@@ -524,8 +521,9 @@ class MessageManager {
             }
             content += `${dataMessage}\n\n`;
         });
-        
-        const systemPrompt = { role: "system", 
+
+        const systemPrompt = {
+            role: "system",
             content: ` You are a critical thinker. You are talking with ${currentProfile.displayName},
             Here is his/her profile:
                       ===
@@ -533,7 +531,8 @@ class MessageManager {
                       ===
                       ` };
         console.log(this.uiManager.clientLanguage);
-        const userPrompt = { role: "user", 
+        const userPrompt = {
+            role: "user",
             content: `Output json format: {
                 "suggestedUserResponses": []
             }
