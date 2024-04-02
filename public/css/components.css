@@ -721,10 +721,48 @@ button.action-button.invisible {
     max-width: 600px;
 }
 
-#ai-actor-container li {
-    margin: 0;
+/* 新外层容器样式，以适配整体布局 */
+#ai-actor-wrapper {
+    width: 80vw;
+    height: 70vh; /* 定义高度，确保容器适应内容 */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 0.5em;
+    background-color: #17212b; /* 深色背景色 */
+    color: #8899A6; /* 淡蓝灰色字体色 */
+    box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    flex-direction: column;
+}
+
+/* 更新ai-actor-container以适应列表滚动 */
+#ai-actor-container {
+    max-height: calc(70vh - 50px); /* 适应新容器高度 */
+    overflow-y: auto; /* 允许垂直方向滚动 */
+    overflow-x: hidden; /* 隐藏水平滚动条 */
+    -ms-overflow-style: none; /* IE和Edge */
+    scrollbar-width: none; /* Firefox */
+    margin-bottom: 8px;
+    display: grid; /* 设置为 Grid 容器 */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* 自动填充列，每列最小宽度为250px，最大宽度为1fr */
+    gap: 10px; /* 设置网格间距 */
     padding: 10px;
-    border-bottom: 1px solid #1f2a36;
+}
+
+#ai-actor-list {
+    list-style: none; /* 移除列表默认样式 */
+    display: contents; /* 让子元素直接参与 Grid 布局 */
+}
+
+#ai-actor-container li {
+    margin: 0; /* 不需要调整，保持不变 */
+    padding: 10px; /* 根据需要保持或调整 */
+    border-bottom: none; /* 在 Grid 布局中，可能不需要这条底部边框了 */
+    border: 1px solid #1f2a36; /* 可以考虑添加一个整体边框 */
+    border-radius: 4px; /* 增加圆角 */
+    background-color: #17212b; /* 深色背景色，可保留或根据设计调整 */
 }
 
 #ai-actor-container li i {
@@ -752,33 +790,6 @@ button.action-button.invisible {
     background-color: cornflowerblue; /* 活泼的高亮颜色 */
     color: #ffffff; /* 高对比度的文字颜色确保可读性 */
     cursor: pointer;
-}
-
-/* 新外层容器样式，以适配整体布局 */
-#ai-actor-wrapper {
-    max-width: 70%;
-    width: 50%;
-    height: 70vh; /* 定义高度，确保容器适应内容 */
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 0.5em;
-    background-color: #17212b; /* 深色背景色 */
-    color: #8899A6; /* 淡蓝灰色字体色 */
-    box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
-    z-index: 9999;
-    flex-direction: column;
-}
-
-/* 更新ai-actor-container以适应列表滚动 */
-#ai-actor-container {
-    height: calc(70vh - 50px); /* 适应新容器高度 */
-    overflow-y: auto; /* 允许垂直方向滚动 */
-    overflow-x: hidden; /* 隐藏水平滚动条 */
-    -ms-overflow-style: none; /* IE和Edge */
-    scrollbar-width: none; /* Firefox */
-    margin-bottom: 8px;
 }
 
 #ai-actor-header {
