@@ -8,6 +8,7 @@ import { generateExcerpt } from "../utils/textUtils.js";
 const modelConfig = {
     "gpt-4": 128000,
     "gpt-3.5-turbo": 16000,
+    "gpt-4-last": 128000,
 };
 
 
