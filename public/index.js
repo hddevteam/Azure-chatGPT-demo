@@ -8,6 +8,7 @@ import MarkdownManager from "./components/MarkdownManager.js";
 import ModelDropdownManager from "./utils/ModelDropdownManager.js";
 import { addHorizontalResizeHandleListeners } from "./utils/horizontal-resize.js";
 import { addVerticalResizeHandleListeners } from "./utils/vertical-resize.js";
+import fileUploader from "./utils/fileUploader.js";
 
 import setup from "./setup.js";
 
@@ -19,8 +20,6 @@ new ModelDropdownManager(app, "#model-switch", "#model-dropdown");
 const clientLanguage = navigator.language;
 console.log(clientLanguage);
 uiManager.setClientLanguage(clientLanguage);
-
-
 
 
 const slider = document.getElementById("slider");
@@ -378,6 +377,28 @@ function setInitialVisibility() {
         uiManager.visibleElement(chatHistoryContainer);
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 绑定上传按钮的change事件
+    const attachButton = document.getElementById("attachments-container");
+    attachButton.addEventListener("click", () => {
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/*";
+        fileInput.onchange = handleFiles;
+        fileInput.click();
+    });
+});
+
+async function handleFiles(event) {
+    const files = event.target.files;
+    if (files.length === 0) {
+        return;
+    }
+    // 调用fileUploader中的方法进行文件处理
+    await fileUploader.handleFileUpload(files);
+}
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const chatHistoryContainer = document.getElementById("chat-history-container");
