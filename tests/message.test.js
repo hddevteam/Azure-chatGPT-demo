@@ -3,10 +3,12 @@ const {
     getCloudMessages,
     createCloudMessage,
     updateCloudMessage,
-    deleteCloudMessage
+    deleteCloudMessage,
+    uploadAttachment,
+    deleteAttachment
 } = require("../controllers/messageController");
 
-const { getTextFromBlob } = require("../services/azureBlobStorage");
+const { getTextFromBlob, deleteBlob } = require("../services/azureBlobStorage");
   
 const { getTableClient } = require("../services/azureTableStorage");
   
@@ -108,6 +110,58 @@ describe("Message Controller", () => {
                 })
             ])
         );
+    }, timeout);
+
+    let uploadedAttachmentUrl = "";
+
+
+    test("Upload a new Attachment to Blob and Update the Message", async () => {
+        const req = setupMockRequest({
+            fileContent: Buffer.from("This is a test attachment content").toString("base64"),
+            originalFileName: "testAttachment.txt"
+        }, {}, {
+            chatId: chatHistoryId,
+            messageId: messageId
+        });
+    
+        const res = setupMockResponse();
+    
+        await uploadAttachment(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalled();
+    
+        const updatedEntity = await tableClient.getEntity(chatHistoryId, messageId);
+        expect(updatedEntity.attachmentUrls).toContain("testAttachment.txt");
+        // Save the URL from the uploaded attachment
+        uploadedAttachmentUrl = updatedEntity.attachmentUrls.split(";").find(url => url.includes("testAttachment.txt"));
+
+    }, timeout);
+    
+
+    test("Delete an Attachment from Blob and Update the Message", async () => {
+        
+        // 使用从上传测试保存的URL
+        expect(uploadedAttachmentUrl).not.toBe("");
+
+        const blobUrl = new URL(uploadedAttachmentUrl);
+        const blobName = blobUrl.pathname.substring(blobUrl.pathname.lastIndexOf("/") + 1);
+        
+        const req = setupMockRequest({}, {}, {
+            chatId: chatHistoryId,
+            messageId: messageId,
+            blobName: blobName
+        });
+    
+        const res = setupMockResponse();
+    
+        await deleteAttachment(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(204);
+    
+        const updatedEntity = await tableClient.getEntity(chatHistoryId, messageId);
+        expect(updatedEntity.attachmentUrls).not.toContain("testAttachment.txt");
+    
     }, timeout);
 
     test("should only return messages with timestamp after the provided lastTimestamp", async () => {

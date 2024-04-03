@@ -2,6 +2,58 @@
 const { getTableClient } = require("../services/azureTableStorage");
 const { uploadTextToBlob, getTextFromBlob, deleteBlob } = require("../services/azureBlobStorage");
 
+// controllers/messageController.js
+const { uploadFileToBlob } = require("../services/azureBlobStorage");
+
+exports.uploadAttachment = async (req, res) => {
+    const { chatId, messageId } = req.params;
+    const { fileContent, originalFileName } = req.body; // 假设fileContent是一个Base64编码的字符串
+
+    try {
+        const containerName = "messageattachments"; // 假设附件存储在这个容器中
+        const uploadResponse = await uploadFileToBlob(containerName, originalFileName, Buffer.from(fileContent, "base64"));
+        console.log(uploadResponse);
+        // 更新消息的attachmentUrls字段
+        const tableClient = getTableClient("Messages");
+        const entity = await tableClient.getEntity(chatId, messageId);
+
+        let newAttachmentUrls = entity.attachmentUrls ? entity.attachmentUrls.split(";") : [];
+        newAttachmentUrls.push(uploadResponse.url);
+        entity.attachmentUrls = newAttachmentUrls.join(";");
+
+        await tableClient.updateEntity(entity, "Merge");
+
+        res.status(201).json({ data: uploadResponse });
+    } catch (error) {
+        console.error(`Failed to upload attachment: ${error.message}`);
+        res.status(500).send(error.message);
+    }
+};
+
+exports.deleteAttachment = async (req, res) => {
+    const { chatId, messageId, blobName } = req.params; // 假设URL中带有blobName信息
+    const containerName = "messageattachments"; // 附件所在的容器
+
+    try {
+        await deleteBlob(containerName, blobName);
+
+        // 从消息中移除附件URL
+        const tableClient = getTableClient("Messages");
+        const entity = await tableClient.getEntity(chatId, messageId);
+        
+        let attachmentUrls = entity.attachmentUrls.split(";");
+        attachmentUrls = attachmentUrls.filter(url => !url.endsWith(blobName));
+        entity.attachmentUrls = attachmentUrls.join(";");
+
+        await tableClient.updateEntity(entity, "Merge");
+
+        res.status(204).send();
+    } catch (error) {
+        console.error(`Failed to delete attachment: ${error.message}`);
+        res.status(500).send(error.message);
+    }
+};
+
 exports.getCloudMessages = async (req, res) => {
     const chatId = req.params.chatId;
     const lastTimestamp = req.query.lastTimestamp; // Obtained from query parameter if it exists
@@ -113,6 +165,7 @@ exports.updateCloudMessage = async (req, res) => {
         // Update with new Blob URL or the actual text content
         entity.content = blobUrl || message.content;
         entity.isContentInBlob = !!blobUrl;
+        entity.attachmentUrls = message.attachmentUrls;
 
         await tableClient.updateEntity({ partitionKey: chatId, rowKey: messageId, ...entity }, "Merge");
         console.log("message updated");
@@ -142,6 +195,15 @@ exports.deleteCloudMessage = async (req, res) => {
             const blobName = blobUrl.pathname.substring(blobUrl.pathname.lastIndexOf("/") + 1);
             await deleteBlob("messagecontents", blobName);
             console.log("blob deleted");
+        }
+
+        // 删除附件
+        if (entity.attachmentUrls) {
+            const attachments = entity.attachmentUrls.split(";");
+            for (const url of attachments) {
+                const blobName = url.split("/").pop(); // 假设URL格式允许这样简单地提取
+                await deleteBlob("messageattachments", blobName);
+            }
         }
 
         await tableClient.updateEntity({
