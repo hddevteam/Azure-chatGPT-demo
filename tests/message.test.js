@@ -8,7 +8,7 @@ const {
     deleteAttachment
 } = require("../controllers/messageController");
 
-const { getTextFromBlob, deleteBlob } = require("../services/azureBlobStorage");
+const { getTextFromBlob } = require("../services/azureBlobStorage");
   
 const { getTableClient } = require("../services/azureTableStorage");
   
@@ -139,30 +139,29 @@ describe("Message Controller", () => {
     }, timeout);
     
 
+    // 测试用例中假设已经有 uploadedAttachmentUrl 包含正确的附件URL
     test("Delete an Attachment from Blob and Update the Message", async () => {
-        
-        // 使用从上传测试保存的URL
         expect(uploadedAttachmentUrl).not.toBe("");
 
-        const blobUrl = new URL(uploadedAttachmentUrl);
-        const blobName = blobUrl.pathname.substring(blobUrl.pathname.lastIndexOf("/") + 1);
-        
-        const req = setupMockRequest({}, {}, {
+        // 将attachmentUrl作为请求体传递
+        const req = setupMockRequest({
+            attachmentUrl: uploadedAttachmentUrl
+        }, {}, {
             chatId: chatHistoryId,
-            messageId: messageId,
-            blobName: blobName
+            messageId: messageId
         });
-    
+
         const res = setupMockResponse();
-    
+
         await deleteAttachment(req, res);
-    
+
         expect(res.status).toHaveBeenCalledWith(204);
-    
+
         const updatedEntity = await tableClient.getEntity(chatHistoryId, messageId);
-        expect(updatedEntity.attachmentUrls).not.toContain("testAttachment.txt");
-    
+        // 使用更精确的断言来确认attachmentUrl不再出现在attachmentUrls字段中
+        expect(updatedEntity.attachmentUrls).not.toContain(uploadedAttachmentUrl);
     }, timeout);
+
 
     test("should only return messages with timestamp after the provided lastTimestamp", async () => {
         const req = setupMockRequest({}, { lastTimestamp: new Date().toISOString() }, { chatId: chatHistoryId });

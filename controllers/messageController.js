@@ -31,18 +31,22 @@ exports.uploadAttachment = async (req, res) => {
 };
 
 exports.deleteAttachment = async (req, res) => {
-    const { chatId, messageId, blobName } = req.params; // 假设URL中带有blobName信息
+    const { chatId, messageId } = req.params;
+    const attachmentUrl = req.body.attachmentUrl; // 通过请求体获取附件的完整URL
     const containerName = "messageattachments"; // 附件所在的容器
 
     try {
+        const blobUrl = new URL(attachmentUrl);
+        const blobName = blobUrl.pathname.substring(blobUrl.pathname.lastIndexOf('/') + 1);
+
         await deleteBlob(containerName, blobName);
 
         // 从消息中移除附件URL
         const tableClient = getTableClient("Messages");
         const entity = await tableClient.getEntity(chatId, messageId);
         
-        let attachmentUrls = entity.attachmentUrls.split(";");
-        attachmentUrls = attachmentUrls.filter(url => !url.endsWith(blobName));
+        let attachmentUrls = entity.attachmentUrls ? entity.attachmentUrls.split(";") : [];
+        attachmentUrls = attachmentUrls.filter(url => url !== attachmentUrl);
         entity.attachmentUrls = attachmentUrls.join(";");
 
         await tableClient.updateEntity(entity, "Merge");
