@@ -8,19 +8,38 @@ const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_C
 
 // 在services/azureBlobStorage.js中更新uploadFileToBlob函数
 
+// 该函数用于根据文件扩展名返回对应的内容类型
+function getContentTypeByFileName(fileName) {
+    const extension = fileName.split(".").pop().toLowerCase();
+    const mimeTypes = {
+        "png": "image/png",
+        "jpeg": "image/jpeg",
+        "jpg": "image/jpeg",
+        "webp": "image/webp",
+        "gif": "image/gif"
+    };
+    // 默认返回 application/octet-stream 表示“二进制流”类型
+    return mimeTypes[extension] || "application/octet-stream";
+}
+  
 async function uploadFileToBlob(containerName, originalFileName, fileContent) {
     try {
         const containerClient = blobServiceClient.getContainerClient(containerName);
         await containerClient.createIfNotExists({ access: "blob" });
-
+  
         const blobName = `${Date.now()}-${originalFileName}`;
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-        await blockBlobClient.upload(fileContent, Buffer.byteLength(fileContent));
+  
+        // 根据文件名获取内容类型
+        const contentType = getContentTypeByFileName(originalFileName);
+  
+        await blockBlobClient.upload(fileContent, Buffer.byteLength(fileContent), {
+            blobHTTPHeaders: { blobContentType: contentType }
+        });
+      
         await blockBlobClient.setMetadata({ originalFileName });
-
+  
         return {
-            filename: blobName,
-            originalFileName: originalFileName,
             url: blockBlobClient.url,
         };
     } catch (error) {
@@ -28,8 +47,7 @@ async function uploadFileToBlob(containerName, originalFileName, fileContent) {
         throw error;
     }
 }
-
-
+  
 
 async function uploadTextToBlob(containerName, blobName, text) {
     const containerClient = blobServiceClient.getContainerClient(containerName);

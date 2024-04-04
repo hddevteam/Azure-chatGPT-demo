@@ -6,11 +6,28 @@ const { uploadTextToBlob, getTextFromBlob, deleteBlob } = require("../services/a
 const { uploadFileToBlob } = require("../services/azureBlobStorage");
 
 exports.uploadAttachment = async (req, res) => {
-    const { chatId, messageId } = req.params;
-    const { fileContent, originalFileName } = req.body; // 假设fileContent是一个Base64编码的字符串
+    // 由于文件是以二进制形式上传，我们将从req.file中获取原始文件和文件名信息
+    const fileContent = req.file.buffer; // 文件的二进制内容
+    const originalFileName = req.file.originalname; // multer提供的原始文件名
+    const containerName = "messageattachments"; // 附件存储在这个容器中
 
     try {
-        const containerName = "messageattachments"; // 假设附件存储在这个容器中
+        const attachment = await uploadFileToBlob(containerName, originalFileName, fileContent);
+        console.log("attachment", attachment);
+
+        res.status(201).json(attachment.url);
+    } catch (error) {
+        console.error(`Failed to upload attachment: ${error.message}`);
+        res.status(500).send(error.message);
+    }
+};
+
+exports.uploadAttachmentAndUpdateMessage = async (req, res) => {
+    const { chatId, messageId } = req.params;
+    const { fileContent, originalFileName } = req.body; // fileContent是一个Base64编码的字符串
+
+    try {
+        const containerName = "messageattachments"; // 附件存储在这个容器中
         const uploadResponse = await uploadFileToBlob(containerName, originalFileName, Buffer.from(fileContent, "base64"));
         console.log(uploadResponse);
         // 更新消息的attachmentUrls字段
@@ -37,7 +54,7 @@ exports.deleteAttachment = async (req, res) => {
 
     try {
         const blobUrl = new URL(attachmentUrl);
-        const blobName = blobUrl.pathname.substring(blobUrl.pathname.lastIndexOf('/') + 1);
+        const blobName = blobUrl.pathname.substring(blobUrl.pathname.lastIndexOf("/") + 1);
 
         await deleteBlob(containerName, blobName);
 

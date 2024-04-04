@@ -18,9 +18,14 @@ class MessageManager {
     }
 
     // Add message to DOM
-    addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false) {
+    addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false, attachmentUrls = []) {
         const messageElement = this.uiManager.domManager.createMessageElement(sender, messageId, isActive, isError);
         messageElement.dataset.message = message;
+
+        if (attachmentUrls.length > 0) {
+            const attachmentContainer = this.uiManager.domManager.createAttachmentThumbnails(attachmentUrls);
+            messageElement.appendChild(attachmentContainer);
+        }
 
         const conversationElement = this.uiManager.domManager.createConversationElement();
         messageElement.appendChild(conversationElement);
@@ -92,32 +97,6 @@ class MessageManager {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         this.uiManager.updateSlider();
     }
-
-    async validateInput(message) {
-        const validationResult = await this.uiManager.validateMessage(message);
-        message = validationResult.message;
-        let reEdit = validationResult.reEdit;
-
-        if (reEdit) {
-            this.uiManager.messageInput.value = message;
-            this.uiManager.messageInput.focus();
-            this.uiManager.finishSubmitProcessing();
-            return false;
-        }
-
-        let messageId = this.uiManager.generateId();
-        const newMessage = { role: "user", content: message, messageId: messageId, isActive: true };
-        this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive);
-        this.uiManager.app.prompts.addPrompt(newMessage);
-        this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
-        this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
-        this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
-
-        // return validationResult if input is valid and processed successfully.
-        return validationResult;
-    }
-
-
 
     async sendTextMessage() {
         this.uiManager.showToast("AI is thinking...");
@@ -214,19 +193,64 @@ class MessageManager {
         }
     }
 
-    async sendMessage(inputMessage = "") {
+    async sendMessageWithAttachments(message, attachmentUrls) {
+        
+    }
+
+
+    async validateInput(message, attachments = []) {
+
+        const validationResult = await this.uiManager.validateMessage(message);
+        message = validationResult.message;
+        let reEdit = validationResult.reEdit;
+        let attachmentUrls = [];
+        if (attachments.length > 0) {
+            attachmentUrls = await this.uiManager.uploadAttachments(attachments);
+            if (attachmentUrls.length === 0) {
+                this.uiManager.finishSubmitProcessing();
+                return false;
+            } else {
+                validationResult.attachmentUrls = attachmentUrls;
+            }
+        }
+
+        if (reEdit) {
+            this.uiManager.messageInput.value = message;
+            this.uiManager.messageInput.focus();
+            this.uiManager.finishSubmitProcessing();
+            return false;
+        }
+
+        let messageId = this.uiManager.generateId();
+        const newMessage = { role: "user", content: message, messageId: messageId, isActive: true, attachmentUrls: attachmentUrls};
+        this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive, "bottom", false, attachmentUrls);
+        this.uiManager.app.prompts.addPrompt(newMessage);
+        this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
+        this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
+        this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
+
+        // return validationResult if input is valid and processed successfully.
+        return validationResult;
+        
+    }
+    async sendMessage(inputMessage = "", attachments=[]) {
         this.clearFollowUpQuestions();
 
         this.uiManager.initSubmitButtonProcessing();
 
-        const validationResult = await this.validateInput(inputMessage);
+        const validationResult = await this.validateInput(inputMessage, attachments);
 
         if (!validationResult) {
             return;
         }
 
-        const { message, isSkipped } = validationResult;
+        const { message, isSkipped, attachmentUrls } = validationResult;
         let data;
+
+        if (attachments.length > 0) {
+            //TODO 需要实现sendMessageWithAttachments方法
+            data = await this.sendMessageWithAttachments(message, attachmentUrls);
+        }
 
         if (message.startsWith("/image")) {
             data = await this.sendImageMessage(message);
@@ -246,12 +270,6 @@ class MessageManager {
 
         // await this.sendFollowUpQuestions();
         // temporary disable follow-up questions because it consumes too much tokens
-    }
-
-    // Add this method to get the ID of the last message
-    getLastMessageId() {
-        const messages = document.querySelectorAll(".message");
-        return messages.length > 0 ? messages[messages.length - 1].dataset.messageId : null;
     }
 
     // Modify this method to handle retrying a message
@@ -274,6 +292,13 @@ class MessageManager {
             await this.sendMessage(messageContent, true);
         }
     }
+
+    // Add this method to get the ID of the last message
+    getLastMessageId() {
+        const messages = document.querySelectorAll(".message");
+        return messages.length > 0 ? messages[messages.length - 1].dataset.messageId : null;
+    }
+
 
     inactiveMessage(messageId) {
         const message = document.querySelector(`[data-message-id="${messageId}"]`);
@@ -432,7 +457,7 @@ class MessageManager {
             // Check if the message is already in the list
             if (!currentMessageIds.includes(message.messageId)) {
                 let isActive = message.isActive || false;
-                this.addMessage(message.role, message.content, message.messageId, isActive, "top");
+                this.addMessage(message.role, message.content, message.messageId, isActive, "top", false, message.attachmentUrls);
             }
         });
 
@@ -553,7 +578,7 @@ class MessageManager {
         console.log(followUpResponsesData.suggestedUserResponses);
         this.addFollowUpQuestions(followUpResponsesData.suggestedUserResponses);
     }
-
 }
+    
 
 export default MessageManager;

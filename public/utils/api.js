@@ -1,12 +1,34 @@
 // public/api.js
 // purpose: client-side code to make requests to the server side api.
 
-// Consider using Axios for more fine-grained control of the HTTP requests
 import axios from "axios";
+import swal from "sweetalert";
+
 
 axios.defaults.baseURL = "/api";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.headers.put["Content-Type"] = "application/json";
+
+export async function uploadAttachment(fileContent, fileName) {
+    try {
+        const formData = new FormData();
+        formData.append("fileContent", fileContent);
+        formData.append("originalFileName", fileName);
+
+        // 注意：移除axios默认的Content-Type头部，让浏览器自动设置，便于正确处理边界
+        const response = await axios.post("/attachments/upload", formData, {
+            headers: {
+                "Content-Type": undefined
+            }
+        });
+        console.log(response.data);
+        return response.data; // 返回后端响应中的附件信息
+    } catch (error) {
+        console.error("Failed to upload attachment:", error);
+        throw error;
+    }
+}
+
 
 // get app name
 export async function getAppName() {
@@ -107,8 +129,6 @@ export async function generateTitle(content) {
     return await response.text();
 }
 
-
-
 export async function getFollowUpQuestions(prompt) {
     const response = await fetch("/api/generate-followup-questions", {
         method: "POST",
@@ -136,7 +156,10 @@ axios.interceptors.response.use(null, error => {
     const expectedError = error.response && error.response.status >= 400 && error.response.status < 500;
     if (!expectedError) {
         console.log("Logging the error", error);
-        alert("An unexpected error occurred.");
+        // alert("An unexpected error occurred. ");
+        swal("An unexpected error occurred, please try to refresh the page.", {
+            icon: "error",
+        });
     }
     return Promise.reject(error);
 });

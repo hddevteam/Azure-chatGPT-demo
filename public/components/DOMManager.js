@@ -43,7 +43,7 @@ class DOMManager {
     }
 
     // Create a new method for creating the message element
-    createMessageElement(sender, messageId, isActive, isError) {
+    createMessageElement(sender, messageId, isActive, isError, attachmentUrls=[]) {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message");
         messageElement.classList.add(`${sender}-message`);
@@ -55,8 +55,29 @@ class DOMManager {
         if (isError) {
             messageElement.classList.add("error-message");
         }
+        if (attachmentUrls.length > 0) {
+            this.addAttachmentThumbnails(messageElement, attachmentUrls);
+        }
+
         return messageElement;
     }
+
+    createAttachmentThumbnails(attachmentUrls) {
+        if(attachmentUrls.length > 0) {
+            const attachmentsContainer = document.createElement("div");
+            attachmentsContainer.classList.add("attachments-container");
+            attachmentUrls.forEach(url => {
+                const imgElement = document.createElement("img");
+                imgElement.src = url;
+                imgElement.classList.add("attachment-thumbnail");
+                attachmentsContainer.appendChild(imgElement);
+            });
+            return attachmentsContainer;
+        }
+        
+
+    }
+
 
     // Create a new method for creating the message content element
     createMessageContentElement(sender, message, isActive) {

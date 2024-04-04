@@ -5,6 +5,7 @@ const {
     updateCloudMessage,
     deleteCloudMessage,
     uploadAttachment,
+    uploadAttachmentAndUpdateMessage,
     deleteAttachment
 } = require("../controllers/messageController");
 
@@ -114,6 +115,24 @@ describe("Message Controller", () => {
 
     let uploadedAttachmentUrl = "";
 
+    test("Upload a new Attachment to Blob", async () => {
+        // 模拟一个`multer`处理后的文件上传情况
+        const req = {
+            file: {
+                buffer: Buffer.from("This is a test attachment content"),
+                originalname: "testAttachmentAlone.txt"
+            }
+        };
+        
+        const res = setupMockResponse();
+    
+        await uploadAttachment(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalled();
+    }, timeout);
+    
+
 
     test("Upload a new Attachment to Blob and Update the Message", async () => {
         const req = setupMockRequest({
@@ -126,7 +145,7 @@ describe("Message Controller", () => {
     
         const res = setupMockResponse();
     
-        await uploadAttachment(req, res);
+        await uploadAttachmentAndUpdateMessage(req, res);
 
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.json).toHaveBeenCalled();
@@ -249,7 +268,6 @@ describe("Message Controller", () => {
     
         // Create the message
         await createCloudMessage(reqCreate, resCreate);
-        console.log("resCreate", resCreate);
 
         expect(resCreate.status).toHaveBeenCalledWith(201);
 

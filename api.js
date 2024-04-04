@@ -2,6 +2,8 @@
 
 const express = require("express");
 const router = express.Router();
+const multer  = require("multer");
+const upload = multer();
 
 const azureTTSController = require("./controllers/azureTTSController");
 const gptController = require("./controllers/gptController");
@@ -44,5 +46,8 @@ router.get("/messages/:chatId", messageController.getCloudMessages);
 router.post("/messages/:chatId", messageController.createCloudMessage);
 router.put("/messages/:chatId/:messageId", messageController.updateCloudMessage); 
 router.delete("/messages/:chatId/:messageId", messageController.deleteCloudMessage); 
+
+// Message Attachment routes
+router.post("/attachments/upload", upload.single("fileContent"), messageController.uploadAttachment);
 
 module.exports = router;
