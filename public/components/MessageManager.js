@@ -1,5 +1,5 @@
 // MessageManager.js
-import { getGpt, getFollowUpQuestions } from "../utils/api.js";
+import { getGpt, getFollowUpQuestions, getGpt4V } from "../utils/api.js";
 import swal from "sweetalert";
 import { marked } from "marked";
 import { generateExcerpt } from "../utils/textUtils.js";
@@ -18,11 +18,11 @@ class MessageManager {
     }
 
     // Add message to DOM
-    addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false, attachmentUrls = []) {
+    addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false, attachmentUrls = "") {
         const messageElement = this.uiManager.domManager.createMessageElement(sender, messageId, isActive, isError);
         messageElement.dataset.message = message;
 
-        if (attachmentUrls.length > 0) {
+        if (attachmentUrls!=="") {
             const attachmentContainer = this.uiManager.domManager.createAttachmentThumbnails(attachmentUrls);
             messageElement.appendChild(attachmentContainer);
         }
@@ -103,6 +103,14 @@ class MessageManager {
         const promptText = this.uiManager.app.prompts.getPromptText();
         // Code for getGpt, check it's proper implementation in your code.
         return await getGpt(promptText, this.uiManager.app.model);
+    }
+    
+    async sendMessageToGpt4V() {
+        this.uiManager.showToast("AI is thinking...");
+        const promptText = this.uiManager.app.prompts.getGpt4vPromptText();
+        console.warn("gpt4v promptText", promptText);
+        const result =  await getGpt4V(promptText, true, true);
+        return { message: result.message.content, totalTokens: result.totalTokens};
     }
 
     async sendImageMessage(message) {
@@ -193,20 +201,16 @@ class MessageManager {
         }
     }
 
-    async sendMessageWithAttachments(message, attachmentUrls) {
-        
-    }
-
 
     async validateInput(message, attachments = []) {
 
         const validationResult = await this.uiManager.validateMessage(message);
         message = validationResult.message;
         let reEdit = validationResult.reEdit;
-        let attachmentUrls = [];
+        let attachmentUrls = "";
         if (attachments.length > 0) {
             attachmentUrls = await this.uiManager.uploadAttachments(attachments);
-            if (attachmentUrls.length === 0) {
+            if (attachmentUrls=="") {
                 this.uiManager.finishSubmitProcessing();
                 return false;
             } else {
@@ -244,20 +248,18 @@ class MessageManager {
             return;
         }
 
-        const { message, isSkipped, attachmentUrls } = validationResult;
+        const { message, isSkipped} = validationResult;
         let data;
 
         if (attachments.length > 0) {
             //TODO 需要实现sendMessageWithAttachments方法
-            data = await this.sendMessageWithAttachments(message, attachmentUrls);
-        }
-
-        if (message.startsWith("/image")) {
+            data = await this.sendMessageToGpt4V();
+        } else if (message.startsWith("/image")) {
             data = await this.sendImageMessage(message);
         } else if (message.startsWith("@") && !isSkipped) {
             data = await this.sendProfileMessage(message);
         } else {
-            data = await this.sendTextMessage(message);
+            data = await this.sendTextMessage();
         }
 
         data = await this.wrapWithGetGptErrorHandler(data);

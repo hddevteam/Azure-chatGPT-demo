@@ -19,6 +19,7 @@ router.post("/auto-speech-to-text", azureTTSController.uploadMiddleware, azureTT
 router.post("/speech-to-text", azureTTSController.uploadMiddleware, azureTTSController.speechToText);
 
 router.post("/gpt", gptController.generateResponse);
+router.post("/gpt4v", gptController.generateGpt4VResponse);
 router.post("/create-chat-profile", gptController.createChatProfile);
 router.post("/generate-summary", gptController.summarizeConversation);
 router.post("/generate-title", gptController.generateTitle);

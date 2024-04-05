@@ -6,9 +6,9 @@ const { uploadTextToBlob, getTextFromBlob, deleteBlob } = require("../services/a
 const { uploadFileToBlob } = require("../services/azureBlobStorage");
 
 exports.uploadAttachment = async (req, res) => {
-    // 由于文件是以二进制形式上传，我们将从req.file中获取原始文件和文件名信息
     const fileContent = req.file.buffer; // 文件的二进制内容
-    const originalFileName = req.file.originalname; // multer提供的原始文件名
+    // 尝试从req.body中获取客户端提供的文件名，如果不存在，则使用原始文件名
+    const originalFileName = req.body.originalFileName || req.file.originalname;
     const containerName = "messageattachments"; // 附件存储在这个容器中
 
     try {

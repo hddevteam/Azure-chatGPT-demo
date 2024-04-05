@@ -1,7 +1,7 @@
 // controllers/gptController.js
 
 const devMode = process.env.DEV_MODE ? eval(process.env.DEV_MODE) : false;
-let apiKey, apiUrl, gpt4Apikey, gpt4ApiUrl, gpt4LastApiKey, gpt4LastApiUrl;
+let apiKey, apiUrl, gpt4Apikey, gpt4ApiUrl, gpt4LastApiKey, gpt4LastApiUrl, gpt4vApiKey, gpt4vApiUrl, azureCVApiKey, azureCVApiUrl;
 if (devMode) {
     apiKey = process.env.API_KEY_DEV;
     apiUrl = process.env.API_URL_DEV;
@@ -13,6 +13,11 @@ gpt4Apikey = process.env.GPT_4_API_KEY;
 gpt4ApiUrl = process.env.GPT_4_API_URL;
 gpt4LastApiKey = process.env.GPT_4_LAST_API_KEY;
 gpt4LastApiUrl = process.env.GPT_4_LAST_API_URL;
+
+gpt4vApiKey = process.env.GPT_4V_API_KEY;
+gpt4vApiUrl = process.env.GPT_4V_API_URL;
+azureCVApiKey = process.env.AZURE_CV_API_KEY;
+azureCVApiUrl = process.env.AZURE_CV_API_URL;
 
 const defaultParams = {
     temperature: 0.8,
@@ -61,6 +66,94 @@ const makeRequest = async ({ apiKey, apiUrl, prompt, params }) => {
 
     return await axios(apiUrl, options);
 };
+
+
+exports.generateGpt4VResponse = async (req, res) => {
+    console.log("generateGpt4VResponse", req.body);
+    // 解析请求体中提供的数据
+    const { grounding, ocr } = req.body;
+
+    const prompt = JSON.parse(req.body.prompt);
+    if (!prompt || !prompt.length) {
+        console.error("Invalid prompt");
+        return res.status(400).send("Invalid prompt");
+    }
+
+    // 设置用于调用的参数
+    const data = {
+        // model: "gpt-4-vision-preview",
+        // enhancements: {
+        //     ocr: {
+        //         enabled: ocr || false
+        //     },
+        //     grounding: {
+        //         enabled: grounding || false
+        //     }
+        // },
+        // dataSources: [
+        //     {
+        //         type: "AzureComputerVision",
+        //         parameters: {
+        //             endpoint: azureCVApiUrl,
+        //             key: azureCVApiKey
+        //         }
+        //     }
+        // ],
+        messages: prompt,
+        // messages: [
+        //     { "role": "system", "content": "You are a helpful assistant." },
+        //     {
+        //         "role": "user",
+        //         "content": [
+        //             {
+        //                 "type": "text",
+        //                 "text": "Describe this picture:"
+        //             },
+        //             {
+        //                 "type": "image_url",
+        //                 "image_url": {
+        //                     "url": image_url
+        //                 }
+        //             }
+        //         ]
+        //     }
+        // ],
+        ...defaultParams
+    };
+    console.log("request data", data);
+
+
+    // 准备请求配置
+    const options = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "api-key": gpt4vApiKey,
+        },
+        data: JSON.stringify(data),
+    };
+
+    console.log("gpt4v options", options);
+
+    try {
+        // 发送请求并处理响应
+        console.log("Sending request to GPT-4-Vision", gpt4vApiUrl);
+        const response = await axios(gpt4vApiUrl, options);
+        console.log("Response from GPT-4-Vision:", response.data);
+
+        // 假设数据结构和 generateResponse 中相同，我们提取 message 和 totalTokens
+        const choices = response.data.choices || [];
+        const message = choices.length > 0 ? choices[0].message : "No response from GPT-4-Vision";
+        const totalTokens = response.data.usage ? response.data.usage.total_tokens : 0;
+        const responseObj = { message, totalTokens };
+        console.log("responseObj", responseObj);
+        res.json(responseObj);
+    } catch (error) {
+        // 错误处理
+        handleRequestError(error, res);
+    }
+};
+
 
 exports.generateResponse = async (req, res) => {
     const { model, temperature, top_p, frequency_penalty, presence_penalty, max_tokens } = req.body;

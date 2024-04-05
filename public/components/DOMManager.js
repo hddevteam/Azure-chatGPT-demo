@@ -43,30 +43,33 @@ class DOMManager {
     }
 
     // Create a new method for creating the message element
-    createMessageElement(sender, messageId, isActive, isError, attachmentUrls=[]) {
+    createMessageElement(sender, messageId, isActive, isError, attachmentUrls="") {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message");
         messageElement.classList.add(`${sender}-message`);
         messageElement.dataset.sender = sender;
         messageElement.dataset.messageId = messageId;
+        messageElement.dataset.attachmentUrls = attachmentUrls;
         if (isActive) {
             messageElement.classList.add("active");
         }
         if (isError) {
             messageElement.classList.add("error-message");
         }
-        if (attachmentUrls.length > 0) {
-            this.addAttachmentThumbnails(messageElement, attachmentUrls);
+        if (attachmentUrls!=="") {
+            this.createAttachmentThumbnails(messageElement, attachmentUrls);
         }
 
         return messageElement;
     }
 
     createAttachmentThumbnails(attachmentUrls) {
-        if(attachmentUrls.length > 0) {
+        // split the attachmentUrls string into an array of urls by ;
+        const urlArray = attachmentUrls.split(";");
+        if(urlArray.length > 0) {
             const attachmentsContainer = document.createElement("div");
             attachmentsContainer.classList.add("attachments-container");
-            attachmentUrls.forEach(url => {
+            urlArray.forEach(url => {
                 const imgElement = document.createElement("img");
                 imgElement.src = url;
                 imgElement.classList.add("attachment-thumbnail");

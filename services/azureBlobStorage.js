@@ -26,19 +26,17 @@ async function uploadFileToBlob(containerName, originalFileName, fileContent) {
     try {
         const containerClient = blobServiceClient.getContainerClient(containerName);
         await containerClient.createIfNotExists({ access: "blob" });
-  
+
         const blobName = `${Date.now()}-${originalFileName}`;
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-  
-        // 根据文件名获取内容类型
+
         const contentType = getContentTypeByFileName(originalFileName);
   
         await blockBlobClient.upload(fileContent, Buffer.byteLength(fileContent), {
             blobHTTPHeaders: { blobContentType: contentType }
         });
-      
-        await blockBlobClient.setMetadata({ originalFileName });
-  
+
+        // 仅返回Blob URL，跳过设置元数据
         return {
             url: blockBlobClient.url,
         };
@@ -47,7 +45,7 @@ async function uploadFileToBlob(containerName, originalFileName, fileContent) {
         throw error;
     }
 }
-  
+
 
 async function uploadTextToBlob(containerName, blobName, text) {
     const containerClient = blobServiceClient.getContainerClient(containerName);

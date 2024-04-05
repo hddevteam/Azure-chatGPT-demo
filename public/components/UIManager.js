@@ -292,7 +292,8 @@ class UIManager {
     }
 
     async uploadAttachments(attachments) {
-        const attachmentUrls = [];
+        let attachmentUrls = "";
+        let urlArray = [];
         // 对于每个附件，转换内容并上传，然后收集URL
         for (const attachment of attachments) {
             try {
@@ -300,12 +301,15 @@ class UIManager {
                 const binaryContent = this.base64ToBlob(attachment.content);
                 // 假设uploadAttachment函数已经能够处理Blob类型的content
                 const attachmentUrl = await uploadAttachment(binaryContent, attachment.fileName);
-                attachmentUrls.push(attachmentUrl);
+                urlArray.push(attachmentUrl);
             } catch (error) {
                 console.error("Attachment upload failed:", error);
                 swal("Failed to upload attachment. Please try again.", { icon: "error" });
                 return false;
             }
+        }
+        if (urlArray.length > 0) {
+            attachmentUrls = urlArray.join(";");
         }
         return attachmentUrls;
     }
