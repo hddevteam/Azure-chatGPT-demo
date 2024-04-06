@@ -4,7 +4,6 @@
 import axios from "axios";
 import swal from "sweetalert";
 
-
 axios.defaults.baseURL = "/api";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.headers.put["Content-Type"] = "application/json";
@@ -83,10 +82,11 @@ export async function getGpt(promptText, model) {
     }
 }
 
-export async function getGpt4V(promptText, ocr = false, grounding = false) {
+export async function getGpt4V(promptText, enhancements=false, ocr = false, grounding = false) {
     try {
         const response = await axios.post("/gpt4v", {
             prompt: promptText, 
+            enhancements: enhancements,
             ocr: ocr,
             grounding: grounding,
         });

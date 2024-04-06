@@ -105,12 +105,11 @@ class MessageManager {
         return await getGpt(promptText, this.uiManager.app.model);
     }
     
-    async sendMessageToGpt4V() {
+    async sendMessageToGpt4V(enhancements=false, ocr = false, grounding = false) {
         this.uiManager.showToast("AI is thinking...");
         const promptText = this.uiManager.app.prompts.getGpt4vPromptText();
         console.warn("gpt4v promptText", promptText);
-        const result =  await getGpt4V(promptText, true, true);
-        return { message: result.message.content, totalTokens: result.totalTokens};
+        return await getGpt4V(promptText, enhancements, ocr, grounding);
     }
 
     async sendImageMessage(message) {
@@ -121,7 +120,7 @@ class MessageManager {
 
     async wrapWithGetGptErrorHandler(dataPromise) {
         try {
-            const data = await dataPromise;
+            const data = await dataPromise();
             if (!data) {
                 const errorMessage = "The AI did not return any results. Please repeat your question or ask a different question.";
                 swal(errorMessage, { icon: "error" });
@@ -135,12 +134,14 @@ class MessageManager {
             }
             return data;
         } catch (error) {
-            // Enhanced error message handling, focusing on network issues
-            let errorMessage = (navigator.onLine)
-                ? `Error: ${error.message}. Please try again.`
-                : "You are currently offline. Please check your internet connection.";
-            swal(errorMessage, { icon: "error" });
+            // 解析抛出的错误信息并显示
+            let errorMessage = error.message; // 使用从API抛出的具体错误信息
+            if (!navigator.onLine) {
+                errorMessage = "您当前处于离线状态，请检查您的网络连接。"; // 特别处理网络离线错误
+            }
+            swal("请求出错", errorMessage, { icon: "error" });
             this.uiManager.finishSubmitProcessing();
+            return null; // 当发生错误时，返回null或适当的错误指示
         }
     }
 
@@ -239,7 +240,6 @@ class MessageManager {
     }
     async sendMessage(inputMessage = "", attachments=[]) {
         this.clearFollowUpQuestions();
-
         this.uiManager.initSubmitButtonProcessing();
 
         const validationResult = await this.validateInput(inputMessage, attachments);
@@ -249,20 +249,24 @@ class MessageManager {
         }
 
         const { message, isSkipped} = validationResult;
-        let data;
+
+        let executeFunction; // 定义一个变量来存储根据条件选择的函数
 
         if (attachments.length > 0) {
-            //TODO 需要实现sendMessageWithAttachments方法
-            data = await this.sendMessageToGpt4V();
+            if (attachments.length > 1) {
+                executeFunction = () => this.sendMessageToGpt4V(false);
+            } else {
+                executeFunction = () => this.sendMessageToGpt4V(true, true, false); 
+            }
         } else if (message.startsWith("/image")) {
-            data = await this.sendImageMessage(message);
+            executeFunction = () => this.sendImageMessage(message);
         } else if (message.startsWith("@") && !isSkipped) {
-            data = await this.sendProfileMessage(message);
+            executeFunction = () => this.sendProfileMessage(message);
         } else {
-            data = await this.sendTextMessage();
+            executeFunction = () => this.sendTextMessage();
         }
 
-        data = await this.wrapWithGetGptErrorHandler(data);
+        const data = await this.wrapWithGetGptErrorHandler(executeFunction); // 直接传递函数
         this.uiManager.finishSubmitProcessing();
 
         // Don't forget to perform follow-up actions after the response if any

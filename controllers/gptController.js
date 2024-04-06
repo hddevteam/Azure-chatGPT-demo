@@ -71,7 +71,7 @@ const makeRequest = async ({ apiKey, apiUrl, prompt, params }) => {
 exports.generateGpt4VResponse = async (req, res) => {
     console.log("generateGpt4VResponse", req.body);
     // 解析请求体中提供的数据
-    const { grounding, ocr } = req.body;
+    const { enhancements, grounding, ocr } = req.body;
 
     const prompt = JSON.parse(req.body.prompt);
     if (!prompt || !prompt.length) {
@@ -79,49 +79,37 @@ exports.generateGpt4VResponse = async (req, res) => {
         return res.status(400).send("Invalid prompt");
     }
 
+    let data;
     // 设置用于调用的参数
-    const data = {
-        // model: "gpt-4-vision-preview",
-        // enhancements: {
-        //     ocr: {
-        //         enabled: ocr || false
-        //     },
-        //     grounding: {
-        //         enabled: grounding || false
-        //     }
-        // },
-        // dataSources: [
-        //     {
-        //         type: "AzureComputerVision",
-        //         parameters: {
-        //             endpoint: azureCVApiUrl,
-        //             key: azureCVApiKey
-        //         }
-        //     }
-        // ],
-        messages: prompt,
-        // messages: [
-        //     { "role": "system", "content": "You are a helpful assistant." },
-        //     {
-        //         "role": "user",
-        //         "content": [
-        //             {
-        //                 "type": "text",
-        //                 "text": "Describe this picture:"
-        //             },
-        //             {
-        //                 "type": "image_url",
-        //                 "image_url": {
-        //                     "url": image_url
-        //                 }
-        //             }
-        //         ]
-        //     }
-        // ],
-        ...defaultParams
-    };
+    if (enhancements) {
+        data = {
+            enhancements: {
+                ocr: {
+                    enabled: ocr || false
+                },
+                grounding: {
+                    enabled: grounding || false
+                }
+            },
+            data_sources: [
+                {
+                    type: "AzureComputerVision",
+                    parameters: {
+                        endpoint: azureCVApiUrl,
+                        key: azureCVApiKey
+                    }
+                }
+            ],
+            messages: prompt,
+            ...defaultParams
+        };
+    } else {
+        data = {
+            messages: prompt,
+            ...defaultParams
+        };
+    }
     console.log("request data", data);
-
 
     // 准备请求配置
     const options = {
@@ -143,7 +131,7 @@ exports.generateGpt4VResponse = async (req, res) => {
 
         // 假设数据结构和 generateResponse 中相同，我们提取 message 和 totalTokens
         const choices = response.data.choices || [];
-        const message = choices.length > 0 ? choices[0].message : "No response from GPT-4-Vision";
+        const message = choices.length > 0 ? choices[0].message.content : "No response from GPT-4-Vision";
         const totalTokens = response.data.usage ? response.data.usage.total_tokens : 0;
         const responseObj = { message, totalTokens };
         console.log("responseObj", responseObj);

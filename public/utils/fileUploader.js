@@ -66,10 +66,16 @@ class FileUploader {
 
     clearPreview() {
         this.attachmentPreviewList.innerHTML = "";
+        if (!this.attachmentPreviewContainer.classList.contains("hidden")){
+            this.attachmentPreviewContainer.classList.add("hidden");}
     }
 
     removePreviewItem(event) {
         event.target.closest(".attachment-preview-item").remove();
+        //check if there are any remaining items
+        if (this.attachmentPreviewList.children.length === 0) {
+            this.attachmentPreviewContainer.classList.add("hidden");
+        }
     }
 }
 

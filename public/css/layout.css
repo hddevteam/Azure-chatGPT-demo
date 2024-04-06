@@ -192,5 +192,6 @@ html {
     background-color: #eee;
     border-top: 1px solid #ddd;
     overflow-x: auto;
-    flex: 0 1 auto; /* Do not grow, but allow shrinking and maintain auto base size */
+    flex: 0 1 auto; 
+    font-size: 12px;
 }
