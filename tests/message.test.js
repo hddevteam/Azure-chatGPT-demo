@@ -116,14 +116,13 @@ describe("Message Controller", () => {
     let uploadedAttachmentUrl = "";
 
     test("Upload a new Attachment to Blob", async () => {
-        // 模拟一个`multer`处理后的文件上传情况
-        const req = {
-            file: {
-                buffer: Buffer.from("This is a test attachment content"),
-                originalname: "testAttachmentAlone.txt"
-            }
+        const req = setupMockRequest({}, {}, {});
+        // 向req对象直接添加file属性
+        req.file = {
+            buffer: Buffer.from("This is a test attachment content"),
+            originalname: "testAttachment.txt"
         };
-        
+    
         const res = setupMockResponse();
     
         await uploadAttachment(req, res);
@@ -132,8 +131,6 @@ describe("Message Controller", () => {
         expect(res.json).toHaveBeenCalled();
     }, timeout);
     
-
-
     test("Upload a new Attachment to Blob and Update the Message", async () => {
         const req = setupMockRequest({
             fileContent: Buffer.from("This is a test attachment content").toString("base64"),
