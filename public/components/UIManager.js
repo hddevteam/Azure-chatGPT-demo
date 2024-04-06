@@ -4,7 +4,7 @@ import EventManager from "./EventManager.js";
 import MessageManager from "./MessageManager.js";
 import StorageManager from "./StorageManager.js";
 import ChatHistoryManager from "./ChatHistoryManager.js";
-import { textToImage, getTts } from "../utils/api.js";
+import { getTts } from "../utils/api.js";
 import swal from "sweetalert";
 import SyncManager from "./SyncManager.js";
 import ProfileFormManager from "./ProfileFormManager.js";
@@ -238,38 +238,6 @@ class UIManager {
         practiceModeIcon.classList.remove("fa-volume-up");
         practiceModeIcon.classList.add("fa-volume-off");
         this.app.setTtsPracticeMode(false);
-    }
-
-    // text to image
-    async generateImage(caption) {
-        try {
-            const data = await textToImage(caption);
-            const imageUrl = data.url;
-            const revisedCaption = data.revised_prompt || caption; 
-        
-            const messageId = this.generateId();
-            const thumbnailWidth = 300;
-            const thumbnailHeight = 300;
-            const newMessageItem = {
-                role: "assistant",
-                content: `<div><img src="${imageUrl}" alt="${revisedCaption}" width="${thumbnailWidth}" height="${thumbnailHeight}" style="object-fit: contain;" />
-                <p style="margin-top: 4px;">${revisedCaption}</p>
-                </div>`, 
-                messageId: messageId,
-                isActive: true,
-            };
-    
-            this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive);
-            this.storageManager.saveMessage(this.currentChatId, newMessageItem);
-            this.syncManager.syncMessageCreate(this.currentChatId, newMessageItem);
-    
-            return true;
-        } catch (error) {
-            // 不再直接处理错误，而是向外抛出
-            throw new Error(error.message || "生成图像时遇到未知错误。");
-        } finally {
-            this.finishSubmitProcessing();
-        }
     }
     
     

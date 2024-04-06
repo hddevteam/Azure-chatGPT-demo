@@ -1,5 +1,5 @@
 // MessageManager.js
-import { getGpt, getFollowUpQuestions, getGpt4V } from "../utils/api.js";
+import { getGpt, getFollowUpQuestions, getGpt4V, textToImage } from "../utils/api.js";
 import swal from "sweetalert";
 import { marked } from "marked";
 import { generateExcerpt } from "../utils/textUtils.js";
@@ -22,11 +22,6 @@ class MessageManager {
         const messageElement = this.uiManager.domManager.createMessageElement(sender, messageId, isActive, isError);
         messageElement.dataset.message = message;
 
-        if (attachmentUrls!=="") {
-            const attachmentContainer = this.uiManager.domManager.createAttachmentThumbnails(attachmentUrls);
-            messageElement.appendChild(attachmentContainer);
-        }
-
         const conversationElement = this.uiManager.domManager.createConversationElement();
         messageElement.appendChild(conversationElement);
         this.uiManager.eventManager.attachToggleActiveMessageEventListener(conversationElement);
@@ -43,6 +38,11 @@ class MessageManager {
 
         this.uiManager.eventManager.attachMenuButtonEventListener(menuButtonElement);
         this.uiManager.eventManager.attachPopupMenuItemEventListener(popupMenuElement);
+
+        if (attachmentUrls!=="") {
+            const attachmentContainer = this.uiManager.domManager.createAttachmentThumbnails(attachmentUrls);
+            messageElement.appendChild(attachmentContainer);
+        }
 
         const messageContentElement = sender === "user" ? document.createElement("pre") : document.createElement("div");
         messageContentElement.classList.add("message-content");
@@ -114,10 +114,29 @@ class MessageManager {
     }
 
     async sendImageMessage(message) {
-        const imageCaption = message.replace("/image", "").trim();
-        this.uiManager.showToast("AI is generating image...");
-        return await this.uiManager.generateImage(imageCaption);
+        try {
+            this.uiManager.showToast("AI is generating image...");
+    
+            // 将 generateImage 中的逻辑直接集成到这里
+            const imageCaption = message.replace("/image", "").trim();
+            const data = await textToImage(imageCaption);  // 调用生成图像的API
+            const imageUrl = data.url;
+            const revisedCaption = data.revised_prompt || imageCaption;
+    
+            // 构建消息对象，但不在此处添加消息
+            const newMessageItem = {
+                message: revisedCaption, 
+                attachmentUrls: imageUrl, // 假设消息对象中有一个附件URL数组
+            };
+    
+            // 直接从函数返回新的消息对象，让 wrapWithGetGptErrorHandler 在外层处理它
+            return newMessageItem;
+        } catch (error) {
+            // 向上抛出异常，让 wrapWithGetGptErrorHandler 处理
+            throw new Error(error.message || "生成图像时遇到未知错误。");
+        }
     }
+    
 
     async wrapWithGetGptErrorHandler(dataPromise) {
         try {
@@ -127,8 +146,8 @@ class MessageManager {
                 swal(errorMessage, { icon: "error" });
             } else {
                 let messageId = this.uiManager.generateId();
-                const newMessage = { role: "assistant", content: data.message, messageId: messageId, isActive: true };
-                this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive);
+                const newMessage = { role: "assistant", content: data.message, messageId: messageId, isActive: true, attachmentUrls: data.attachmentUrls||""};
+                this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive, "bottom", false, newMessage.attachmentUrls);
                 this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
                 this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
                 this.uiManager.app.prompts.addPrompt(newMessage);
@@ -384,7 +403,7 @@ class MessageManager {
             element = messageElem.querySelector("pre");
             element.innerText = isActive ? message : this.getMessagePreview(message);
         } else {
-            element = messageElem.querySelector("div");
+            element = messageElem.querySelector("div.message-content");
             const messageHtml = marked.parse(message);
             element.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message));
         }

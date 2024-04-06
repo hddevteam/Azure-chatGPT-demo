@@ -43,21 +43,17 @@ class DOMManager {
     }
 
     // Create a new method for creating the message element
-    createMessageElement(sender, messageId, isActive, isError, attachmentUrls="") {
+    createMessageElement(sender, messageId, isActive, isError) {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message");
         messageElement.classList.add(`${sender}-message`);
         messageElement.dataset.sender = sender;
         messageElement.dataset.messageId = messageId;
-        messageElement.dataset.attachmentUrls = attachmentUrls;
         if (isActive) {
             messageElement.classList.add("active");
         }
         if (isError) {
             messageElement.classList.add("error-message");
-        }
-        if (attachmentUrls!=="") {
-            this.createAttachmentThumbnails(messageElement, attachmentUrls);
         }
 
         return messageElement;

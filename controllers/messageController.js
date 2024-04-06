@@ -202,20 +202,23 @@ exports.deleteCloudMessage = async (req, res) => {
     const chatId = req.params.chatId;
     const messageId = req.params.messageId;
     console.log("deleteCloudMessage", chatId, messageId);
+
     try {
         const tableClient = getTableClient("Messages");
 
-        // Retrieve the message entity
+        // 检索消息实体
         const entity = await tableClient.getEntity(chatId, messageId);
     
         if (entity.isContentInBlob) {
             console.log("blob in blob");
-            // Assume that we have stored the blob URL in the entity.content and the container name is 'messagecontents'
-            // We need to extract the blob name from the URL
-            const blobUrl = new URL(entity.content);
-            const blobName = blobUrl.pathname.substring(blobUrl.pathname.lastIndexOf("/") + 1);
-            await deleteBlob("messagecontents", blobName);
-            console.log("blob deleted");
+
+            const blobName = entity.content.substring(entity.content.lastIndexOf("/") + 1);
+            try {
+                await deleteBlob("messagecontents", blobName);
+                console.log("blob deleted");
+            } catch (error) {
+                console.log(`Fail to delete blob ('messagecontents', ${blobName}): ${error.message}`);
+            }
         }
 
         // 删除附件
@@ -223,16 +226,21 @@ exports.deleteCloudMessage = async (req, res) => {
             const attachments = entity.attachmentUrls.split(";");
             for (const url of attachments) {
                 const blobName = url.split("/").pop(); // 假设URL格式允许这样简单地提取
-                await deleteBlob("messageattachments", blobName);
+                try {
+                    await deleteBlob("messageattachments", blobName);
+                } catch (error) {
+                    console.log(`Fail to delete attachment (${blobName}): ${error.message}`);
+                }
             }
         }
 
+        // 标记消息为已删除
         await tableClient.updateEntity({
             partitionKey: entity.partitionKey,
             rowKey: entity.rowKey,
-            isDeleted: true
-        });
-        console.log("message deleted");
+            isDeleted: true,
+        }, "Merge");
+        console.log("message marked as deleted");
         const deletedEntity = await tableClient.getEntity(chatId, messageId);
         res.status(204).json({ data: deletedEntity });
     } catch (error) {
