@@ -92,6 +92,7 @@ class MessageManager {
             this.uiManager.eventManager.attachCodeBlockCopyEvent(codeBlock, copyElement);
         });
 
+        this.uiManager.eventManager.attachImagePreviewEvent();
         setTimeout(() => this.uiManager.eventManager.updateMaximizeButtonVisibility(messageElement), 0);
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;

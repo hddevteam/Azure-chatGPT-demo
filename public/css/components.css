@@ -1069,6 +1069,45 @@ button.action-button.invisible {
     opacity: 1;
 }
 
+.message-attachment-thumbnail {
+    max-width: 50%;
+    max-height: 200px;
+    cursor: pointer; /* 让用户知道这个图片是可以点击的 */
+    object-fit: contain; /* 保持图片的原始宽高比，确保在限制尺寸内完整地展示图片 */
+}
+
+/* 模态窗口的CSS调整 */
+#image-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.9); 
+}
+
+#image-modal .modal-content {
+    margin: auto;
+    display: block;
+    max-width: 80%; 
+    max-height: 80vh; 
+    object-fit: contain; 
+}
+
+#image-modal .close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+
 /* 保持响应式布局调整 */
 @media screen and (max-width: 768px) {
     #ai-actor-settings-inner-form-wrapper {

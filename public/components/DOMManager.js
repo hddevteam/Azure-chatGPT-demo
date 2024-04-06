@@ -72,13 +72,11 @@ class DOMManager {
             urlArray.forEach(url => {
                 const imgElement = document.createElement("img");
                 imgElement.src = url;
-                imgElement.classList.add("attachment-thumbnail");
+                imgElement.classList.add("message-attachment-thumbnail");
                 attachmentsContainer.appendChild(imgElement);
             });
             return attachmentsContainer;
         }
-        
-
     }
 
 

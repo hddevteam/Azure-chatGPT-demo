@@ -9,6 +9,8 @@ import swal from "sweetalert";
 import SyncManager from "./SyncManager.js";
 import ProfileFormManager from "./ProfileFormManager.js";
 import { getPromptRepo, uploadAttachment } from "../utils/api.js";
+import fileUploader from "../utils/fileUploader.js";
+
 
 
 class UIManager {
@@ -649,7 +651,7 @@ class UIManager {
     
         // 清理UI
         this.clearMessageInput();
-        attachmentPreviewList.innerHTML = "";
+        fileUploader.clearPreview();
         messageInput.blur();
     }
 
