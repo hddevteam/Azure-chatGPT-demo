@@ -135,18 +135,6 @@ html {
     width: 100%;
 }
 
-#message-form {
-    height: 100%;
-    background: linear-gradient(to bottom, #333, #555);
-    padding: 5px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
-    
-}
-
 #resize-handle {
     height: 5px; /* 给把手设定一个高度 */
     background: #ccc; /* 把手的背景颜色 */
@@ -170,16 +158,40 @@ html {
     font-size: 16px;
 }
 
-#input-container {
-    height: 100%;
-    position: relative;
-    flex: 1;
-}
-
 .mini-toolbar-container {
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
     display: flex;
     justify-content: flex-end;
+}
+
+#message-form {
+    height: 100%;
+    background: linear-gradient(to bottom, #333, #555);
+    padding: 5px;
+    display: flex;
+    flex-direction: column; /* Changed to column to encourage stacking */
+    justify-content: flex-start; /* Adjust alignment to start to stack them at the top */
+    align-items: stretch; /* Make children stretch to fit the container's width */
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
+}
+
+#input-container {
+    width: 100%; /* Ensure it spans the full width */
+    position: relative;
+    flex: 1 1 auto; /* Take available space, but allow shrinking/growing */
+}
+
+.attachment-preview-container {
+    width: 100%; /* Ensure it spans the full width */
+    padding: 10px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    background-color: #eee;
+    border-top: 1px solid #ddd;
+    overflow-x: auto;
+    flex: 0 1 auto; 
+    font-size: 12px;
 }

@@ -9,6 +9,11 @@
 
 <body>
   <div class="modal-overlay hidden"></div>
+  <div id="image-modal" class="modal">
+    <span class="close"><i class="fas fa-times"></i></span>
+    <img class="modal-content" id="img-modal-content">
+  </div>
+
   <div id="ai-actor-wrapper" class="hidden">
     <div id="ai-actor-header">
       <span>AI Actor</span>
@@ -66,13 +71,14 @@
             <div class="btns">
               <span class="btn" id="tts-container"><i id="practice-mode-icon" class="fas fa-volume-off"></i><span
                   id="practice-mode" class="btn-text">Man.</span></span>
+              <span class="btn" id="attachments-container" title="Click to attach a file"><i
+                  class="fas fa-paperclip"></i><span class="btn-text">Attach</span></span>
               <span class="btn" id="upload-container" title="Click to import a Markdown conversation file"><i
                   class="fas fa-file-upload"></i><span class="btn-text">Import</span></span>
               <span class="btn" id="md-container" title="Click to save the current conversation as a Markdown file"><i
                   class="fa-brands fa-markdown"></i><span class="btn-text">md</span></span>
               <span class="btn" id="delete-container" title="Click to delete all active messages"><i
                   class="fas fa-trash-alt"></i><span class="btn-text">Delete</span></span>
-
             </div>
           </div>
         </div>
@@ -84,7 +90,7 @@
               </ul>
             </div>
             <textarea id="message-input" name="message" autocomplete="off"
-              placeholder="Feel free to ask anything. You can use '@' to ask a specific expert, even if they're not listed in the menu. For example, '@App Designer: How to design a great app?'"
+              placeholder="Feel free to ask anything. You can use '@' to ask a specific expert, even if they're not listed in the actor list. For example, '@App Designer: How to design a great app?'"
               tabindex="1" rows="5"></textarea>
             <div class="button-row">
               <button id="submitButton" type="submit" tabindex="2">
@@ -101,8 +107,10 @@
                 <button id="new-chat-button" type="button" title="Click to create a new chat"><i class="fas fa-plus "
                     aria-hidden="true"></i></button>
               </div>
-
             </div>
+          </div>
+          <div id="attachment-preview-container" class="attachment-preview-container hidden">
+            <div id="attachment-preview-list" class="attachment-preview-list"></div>
           </div>
         </form>
       </div>

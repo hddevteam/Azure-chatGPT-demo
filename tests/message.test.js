@@ -3,7 +3,10 @@ const {
     getCloudMessages,
     createCloudMessage,
     updateCloudMessage,
-    deleteCloudMessage
+    deleteCloudMessage,
+    uploadAttachment,
+    uploadAttachmentAndUpdateMessage,
+    deleteAttachment
 } = require("../controllers/messageController");
 
 const { getTextFromBlob } = require("../services/azureBlobStorage");
@@ -110,6 +113,72 @@ describe("Message Controller", () => {
         );
     }, timeout);
 
+    let uploadedAttachmentUrl = "";
+
+    test("Upload a new Attachment to Blob", async () => {
+        const req = setupMockRequest({}, {}, {});
+        // 向req对象直接添加file属性
+        req.file = {
+            buffer: Buffer.from("This is a test attachment content"),
+            originalname: "testAttachment.txt"
+        };
+    
+        const res = setupMockResponse();
+    
+        await uploadAttachment(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalled();
+    }, timeout);
+    
+    test("Upload a new Attachment to Blob and Update the Message", async () => {
+        const req = setupMockRequest({
+            fileContent: Buffer.from("This is a test attachment content").toString("base64"),
+            originalFileName: "testAttachment.txt"
+        }, {}, {
+            chatId: chatHistoryId,
+            messageId: messageId
+        });
+    
+        const res = setupMockResponse();
+    
+        await uploadAttachmentAndUpdateMessage(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalled();
+    
+        const updatedEntity = await tableClient.getEntity(chatHistoryId, messageId);
+        expect(updatedEntity.attachmentUrls).toContain("testAttachment.txt");
+        // Save the URL from the uploaded attachment
+        uploadedAttachmentUrl = updatedEntity.attachmentUrls.split(";").find(url => url.includes("testAttachment.txt"));
+
+    }, timeout);
+    
+
+    // 测试用例中假设已经有 uploadedAttachmentUrl 包含正确的附件URL
+    test("Delete an Attachment from Blob and Update the Message", async () => {
+        expect(uploadedAttachmentUrl).not.toBe("");
+
+        // 将attachmentUrl作为请求体传递
+        const req = setupMockRequest({
+            attachmentUrl: uploadedAttachmentUrl
+        }, {}, {
+            chatId: chatHistoryId,
+            messageId: messageId
+        });
+
+        const res = setupMockResponse();
+
+        await deleteAttachment(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(204);
+
+        const updatedEntity = await tableClient.getEntity(chatHistoryId, messageId);
+        // 使用更精确的断言来确认attachmentUrl不再出现在attachmentUrls字段中
+        expect(updatedEntity.attachmentUrls).not.toContain(uploadedAttachmentUrl);
+    }, timeout);
+
+
     test("should only return messages with timestamp after the provided lastTimestamp", async () => {
         const req = setupMockRequest({}, { lastTimestamp: new Date().toISOString() }, { chatId: chatHistoryId });
 
@@ -196,7 +265,6 @@ describe("Message Controller", () => {
     
         // Create the message
         await createCloudMessage(reqCreate, resCreate);
-        console.log("resCreate", resCreate);
 
         expect(resCreate.status).toHaveBeenCalledWith(201);
 

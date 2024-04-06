@@ -8,7 +8,9 @@ import { textToImage, getTts } from "../utils/api.js";
 import swal from "sweetalert";
 import SyncManager from "./SyncManager.js";
 import ProfileFormManager from "./ProfileFormManager.js";
-import { getPromptRepo } from "../utils/api.js";
+import { getPromptRepo, uploadAttachment } from "../utils/api.js";
+import fileUploader from "../utils/fileUploader.js";
+
 
 
 class UIManager {
@@ -291,6 +293,57 @@ class UIManager {
         return lines[lines.length - 1];
     }
 
+    async uploadAttachments(attachments) {
+        let attachmentUrls = "";
+        let urlArray = [];
+        // 对于每个附件，转换内容并上传，然后收集URL
+        for (const attachment of attachments) {
+            try {
+                // 将Base64编码转换为Blob对象
+                const binaryContent = this.base64ToBlob(attachment.content);
+                // 假设uploadAttachment函数已经能够处理Blob类型的content
+                const attachmentUrl = await uploadAttachment(binaryContent, attachment.fileName);
+                urlArray.push(attachmentUrl);
+            } catch (error) {
+                console.error("Attachment upload failed:", error);
+                swal("Failed to upload attachment. Please try again.", { icon: "error" });
+                return false;
+            }
+        }
+        if (urlArray.length > 0) {
+            attachmentUrls = urlArray.join(";");
+        }
+        return attachmentUrls;
+    }
+    
+    // 辅助函数：将Base64编码的数据转换为Blob对象
+    base64ToBlob(base64Data) {
+        const contentTypeMatch = base64Data.match(/^data:(.*);base64,/);
+        let contentType = "";
+        if (contentTypeMatch && contentTypeMatch.length > 1) {
+            contentType = contentTypeMatch[1];
+        }
+        const sliceSize = 512;
+        const byteCharacters = atob(base64Data.split(",")[1]);
+        const byteArrays = [];
+    
+        for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            const slice = byteCharacters.slice(offset, offset + sliceSize);
+            const byteNumbers = new Array(slice.length);
+    
+            for (let i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+    
+            const byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+    
+        const blob = new Blob(byteArrays, {type: contentType});
+        return blob;
+    }
+    
+
     async validateMessage(message) {
         if (message.startsWith("@") && !message.substring(0, 50).includes(":")) {
             const firstColonIndex = message.indexOf("："); // Find the index of the first Chinese colon
@@ -502,7 +555,7 @@ class UIManager {
             if (isActive) {
                 this.app.prompts.addPrompt(message);
             }
-            this.messageManager.addMessage(message.role, message.content, message.messageId, isActive);
+            this.messageManager.addMessage(message.role, message.content, message.messageId, isActive, "bottom", false, message.attachmentUrls);
         });
         if (sendFollowUpQuestions) {
             this.messageManager.sendFollowUpQuestions();
@@ -576,21 +629,30 @@ class UIManager {
         });
     }
 
-    handleMessageFormSubmit(messageInput) {
-        // Prevent form submission
-        event.preventDefault();
+    async handleMessageFormSubmit(messageInput) {
+        event.preventDefault(); // 防止表单提交
+    
+        const message = messageInput.value.trim(); // 获取输入的消息
+        if (!message) return; // 如果消息为空，则返回
+    
+        // 准备附件数组
+        const attachments = [];
+        const attachmentPreviewList = document.getElementById("attachment-preview-list");
+        const attachmentItems = attachmentPreviewList.querySelectorAll(".attachment-preview-item");
 
-        // Get the message from the input field
-        const message = messageInput.value.trim();
-
-        // If the message is not empty, send it
-        if (message) {
-            this.messageManager.sendMessage(message);
-        }
-
-        // Clear the input field and handle the UI
+        attachmentItems.forEach(item => {
+            const fileName = item.querySelector(".attachment-file-name").textContent;
+            const content = item.querySelector(".attachment-thumbnail").style.backgroundImage.slice(5, -2); // 提取文件内容（去掉'url('和')'）
+            attachments.push({ fileName, content });
+        });
+    
+        // 调用 sendMessage，并传入 message 和 attachments
+        await this.messageManager.sendMessage(message, attachments);
+    
+        // 清理UI
         this.clearMessageInput();
-        this.messageInput.blur();
+        fileUploader.clearPreview();
+        messageInput.blur();
     }
 
     handleProfileListMenuClick(event) {

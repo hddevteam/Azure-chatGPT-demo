@@ -76,5 +76,34 @@ class Prompts {
         }));
     }
 
+    /**
+     * get the prompts array as a string for GPT-4 v
+     * @returns - The prompts array as a string
+     */
+    getGpt4vPromptText() {
+        const systemPrompt = { 
+            role: "system", 
+            content: [{ type: "text", text: this.systemPrompt }]
+        };
+        const prompts = [systemPrompt, ...this.data];
+        return JSON.stringify(prompts.map(p => {
+            // 如果有attachmentUrls字段，我们将其转换为image_url对象数组
+            const attachmentContent = p.attachmentUrls ?
+                p.attachmentUrls.split(";")
+                    .filter(url => url.trim() !== "") // 过滤空字符串
+                    .map(url => ({ type: "image_url", image_url: { url } })) : [];
+            // 确保content是一个数组
+            let contentArray = Array.isArray(p.content) ? p.content : [{ type: "text", text: p.content }];
+            // 将attachmentContent添加到content数组中
+            contentArray = [...contentArray, ...attachmentContent];
+            return {
+                role: p.role,
+                content: contentArray.map(c => {
+                    // 直接返回c，因为这时c已是正确格式
+                    return c;
+                })
+            };
+        }));
+    }
 }
 export default Prompts;

@@ -1,12 +1,33 @@
 // public/api.js
 // purpose: client-side code to make requests to the server side api.
 
-// Consider using Axios for more fine-grained control of the HTTP requests
 import axios from "axios";
+import swal from "sweetalert";
 
 axios.defaults.baseURL = "/api";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.headers.put["Content-Type"] = "application/json";
+
+export async function uploadAttachment(fileContent, fileName) {
+    try {
+        const formData = new FormData();
+        formData.append("fileContent", fileContent);
+        formData.append("originalFileName", fileName);
+
+        // 注意：移除axios默认的Content-Type头部，让浏览器自动设置，便于正确处理边界
+        const response = await axios.post("/attachments/upload", formData, {
+            headers: {
+                "Content-Type": undefined
+            }
+        });
+        console.log(response.data);
+        return response.data; // 返回后端响应中的附件信息
+    } catch (error) {
+        console.error("Failed to upload attachment:", error);
+        throw error;
+    }
+}
+
 
 // get app name
 export async function getAppName() {
@@ -61,7 +82,29 @@ export async function getGpt(promptText, model) {
     }
 }
 
-
+export async function getGpt4V(promptText, enhancements=false, ocr = false, grounding = false) {
+    try {
+        const response = await axios.post("/gpt4v", {
+            prompt: promptText, 
+            enhancements: enhancements,
+            ocr: ocr,
+            grounding: grounding,
+        });
+        return response.data; // Axios 会自动处理响应数据为 JSON
+    } catch (error) {
+        if (error.response) {
+            // 请求成功发出，但服务器以外的 2xx 状态码回复
+            let errMsg = error.response.data.error ? error.response.data.error.message : "Error generating GPT-4-Vision response.";
+            throw new Error(`Error ${error.response.status}: ${errMsg}`);
+        } else if (error.request) {
+            // 请求发出了，但没有收到回应
+            throw new Error("The server did not respond. Please try again later.");
+        } else {
+            // 设置请求时触发了某些错误
+            throw new Error(error.message);
+        }
+    }
+}
 
 
 // get tts response
@@ -107,8 +150,6 @@ export async function generateTitle(content) {
     return await response.text();
 }
 
-
-
 export async function getFollowUpQuestions(prompt) {
     const response = await fetch("/api/generate-followup-questions", {
         method: "POST",
@@ -136,7 +177,10 @@ axios.interceptors.response.use(null, error => {
     const expectedError = error.response && error.response.status >= 400 && error.response.status < 500;
     if (!expectedError) {
         console.log("Logging the error", error);
-        alert("An unexpected error occurred.");
+        // alert("An unexpected error occurred. ");
+        swal("An unexpected error occurred, please try to refresh the page.", {
+            icon: "error",
+        });
     }
     return Promise.reject(error);
 });

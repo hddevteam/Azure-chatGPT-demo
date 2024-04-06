@@ -1,5 +1,5 @@
 // MessageManager.js
-import { getGpt, getFollowUpQuestions } from "../utils/api.js";
+import { getGpt, getFollowUpQuestions, getGpt4V } from "../utils/api.js";
 import swal from "sweetalert";
 import { marked } from "marked";
 import { generateExcerpt } from "../utils/textUtils.js";
@@ -18,9 +18,14 @@ class MessageManager {
     }
 
     // Add message to DOM
-    addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false) {
+    addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false, attachmentUrls = "") {
         const messageElement = this.uiManager.domManager.createMessageElement(sender, messageId, isActive, isError);
         messageElement.dataset.message = message;
+
+        if (attachmentUrls!=="") {
+            const attachmentContainer = this.uiManager.domManager.createAttachmentThumbnails(attachmentUrls);
+            messageElement.appendChild(attachmentContainer);
+        }
 
         const conversationElement = this.uiManager.domManager.createConversationElement();
         messageElement.appendChild(conversationElement);
@@ -87,43 +92,25 @@ class MessageManager {
             this.uiManager.eventManager.attachCodeBlockCopyEvent(codeBlock, copyElement);
         });
 
+        this.uiManager.eventManager.attachImagePreviewEvent();
         setTimeout(() => this.uiManager.eventManager.updateMaximizeButtonVisibility(messageElement), 0);
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         this.uiManager.updateSlider();
     }
 
-    async validateInput(message) {
-        const validationResult = await this.uiManager.validateMessage(message);
-        message = validationResult.message;
-        let reEdit = validationResult.reEdit;
-
-        if (reEdit) {
-            this.uiManager.messageInput.value = message;
-            this.uiManager.messageInput.focus();
-            this.uiManager.finishSubmitProcessing();
-            return false;
-        }
-
-        let messageId = this.uiManager.generateId();
-        const newMessage = { role: "user", content: message, messageId: messageId, isActive: true };
-        this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive);
-        this.uiManager.app.prompts.addPrompt(newMessage);
-        this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
-        this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
-        this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
-
-        // return validationResult if input is valid and processed successfully.
-        return validationResult;
-    }
-
-
-
     async sendTextMessage() {
         this.uiManager.showToast("AI is thinking...");
         const promptText = this.uiManager.app.prompts.getPromptText();
         // Code for getGpt, check it's proper implementation in your code.
         return await getGpt(promptText, this.uiManager.app.model);
+    }
+    
+    async sendMessageToGpt4V(enhancements=false, ocr = false, grounding = false) {
+        this.uiManager.showToast("AI is thinking...");
+        const promptText = this.uiManager.app.prompts.getGpt4vPromptText();
+        console.warn("gpt4v promptText", promptText);
+        return await getGpt4V(promptText, enhancements, ocr, grounding);
     }
 
     async sendImageMessage(message) {
@@ -134,7 +121,7 @@ class MessageManager {
 
     async wrapWithGetGptErrorHandler(dataPromise) {
         try {
-            const data = await dataPromise;
+            const data = await dataPromise();
             if (!data) {
                 const errorMessage = "The AI did not return any results. Please repeat your question or ask a different question.";
                 swal(errorMessage, { icon: "error" });
@@ -148,14 +135,92 @@ class MessageManager {
             }
             return data;
         } catch (error) {
-            // Enhanced error message handling, focusing on network issues
-            let errorMessage = (navigator.onLine)
-                ? `Error: ${error.message}. Please try again.`
-                : "You are currently offline. Please check your internet connection.";
-            swal(errorMessage, { icon: "error" });
+            // 解析抛出的错误信息并显示
+            let errorMessage = error.message; // 使用从API抛出的具体错误信息
+            if (!navigator.onLine) {
+                errorMessage = "您当前处于离线状态，请检查您的网络连接。"; // 特别处理网络离线错误
+            }
+            swal("请求出错", errorMessage, { icon: "error" });
             this.uiManager.finishSubmitProcessing();
+            return null; // 当发生错误时，返回null或适当的错误指示
         }
     }
+
+    async validateInput(message, attachments = []) {
+
+        const validationResult = await this.uiManager.validateMessage(message);
+        message = validationResult.message;
+        let reEdit = validationResult.reEdit;
+        let attachmentUrls = "";
+        if (attachments.length > 0) {
+            attachmentUrls = await this.uiManager.uploadAttachments(attachments);
+            if (attachmentUrls=="") {
+                this.uiManager.finishSubmitProcessing();
+                return false;
+            } else {
+                validationResult.attachmentUrls = attachmentUrls;
+            }
+        }
+
+        if (reEdit) {
+            this.uiManager.messageInput.value = message;
+            this.uiManager.messageInput.focus();
+            this.uiManager.finishSubmitProcessing();
+            return false;
+        }
+
+        let messageId = this.uiManager.generateId();
+        const newMessage = { role: "user", content: message, messageId: messageId, isActive: true, attachmentUrls: attachmentUrls};
+        this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive, "bottom", false, attachmentUrls);
+        this.uiManager.app.prompts.addPrompt(newMessage);
+        this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
+        this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
+        this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
+
+        // return validationResult if input is valid and processed successfully.
+        return validationResult;
+        
+    }
+    async sendMessage(inputMessage = "", attachments=[]) {
+        this.clearFollowUpQuestions();
+        this.uiManager.initSubmitButtonProcessing();
+
+        const validationResult = await this.validateInput(inputMessage, attachments);
+
+        if (!validationResult) {
+            return;
+        }
+
+        const { message, isSkipped} = validationResult;
+
+        let executeFunction; // 定义一个变量来存储根据条件选择的函数
+
+        if (attachments.length > 0) {
+            if (attachments.length > 1) {
+                executeFunction = () => this.sendMessageToGpt4V(false);
+            } else {
+                executeFunction = () => this.sendMessageToGpt4V(true, true, false); 
+            }
+        } else if (message.startsWith("/image")) {
+            executeFunction = () => this.sendImageMessage(message);
+        } else if (message.startsWith("@") && !isSkipped) {
+            executeFunction = () => this.sendProfileMessage(message);
+        } else {
+            executeFunction = () => this.sendTextMessage();
+        }
+
+        const data = await this.wrapWithGetGptErrorHandler(executeFunction); // 直接传递函数
+        this.uiManager.finishSubmitProcessing();
+
+        // Don't forget to perform follow-up actions after the response if any
+        if (data && data.totalTokens) {
+            this.checkTokensAndWarn(data.totalTokens);
+        }
+
+        // await this.sendFollowUpQuestions();
+        // temporary disable follow-up questions because it consumes too much tokens
+    }
+
 
     checkTokensAndWarn(tokens) {
         const tokensSpan = document.querySelector("#tokens");
@@ -214,46 +279,6 @@ class MessageManager {
         }
     }
 
-    async sendMessage(inputMessage = "") {
-        this.clearFollowUpQuestions();
-
-        this.uiManager.initSubmitButtonProcessing();
-
-        const validationResult = await this.validateInput(inputMessage);
-
-        if (!validationResult) {
-            return;
-        }
-
-        const { message, isSkipped } = validationResult;
-        let data;
-
-        if (message.startsWith("/image")) {
-            data = await this.sendImageMessage(message);
-        } else if (message.startsWith("@") && !isSkipped) {
-            data = await this.sendProfileMessage(message);
-        } else {
-            data = await this.sendTextMessage(message);
-        }
-
-        data = await this.wrapWithGetGptErrorHandler(data);
-        this.uiManager.finishSubmitProcessing();
-
-        // Don't forget to perform follow-up actions after the response if any
-        if (data && data.totalTokens) {
-            this.checkTokensAndWarn(data.totalTokens);
-        }
-
-        // await this.sendFollowUpQuestions();
-        // temporary disable follow-up questions because it consumes too much tokens
-    }
-
-    // Add this method to get the ID of the last message
-    getLastMessageId() {
-        const messages = document.querySelectorAll(".message");
-        return messages.length > 0 ? messages[messages.length - 1].dataset.messageId : null;
-    }
-
     // Modify this method to handle retrying a message
     async retryMessage(messageId) {
         const messageElem = document.querySelector(`[data-message-id="${messageId}"]`);
@@ -274,6 +299,13 @@ class MessageManager {
             await this.sendMessage(messageContent, true);
         }
     }
+
+    // Add this method to get the ID of the last message
+    getLastMessageId() {
+        const messages = document.querySelectorAll(".message");
+        return messages.length > 0 ? messages[messages.length - 1].dataset.messageId : null;
+    }
+
 
     inactiveMessage(messageId) {
         const message = document.querySelector(`[data-message-id="${messageId}"]`);
@@ -432,7 +464,7 @@ class MessageManager {
             // Check if the message is already in the list
             if (!currentMessageIds.includes(message.messageId)) {
                 let isActive = message.isActive || false;
-                this.addMessage(message.role, message.content, message.messageId, isActive, "top");
+                this.addMessage(message.role, message.content, message.messageId, isActive, "top", false, message.attachmentUrls);
             }
         });
 
@@ -553,7 +585,7 @@ class MessageManager {
         console.log(followUpResponsesData.suggestedUserResponses);
         this.addFollowUpQuestions(followUpResponsesData.suggestedUserResponses);
     }
-
 }
+    
 
 export default MessageManager;

@@ -5,6 +5,20 @@ class EventManager {
         this.uiManager = uiManager;
     }
 
+    attachImagePreviewEvent() {
+        document.querySelectorAll(".message-attachment-thumbnail").forEach(imgElement => {
+            imgElement.addEventListener("click", () => {
+                document.getElementById("image-modal").style.display = "block";
+                document.getElementById("img-modal-content").src = imgElement.src;
+            });
+        });
+
+        // 为关闭按钮绑定事件
+        document.querySelector("#image-modal .close").addEventListener("click", function() {
+            document.getElementById("image-modal").style.display = "none";
+        });
+    }
+
     // attach speaker event to message speaker
     attachMessageSpeakerEvent(speaker) {
         if (!speaker) {
