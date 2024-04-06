@@ -145,64 +145,6 @@ class MessageManager {
         }
     }
 
-    checkTokensAndWarn(tokens) {
-        const tokensSpan = document.querySelector("#tokens");
-        tokensSpan.textContent = `${tokens}t`;
-        tokensSpan.parentNode.classList.add("updated");
-        setTimeout(() => {
-            tokensSpan.parentNode.classList.remove("updated");
-        }, 500);
-
-        const max_tokens = modelConfig[this.uiManager.app.model] || 8000;
-        if (tokens > max_tokens * 0.9) {
-            swal({
-                title: "The conersation tokens are over 90% of the limit, will remove the first round conversation from cache to maintain the conversation flow.",
-                icon: "warning",
-                buttons: false,
-                timer: 3000,
-            });
-            const removedPrompts = this.uiManager.app.prompts.removeRange(1, 2);
-            removedPrompts.forEach((p) => {
-                this.inactiveMessage(p.messageId);
-            });
-        }
-    }
-
-    async sendProfileMessage(message) {
-        // Profile-specific logic
-        const parts = message.split(":");
-        if (parts.length >= 2) {
-            const profileDisplayName = parts[0].substring(1).trim(); // Remove '@'
-            const messageContent = parts.slice(1).join(":").trim();
-            let systemPrompt;
-            const profile = this.uiManager.profiles.find(p => p.displayName === profileDisplayName);
-            if (profile) {
-                systemPrompt = { role: "system", content: profile.prompt };
-            } else {
-                systemPrompt = { role: "system", content: `You are an experienced ${profileDisplayName}.` };
-            }
-            let data = this.uiManager.app.prompts.data.map(d => {
-                if (d.role === "assistant") {
-                    return { ...d, role: "user" };
-                }
-                return d;
-            });
-            // remove the last prompt
-            data.pop();
-            data.push({ role: "user", content: messageContent });
-            const prompts = [systemPrompt, ...data];
-            console.log(prompts);
-            const promptText = JSON.stringify(prompts.map((p) => {
-                return { role: p.role, content: p.content };
-            }));
-
-            // Send the new 'profile' message
-            this.uiManager.showToast("AI is thinking...");
-            return await getGpt(promptText, this.uiManager.app.model);
-        }
-    }
-
-
     async validateInput(message, attachments = []) {
 
         const validationResult = await this.uiManager.validateMessage(message);
@@ -276,6 +218,64 @@ class MessageManager {
 
         // await this.sendFollowUpQuestions();
         // temporary disable follow-up questions because it consumes too much tokens
+    }
+
+
+    checkTokensAndWarn(tokens) {
+        const tokensSpan = document.querySelector("#tokens");
+        tokensSpan.textContent = `${tokens}t`;
+        tokensSpan.parentNode.classList.add("updated");
+        setTimeout(() => {
+            tokensSpan.parentNode.classList.remove("updated");
+        }, 500);
+
+        const max_tokens = modelConfig[this.uiManager.app.model] || 8000;
+        if (tokens > max_tokens * 0.9) {
+            swal({
+                title: "The conersation tokens are over 90% of the limit, will remove the first round conversation from cache to maintain the conversation flow.",
+                icon: "warning",
+                buttons: false,
+                timer: 3000,
+            });
+            const removedPrompts = this.uiManager.app.prompts.removeRange(1, 2);
+            removedPrompts.forEach((p) => {
+                this.inactiveMessage(p.messageId);
+            });
+        }
+    }
+
+    async sendProfileMessage(message) {
+        // Profile-specific logic
+        const parts = message.split(":");
+        if (parts.length >= 2) {
+            const profileDisplayName = parts[0].substring(1).trim(); // Remove '@'
+            const messageContent = parts.slice(1).join(":").trim();
+            let systemPrompt;
+            const profile = this.uiManager.profiles.find(p => p.displayName === profileDisplayName);
+            if (profile) {
+                systemPrompt = { role: "system", content: profile.prompt };
+            } else {
+                systemPrompt = { role: "system", content: `You are an experienced ${profileDisplayName}.` };
+            }
+            let data = this.uiManager.app.prompts.data.map(d => {
+                if (d.role === "assistant") {
+                    return { ...d, role: "user" };
+                }
+                return d;
+            });
+            // remove the last prompt
+            data.pop();
+            data.push({ role: "user", content: messageContent });
+            const prompts = [systemPrompt, ...data];
+            console.log(prompts);
+            const promptText = JSON.stringify(prompts.map((p) => {
+                return { role: p.role, content: p.content };
+            }));
+
+            // Send the new 'profile' message
+            this.uiManager.showToast("AI is thinking...");
+            return await getGpt(promptText, this.uiManager.app.model);
+        }
     }
 
     // Modify this method to handle retrying a message
