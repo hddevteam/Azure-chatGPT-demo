@@ -244,33 +244,35 @@ class UIManager {
     async generateImage(caption) {
         try {
             const data = await textToImage(caption);
-            const imageUrl = data.imageUrl;
+            const imageUrl = data.url;
+            const revisedCaption = data.revised_prompt || caption; 
+        
             const messageId = this.generateId();
-            // Set width and height attributes for the image
             const thumbnailWidth = 300;
             const thumbnailHeight = 300;
-            // Wrap the <img> tag and caption text in a <div>
             const newMessageItem = {
                 role: "assistant",
-                content: `<img src="${imageUrl}" alt="${caption}" width="${thumbnailWidth}" height="${thumbnailHeight}" style="object-fit: contain;" />
-                <p style="margin-top: 4px;">${caption}</p>
-              </div>`,
+                content: `<div><img src="${imageUrl}" alt="${revisedCaption}" width="${thumbnailWidth}" height="${thumbnailHeight}" style="object-fit: contain;" />
+                <p style="margin-top: 4px;">${revisedCaption}</p>
+                </div>`, 
                 messageId: messageId,
                 isActive: true,
             };
-
+    
             this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive);
             this.storageManager.saveMessage(this.currentChatId, newMessageItem);
             this.syncManager.syncMessageCreate(this.currentChatId, newMessageItem);
+    
+            return true;
         } catch (error) {
-            console.error(error);
-            let messageId = this.generateId();
-            this.messageManager.addMessage("assistant", error.message, messageId);
+            // 不再直接处理错误，而是向外抛出
+            throw new Error(error.message || "生成图像时遇到未知错误。");
         } finally {
             this.finishSubmitProcessing();
         }
     }
-
+    
+    
     updateSlider() {
         const messageCount = document.querySelectorAll(".message").length;
         document.querySelector("#maxValue").textContent = messageCount;

@@ -43,20 +43,39 @@ export async function getPromptRepo(username) {
 
 // text to image
 export async function textToImage(caption) {
-    const response = await fetch("/api/text-to-image", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ caption }),
-    });
+    try {
+        const response = await fetch("/api/text-to-image", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ caption }),
+        });
 
-    if (!response.ok) {
-        throw new Error("获取图像时出错，请稍后重试");
+        if (!response.ok) {
+            // 当响应不是OK时，尝试获取更详细的错误信息
+            const errorResponse = await response.json(); // 假设服务器总是返回一个JSON对象作为错误响应
+
+            // 检查错误响应中是否有额外的信息，如contentFilterResults
+            if (errorResponse.contentFilterResults) {
+                // 如果有内容过滤结果，可能需要特别处理这些信息
+                // 例如，这里只是将其转换为字符串附加到错误消息上，实际使用时可能需要更合适的处理方式
+                const filterResultsString = JSON.stringify(errorResponse.contentFilterResults);
+                throw new Error(`${errorResponse.message} 内容过滤结果: ${filterResultsString}`);
+            } else {
+                // 如果没有额外信息，只抛出错误消息
+                throw new Error(errorResponse.message || "获取图像时出错，请稍后重试");
+            }
+        }
+
+        // 如果响应是OK，直接返回解析后的JSON
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        throw error; // 继续向上抛出错误，以便调用者可以处理它
     }
-
-    return await response.json();
 }
+
 
 //get gpt response
 export async function getGpt(promptText, model) {
