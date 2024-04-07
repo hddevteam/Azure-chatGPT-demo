@@ -600,26 +600,27 @@ class UIManager {
     }
 
     async handleMessageFormSubmit(messageInput) {
-        event.preventDefault(); // 防止表单提交
+        event.preventDefault(); // Prevent form submission
     
-        const message = messageInput.value.trim(); // 获取输入的消息
-        if (!message) return; // 如果消息为空，则返回
-    
-        // 准备附件数组
+        const message = messageInput.value.trim(); // Get the input message
+        // Prepare the attachments array
         const attachments = [];
         const attachmentPreviewList = document.getElementById("attachment-preview-list");
         const attachmentItems = attachmentPreviewList.querySelectorAll(".attachment-preview-item");
 
         attachmentItems.forEach(item => {
             const fileName = item.querySelector(".attachment-file-name").textContent;
-            const content = item.querySelector(".attachment-thumbnail").style.backgroundImage.slice(5, -2); // 提取文件内容（去掉'url('和')'）
+            const content = item.querySelector(".attachment-thumbnail").style.backgroundImage.slice(5, -2); // Extract file content (remove 'url(' and ')')
             attachments.push({ fileName, content });
         });
     
-        // 调用 sendMessage，并传入 message 和 attachments
+        // If both message and attachments are empty, return
+        if (!message && attachments.length === 0) return;
+    
+        // Call sendMessage, passing in message and attachments
         await this.messageManager.sendMessage(message, attachments);
     
-        // 清理UI
+        // Clean up the UI
         this.clearMessageInput();
         fileUploader.clearPreview();
         messageInput.blur();
