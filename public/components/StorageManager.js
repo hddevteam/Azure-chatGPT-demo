@@ -3,7 +3,7 @@
 class StorageManager {
     constructor(uiManager) {
         this.uiManager = uiManager;
-        this.currentUserData = JSON.parse(localStorage.getItem("currentUserData")) || { username: "guest", currentProfile: null };
+        this.currentUserData = JSON.parse(localStorage.getItem("currentUserData")) || { username: "guest", currentProfile: null, uiState: {} };
         this.chatHistoryKeyPrefix = "chatHistory_";
     }
 
@@ -93,7 +93,11 @@ class StorageManager {
         }
         return chatId.split("_")[0];
     }
-     
+
+    getCurrentUserData() {
+        return this.currentUserData;
+    }
+    
     getChatHistory(username) {
         return JSON.parse(localStorage.getItem(this.chatHistoryKeyPrefix + username) || "[]");
     }

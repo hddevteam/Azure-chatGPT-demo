@@ -811,6 +811,15 @@ class UIManager {
         this.chatHistoryManager.updateChatHistory(this.currentChatId, true);
     }
 
+    toggleAIActorList() {
+        const aiActorList = document.getElementById("ai-actor-container");
+        if (aiActorList.getAttribute("data-visible") === "true") {
+            this.hideAIActorList();
+        } else {
+            this.showAIActorList();
+        }
+    }
+
     showAIActorList() {
         const aiActorWrapper = document.getElementById("ai-actor-wrapper");
         const aiActorList = document.getElementById("ai-actor-container");
@@ -859,15 +868,6 @@ class UIManager {
             this.hideAIActorList(); // 调用方法来隐藏列表并处理后续操作
         }
     } 
-
-    toggleAIActorList() {
-        const aiActorList = document.getElementById("ai-actor-container");
-        if (aiActorList.getAttribute("data-visible") === "true") {
-            this.hideAIActorList();
-        } else {
-            this.showAIActorList();
-        }
-    }
     
     showNewAIActorModal() {
         this.hideAIActorList();
@@ -930,6 +930,14 @@ class UIManager {
         element.classList.add("visible", "active");
         this.updateButtonActiveState(element.id, true);
     }
+
+    setElementVisibility(element, isVisible) {
+        if (isVisible) {
+            this.visibleElement(element);
+        } else {
+            this.hiddenElement(element);
+        }
+    }    
     
     updateButtonActiveState(elementId, isVisible) {
         // 根据提供的元素ID更新对应的按钮状态。

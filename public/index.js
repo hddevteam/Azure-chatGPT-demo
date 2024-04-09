@@ -270,6 +270,11 @@ const toggleButton = document.getElementById("toggle-chat-topic");
 toggleButton.addEventListener("click", function (event) {
     event.stopPropagation();
     const chatHistoryContainer = document.getElementById("chat-history-container");
+    const isChatHistoryVisible = chatHistoryContainer.classList.contains("visible");
+    // 更新 chatHistoryVisible 状态
+    uiManager.storageManager.getCurrentUserData().uiState.chatHistoryVisible  = !isChatHistoryVisible;
+    uiManager.storageManager.saveCurrentUserData();
+
     uiManager.toggleVisibility(chatHistoryContainer);
 
     if (window.innerWidth <= 768) {
@@ -281,6 +286,11 @@ const aiProfile = document.getElementById("ai-profile");
 aiProfile.addEventListener("click", function (event) {
     event.stopPropagation();
     const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
+    const isAiActorSettingsVisible = aiActorSettings.classList.contains("visible");
+    // 更新 aiActorSettingsVisible 状态
+    uiManager.storageManager.getCurrentUserData().uiState.aiActorSettingsVisible = !isAiActorSettingsVisible;
+    uiManager.storageManager.saveCurrentUserData();
+
     uiManager.toggleVisibility(aiActorSettings);
 
     if (window.innerWidth <= 768) {
@@ -332,6 +342,11 @@ function toggleLayout() {
     const inputContainter = document.querySelector("#input-container");
     const appContainer = document.querySelector("#app-container");
 
+    const isSplitView = mainContainer.classList.contains("split-view");
+    // 更新 splitView 状态
+    uiManager.storageManager.getCurrentUserData().uiState.splitView = !isSplitView;
+    uiManager.storageManager.saveCurrentUserData();
+
     // 重置高度
     inputContainter.style = "";
     messageInputContainer.style = "";
@@ -358,7 +373,6 @@ toggleLayoutBtn.addEventListener("click", toggleLayout);
 // Call this function to set initial display status based on the device type
 // 在页面加载时设置初始可见性状态
 function setInitialVisibility() {
-    const isSplitView = document.getElementById("app-container").classList.contains("split-view");
     const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
     const chatHistoryContainer = document.getElementById("chat-history-container");
     const inputContainter = document.querySelector("#input-container");
@@ -367,15 +381,43 @@ function setInitialVisibility() {
     inputContainter.style = "";
     messageInputContainer.style = "";
 
-    if (window.innerWidth <= 768 || isSplitView) {
+    const currentUserData = uiManager.storageManager.getCurrentUserData();
+    if (!currentUserData.uiState) {
+        // 如果 uiState 未定义，则进行初始化
+        currentUserData.uiState = {
+            splitView: false,
+            chatHistoryVisible: true,
+            aiActorSettingsVisible: true
+        };
+        uiManager.storageManager.saveCurrentUserData();
+    }
+    const uiState = currentUserData.uiState;
+    
+    // 设置视图模式
+    if (uiState.splitView) {
+        mainContainer.classList.add("split-view");
+        appBar.classList.add("split-view");
+        messageContainer.classList.add("split-view");
+        messageInputContainer.classList.add("split-view");
+        mainContainer.style.height = "";
+        messageInput.style.maxHeight = "";
+    } else {
+        mainContainer.classList.remove("split-view");
+        appBar.classList.remove("split-view");
+        messageContainer.classList.remove("split-view");
+        messageInputContainer.classList.remove("split-view");
+    }
+
+    // 根据保存的状态设置可见性
+    uiManager.setElementVisibility(aiActorSettings, uiState.aiActorSettingsVisible);
+    uiManager.setElementVisibility(chatHistoryContainer, uiState.chatHistoryVisible);
+
+
+    if (window.innerWidth <= 768) {
         // 如果是移动设备，则默认隐藏菜单和聊天历史记录
         uiManager.hiddenElement(aiActorSettings);
         uiManager.hiddenElement(chatHistoryContainer);
-    } else {
-        // 如果是桌面设备，则默认显示菜单和聊天历史记录
-        uiManager.visibleElement(aiActorSettings);
-        uiManager.visibleElement(chatHistoryContainer);
-    }
+    } 
 }
 
 document.addEventListener("DOMContentLoaded", () => {
