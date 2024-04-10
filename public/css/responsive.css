@@ -1,28 +1,3 @@
-@media screen and (max-width: 1440px) {
-    /* #menu {
-        display: none;
-    } */
-}
-
-
-@media screen and (max-width: 1024px) {
-    /* #chat-history-container {
-        display: none;
-    } */
-}
-
-@media (min-width: 1024px) {
-    /* #toggle-chat-topic {
-      display: none;
-    } */
-}
-
-@media (min-width: 1440px) {
-    /* #ai-profile {
-      display: none;
-    } */
-}
-
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
 
@@ -36,20 +11,47 @@
     }
 
     #ai-actor-settings-wrapper {
-        display: none;
         position: fixed;
-        top: 2.7em;
-        right: 1em;
-        border-radius: 0.5em;
-        width: 80vw;
-        max-width: max-content;
-        background-color: #FFFFFF;
-        box-shadow: 2px 4px 6px 2px rgba(0, 0, 0, 0.1);
+        min-width: 100%;
         transition: all 0.3s ease;
         overflow-y: auto;
-        height: calc(75vh);
-        max-height: max-content;
         z-index: 9999;
+        background-color: white;
+        padding-bottom:100px;
+    }
+
+    .bottom-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+        margin-bottom: 30px;
+    }
+
+    #ai-actor-settings-inner-form-wrapper {
+        /* max-width: 600px; */
+        margin: 0 auto;
+        padding: 10px;
+        font-family: 'Arial', sans-serif;
+        overflow-y: unset;
+        max-height: unset;
+        max-width: unset;
+        
+        /* max-height: 100%; */
+        /* overflow-y: auto; */
+    }
+    
+
+    #chat-history-container {
+        position: fixed;
+        min-width: 100%;
+        transition: all 0.3s ease;
+        overflow-y: auto;
+        z-index: 9999;
+        padding-bottom:100px;
+    }
+
+    .action-button-group {
+        display: block;
     }
 
     #chat-container {
@@ -168,14 +170,6 @@
     #ai-actor-container {
         position: fixed;
         width: 100%;
-    }
-
-    #ai-actor-settings-wrapper {
-        display: none;
-    }
-
-    #chat-history-container {
-        display: none;
     }
 
 }

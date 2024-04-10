@@ -1015,9 +1015,9 @@ button.action-button.invisible {
 
 #generate-prompt {
     position: absolute;
-    bottom: 10px;
+    bottom: 20px;
     /* Adjust spacing from bottom */
-    right: 5px;
+    right: 10px;
     /* Adjust spacing from right */
 }
 
