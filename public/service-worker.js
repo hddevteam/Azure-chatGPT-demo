@@ -75,19 +75,39 @@ self.addEventListener("activate", (event) => {
 
 
 /**
-     *  @Functional Fetch
-     *  All network requests are being intercepted here.
-     *
-     *  void respondWith(Promise<Response> r)
-     */
+ *  @Functional Fetch
+ *  All network requests are being intercepted here.
+ *
+ *  void respondWith(Promise<Response> r)
+ */
 self.addEventListener("fetch", event => {
 
     const url = new URL(event.request.url);
-    console.log("Handling fetch event for", url);
 
-    if (url.hostname === "login.windows.net") {
+    // const urls= [
+    //     "logincdn.msftauth.net",
+    //     "login.live.com",
+    //     "go.microsoft.com",
+    //     "sc.imp.live.com",
+    //     "acctcdn.msftauth.net",
+    //     "signup.live.com",
+    //     "account.live.com",
+    //     "login.microsoft.com",
+    //     "acctcdnvzeuno.azureedge.net",
+    //     "github.com",
+    //     "lgincdnvzeuno.azureedge.net",
+    //     "logincdn.msauth.net",
+    //     "lgincdnmsftuswe2.azureedge.net",
+    //     "acctcdn.msauth.net",
+    //     "acctcdnmsftuswe2.azureedge.net"
+    // ];
+
+    const authUrlPattern = /logincdn\.msftauth\.net|login\.live\.com|go\.microsoft\.com|sc\.imp\.live\.com|acctcdn\.msftauth\.net|signup\.live\.com|account\.live\.com|login\.microsoft\.com|acctcdnvzeuno\.azureedge\.net|github\.com|lgincdnvzeuno\.azureedge\.net|logincdn\.msauth\.net|lgincdnmsftuswe2\.azureedge\.net|acctcdn\.msauth\.net|acctcdnmsftuswe2\.azureedge\.net/;
+
+    if (authUrlPattern.test(url.hostname)) {
         console.log("Authentication request detected, skip cache.");
-        return; // 直接跳过Service Worker处理
+        // 直接跳过Service Worker处理，让请求直接通过
+        return;
     }
 
     // 检查请求是否针对API
@@ -96,6 +116,8 @@ self.addEventListener("fetch", event => {
         // API 请求直接通过，不进行缓存处理
         return;
     }
+
+    console.warn("Unhandled fetch event for", url.href);
     
     // Skip some of cross-origin requests, like those for Google Analytics.
     if (HOSTNAME_WHITELIST.indexOf(new URL(event.request.url).hostname) > -1) {
@@ -119,7 +141,7 @@ self.addEventListener("fetch", event => {
 
         // Update the cache with the version we fetched (only for ok status)
         event.waitUntil(
-            Promise.all([fetchedCopy, caches.open("pwa-cache")])
+            Promise.all([fetchedCopy, caches.open(CACHE_NAME)])
                 .then(([response, cache]) => response.ok && cache.put(event.request, response))
                 .catch(_ => { /* eat any errors */ })
         );
