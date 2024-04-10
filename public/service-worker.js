@@ -85,6 +85,11 @@ self.addEventListener("fetch", event => {
     const url = new URL(event.request.url);
     console.log("Handling fetch event for", url);
 
+    if (url.hostname === "login.windows.net") {
+        console.log("Authentication request detected, skip cache.");
+        return; // 直接跳过Service Worker处理
+    }
+
     // 检查请求是否针对API
     if (url.pathname.startsWith("/api/")) {
         console.log("API request detected, skip cache.");
