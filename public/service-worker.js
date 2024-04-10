@@ -24,7 +24,7 @@ const HOSTNAME_WHITELIST = [
     "cdn.jsdelivr.net"
 ];
 
-const cacheName = "pwa-cache-v2";
+const CACHE_NAME = "pwa-cache-v2";
 
 // The Util Function to hack URLs of intercepted requests
 const getFixedUrl = (req) => {
@@ -60,7 +60,7 @@ self.addEventListener("activate", (event) => {
             return Promise.all(
                 cacheNames.filter((cacheName) => {
                     // 返回所有不匹配当前版本的缓存名称
-                    return cacheName !== "pwa-cache-v2";
+                    return cacheName !== CACHE_NAME;
                 }).map((cacheName) => {
                     // 删除旧缓存
                     return caches.delete(cacheName);
