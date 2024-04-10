@@ -24,7 +24,7 @@ const HOSTNAME_WHITELIST = [
     "cdn.jsdelivr.net"
 ];
 
-const CACHE_NAME = "pwa-cache-v2";
+const CACHE_NAME = "pwa-cache-v3";
 
 // The Util Function to hack URLs of intercepted requests
 const getFixedUrl = (req) => {
