@@ -24,10 +24,10 @@ const HOSTNAME_WHITELIST = [
     "cdn.jsdelivr.net"
 ];
 
-const CACHE_NAME = "pwa-cache-v6";
+const CACHE_NAME = "pwa-cache-v7";
 
 self.addEventListener("install", function(event) {
-    console.log("Service Worker installing.");
+    // console.log("Service Worker installing.");
     // 调用 skipWaiting() 让这个 Service Worker 立即激活
     event.waitUntil(self.skipWaiting());
 });

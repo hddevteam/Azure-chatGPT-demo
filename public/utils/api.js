@@ -31,9 +31,13 @@ export async function uploadAttachment(fileContent, fileName) {
 export async function getAppName() {
     try {
         const response = await axios.get("/app_name");
+        if (response.status === 302) {
+            window.location.href = response.headers.location;
+        }
         return response.data;
     } catch (error) {
         if (error.response && error.response.status === 302) {
+            swal("Please log in to access the app.", {icon:"error"});
             // 进行重定向
             window.location.href = error.response.headers.location;
         } else {
@@ -48,12 +52,9 @@ export async function getPromptRepo(username) {
         const response = await axios.get(`/prompt_repo?username=${username}`);
         return response.data;
     } catch (error) {
-        if (error.response && error.response.status === 302) {
-            window.location.href = error.response.headers.location;
-        } else {
-            console.error("Failed to get prompt repo:", error);
-            throw error;
-        }
+        console.error("Failed to get prompt repo:", error);
+        throw error;
+
     }
 }
 
@@ -205,20 +206,6 @@ export async function getFollowUpQuestions(prompt) {
 
     return data;
 }
-
-// public/utils/api.js
-// Use interceptors to handle errors globally
-axios.interceptors.response.use(null, error => {
-    const expectedError = error.response && error.response.status >= 400 && error.response.status < 500;
-    if (!expectedError) {
-        console.log("Logging the error", error);
-        // alert("An unexpected error occurred. ");
-        swal("An unexpected error occurred, please try to refresh the page.", {
-            icon: "error",
-        });
-    }
-    return Promise.reject(error);
-});
 
 export async function fetchCloudChatHistories(username, lastTimestamp = null) {
     const queryParams = lastTimestamp ? `?lastTimestamp=${encodeURIComponent(lastTimestamp)}` : "";
