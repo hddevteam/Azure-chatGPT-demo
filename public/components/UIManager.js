@@ -874,11 +874,11 @@ class UIManager {
         this.profileFormManager.resetForm();
         this.profileFormManager.oldName = "";
         const modalOverlay = document.querySelector(".modal-overlay");
-        const aiActorSettingsInnerFormWrapper = document.getElementById("ai-actor-settings-wrapper");
-        
+        const aiActorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
+        this.visibleElement(aiActorSettingsWrapper);
         this.visibleElement(modalOverlay);
-        if (!aiActorSettingsInnerFormWrapper.classList.contains("modal-mode")) {
-            aiActorSettingsInnerFormWrapper.classList.add("modal-mode");
+        if (!aiActorSettingsWrapper.classList.contains("modal-mode")) {
+            aiActorSettingsWrapper.classList.add("modal-mode");
         }
     
         setTimeout(() => {

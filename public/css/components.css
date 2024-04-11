@@ -712,7 +712,7 @@ button.action-button.invisible {
     z-index: 1;
 }
 
-.modal-mode {
+#ai-actor-settings-wrapper.modal-mode {
     position: fixed;
     z-index: 11;
     left: 50%;
@@ -725,6 +725,7 @@ button.action-button.invisible {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: block;
     max-width: 600px;
+    max-height: unset;
 }
 
 /* 新外层容器样式，以适配整体布局 */
