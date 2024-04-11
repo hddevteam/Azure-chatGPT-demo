@@ -30,7 +30,7 @@ export async function uploadAttachment(fileContent, fileName) {
 
 export async function getAppName() {
     try {
-        const response = await axios.get("/api/app_name");
+        const response = await axios.get("/app_name");
         return response.data;
     } catch (error) {
         if (error.response && error.response.status === 302) {
@@ -45,7 +45,7 @@ export async function getAppName() {
 
 export async function getPromptRepo(username) {
     try {
-        const response = await axios.get(`/api/prompt_repo?username=${username}`);
+        const response = await axios.get(`/prompt_repo?username=${username}`);
         return response.data;
     } catch (error) {
         if (error.response && error.response.status === 302) {

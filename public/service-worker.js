@@ -24,7 +24,7 @@ const HOSTNAME_WHITELIST = [
     "cdn.jsdelivr.net"
 ];
 
-const CACHE_NAME = "pwa-cache-v5";
+const CACHE_NAME = "pwa-cache-v6";
 
 self.addEventListener("install", function(event) {
     console.log("Service Worker installing.");
@@ -119,7 +119,7 @@ self.addEventListener("fetch", event => {
 
     // 检查请求是否针对API
     if (url.pathname.startsWith("/api/")) {
-        console.log("API request detected, skip cache.");
+        console.log("API request detected, skip cache.", url.href);
         // API 请求直接通过，不进行缓存处理
         return;
     }
