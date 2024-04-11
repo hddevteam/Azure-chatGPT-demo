@@ -28,17 +28,33 @@ export async function uploadAttachment(fileContent, fileName) {
     }
 }
 
-
-// get app name
 export async function getAppName() {
-    const response = await fetch("/api/app_name");
-    return await response.text();
+    try {
+        const response = await axios.get("/api/app_name");
+        return response.data;
+    } catch (error) {
+        if (error.response && error.response.status === 302) {
+            // 进行重定向
+            window.location.href = error.response.headers.location;
+        } else {
+            console.error("Failed to get app name:", error);
+            throw error;
+        }
+    }
 }
 
-// get prompt repo by username
 export async function getPromptRepo(username) {
-    const response = await fetch(`/api/prompt_repo?username=${username}`);
-    return await response.json();
+    try {
+        const response = await axios.get(`/api/prompt_repo?username=${username}`);
+        return response.data;
+    } catch (error) {
+        if (error.response && error.response.status === 302) {
+            window.location.href = error.response.headers.location;
+        } else {
+            console.error("Failed to get prompt repo:", error);
+            throw error;
+        }
+    }
 }
 
 // text to image
