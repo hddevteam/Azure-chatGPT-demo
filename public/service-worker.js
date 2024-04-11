@@ -24,7 +24,13 @@ const HOSTNAME_WHITELIST = [
     "cdn.jsdelivr.net"
 ];
 
-const CACHE_NAME = "pwa-cache-v3";
+const CACHE_NAME = "pwa-cache-v4";
+
+self.addEventListener("install", function(event) {
+    console.log("Service Worker installing.");
+    // 调用 skipWaiting() 让这个 Service Worker 立即激活
+    event.waitUntil(self.skipWaiting());
+});
 
 // The Util Function to hack URLs of intercepted requests
 const getFixedUrl = (req) => {
@@ -99,10 +105,11 @@ self.addEventListener("fetch", event => {
     //     "logincdn.msauth.net",
     //     "lgincdnmsftuswe2.azureedge.net",
     //     "acctcdn.msauth.net",
-    //     "acctcdnmsftuswe2.azureedge.net"
+    //     "acctcdnmsftuswe2.azureedge.net",
+    //     "login.windows.net"
     // ];
 
-    const authUrlPattern = /logincdn\.msftauth\.net|login\.live\.com|go\.microsoft\.com|sc\.imp\.live\.com|acctcdn\.msftauth\.net|signup\.live\.com|account\.live\.com|login\.microsoft\.com|acctcdnvzeuno\.azureedge\.net|github\.com|lgincdnvzeuno\.azureedge\.net|logincdn\.msauth\.net|lgincdnmsftuswe2\.azureedge\.net|acctcdn\.msauth\.net|acctcdnmsftuswe2\.azureedge\.net/;
+    const authUrlPattern = /logincdn\.msftauth\.net|login\.live\.com|go\.microsoft\.com|sc\.imp\.live\.com|acctcdn\.msftauth\.net|signup\.live\.com|account\.live\.com|login\.microsoft\.com|acctcdnvzeuno\.azureedge\.net|github\.com|lgincdnvzeuno\.azureedge\.net|logincdn\.msauth\.net|lgincdnmsftuswe2\.azureedge\.net|acctcdn\.msauth\.net|acctcdnmsftuswe2\.azureedge\.net|login\.windows\.net/;
 
     if (authUrlPattern.test(url.hostname)) {
         console.log("Authentication request detected, skip cache.");

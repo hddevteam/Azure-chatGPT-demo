@@ -8,7 +8,25 @@
   <link rel="icon" href="./images/icons/32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="./images/icons/180.png" sizes="180x180">
   <link rel="manifest" href="manifest.json">
-  <script>navigator.serviceWorker.register("service-worker.js")</script> 
+  <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js').then(registration => {
+            console.log('Service Worker 注册成功。');
+
+            // 监听 controllerchange 事件
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                // 当控制权改变时，意味着新的 Service Worker 已经接管
+                console.log('Service Worker 已更新并接管控制。');
+                // 这里可以选择自动刷新页面
+                window.location.reload();
+                // 或者展示一个提示给用户，让他们知道内容已更新
+            });
+        }).catch(error => {
+            console.log('Service Worker 注册失败:', error);
+        });
+    }
+</script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
 </head>
 
