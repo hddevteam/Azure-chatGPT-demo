@@ -24,12 +24,31 @@ const HOSTNAME_WHITELIST = [
     "cdn.jsdelivr.net"
 ];
 
-const CACHE_NAME = "pwa-cache-v7";
+const CACHE_NAME = "pwa-cache-v8";
 
 self.addEventListener("install", function(event) {
     // console.log("Service Worker installing.");
     // 调用 skipWaiting() 让这个 Service Worker 立即激活
     event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener("activate", (event) => {
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.filter((cacheName) => {
+                    // 返回所有不匹配当前版本的缓存名称
+                    return cacheName !== CACHE_NAME;
+                }).map((cacheName) => {
+                    // 删除旧缓存
+                    return caches.delete(cacheName);
+                })
+            );
+        }).then(() => {
+            console.log("Service worker activated and old caches cleared.");
+            return self.clients.claim(); // 更新所有客户端上的Service Worker
+        })
+    );
 });
 
 // The Util Function to hack URLs of intercepted requests
@@ -53,31 +72,6 @@ const getFixedUrl = (req) => {
     }
     return url.href;
 };
-
-/**
-     *  @Lifecycle Activate
-     *  New one activated when old isnt being used.
-     *
-     *  waitUntil(): activating ====> activated
-     */
-self.addEventListener("activate", (event) => {
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.filter((cacheName) => {
-                    // 返回所有不匹配当前版本的缓存名称
-                    return cacheName !== CACHE_NAME;
-                }).map((cacheName) => {
-                    // 删除旧缓存
-                    return caches.delete(cacheName);
-                })
-            );
-        }).then(() => {
-            console.log("Service worker activated and old caches cleared.");
-            return self.clients.claim(); // 更新所有客户端上的Service Worker
-        })
-    );
-});
 
 
 /**

@@ -9,8 +9,8 @@ import ModelDropdownManager from "./utils/ModelDropdownManager.js";
 import { addHorizontalResizeHandleListeners } from "./utils/horizontal-resize.js";
 import { addVerticalResizeHandleListeners } from "./utils/vertical-resize.js";
 import fileUploader from "./utils/fileUploader.js";
-
 import setup from "./setup.js";
+
 
 const uiManager = setup();
 const app = uiManager.app;
