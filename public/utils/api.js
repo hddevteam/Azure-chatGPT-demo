@@ -3,11 +3,24 @@
 
 import axios from "axios";
 import swal from "sweetalert";
-import { signIn } from "./authPopup.js";
+import { signIn, getToken } from "./authPopup.js";
 
 axios.defaults.baseURL = "/api";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.headers.put["Content-Type"] = "application/json";
+
+axios.interceptors.request.use(async config => {
+    try {
+        const token = await getToken(); // 获取Token
+        config.headers.Authorization = `Bearer ${token}`; // 将Token加入请求头部
+    } catch (error) {
+        console.error("在请求中添加Token失败:", error);
+        // 可选择处理错误，例如重新登录
+    }
+    return config;
+}, error => {
+    return Promise.reject(error);
+});
 
 axios.interceptors.response.use(response => {
     return response;
@@ -18,26 +31,6 @@ axios.interceptors.response.use(response => {
     }
     return Promise.reject(error);
 });
-
-export async function uploadAttachment(fileContent, fileName) {
-    try {
-        const formData = new FormData();
-        formData.append("fileContent", fileContent);
-        formData.append("originalFileName", fileName);
-
-        // 注意：移除axios默认的Content-Type头部，让浏览器自动设置，便于正确处理边界
-        const response = await axios.post("/attachments/upload", formData, {
-            headers: {
-                "Content-Type": undefined
-            }
-        });
-        console.log(response.data);
-        return response.data; // 返回后端响应中的附件信息
-    } catch (error) {
-        console.error("Failed to upload attachment:", error);
-        throw error;
-    }
-}
 
 export async function getAppName() {
     try {
@@ -59,6 +52,28 @@ export async function getPromptRepo(username) {
 
     }
 }
+
+export async function uploadAttachment(fileContent, fileName) {
+    try {
+        const formData = new FormData();
+        formData.append("fileContent", fileContent);
+        formData.append("originalFileName", fileName);
+
+        // 注意：移除axios默认的Content-Type头部，让浏览器自动设置，便于正确处理边界
+        const response = await axios.post("/attachments/upload", formData, {
+            headers: {
+                "Content-Type": undefined
+            }
+        });
+        console.log(response.data);
+        return response.data; // 返回后端响应中的附件信息
+    } catch (error) {
+        console.error("Failed to upload attachment:", error);
+        throw error;
+    }
+}
+
+
 
 // text to image
 export async function textToImage(caption) {

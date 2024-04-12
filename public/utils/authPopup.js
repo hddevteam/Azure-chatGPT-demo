@@ -29,6 +29,30 @@ function selectAccount() {
     }
 }
 
+async function getToken() {
+    // 确保有用户登录
+    const accounts = myMSALObj.getAllAccounts();
+    if (accounts.length > 0) {
+        try {
+            const response = await myMSALObj.acquireTokenSilent({
+                account: accounts[0],
+                scopes: msalConfig.auth.scopes
+            });
+            return response.accessToken;
+        } catch (error) {
+            console.error("获取Token出错:", error);
+            // 如果静默获取失败，则尝试使用弹窗获取
+            const response = await myMSALObj.acquireTokenPopup({
+                ...loginRequest,
+                account: accounts[0]
+            });
+            return response.accessToken;
+        }
+    } else {
+        throw new Error("未登录用户");
+    }
+}
+
 function handleResponse(response) {
 
     /**
@@ -101,4 +125,4 @@ function getTokenPopup(request) {
         });
 }
 
-export { signIn, signOut, getTokenPopup, selectAccount, myMSALObj};
+export { signIn, signOut, getTokenPopup, selectAccount, myMSALObj, getToken};
