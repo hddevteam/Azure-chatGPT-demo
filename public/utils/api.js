@@ -3,10 +3,21 @@
 
 import axios from "axios";
 import swal from "sweetalert";
+import { signIn } from "./authPopup.js";
 
 axios.defaults.baseURL = "/api";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.headers.put["Content-Type"] = "application/json";
+
+axios.interceptors.response.use(response => {
+    return response;
+}, error => {
+    if (error.response && error.response.status === 401) {
+        console.error("Access denied, redirecting to login...");
+        signIn();
+    }
+    return Promise.reject(error);
+});
 
 export async function uploadAttachment(fileContent, fileName) {
     try {
@@ -28,48 +39,25 @@ export async function uploadAttachment(fileContent, fileName) {
     }
 }
 
-
-// get app name
 export async function getAppName() {
     try {
-        const xhrPromise = () => new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", "/api/app_name");
-        
-            xhr.onreadystatechange = () => {
-                if (xhr.readyState !== 4) return;
-          
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    resolve(xhr.responseText);
-                } else if (xhr.status === 302) {
-                    // 捕获重定向
-                    const redirectUrl = xhr.getResponseHeader("Location");
-                    swal("Need to login to access the app", {icon: "info"});
-                    // 自动重定向到新URL
-                    window.location.href = redirectUrl;
-                    // 由于这里引起了页面的跳转，不需要再resolve或reject
-                } else {
-                    reject(new Error("Failed to fetch app name"));
-                }
-            };
-        
-            xhr.onerror = () => reject(new Error("Network error"));
-        
-            xhr.send();
-        });
-  
-        return await xhrPromise();
+        const response = await axios.get("/app_name");
+        return response.data;
     } catch (error) {
-        console.error(error);
+        console.error("Failed to get app name:", error);
         throw error;
     }
 }
-  
 
-// get prompt repo by username
 export async function getPromptRepo(username) {
-    const response = await fetch(`/api/prompt_repo?username=${username}`);
-    return await response.json();
+    try {
+        const response = await axios.get(`/prompt_repo?username=${username}`);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to get prompt repo:", error);
+        throw error;
+
+    }
 }
 
 // text to image

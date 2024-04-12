@@ -11,6 +11,19 @@ import { addVerticalResizeHandleListeners } from "./utils/vertical-resize.js";
 import fileUploader from "./utils/fileUploader.js";
 import setup from "./setup.js";
 
+import { myMSALObj, selectAccount, signIn } from "./utils/authPopup.js";
+
+function handleResponse(response) {
+    if (response !== null) {
+        console.log("User logged in:", response.account.username);
+    } else {
+        signIn();
+    }
+}
+myMSALObj.handleRedirectPromise().then(handleResponse).catch(err => {
+    console.error(err);
+});
+selectAccount(); 
 
 const uiManager = setup();
 const app = uiManager.app;
