@@ -115,14 +115,17 @@ export default class ProfileFormManager {
                 this.formElements[key].checked = profileData[key] || false;
             } else {
                 this.formElements[key].value = profileData[key] || "";
+                if (key === "icon") {
+                    document.getElementById("icon-preview").className = profileData[key] || "";
+                }
             }
         });
     }
 
     saveProfile() {
         const profile = {
-            name: document.getElementById("name").value,
-            icon: document.getElementById("icon").value,
+            name: document.getElementById("name").value || `AI${Math.floor(Math.random() * 1000)}`,
+            icon: document.getElementById("icon").value||"fas fa-user",
             displayName: document.getElementById("displayName").value || document.getElementById("name").value, // If displayName is empty, use name
             prompt: document.getElementById("prompt").value,
             tts: document.getElementById("tts").value,
