@@ -31,46 +31,16 @@ export async function uploadAttachment(fileContent, fileName) {
 
 // get app name
 export async function getAppName() {
-    try {
-        const xhrPromise = () => new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", "/api/app_name");
-        
-            xhr.onreadystatechange = () => {
-                if (xhr.readyState !== 4) return;
-          
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    resolve(xhr.responseText);
-                } else if (xhr.status === 302) {
-                    // 捕获重定向
-                    const redirectUrl = xhr.getResponseHeader("Location");
-                    swal("Need to login to access the app", {icon: "info"});
-                    // 自动重定向到新URL
-                    window.location.href = redirectUrl;
-                    // 由于这里引起了页面的跳转，不需要再resolve或reject
-                } else {
-                    reject(new Error("Failed to fetch app name"));
-                }
-            };
-        
-            xhr.onerror = () => reject(new Error("Network error"));
-        
-            xhr.send();
-        });
-  
-        return await xhrPromise();
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
+    const response = await fetch("/api/app_name");
+    return await response.text();
 }
-  
 
 // get prompt repo by username
 export async function getPromptRepo(username) {
     const response = await fetch(`/api/prompt_repo?username=${username}`);
     return await response.json();
 }
+
 
 // text to image
 export async function textToImage(caption) {
@@ -221,7 +191,6 @@ export async function getFollowUpQuestions(prompt) {
     return data;
 }
 
-// public/utils/api.js
 // Use interceptors to handle errors globally
 axios.interceptors.response.use(null, error => {
     const expectedError = error.response && error.response.status >= 400 && error.response.status < 500;
