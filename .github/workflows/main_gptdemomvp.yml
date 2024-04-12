@@ -28,11 +28,15 @@ jobs:
           # npm run build --if-present
           # npm run test --if-present
 
+      - name: Archive build artifacts
+        run: tar -cvzf node-app.tar.gz -C build/ .
+
+        
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
           name: node-app
-          path: .
+          path: node-app.tar.gz
 
   deploy:
     runs-on: ubuntu-latest
@@ -46,6 +50,9 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: node-app
+
+      - name: Extract build artifacts
+        run: tar -xvzf node-app.tar.gz
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
