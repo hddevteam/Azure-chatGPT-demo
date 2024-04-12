@@ -29,8 +29,8 @@ jobs:
           # npm run test --if-present
 
       - name: Archive build artifacts
-        run: tar -cvzf node-app.tar.gz .
-        
+        run: tar --warning=no-file-changed -cvzf node-app.tar.gz .
+    
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
