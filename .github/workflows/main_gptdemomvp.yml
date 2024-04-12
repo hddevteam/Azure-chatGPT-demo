@@ -29,8 +29,8 @@ jobs:
           # npm run test --if-present
 
       - name: Archive build artifacts
-        run: tar --warning=no-file-changed -cvzf node-app.tar.gz .
-    
+        run: zip -r node-app.zip .
+        
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
@@ -51,10 +51,10 @@ jobs:
           name: node-app
 
       - name: Extract build artifacts
-        run: tar -xvzf node-app.tar.gz
+        run: unzip node-app.zip
 
       - name: Remove the archive file
-        run: rm node-app.tar.gz
+        run: rm node-app.zip
         
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
