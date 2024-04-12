@@ -24,7 +24,7 @@ const HOSTNAME_WHITELIST = [
     "cdn.jsdelivr.net"
 ];
 
-const CACHE_NAME = "pwa-cache-v8";
+const CACHE_NAME = "pwa-cache-v9";
 
 self.addEventListener("install", function(event) {
     // console.log("Service Worker installing.");
