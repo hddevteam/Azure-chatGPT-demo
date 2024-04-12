@@ -35,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: node-app
-          path: node-app.tar.gz
+          path: node-app.zip
 
   deploy:
     runs-on: ubuntu-latest
