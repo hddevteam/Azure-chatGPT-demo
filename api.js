@@ -20,12 +20,7 @@ const router = express.Router();
 const requireAuth = passport.authenticate("oauth-bearer", { session: false });
 
 router.get("/app_name", applicationController.getAppName);
-// router.get("/prompt_repo", requireAuth, profileController.getPromptRepo);
-router.get("/prompt_repo", (req, res, next) => {
-    console.log("request received for prompt_repo");
-    res.send("prompt_repo route works!"); // 直接响应确认信息
-});
-
+router.get("/prompt_repo", requireAuth, profileController.getPromptRepo);
 
 router.post("/text-to-image", requireAuth, dalleController.textToImageHandler);
 router.post("/tts", requireAuth, azureTTSController.getMultiLangTextToSpeech);

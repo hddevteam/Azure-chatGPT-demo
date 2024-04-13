@@ -53,17 +53,18 @@ export function setupVoiceInput(uiManager) {
             let audioBlob = new Blob(dataChunks, { type: recorder.mimeType });
             dataChunks = [];
 
-            const response = await getStt(audioBlob);
-            const text = await response.text();
-
-            //check response status, if not 200, show error message
-            if (!response.ok) {
-                uiManager.showToast("Error: " + text);
-            }
-            else {
+            try {
+                const response = await getStt(audioBlob);
+                // 由于getStt已经返回了处理好的数据，这里直接使用response变量
+                const text = response;
+            
                 const messageInput = document.querySelector("#message-input");
-                messageInput.value += text;
-            }
+                messageInput.value += text; // 假设返回的是纯文本数据
+            } catch (error) {
+                // 错误处理逻辑
+                console.error(error);
+                uiManager.showToast(`Error: ${error.message}`);
+            }            
 
             // Add click event listener to start recording again
             voiceInputButton.addEventListener("click", startRecording, { once: true });

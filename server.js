@@ -13,20 +13,21 @@ const TENANT_ID = process.env.TENANT_ID;
 const CLIENT_ID = process.env.CLIENT_ID;
 
 const apiRouter = require("./api");
-
-// 配置Bearer Strategy
+console.log(`${process.env.CLOUD_INSTANCE}${TENANT_ID}/v2.0/.well-known/openid-configuration`);
+// 配置Bearer Strategy 
 const bearerStrategy = new BearerStrategy({
     identityMetadata: `${process.env.CLOUD_INSTANCE}${TENANT_ID}/v2.0/.well-known/openid-configuration`,
     clientID: CLIENT_ID,
-    audience: CLIENT_ID,  // 如果API有自己的identifier，则使用那个值
+    audience: `api://${CLIENT_ID}`,  // 与API的应用程序ID URI匹配
     validateIssuer: true,
-    issuer: [`${process.env.CLOUD_INSTANCE}${TENANT_ID}/v2.0`],
+    // loggingLevel: "info",
+    issuer: `https://sts.windows.net/${TENANT_ID}/`, // 与租户ID匹配
     passReqToCallback: false
 }, (token, done) => {
     // token是已解析的JWT Token
     // 可以在此执行一些额外的验证
     // 如果验证成功，调用done(null, user)
-    console.log("Validated claims: ", token);
+    // console.log("Validated claims: ", token);
     done(null, {}, token);
 });
 
@@ -39,7 +40,19 @@ app.use(passport.initialize()); // 启用passport中间件
 
 // 使用passport身份验证保护API路由
 // app.use("/api", passport.authenticate("oauth-bearer", { session: false }), apiRouter);
-app.use("/api", apiRouter);
+// app.use("/api", apiRouter);
+// 在app.use中使用passport，以及如何处理失败的身份验证
+app.use("/api", (req, res, next) => {
+    passport.authenticate("oauth-bearer", { session: false }, (err, user, info) => {
+        if (err || !user) {
+            console.log(err, user, info);
+            // 身份验证失败
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        next();
+    })(req, res, next);
+}, apiRouter);
+
 
 // MSAL 配置实例
 const msalCca = new ConfidentialClientApplication(msalConfig);

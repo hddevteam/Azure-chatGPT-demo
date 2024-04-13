@@ -9,6 +9,7 @@ const myMSALObj = new msal.PublicClientApplication(msalConfig);
 await myMSALObj.initialize();
 
 let username = "";
+console.log("msalConfig auth scopes: ", msalConfig.auth.scopes);
 
 function selectAccount() {
 

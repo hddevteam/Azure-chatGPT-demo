@@ -5,14 +5,22 @@
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/configuration.md 
  */
 import * as msal from "@azure/msal-browser";
+
+const cloudInstance = process.env.CLOUD_INSTANCE;
+const tenantId = process.env.TENANT_ID;
+// 动态拼接得到authority
+const authority = `${cloudInstance}${tenantId}`;
+console.log("authority: ", authority);
+const scopes = process.env.SCOPES;
+const clientId = process.env.CLIENT_ID;
+const redirectUri = process.env.REDIRECT_URI;
+  
 const msalConfig = {
     auth: {
-        // 'Application (client) ID' of app registration in Azure portal - this value is a GUID
-        clientId: "70f2ac05-2076-46bf-9c4c-7a80a160d42a",
-        // Full directory URL, in the form of https://login.microsoftonline.com/<tenant-id>
-        authority: "https://login.microsoftonline.com/a5fb26eb-4aac-4ae5-b7d2-5d2880183d61",
-        // Full redirect URL, in form of http://localhost:3000
-        redirectUri: "http://localhost:3000/",
+        clientId: clientId,
+        authority: authority,
+        redirectUri: redirectUri,
+        scopes: scopes ? scopes.split(",") : [],
     },
     cache: {
         cacheLocation: "sessionStorage", // This configures where your cache will be stored
@@ -58,7 +66,7 @@ const loginRequest = {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
 const tokenRequest = {
-    scopes: ["User.Read", "Mail.Read"],
+    scopes: ["User.Read"],
     forceRefresh: false // Set this to "true" to skip a cached token and go to the server to get a new token
 };
 
