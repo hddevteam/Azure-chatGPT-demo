@@ -27,6 +27,15 @@ jobs:
           npm run build
           # npm run build --if-present
           # npm run test --if-present
+        env:
+          CLOUD_INSTANCE: ${{ vars.CLOUD_INSTANCE }}
+          TENANT_ID: ${{ secrets.TENANT_ID }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          REDIRECT_URI: ${{ vars.REDIRECT_URI }}
+          POST_LOGOUT_REDIRECT_URI: ${{ vars.POST_LOGOUT_REDIRECT_URI }}
+          SCOPES: ${{ secrets.SCOPES }}
+          GRAPH_API_ENDPOINT: ${{ vars.GRAPH_API_ENDPOINT }}
+          EXPRESS_SESSION_SECRET: ${{ vars.EXPRESS_SESSION_SECRET }}
 
       - name: Archive build artifacts
         run: zip -r node-app.zip .
