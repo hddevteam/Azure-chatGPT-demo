@@ -260,7 +260,6 @@ export async function getFollowUpQuestions(prompt) {
     }
 }
 
-// public/utils/api.js
 // Use interceptors to handle errors globally
 axios.interceptors.response.use(null, error => {
     const expectedError = error.response && error.response.status >= 400 && error.response.status < 500;
