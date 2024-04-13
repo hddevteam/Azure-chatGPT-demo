@@ -1,6 +1,6 @@
 APP_NAME=AI Assistant
 
-API_KEY=your-api-key
+API_KEY=your-gpt-api-key
 API_URL=https://your-gpt-url.openai.azure.com/openai/deployments/your-model-name/chat/completions?api-version=2023-03-15-preview
 GPT_4_API_KEY=your-api-key
 GPT_4_API_URL=https://your-gpt-url.openai.azure.com/openai/deployments/your-gpt4-modelname/chat/completions?api-version=2023-03-15-preview
@@ -10,5 +10,22 @@ AZURE_TTS={"subscriptionKey":"your-tts-key","endpoint":"https://eastus.tts.speec
 
 AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
 
-API_DALLE_KEY=your-dalle-api-key
-API_DALLE_URL=https://your-dalle-url.openai.azure.com/dalle/text-to-image?api-version=2023-06-01-preview
+API_DALLE_URL=https://your-dalle3-url/openai/deployments/Dalle3/images/generations?api-version=2024-02-01
+API_DALLE_KEY=your-dalle-key
+
+GPT_4_LAST_API_URL=https://your-gpt-url.openai.azure.com/openai/deployments/gpt4/chat/completions?api-version=2024-02-15-preview
+GPT_4_LAST_API_KEY=your-gpt4-key
+GPT_4V_API_KEY=your-gpt4v-key
+GPT_4V_API_URL=https://your-gpt4v-url.openai.azure.com/openai/deployments/gpt4-vision-preview/chat/completions?api-version=2024-02-15-preview
+AZURE_CV_API_URL=https://your-azure-computer-vision.cognitiveservices.azure.com/
+AZURE_CV_API_KEY=your-azure-cv-key
+
+CLOUD_INSTANCE=https://login.microsoftonline.com/
+TENANT_ID=your-azure-tenant-id
+CLIENT_ID=your-azure-client-id
+CLIENT_SECRET=your-azure-client-secret
+REDIRECT_URI=your-azure-redirect-uri
+POST_LOGOUT_REDIRECT_URI=your-azure-post-logout-redirect-uri
+SCOPES=your-app-api-scope
+GRAPH_API_ENDPOINT=https://graph.microsoft.com/ # graph api endpoint string should end with a trailing slash
+EXPRESS_SESSION_SECRET=Enter_the_Express_Session_Secret_Here
