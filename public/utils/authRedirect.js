@@ -1,4 +1,4 @@
-//public/utils/authPopup.js
+//public/utils/authRedirect.js
 
 // Create the main myMSALObj instance
 // configuration parameters are located at authConfig.js
@@ -30,8 +30,8 @@ function selectAccount() {
     }
 }
 
+// getToken函数改进
 async function getToken() {
-    // 确保有用户登录
     const accounts = myMSALObj.getAllAccounts();
     if (accounts.length > 0) {
         try {
@@ -41,47 +41,32 @@ async function getToken() {
             });
             return response.accessToken;
         } catch (error) {
-            console.error("获取Token出错:", error);
-            // 如果静默获取失败，则尝试使用弹窗获取
-            const response = await myMSALObj.acquireTokenPopup({
-                ...loginRequest,
-                account: accounts[0]
+            console.error("获取Token出错，在signIn后重新尝试:", error);
+            // 如果静默获取失败，引导用户登录
+            await signIn(); // 等待登录
+            // 登录成功后再次尝试静默获取Token
+            const response = await myMSALObj.acquireTokenSilent({
+                account: myMSALObj.getAllAccounts()[0], // 假定登录后存在账户
+                scopes: msalConfig.auth.scopes
             });
             return response.accessToken;
         }
     } else {
-        throw new Error("未登录用户");
+        // 如果没有任何账户，发起登录流程，登录成功后将触发页面重定向或重新加载，这时不需要显式返回Token
+        signIn();
     }
 }
 
-function handleResponse(response) {
-
-    /**
-     * To see the full list of response object properties, visit:
-     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/request-response-object.md#response
-     */
-
-    if (response !== null) {
-        username = response.account.username;
-        console.log("logged in as: " + username);
-        
-    } else {
-        selectAccount();
-    }
-}
-
-function signIn() {
-
-    /**
-     * You can pass a custom request object below. This will override the initial configuration. For more information, visit:
-     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/request-response-object.md#request
-     */
-
-    myMSALObj.loginPopup(loginRequest)
-        .then(handleResponse)
-        .catch(error => {
-            console.error(error);
-        });
+async function signIn() {
+    await myMSALObj.handleRedirectPromise().then((tokenResponse) => {
+        if (!tokenResponse) {
+            myMSALObj.loginRedirect();
+        } else {
+            console.log("登录成功，Token: ", tokenResponse);
+        }
+    }).catch((err) => {
+        console.error("登录处理错误:", err);
+    });
 }
 
 function signOut() {
@@ -94,10 +79,10 @@ function signOut() {
     const logoutRequest = {
         account: myMSALObj.getAccountByUsername(username),
         postLogoutRedirectUri: msalConfig.auth.redirectUri,
-        mainWindowRedirectUri: msalConfig.auth.redirectUri
     };
 
-    myMSALObj.logoutPopup(logoutRequest);
+    myMSALObj.logoutRedirect(logoutRequest);
+    
 }
 
 function getTokenPopup(request) {

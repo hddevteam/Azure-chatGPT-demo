@@ -3,7 +3,7 @@
 
 import axios from "axios";
 import swal from "sweetalert";
-import { signIn, getToken } from "./authPopup.js";
+import { signIn, getToken } from "./authRedirect.js";
 
 axios.defaults.baseURL = "/api";
 axios.defaults.headers.post["Content-Type"] = "application/json";
@@ -17,22 +17,28 @@ export function updateCachedToken(token) {
 
 axios.interceptors.request.use(async config => {
     if (!config.headers.Authorization) { // 如果请求头中没有Authorization信息
+        console.log("No Authorization header found, trying to get token...");
         // 尝试使用缓存的Token
         if (cachedToken) {
+            console.log("Using cached token:", cachedToken);
             config.headers.Authorization = `Bearer ${cachedToken}`;
         } else {
             try {
+                console.log("No cached token found, trying to get token...");
                 const token = await getToken(); // 获取Token
                 cachedToken = token; // 更新缓存的Token
                 config.headers.Authorization = `Bearer ${token}`; // 将Token加入请求头部
             } catch (error) {
-                console.error("在请求中添加Token失败:", error);
-                // 可选择处理错误，例如重新登录
-                signIn();
+                console.error("在请求中添加Token失败, 错误:", error);
+                // 这里我们判断如果是因为用户取消登录导致的错误，可能就不需要将错误抛出
+                // 可以根据错误类型作更细致的判断和处理
+                // 对于无法处理的错误或者确实需要用户注意的错误，应当提醒用户
+                swal("无法获取授权", "请重新尝试登录。", "error");
+                return Promise.reject("无法获取Token，请求被取消"); // 取消当前的请求
             }
         }
     }
-    return config;
+    return config; // 确保只有在设置了Token后才继续执行请求
 }, error => {
     return Promise.reject(error);
 });
