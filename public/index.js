@@ -11,7 +11,6 @@ import { addVerticalResizeHandleListeners } from "./utils/vertical-resize.js";
 import fileUploader from "./utils/fileUploader.js";
 import setup from "./setup.js";
 
-
 const uiManager = setup();
 const app = uiManager.app;
 new ModelDropdownManager(app, "#model-switch", "#model-dropdown");

@@ -3,10 +3,71 @@
 
 import axios from "axios";
 import swal from "sweetalert";
+import { signIn, getToken } from "./authPopup.js";
 
 axios.defaults.baseURL = "/api";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.headers.put["Content-Type"] = "application/json";
+
+let cachedToken = null; // 模块级别的Token缓存
+
+export function updateCachedToken(token) {
+    cachedToken = token;
+}
+
+axios.interceptors.request.use(async config => {
+    if (!config.headers.Authorization) { // 如果请求头中没有Authorization信息
+        // 尝试使用缓存的Token
+        if (cachedToken) {
+            config.headers.Authorization = `Bearer ${cachedToken}`;
+        } else {
+            try {
+                const token = await getToken(); // 获取Token
+                cachedToken = token; // 更新缓存的Token
+                config.headers.Authorization = `Bearer ${token}`; // 将Token加入请求头部
+            } catch (error) {
+                console.error("在请求中添加Token失败:", error);
+                // 可选择处理错误，例如重新登录
+                signIn();
+            }
+        }
+    }
+    return config;
+}, error => {
+    return Promise.reject(error);
+});
+
+
+axios.interceptors.response.use(response => {
+    return response;
+}, error => {
+    if (error.response && error.response.status === 401) {
+        console.error("Access denied, redirecting to login...");
+        signIn();
+    }
+    return Promise.reject(error);
+});
+
+export async function getAppName() {
+    try {
+        const response = await axios.get("/app_name");
+        return response.data;
+    } catch (error) {
+        console.error("Failed to get app name:", error);
+        throw error;
+    }
+}
+
+export async function getPromptRepo(username) {
+    try {
+        const response = await axios.get(`/prompt_repo?username=${username}`);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to get prompt repo:", error);
+        throw error;
+
+    }
+}
 
 export async function uploadAttachment(fileContent, fileName) {
     try {
@@ -28,54 +89,35 @@ export async function uploadAttachment(fileContent, fileName) {
     }
 }
 
-
-// get app name
-export async function getAppName() {
-    const response = await fetch("/api/app_name");
-    return await response.text();
-}
-
-// get prompt repo by username
-export async function getPromptRepo(username) {
-    const response = await fetch(`/api/prompt_repo?username=${username}`);
-    return await response.json();
-}
-
-
 // text to image
 export async function textToImage(caption) {
     try {
-        const response = await fetch("/api/text-to-image", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ caption }),
+        const response = await axios.post("/text-to-image", {
+            caption,
         });
 
-        if (!response.ok) {
-            // 当响应不是OK时，尝试获取更详细的错误信息
-            const errorResponse = await response.json(); // 假设服务器总是返回一个JSON对象作为错误响应
-
-            // 检查错误响应中是否有额外的信息，如contentFilterResults
-            if (errorResponse.contentFilterResults) {
-                // 如果有内容过滤结果，可能需要特别处理这些信息
-                // 例如，这里只是将其转换为字符串附加到错误消息上，实际使用时可能需要更合适的处理方式
-                const filterResultsString = JSON.stringify(errorResponse.contentFilterResults);
-                throw new Error(`${errorResponse.message} 内容过滤结果: ${filterResultsString}`);
-            } else {
-                // 如果没有额外信息，只抛出错误消息
-                throw new Error(errorResponse.message || "获取图像时出错，请稍后重试");
-            }
-        }
-
-        // 如果响应是OK，直接返回解析后的JSON
-        return await response.json();
+        return response.data;
     } catch (error) {
-        console.error(error);
-        throw error; // 继续向上抛出错误，以便调用者可以处理它
+        // 当axios抛出错误时，error对象中的response属性包含了响应对象
+        if (error.response) {
+            const { status, data } = error.response;
+            console.error(`请求失败，状态码: ${status}`, data);
+
+            // 检查是否存在特定的错误信息
+            if (data.contentFilterResults) {
+                const filterResultsString = JSON.stringify(data.contentFilterResults);
+                throw new Error(`${data.message} 内容过滤结果: ${filterResultsString}`);
+            } else {
+                // 抛出通用错误消息
+                throw new Error(data.message || "请求未成功");
+            }
+        } else {
+            // 没有响应对象的其他错误（例如网络问题等）
+            throw new Error("网络错误或服务器无响应");
+        }
     }
 }
+
 
 
 //get gpt response
@@ -129,66 +171,93 @@ export async function getGpt4V(promptText, enhancements=false, ocr = false, grou
 
 // get tts response
 export async function getTts(message) {
-    const url = "/api/tts";
-    const response = await fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message }),
-    });
-    return await response.blob();
+    try {
+        const response = await axios.post("/tts", {
+            message,
+        }, {
+            responseType: "blob", // 很重要，因为TTS API应该返回音频文件
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
 }
 
-// get stt response
+
+// get stt response - 使用 axios
 export async function getStt(audioBlob) {
-    const formData = new FormData();
-    formData.append("file", audioBlob);
-    const response = await fetch("/api/auto-speech-to-text", {
-        method: "POST",
-        body: formData,
-    });
-    return response;
+    try {
+        const formData = new FormData();
+        formData.append("file", audioBlob);
+
+        const response = await axios.post("/auto-speech-to-text", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        console.log(response.data);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
 }
+
 
 export async function getDefaultParams() {
-    const response = await fetch("/api/gpt-default-params");
-    if (!response.ok) {
+    try {
+        const response = await axios.get("/gpt-default-params");
+        return response.data;
+    } catch (error) {
+        console.error("获取默认参数时出错:", error);
         throw new Error("Error getting default params.");
     }
-    return await response.json();
 }
 
 export async function generateTitle(content) {
-    const response = await fetch("/api/generate-title", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ conversation: content })
-    });
-    return await response.text();
+    try {
+        const response = await axios.post("/generate-title", {
+            conversation: content
+        }, {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        // axios默认处理response.data, 这里获取文本，可以直接返回response.data如果API返回的是JSON格式
+        return response.data; 
+    } catch (error) {
+        console.error("标题生成时出错:", error);
+        throw new Error("Error generating title.");
+    }
 }
 
+
 export async function getFollowUpQuestions(prompt) {
-    const response = await fetch("/api/generate-followup-questions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt }),
-    });
+    try {
+        const response = await axios.post("/generate-followup-questions", {
+            prompt: prompt
+        }, {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
 
-    // Get the response data
-    const responseText = await response.text();
-    console.log(responseText);
-    const data = JSON.parse(responseText);
+        console.log(response.data);
 
-    // If the response is not okay, throw an error with the status and message
-    if (!response.ok) {
-        let errMsg = data.error ? data.error.message : "Error generating follow up questions.";
-        throw new Error(`Error ${response.status}: ${errMsg}`);
+        return response.data; // 直接返回解析后的JSON
+    } catch (error) {
+        console.error("获取后续问题时出错:", error);
+        if (error.response) {
+            // 处理具体的错误信息
+            const errMsg = error.response.data && error.response.data.error ? error.response.data.error.message : "Error generating follow up questions.";
+            throw new Error(`Error ${error.response.status}: ${errMsg}`);
+        } else {
+            // 没有响应时的错误处理
+            throw new Error("网络错误或服务器无响应");
+        }
     }
-
-    return data;
 }
 
 // Use interceptors to handle errors globally
@@ -205,46 +274,74 @@ axios.interceptors.response.use(null, error => {
 });
 
 export async function fetchCloudChatHistories(username, lastTimestamp = null) {
+    if (!cachedToken) {
+        throw new Error("Token is not available. Please sign in.");
+    }
     const queryParams = lastTimestamp ? `?lastTimestamp=${encodeURIComponent(lastTimestamp)}` : "";
     const url = `/chatHistories/${encodeURIComponent(username)}${queryParams}`;
 
-    const response = await axios.get(url);
-    // 响应应当是聊天历史数组
+    const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${cachedToken}` }
+    });
     return response.data.data;
 }
 
 export async function createOrUpdateCloudChatHistory(chatHistoryData) {
-    const response = await axios.post("/chatHistories", chatHistoryData);
-    // The response should be the created entity
+    if (!cachedToken) {
+        throw new Error("Token is not available. Please sign in.");
+    }
+    const response = await axios.post("/chatHistories", chatHistoryData, {
+        headers: { Authorization: `Bearer ${cachedToken}` }
+    });
     return response.data.data;
 }
 
 export async function deleteCloudChatHistory(chatId) {
-    await axios.delete(`/chatHistories/${encodeURIComponent(chatId)}`);
-    // Server should be returning the just-deleted entity
-    // If that's not the case, we might need to adjust the server or this method according to that.
+    if (!cachedToken) {
+        throw new Error("Token is not available. Please sign in.");
+    }
+    await axios.delete(`/chatHistories/${encodeURIComponent(chatId)}`, {
+        headers: { Authorization: `Bearer ${cachedToken}` }
+    });
 }
 
 export async function fetchCloudMessages(chatId, lastTimestamp = null) {
+    if (!cachedToken) {
+        throw new Error("Token is not available. Please sign in.");
+    }
     const queryParams = lastTimestamp ? `?lastTimestamp=${encodeURIComponent(lastTimestamp)}` : "";
-    const response = await axios.get(`/messages/${encodeURIComponent(chatId)}${queryParams}`);
-    // The response should be an array of messages
+    const response = await axios.get(`/messages/${encodeURIComponent(chatId)}${queryParams}`, {
+        headers: { Authorization: `Bearer ${cachedToken}` }
+    });
     return response.data.data || [];
 }
 
 export async function createCloudMessage(messageData, chatId) {
-    const response = await axios.post(`/messages/${encodeURIComponent(chatId)}`, messageData);
-    // The response should be the created entity
+    if (!cachedToken) {
+        throw new Error("Token is not available. Please sign in.");
+    }
+    const response = await axios.post(`/messages/${encodeURIComponent(chatId)}`, messageData, {
+        headers: { Authorization: `Bearer ${cachedToken}` }
+    });
     return response.data.data;
 }
 
 export async function updateCloudMessage(messageData, chatId, messageId) {
-    const response = await axios.put(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, messageData);
-    // The response should be the updated entity
+    if (!cachedToken) {
+        throw new Error("Token is not available. Please sign in.");
+    }
+    const response = await axios.put(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, messageData, {
+        headers: { Authorization: `Bearer ${cachedToken}` }
+    });
     return response.data.data;
 }
 
 export async function deleteCloudMessage(chatId, messageId) {
-    await axios.delete(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`);
-    // Similar to deleteCloudChatHistory, the response handling might need revision based on actual server response.
+    if (!cachedToken) {
+        throw new Error("Token is not available. Please sign in.");
+    }
+    await axios.delete(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, {
+        headers: { Authorization: `Bearer ${cachedToken}` }
+    });
 }
+
