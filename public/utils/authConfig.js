@@ -13,6 +13,7 @@ const clientId = process.env.CLIENT_ID;
 const redirectUri = process.env.REDIRECT_URI;
 const authority = `${cloudInstance}${tenantId}`;
 
+
 // 动态拼接得到authority
 console.log("authority: ", authority);
 
