@@ -38,10 +38,6 @@ axios.interceptors.response.use(response => {
         console.log("Error during response:", error);
         if (!expectedError) {
             console.log("Logging the error", error);
-            // alert("An unexpected error occurred. ");
-            swal("An unexpected error occurred, please try to refresh the page.", {
-                icon: "error",
-            });
         }
     }
     return Promise.reject(error);

@@ -12,6 +12,16 @@ await myMSALObj.initialize();
 let username = "";
 console.log("msalConfig auth scopes: ", msalConfig.auth.scopes);
 
+async function signIn() {
+    await myMSALObj.handleRedirectPromise();
+    const accounts = myMSALObj.getAllAccounts();
+    if (accounts.length === 0) {
+        // No user signed in
+        console.log("no user signed in, redirecting to login...");
+        myMSALObj.loginRedirect();
+    }
+}
+
 function selectAccount() {
 
     /**
@@ -30,6 +40,7 @@ function selectAccount() {
         console.log("logged in as: " + username);
     }
 }
+
 
 // getToken函数改进
 async function getToken() {
@@ -60,15 +71,6 @@ async function getToken() {
             console.error("登录后未找到账户");
             throw new Error("登录后未找到账户");
         }
-    }
-}
-
-async function signIn() {
-    await myMSALObj.handleRedirectPromise();
-    const accounts = myMSALObj.getAllAccounts();
-    if (accounts.length === 0) {
-        // No user signed in
-        myMSALObj.loginRedirect();
     }
 }
 
