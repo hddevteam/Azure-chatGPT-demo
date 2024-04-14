@@ -3,7 +3,7 @@
 // Create the main myMSALObj instance
 // configuration parameters are located at authConfig.js
 import * as msal from "@azure/msal-browser";
-import { msalConfig, loginRequest } from "./authConfig.js";
+import { msalConfig } from "./authConfig.js";
 
 const myMSALObj = new msal.PublicClientApplication(msalConfig);
 await myMSALObj.initialize();
@@ -51,10 +51,7 @@ async function getToken() {
             });
             return response.accessToken;
         }
-    } else {
-        // 如果没有任何账户，发起登录流程，登录成功后将触发页面重定向或重新加载，这时不需要显式返回Token
-        await signIn();
-    }
+    } 
 }
 
 async function signIn() {
