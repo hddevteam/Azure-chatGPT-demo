@@ -18,7 +18,7 @@ axios.interceptors.request.use(async config => {
             config.headers.Authorization = `Bearer ${token}`; // 将Token加入请求头部
         } catch (error) {
             console.error("在请求中添加Token失败", error);
-            swal("无法获取授权", "请重新尝试登录。", "error");
+            swal("Login required", "Will be redirected to login page, if not, please try to refresh the page. ", "info");
             return Promise.reject("无法获取Token，请求被取消");
         }
     }
