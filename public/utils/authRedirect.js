@@ -34,24 +34,32 @@ function selectAccount() {
 async function getToken() {
     const accounts = myMSALObj.getAllAccounts();
     if (accounts.length > 0) {
-        try {
-            const response = await myMSALObj.acquireTokenSilent({
-                account: accounts[0],
+    
+        const response = await myMSALObj.acquireTokenSilent({
+            account: accounts[0],
+            scopes: msalConfig.auth.scopes
+        });
+        console.log("静默获取Token成功");
+        return response.accessToken;
+        
+    } else {
+        console.log("no account detected, sign in...");
+        // 如果静默获取失败，引导用户登录
+        await signIn(); // 等待登录
+        // 登录成功后再次尝试静默获取Token
+        const accountsAfterSignIn = myMSALObj.getAllAccounts();
+        if (accountsAfterSignIn.length > 0) {
+            const responseAfterSignIn = await myMSALObj.acquireTokenSilent({
+                account: accountsAfterSignIn[0], // 假定登录后存在账户
                 scopes: msalConfig.auth.scopes
             });
-            return response.accessToken;
-        } catch (error) {
-            console.error("获取Token出错，在signIn后重新尝试:", error);
-            // 如果静默获取失败，引导用户登录
-            await signIn(); // 等待登录
-            // 登录成功后再次尝试静默获取Token
-            const response = await myMSALObj.acquireTokenSilent({
-                account: myMSALObj.getAllAccounts()[0], // 假定登录后存在账户
-                scopes: msalConfig.auth.scopes
-            });
-            return response.accessToken;
+            console.log("登录后获取Token成功");
+            return responseAfterSignIn.accessToken;
+        } else {
+            console.error("登录后未找到账户");
+            throw new Error("登录后未找到账户");
         }
-    } 
+    }
 }
 
 async function signIn() {

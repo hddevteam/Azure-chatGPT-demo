@@ -8,12 +8,14 @@ import * as msal from "@azure/msal-browser";
 
 const cloudInstance = process.env.CLOUD_INSTANCE;
 const tenantId = process.env.TENANT_ID;
-// 动态拼接得到authority
-const authority = `${cloudInstance}${tenantId}`;
-console.log("authority: ", authority);
 const scopes = process.env.SCOPES;
 const clientId = process.env.CLIENT_ID;
 const redirectUri = process.env.REDIRECT_URI;
+const authority = `${cloudInstance}${tenantId}`;
+
+// 动态拼接得到authority
+console.log("authority: ", authority);
+
   
 const msalConfig = {
     auth: {
