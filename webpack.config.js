@@ -1,9 +1,14 @@
+//webpack.config.js
+
 const path = require("path");
 const webpack = require("webpack");
 const Dotenv = require("dotenv-webpack");
 
 // 检查是否在CI/CD环境中
 const isCICD = process.env.CI; // CI环境变量通常由CI/CD服务提供，例如GitHub Actions
+
+console.log("isCICD: ", isCICD);
+console.log("process.env.CLOUD_INSTANCE: ", process.env.CLOUD_INSTANCE);
 
 module.exports = {
     mode: "development",
@@ -16,7 +21,6 @@ module.exports = {
         path: path.resolve(__dirname, "./public/dist"),
     },
     plugins: [
-        // 根据是否在CI/CD环境中使用不同的插件配置
         ...(isCICD ? [
             new webpack.DefinePlugin({
                 "process.env.CLOUD_INSTANCE": JSON.stringify(process.env.CLOUD_INSTANCE),
