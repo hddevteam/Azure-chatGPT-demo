@@ -12,6 +12,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CI: true
+      CLOUD_INSTANCE: ${{ vars.CLOUD_INSTANCE }}
+      TENANT_ID: ${{ secrets.TENANT_ID }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      REDIRECT_URI: ${{ vars.REDIRECT_URI }}
+      POST_LOGOUT_REDIRECT_URI: ${{ vars.POST_LOGOUT_REDIRECT_URI }}
+      SCOPES: ${{ secrets.SCOPES }}
+      GRAPH_API_ENDPOINT: ${{ vars.GRAPH_API_ENDPOINT }}
+      EXPRESS_SESSION_SECRET: ${{ secrets.EXPRESS_SESSION_SECRET }}
 
     steps:
       - uses: actions/checkout@v2
@@ -20,21 +30,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '18.x'
-      
-      - name: Check Environment Variables
-        run: |
-          echo "Checking if environment variables are set..."
-          if [ -z "${{ vars.CLOUD_INSTANCE }}" ]; then
-            echo "CLOUD_INSTANCE is not set."
-          else
-            echo "CLOUD_INSTANCE is set."
-          fi
-          if [ -z "${{ secrets.TENANT_ID }}" ]; then
-            echo "TENANT_ID is not set."
-          else
-            echo "TENANT_ID is set."
-          fi
-        shell: bash
 
       - name: npm install, build, and test
         run: |
@@ -42,16 +37,6 @@ jobs:
           npm run build
           # npm run build --if-present
           # npm run test --if-present
-        env:
-          CI: true
-          CLOUD_INSTANCE: ${{ vars.CLOUD_INSTANCE }}
-          TENANT_ID: ${{ secrets.TENANT_ID }}
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          REDIRECT_URI: ${{ vars.REDIRECT_URI }}
-          POST_LOGOUT_REDIRECT_URI: ${{ vars.POST_LOGOUT_REDIRECT_URI }}
-          SCOPES: ${{ secrets.SCOPES }}
-          GRAPH_API_ENDPOINT: ${{ vars.GRAPH_API_ENDPOINT }}
-          EXPRESS_SESSION_SECRET: ${{ secrets.EXPRESS_SESSION_SECRET }}
 
       - name: Archive build artifacts
         run: zip -r node-app.zip .
