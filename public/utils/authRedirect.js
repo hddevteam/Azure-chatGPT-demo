@@ -53,7 +53,7 @@ async function getToken() {
         }
     } else {
         // 如果没有任何账户，发起登录流程，登录成功后将触发页面重定向或重新加载，这时不需要显式返回Token
-        signIn();
+        await signIn();
     }
 }
 

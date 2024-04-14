@@ -24,7 +24,8 @@ axios.interceptors.request.use(async config => {
             config.headers.Authorization = `Bearer ${cachedToken}`;
         } else {
             try {
-                console.log("No cached token found, trying to get token...");
+                console.log("No cached token found, trying to login get token...");
+                await signIn(); // 尝试登录
                 const token = await getToken(); // 获取Token
                 cachedToken = token; // 更新缓存的Token
                 config.headers.Authorization = `Bearer ${token}`; // 将Token加入请求头部
