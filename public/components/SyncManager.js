@@ -1,5 +1,6 @@
 // /public/components/SyncManager.js
 import { fetchCloudChatHistories, fetchCloudMessages } from "../utils/api.js";
+import { getToken } from "../utils/authRedirect.js";
   
 class SyncManager {
     constructor(uiManager) {
@@ -10,8 +11,16 @@ class SyncManager {
         this.webWorker = new Worker(new URL("../workers/syncWorker.js", import.meta.url), { type: "module" });
         this.initializeSyncWorker();
         this.isWorkerBusy = false;
+        this.cachedToken = null;
+        this.updateToken();
     }
-    
+
+    // 获取并更新Token
+    async updateToken() {
+        this.cachedToken = await getToken();
+        console.log("Token updated in SyncManager: ", this.cachedToken);
+    }
+
     initializeSyncWorker() {
         this.webWorker.onmessage = (event) => {
         // Handle messages from web worker
@@ -26,7 +35,13 @@ class SyncManager {
                 this.handleSyncedItem(payload, res);
                 break;
             case "failed":
-                this.enqueueSyncItem(payload, true); // re-enqueue with retry incremented
+                // 如果Token过期，尝试更新Token并重新尝试同步
+                if (res === "TokenExpired") {
+                    this.updateToken();
+                    this.enqueueSyncItem(payload, true); // 仅重新排队一次以避免无限循环
+                } else {
+                    this.enqueueSyncItem(payload, true); // re-enqueue with retry incremented
+                }
                 break;
             }
   
@@ -49,7 +64,7 @@ class SyncManager {
         }, "1970-01-01T00:00:00.000Z"); // ISO string representation for new Date(0)
         console.log("lastTimestamp: ", lastTimestamp);
 
-        const cloudHistories = await fetchCloudChatHistories(username, lastTimestamp).catch(e => console.error(e));
+        const cloudHistories = await fetchCloudChatHistories(username, lastTimestamp, this.cachedToken).catch(e => console.error(e));
         console.log("syncChatHistories: ", {localHistories}, {cloudHistories});
         
         // 对于cloudHistories，将每个history与localHistories进行比较
@@ -118,7 +133,7 @@ class SyncManager {
         }, "1970-01-01T00:00:00.000Z"); // ISO string representation for new Date(0)
         console.log("lastTimestamp: ", lastTimestamp);
 
-        const cloudMessages = await fetchCloudMessages(chatId, lastTimestamp).catch(e => console.error(e));
+        const cloudMessages = await fetchCloudMessages(chatId, lastTimestamp, this.cachedToken).catch(e => console.error(e));
         console.log("syncMessages: ", {localMessages}, {cloudMessages});
 
         cloudMessages.forEach(cloudMessage => {
@@ -176,6 +191,8 @@ class SyncManager {
                 // Handle max retries exceeded, maybe notify user or log
                 return;
             }
+        } else {
+            syncItem.token = this.cachedToken;
         }
   
         this.syncQueue.push(syncItem);

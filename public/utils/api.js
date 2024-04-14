@@ -9,18 +9,12 @@ axios.defaults.baseURL = "/api";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.headers.put["Content-Type"] = "application/json";
 
-let cachedToken = null; // 模块级别的Token缓存
-
-export function updateCachedToken(token) {
-    cachedToken = token;
-}
 
 // 使用改进后的getToken方法更新axios请求拦截器
 axios.interceptors.request.use(async config => {
     if (!config.headers.Authorization) {
         try {
             const token = await getToken(); // 获取Token
-            updateCachedToken(token); // 更新缓存
             config.headers.Authorization = `Bearer ${token}`; // 将Token加入请求头部
         } catch (error) {
             console.error("在请求中添加Token失败", error);
@@ -324,72 +318,75 @@ axios.interceptors.response.use(null, error => {
     return Promise.reject(error);
 });
 
-export async function fetchCloudChatHistories(username, lastTimestamp = null) {
+export async function fetchCloudChatHistories(username, lastTimestamp = null, token = null) {
+    if (!token) {
+        throw new Error("Token is not available. Please sign in.");
+    }
     const queryParams = lastTimestamp ? `?lastTimestamp=${encodeURIComponent(lastTimestamp)}` : "";
     const url = `/chatHistories/${encodeURIComponent(username)}${queryParams}`;
 
     const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${cachedToken}` }
+        headers: { Authorization: `Bearer ${token}` }
     });
     return response.data.data;
 }
 
-export async function createOrUpdateCloudChatHistory(chatHistoryData) {
-    if (!cachedToken) {
+export async function createOrUpdateCloudChatHistory(chatHistoryData, token) {
+    if (!token) {
         throw new Error("Token is not available. Please sign in.");
     }
     const response = await axios.post("/chatHistories", chatHistoryData, {
-        headers: { Authorization: `Bearer ${cachedToken}` }
+        headers: { Authorization: `Bearer ${token}` }
     });
     return response.data.data;
 }
 
-export async function deleteCloudChatHistory(chatId) {
-    if (!cachedToken) {
+export async function deleteCloudChatHistory(chatId, token = null) {
+    if (!token) {
         throw new Error("Token is not available. Please sign in.");
     }
     await axios.delete(`/chatHistories/${encodeURIComponent(chatId)}`, {
-        headers: { Authorization: `Bearer ${cachedToken}` }
+        headers: { Authorization: `Bearer ${token}` }
     });
 }
 
-export async function fetchCloudMessages(chatId, lastTimestamp = null) {
-    if (!cachedToken) {
+export async function fetchCloudMessages(chatId, lastTimestamp = null, token = null) {
+    if (!token) {
         throw new Error("Token is not available. Please sign in.");
     }
     const queryParams = lastTimestamp ? `?lastTimestamp=${encodeURIComponent(lastTimestamp)}` : "";
     const response = await axios.get(`/messages/${encodeURIComponent(chatId)}${queryParams}`, {
-        headers: { Authorization: `Bearer ${cachedToken}` }
+        headers: { Authorization: `Bearer ${token}` }
     });
     return response.data.data || [];
 }
 
-export async function createCloudMessage(messageData, chatId) {
-    if (!cachedToken) {
+export async function createCloudMessage(messageData, chatId, token) {
+    if (!token) {
         throw new Error("Token is not available. Please sign in.");
     }
     const response = await axios.post(`/messages/${encodeURIComponent(chatId)}`, messageData, {
-        headers: { Authorization: `Bearer ${cachedToken}` }
+        headers: { Authorization: `Bearer ${token}` }
     });
     return response.data.data;
 }
 
-export async function updateCloudMessage(messageData, chatId, messageId) {
-    if (!cachedToken) {
+export async function updateCloudMessage(messageData, chatId, messageId, token) {
+    if (!token) {
         throw new Error("Token is not available. Please sign in.");
     }
     const response = await axios.put(`·/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, messageData, {
-        headers: { Authorization: `Bearer ${cachedToken}` }
+        headers: { Authorization: `Bearer ${token}` }
     });
     return response.data.data;
 }
 
-export async function deleteCloudMessage(chatId, messageId) {
-    if (!cachedToken) {
+export async function deleteCloudMessage(chatId, messageId, token) {
+    if (!token) {
         throw new Error("Token is not available. Please sign in.");
     }
     await axios.delete(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, {
-        headers: { Authorization: `Bearer ${cachedToken}` }
+        headers: { Authorization: `Bearer ${token}` }
     });
 }
 
