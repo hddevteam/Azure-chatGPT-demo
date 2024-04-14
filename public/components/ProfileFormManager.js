@@ -1,4 +1,5 @@
 import { getPromptRepo } from "../utils/api.js";
+import { deleteProfile, createChatProfile, saveOrUpdateProfile } from "../utils/api.js";
 
 // ProfileFormManager.js
 export default class ProfileFormManager {
@@ -54,15 +55,7 @@ export default class ProfileFormManager {
     deleteCurrentProfile() {
         const currentProfileName = this.storageManager.getCurrentProfile().name;
         const username = this.storageManager.getCurrentUsername();
-        fetch(`/api/profiles/${currentProfileName}?username=${username}`, {
-            method: "DELETE"
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return response.json();
-            })
+        deleteProfile(currentProfileName, username)
             .then(() => {
                 console.log("Profile deleted successfully.");
                 getPromptRepo(username).then(data => {
@@ -82,14 +75,7 @@ export default class ProfileFormManager {
      * @returns 
      */
     generateProfile(profession) {
-        return fetch("/api/create-chat-profile", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ profession })
-        })
-            .then(response => response.json())
+        return createChatProfile({ profession })
             .then(data => {
                 // 将获取到的数据动态填充到表单中
                 this.formElements.prompt.value = data.prompt;
@@ -123,10 +109,11 @@ export default class ProfileFormManager {
     }
 
     saveProfile() {
+        const randomName = `AI${Math.floor(Math.random() * 1000)}`;
         const profile = {
-            name: document.getElementById("name").value || `AI${Math.floor(Math.random() * 1000)}`,
+            name: document.getElementById("name").value || randomName,
             icon: document.getElementById("icon").value||"fas fa-user",
-            displayName: document.getElementById("displayName").value || document.getElementById("name").value, // If displayName is empty, use name
+            displayName: document.getElementById("displayName").value || randomName, // If displayName is empty, use name
             prompt: document.getElementById("prompt").value,
             tts: document.getElementById("tts").value,
             sortedIndex: document.getElementById("sortedIndex").value,
@@ -139,22 +126,8 @@ export default class ProfileFormManager {
         console.log("Saving profile:", profile);
         const username = this.storageManager.getCurrentUsername();
         const isNewProfile = !this.oldName;
-        const method = isNewProfile ? "POST" : "PUT";
-        const endpoint = `/api/profiles${isNewProfile ? "" : "/" + this.oldName}?username=${username}`;
 
-        fetch(endpoint, {
-            method: method,
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(profile)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return response.json();
-            })
+        saveOrUpdateProfile(profile, username, isNewProfile, this.oldName)
             .then(() => {
                 this.storageManager.setCurrentProfile(profile); // 设置新保存的Profile为当前Profile
                 console.log("Profile saved successfully.");                
