@@ -1,6 +1,7 @@
 // index.js
 // purpose: entry point of the application. It is responsible for creating the App object and passing it to the UIManager object. It also contains the event listeners for the message form and the modal form.
 
+import { signIn } from "./utils/authRedirect.js";
 import { getAppName, getPromptRepo } from "./utils/api.js";
 import { setupVoiceInput } from "./utils/input-audio.js";
 import swal from "sweetalert";
@@ -10,6 +11,8 @@ import { addHorizontalResizeHandleListeners } from "./utils/horizontal-resize.js
 import { addVerticalResizeHandleListeners } from "./utils/vertical-resize.js";
 import fileUploader from "./utils/fileUploader.js";
 import setup from "./setup.js";
+
+await signIn();
 
 const uiManager = setup();
 const app = uiManager.app;

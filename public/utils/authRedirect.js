@@ -8,6 +8,7 @@ import { msalConfig } from "./authConfig.js";
 const myMSALObj = new msal.PublicClientApplication(msalConfig);
 await myMSALObj.initialize();
 
+
 let username = "";
 console.log("msalConfig auth scopes: ", msalConfig.auth.scopes);
 
@@ -63,15 +64,12 @@ async function getToken() {
 }
 
 async function signIn() {
-    await myMSALObj.handleRedirectPromise().then((tokenResponse) => {
-        if (!tokenResponse) {
-            myMSALObj.loginRedirect();
-        } else {
-            console.log("登录成功，Token: ", tokenResponse);
-        }
-    }).catch((err) => {
-        console.error("登录处理错误:", err);
-    });
+    await myMSALObj.handleRedirectPromise();
+    const accounts = myMSALObj.getAllAccounts();
+    if (accounts.length === 0) {
+        // No user signed in
+        myMSALObj.loginRedirect();
+    }
 }
 
 function signOut() {

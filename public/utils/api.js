@@ -27,16 +27,22 @@ axios.interceptors.request.use(async config => {
     return Promise.reject(error);
 });
 
-
-
 axios.interceptors.response.use(response => {
     return response;
 }, error => {
+    const expectedError = error.response && error.response.status >= 400 && error.response.status < 500;
     if (error.response && error.response.status === 401) {
         console.error("Access denied, redirecting to login...");
         signIn();
     } else {
-        console.error("Error during response:", error);
+        console.log("Error during response:", error);
+        if (!expectedError) {
+            console.log("Logging the error", error);
+            // alert("An unexpected error occurred. ");
+            swal("An unexpected error occurred, please try to refresh the page.", {
+                icon: "error",
+            });
+        }
     }
     return Promise.reject(error);
 });
@@ -304,19 +310,6 @@ export async function getFollowUpQuestions(prompt) {
         }
     }
 }
-
-// Use interceptors to handle errors globally
-axios.interceptors.response.use(null, error => {
-    const expectedError = error.response && error.response.status >= 400 && error.response.status < 500;
-    if (!expectedError) {
-        console.log("Logging the error", error);
-        // alert("An unexpected error occurred. ");
-        swal("An unexpected error occurred, please try to refresh the page.", {
-            icon: "error",
-        });
-    }
-    return Promise.reject(error);
-});
 
 export async function fetchCloudChatHistories(username, lastTimestamp = null, token = null) {
     if (!token) {
