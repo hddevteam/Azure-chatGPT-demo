@@ -76,6 +76,58 @@ export async function getPromptRepo(username) {
     }
 }
 
+/**
+ * 删除当前用户的指定配置文件
+ * @param {string} profileName 要删除的配置文件名
+ * @param {string} username 当前用户名
+ */
+export async function deleteProfile(profileName, username) {
+    try {
+        const response = await axios.delete(`/profiles/${profileName}?username=${username}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error during profile deletion:", error);
+        throw error; 
+    }
+}
+
+/**
+ * 生成AI角色的配置文件
+ * @param {Object} profileData 包含创建配置文件所需数据的对象
+ */
+export async function createChatProfile(profileData) {
+    try {
+        const response = await axios.post("/create-chat-profile", profileData);
+        return response.data;
+    } catch (error) {
+        console.error("Error generating profile:", error);
+        throw error; 
+    }
+}
+
+/**
+ * 保存或更新配置文件
+ * @param {Object} profile 配置文件数据
+ * @param {string} username 用户名
+ * @param {boolean} isNewProfile 是否是新配置文件（决定是创建还是更新）
+ * @param {string} [oldName] 旧配置文件的名称（更新时需要）
+ */
+export async function saveOrUpdateProfile(profile, username, isNewProfile, oldName = "") {
+    const endpoint = `/profiles${isNewProfile ? "" : `/${oldName}`}?username=${username}`;
+    try {
+        const response = await axios({
+            method: isNewProfile ? "POST" : "PUT",
+            url: endpoint,
+            data: profile,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error saving profile:", error);
+        throw error; 
+    }
+}
+
+
 export async function uploadAttachment(fileContent, fileName) {
     try {
         const formData = new FormData();
