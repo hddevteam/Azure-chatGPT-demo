@@ -22,7 +22,6 @@ module.exports = {
                 "process.env.CLOUD_INSTANCE": JSON.stringify(process.env.CLOUD_INSTANCE),
                 "process.env.TENANT_ID": JSON.stringify(process.env.TENANT_ID),
                 "process.env.CLIENT_ID": JSON.stringify(process.env.CLIENT_ID),
-                // 为其他需要的环境变量添加更多字段
             }),
         ] : [
             new Dotenv()
