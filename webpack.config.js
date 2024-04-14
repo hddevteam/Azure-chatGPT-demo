@@ -7,16 +7,15 @@ const isCICD = process.env.CI;
 
 console.log("isCICD:", isCICD);
 
-console.log("process.env.CLOUD_INSTANCE:", process.env.CLOUD_INSTANCE);
-console.log("process.env.TENANT_ID:", process.env.TENANT_ID);
-console.log("process.env.CLIENT_ID:", process.env.CLIENT_ID);
-console.log("process.env.REDIRECT_URI:", process.env.REDIRECT_URI);
-console.log("process.env.SCOPES:", process.env.SCOPES);
-
 let pluginsConfig;
 
 if (isCICD) {
     console.log("Using webpack.DefinePlugin with environment variables");
+    console.log("process.env.CLOUD_INSTANCE:", process.env.CLOUD_INSTANCE);
+    console.log("process.env.TENANT_ID:", process.env.TENANT_ID);
+    console.log("process.env.CLIENT_ID:", process.env.CLIENT_ID);
+    console.log("process.env.REDIRECT_URI:", process.env.REDIRECT_URI);
+    console.log("process.env.SCOPES:", process.env.SCOPES);
     pluginsConfig = [
         new webpack.DefinePlugin({
             "process.env.CLOUD_INSTANCE": JSON.stringify(process.env.CLOUD_INSTANCE),
