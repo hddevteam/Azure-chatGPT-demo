@@ -1,10 +1,16 @@
 # 🤖 Powerful chatGPT for Azure OpenAI GPT model 
 
-Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the Azure OpenAI GPT-3.5-turbo/GPT-4 turbo model/GPT-4 Vision model. This project serves as an excellent starting point for developers interested in developing chatbot applications using JavaScript and the Azure OpenAI API.
+Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the Azure OpenAI GPT-3.5-turbo/GPT-4 turbo model/GPT-4 Vision model/Dalle-3 model. This project serves as an excellent starting point for developers interested in developing chatbot applications using JavaScript and the Azure OpenAI API.
 
 ## 📺 What's new in the current version
-- **Split view for an enhanced conversation experience, especially useful when you need to edit long messages.**
+- **✨Support PWA (Progressive Web App)✨**
+![Dekstop Screenshot](screenshot_desktop.png)
 ![Desktop Screenshot](screenshot_desktop_focus_mode.png)
+![Optimize for mobile](screenshot_mobile.png)
+
+- **🎉Support for GPT-4 turbo model and GPT-4 Vision model（with Azure AI OCR Enhancement support)🎉**
+- **Split view for an enhanced conversation experience, especially useful when you need to edit long messages.**
+
 
 - **Support for syncing conversation to other devices via Azure Table Storage 📡**
 
@@ -12,7 +18,7 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
 
 ## 🌟 Features
 - **Full control over messages in your current conversation: delete, hide, or unhide any message, allowing you to influence the AI's memory and enrich your conversations. 💫**
-![Dekstop Screenshot](screenshot_desktop.png)
+
 
 - **Summarize the current conversation and save it to a markdown file 📝**
 ![Export to markdown file](screenshot_markdown.png)
@@ -26,7 +32,6 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
 - **Message formatting preservation**
 - **Token counter**
 - **Optimized for mobile and tablet devices**
-![Optimize for mobile](screenshot_mobile.png)
 
 ## 🚀 Getting Started
 
@@ -98,18 +103,30 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
   
    **Note**: The exact `scope` string is critical for the correct operation of OAuth and OpenID Connect flows. Misconfiguration can result in authorization errors.
 
-6. Install the necessary packages:
+6. Replace the following placeholders in the `utils/authConfig.js` file:
+
+   ```
+   const cloudInstance = "https://login.microsoftonline.com/";
+   const tenantId = "a5fb26eb-4aac-4ae5-b7d2-5d2880183d61";
+   const scopes = "api://812a857f-f189-4aeb-b086-45f2cf69c701/user_impersonation";
+   const clientId = "812a857f-f189-4aeb-b086-45f2cf69c701";
+   const redirectUri = "https://chat.aiassist007.com/";
+   ```
+   with your Azure AD configuration.
+   Why I'm not putting this in the `.env` file? Because I got some issues with the `authConfig.js` file when I put the values in the `.env` file. I also need to put the values in the Github actions with my CI/CD pipeline. It works not well with the CI pipeline, sometimes it works, sometimes it doesn't work(It will be replease with MISSING_ENV_VARIABLES) If you have any idea to fix this issue, please let me know. Thanks!
+
+7. Install the necessary packages:
 
    ```
    npm install
    ```
 
-7. Start the server:
+8. Start the server:
 
    ```
    npm start
    ```
 
-8. Open your browser and visit [http://localhost:3000](http://localhost:3000) to enjoy the chatGPT for your own!
+9. Open your browser and visit [http://localhost:3000](http://localhost:3000) to enjoy the chatGPT for your own!
 
 Now you're all set to explore and develop your chatbot application using JavaScript and the Azure OpenAI API. Happy coding! 🎉
