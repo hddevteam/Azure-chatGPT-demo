@@ -433,18 +433,6 @@ function initializeApp() {
         } 
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-    // 绑定上传按钮的change事件
-        const attachButton = document.getElementById("attachments-container");
-        attachButton.addEventListener("click", () => {
-            const fileInput = document.createElement("input");
-            fileInput.type = "file";
-            fileInput.accept = "image/*";
-            fileInput.onchange = handleFiles;
-            fileInput.click();
-        });
-    });
-
     async function handleFiles(event) {
         const files = event.target.files;
         if (files.length === 0) {
@@ -454,22 +442,30 @@ function initializeApp() {
         await fileUploader.handleFileUpload(files);
     }
 
+    console.log("initVisibilityAfterDataLoaded");
+    const chatHistoryContainer = document.getElementById("chat-history-container");
+    const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const chatHistoryContainer = document.getElementById("chat-history-container");
-        const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
+    // 根据元素初始的显示状态来初始化按钮状态
+    uiManager.updateButtonActiveState(chatHistoryContainer.id, chatHistoryContainer.classList.contains("visible"));
+    uiManager.updateButtonActiveState(aiActorSettings.id, aiActorSettings.classList.contains("visible"));
 
-        // 根据元素初始的显示状态来初始化按钮状态
-        uiManager.updateButtonActiveState(chatHistoryContainer.id, chatHistoryContainer.classList.contains("visible"));
-        uiManager.updateButtonActiveState(aiActorSettings.id, aiActorSettings.classList.contains("visible"));
-    }); 
+    // 绑定上传按钮的change事件
+    const attachButton = document.getElementById("attachments-container");
+    attachButton.addEventListener("click", () => {
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/*";
+        fileInput.onchange = handleFiles;
+        fileInput.click();
+    });
+    setInitialVisibility();
+    addHorizontalResizeHandleListeners(); // Add horizontal resize functionality
+    addVerticalResizeHandleListeners(); // Add vertical resize functionality
 
+        
 
-    window.onload = () => {
-        setInitialVisibility();
-        addHorizontalResizeHandleListeners(); // Add horizontal resize functionality
-        addVerticalResizeHandleListeners(); // Add vertical resize functionality
-    };
+    
     window.addEventListener("resize", setInitialVisibility);
     
 }
