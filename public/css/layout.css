@@ -12,12 +12,18 @@ html {
 }
 
 #header {
+    display: flex;
     flex: 0 0 40px;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom right, #999, #333);
+    padding: 0;
 }
 
 #main-container {
     display: flex;
     flex: 1;
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 #chat-history-container,
@@ -64,15 +70,6 @@ html {
 #ai-actor-settings-wrapper {
     background-color: #f1f1f1;
     border-left: 1px solid #ccc;
-}
-
-
-#header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(to bottom right, #999, #333);
-    padding: 0;
 }
 
 #header #header-buttons {

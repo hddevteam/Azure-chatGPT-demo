@@ -1,5 +1,12 @@
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
+    #header{
+        background: linear-gradient(to bottom right, #7F8C8D, #555F61);
+    }
+
+    #main-container {
+        background-color: #DDE6EC; 
+    }
 
     #ai-actor-settings-wrapper.modal-mode {
         position: fixed;

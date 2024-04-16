@@ -6,8 +6,8 @@
 "description": "Smart AI Assistant, work like a 007 agent.",
 "lang": "zh-CN",
 "dir": "auto",
-"theme_color": "#000000",
-"background_color": "#000000",
+"theme_color": "#7F8C8D",
+"background_color": "#7F8C8D",
 "orientation": "any",
 "icons": [
     {
