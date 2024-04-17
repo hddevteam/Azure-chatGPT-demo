@@ -196,6 +196,39 @@
         width: 100%;
     }
 
+    #image-modal .modal-content {
+        margin: auto;
+        display: block;
+        max-width: 95%;
+        max-height: 95vh;
+        object-fit: contain;
+    }
+
+    .modal-content {
+        margin: 15% auto;
+        padding: 5px;
+        border-radius: 0px;
+    }
+
+    #image-modal .close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        color: #fff;
+        font-size: 40px;
+        cursor: pointer;
+        }
+
+    #ai-actor-settings-inner-form-wrapper {
+        margin: 10px;
+        padding: 10px;
+    }
+
+    .setting-item label {
+        font-size: 12px;
+        /* 在更小的屏幕上进一步减小字体 */
+    }
+
 }
 
 /* iPad Layout */

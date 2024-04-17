@@ -8,16 +8,30 @@ class EventManager {
     attachImagePreviewEvent() {
         document.querySelectorAll(".message-attachment-thumbnail").forEach(imgElement => {
             imgElement.addEventListener("click", () => {
+                const imageUrl = imgElement.src;
                 document.getElementById("image-modal").style.display = "block";
-                document.getElementById("img-modal-content").src = imgElement.src;
+                document.getElementById("img-modal-content").src = imageUrl;
+    
+                // 为下载按钮绑定一个新的点击事件来处理下载
+                const downloadBtn = document.getElementById("download-btn");
+                downloadBtn.onclick = function() {
+                    // 创建一个临时的<a>元素用于下载
+                    const tempLink = document.createElement("a");
+                    tempLink.href = imageUrl;        
+                    // 根据图片URL获取或设置默认的文件名(使用时间戳)
+                    const urlParts = imageUrl.split("/");
+                    tempLink.download = urlParts[urlParts.length - 1] || `img-${new Date().getTime()}.jpg`;
+                    // 模拟点击
+                    tempLink.click();
+                };
             });
         });
-
-        // 为关闭按钮绑定事件
+    
         document.querySelector("#image-modal .close").addEventListener("click", function() {
             document.getElementById("image-modal").style.display = "none";
         });
     }
+    
 
     // attach speaker event to message speaker
     attachMessageSpeakerEvent(speaker) {

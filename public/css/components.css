@@ -1089,6 +1089,7 @@ button.action-button.invisible {
     height: 100%;
     overflow: auto; 
     background-color: rgba(0,0,0,0.9); 
+    align-items: center;
 }
 
 #image-modal .modal-content {
@@ -1108,16 +1109,37 @@ button.action-button.invisible {
     cursor: pointer;
 }
 
+#image-modal .close:hover {
+    color: #ddd;
+}
 
-/* 保持响应式布局调整 */
-@media screen and (max-width: 768px) {
-    #ai-actor-settings-inner-form-wrapper {
-        margin: 10px;
-        padding: 10px;
-    }
+#image-modal .close:active {
+    color: #bbb;
+}
 
-    .setting-item label {
-        font-size: 12px;
-        /* 在更小的屏幕上进一步减小字体 */
-    }
+#download-btn {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#download-btn i {
+    margin-right: 5px;
+}
+
+#download-btn:hover {
+    background-color: #0056b3;
+}
+
+#download-btn:active {
+    background-color: #004080;
 }
