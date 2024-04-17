@@ -1,17 +1,29 @@
 import { getPromptRepo } from "../utils/api.js";
 import { deleteProfile, createChatProfile, saveOrUpdateProfile } from "../utils/api.js";
+import swal from "sweetalert";
 
 // ProfileFormManager.js
 export default class ProfileFormManager {
-    constructor(storageManager,saveProfileCallback, showMessageCallback, deleteProfileCallback) {
+    constructor(storageManager,saveProfileCallback, deleteProfileCallback, hideElementCallback) {
         this.storageManager = storageManager; // Instance of StorageManager
         this.saveProfileCallback = saveProfileCallback; // Callback function to save profile data
-        this.showMessageCallback = showMessageCallback;
         this.deleteProfileCallback = deleteProfileCallback;
+        this.hideElementCallback = hideElementCallback;
         this.initForm();
         this.bindEvents();
         this.oldName = ""; // Initialize without an old name
     }
+
+    showMessage(message, messageType, closeSetting = false) {
+        swal(message, { icon: messageType, button: false, timer: 1500 })
+            .then(() => {
+                if (closeSetting) {
+                    if (window.innerWidth < 768)
+                        this.hideElementCallback();
+                }
+            });
+    }
+
 
     initForm() {
         // Initialize form elements
@@ -37,7 +49,6 @@ export default class ProfileFormManager {
         document.getElementById("generate-prompt").addEventListener("click", () => {
         // 从prompt字段获取当前内容
             const promptContent = this.formElements.prompt.value;
-            this.showMessageCallback("Generating profile...", "info");
             // 将prompt字段的内容作为参数传递给generateProfile方法
             this.generateProfile(promptContent);
         });
@@ -64,7 +75,7 @@ export default class ProfileFormManager {
             })
             .catch(error => {
                 console.error("Error during profile deletion:", error);
-                this.showMessageCallback("Failed to delete profile.", "error");
+                this.showMessage("Failed to delete profile.", "error");
             });
     }
 
@@ -75,8 +86,15 @@ export default class ProfileFormManager {
      * @returns 
      */
     generateProfile(profession) {
+        swal({
+            text: "Generating profile...",
+            button: false,
+            closeOnClickOutside: false,
+            closeOnEsc: false,
+        });
         return createChatProfile({ profession })
             .then(data => {
+                swal.close();
                 // 将获取到的数据动态填充到表单中
                 this.formElements.prompt.value = data.prompt;
                 if (this.formElements.name.value === "") {
@@ -86,11 +104,13 @@ export default class ProfileFormManager {
                 this.formElements.displayName.value = data.displayName;
                 // 更新icon-preview的类
                 document.getElementById("icon-preview").className = data.icon;
-                this.showMessageCallback("Profile generated successfully.", "success");
+                this.showMessage("Profile generated successfully.", "success");
             })
             .catch(error => {
+                swal.close();
                 console.error("Error generating profile:", error);
-                this.showMessageCallback("Error generating profile. Please try again.", "error");});
+                this.showMessage("Error generating profile. Please try again.", "error");
+            });
     }
 
 
@@ -132,9 +152,12 @@ export default class ProfileFormManager {
                 this.storageManager.setCurrentProfile(profile); // 设置新保存的Profile为当前Profile
                 console.log("Profile saved successfully.");                
                 this.saveProfileCallback(profile, isNewProfile); 
-                this.showMessageCallback(isNewProfile ? "Profile created successfully!" : "Profile updated successfully!", "success"); 
+                this.showMessage(isNewProfile ? "Profile created successfully!" : "Profile updated successfully!", "success", true); 
             })
-            .catch(error => console.error("Error saving profile:", error));
+            .catch(error => {
+                console.error("Error saving profile:", error);
+                this.showMessage("Failed to save profile. Please try again.", "error");
+            });
     }
     
     resetForm() {

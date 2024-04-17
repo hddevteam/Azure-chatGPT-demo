@@ -42,7 +42,7 @@ class UIManager {
         this.boundHideAIActorOnOutsideClick = this.hideAIActorOnOutsideClick.bind(this);
         this.handleClickOutsideCreateAIActorModal = this.handleClickOutsideCreateAIActorModal.bind(this);
         this.profileFormManager = new ProfileFormManager(this.storageManager, 
-            async (updatedProfile, isNewProfile) => { // 注意此处使用async标记这个函数是异步的
+            async (updatedProfile, isNewProfile) => { 
                 await this.refreshProfileList(); // 使用await等待refreshProfileList完成
                 if (isNewProfile) {
                     // 如果是新Profile，需要创建新的Chat History并切换到该Chat History
@@ -50,18 +50,19 @@ class UIManager {
                     this.currentChatId = chatId;
                     this.changeChatTopic(chatId, true); // 第二个参数设置为true表示这是一个新的话题
                 }
-            }, (message, messageType) => {
-            // 根据消息类型显示不同的swal对话框
-                if (messageType === "success") {
-                    swal(message, {icon: "success", button: false, timer: 1500});
-                } else if (messageType === "error") {
-                    swal(message, {icon: "error"});
-                } else {
-                    swal(message, {icon: "info", button: false, timer: 1500});
-                }
             },async (data) => { // 处理Profile的删除
                 await this.renderMenuList(data);
-                swal("Profile deleted successfully.", {icon: "success", button: false, timer: 1500});
+                swal("Profile deleted successfully.", {icon: "success", button: false, timer: 1500})
+                    .then(() => {
+                        if (window.innerWidth <= 768) {
+                            const actorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
+                            this.hiddenElement(actorSettingsWrapper);
+                        }
+                    });
+            },() => {
+                // 这里，我们通过隐藏元素的ID来调用隐藏逻辑，
+                const actorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
+                this.hiddenElement(actorSettingsWrapper); 
             });
         document.getElementById("new-ai-actor").addEventListener("click", this.showNewAIActorModal.bind(this));
     }
@@ -684,6 +685,11 @@ class UIManager {
         const listItemElement = e.target.closest(".chat-history-item");
         if (listItemElement) {
             this.changeChatTopic(listItemElement.dataset.id);
+            // Hide the chat history list if it's a mobile device
+            if (window.innerWidth <= 768) {
+                const chatHistoryContainer = document.getElementById("chat-history-container");
+                this.hiddenElement(chatHistoryContainer);
+            }
         }
     }
 

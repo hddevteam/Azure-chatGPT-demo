@@ -290,9 +290,6 @@ function initializeApp() {
 
         uiManager.toggleVisibility(chatHistoryContainer);
 
-        if (window.innerWidth <= 768) {
-            attachOutsideClickListener("chat-history-container");
-        }
     });
 
     const aiProfile = document.getElementById("ai-profile");
@@ -306,38 +303,7 @@ function initializeApp() {
 
         uiManager.toggleVisibility(aiActorSettings);
 
-        if (window.innerWidth <= 768) {
-            attachOutsideClickListener("aiActorSettings");
-        }
     });
-
-    function createClickListener(elementId) {
-        return function hideElementOnOutsideClick(event) {
-            const element = document.getElementById(elementId);
-            if (!event.target.closest(`#${elementId}`) && !element.classList.contains("hidden")) {
-                element.classList.add("hidden");
-                detachOutsideClickListener(elementId);
-            }
-        };
-    }
-
-    function attachOutsideClickListener(elementId) {
-    // Generate a unique listener function for the given element ID
-        const listener = createClickListener(elementId);
-        document.addEventListener("click", listener);
-        // Associate the listener with the element ID for removal later
-        activeOutsideClickListeners[elementId] = listener;
-    }
-
-    function detachOutsideClickListener(elementId) {
-        const listener = activeOutsideClickListeners[elementId];
-        if (listener) {
-            document.removeEventListener("click", listener);
-            delete activeOutsideClickListeners[elementId];
-        }
-    }
-
-    const activeOutsideClickListeners = {};
 
     // split layout
 
