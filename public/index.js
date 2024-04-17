@@ -416,6 +416,11 @@ function initializeApp() {
     uiManager.updateButtonActiveState(chatHistoryContainer.id, chatHistoryContainer.classList.contains("visible"));
     uiManager.updateButtonActiveState(aiActorSettings.id, aiActorSettings.classList.contains("visible"));
 
+    const generateImg = document.getElementById("generate-img");
+    generateImg.addEventListener("click", () => {
+        messageInput.value = `/image ${messageInput.value}`;
+    });
+
     // 绑定上传按钮的change事件
     const attachButton = document.getElementById("attachments-container");
     attachButton.addEventListener("click", () => {
@@ -429,9 +434,6 @@ function initializeApp() {
     addHorizontalResizeHandleListeners(); // Add horizontal resize functionality
     addVerticalResizeHandleListeners(); // Add vertical resize functionality
 
-        
-
-    
     window.addEventListener("resize", setInitialVisibility);
     
 }
