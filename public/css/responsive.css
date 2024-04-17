@@ -5,7 +5,7 @@
     }
 
     #main-container {
-        background-color: #DDE6EC; 
+        background-color: #7F8C8D; 
     }
 
     #ai-actor-settings-wrapper.modal-mode {
@@ -28,6 +28,7 @@
     #app-outer-wrapper {
         flex: 100;
         height: 100%;
+        background-color: #CCC;
     }
 
     #ai-actor-wrapper {
