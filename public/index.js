@@ -35,43 +35,43 @@ function initializeApp() {
     uiManager.setClientLanguage(clientLanguage);
 
 
-    const slider = document.getElementById("slider");
-    const currentValue = document.getElementById("currentValue");
-    app.prompts.onLengthChange = function (newLength) {
-        slider.value = newLength;
-        currentValue.textContent = newLength;
-    };
+    // const slider = document.getElementById("slider");
+    // const currentValue = document.getElementById("currentValue");
+    // app.prompts.onLengthChange = function (newLength) {
+    //     slider.value = newLength;
+    //     currentValue.textContent = newLength;
+    // };
 
-    slider.addEventListener("input", function () {
-        const messages = document.querySelectorAll(".message");
-        const sliderValue = parseInt(slider.value, 10);
-        currentValue.textContent = sliderValue;
+    // slider.addEventListener("input", function () {
+    //     const messages = document.querySelectorAll(".message");
+    //     const sliderValue = parseInt(slider.value, 10);
+    //     currentValue.textContent = sliderValue;
 
-        messages.forEach((messageElement, index) => {
-            const messageId = messageElement.dataset.messageId;
-            if (index >= messages.length - sliderValue) {
-                messageElement.classList.add("active");
-                uiManager.storageManager.saveMessageActiveStatus(uiManager.currentChatId, messageId, true);
-            } else {
-                messageElement.classList.remove("active");
-                uiManager.storageManager.saveMessageActiveStatus(uiManager.currentChatId, messageId, false);
-            }
-            const updatedMessage = uiManager.storageManager.getMessage(uiManager.currentChatId, messageId);
-            uiManager.syncManager.syncMessageUpdate(uiManager.currentChatId, updatedMessage);
-        });
+    //     messages.forEach((messageElement, index) => {
+    //         const messageId = messageElement.dataset.messageId;
+    //         if (index >= messages.length - sliderValue) {
+    //             messageElement.classList.add("active");
+    //             uiManager.storageManager.saveMessageActiveStatus(uiManager.currentChatId, messageId, true);
+    //         } else {
+    //             messageElement.classList.remove("active");
+    //             uiManager.storageManager.saveMessageActiveStatus(uiManager.currentChatId, messageId, false);
+    //         }
+    //         const updatedMessage = uiManager.storageManager.getMessage(uiManager.currentChatId, messageId);
+    //         uiManager.syncManager.syncMessageUpdate(uiManager.currentChatId, updatedMessage);
+    //     });
 
-        // save current onLengthChange callback
-        const originalOnLengthChange = app.prompts.onLengthChange;
-        app.prompts.onLengthChange = null;
-        app.prompts.clear();
-        const activeMessages = document.querySelectorAll(".message.active");
-        activeMessages.forEach(activeMessage => {
-            app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
-        });
+    //     // save current onLengthChange callback
+    //     const originalOnLengthChange = app.prompts.onLengthChange;
+    //     app.prompts.onLengthChange = null;
+    //     app.prompts.clear();
+    //     const activeMessages = document.querySelectorAll(".message.active");
+    //     activeMessages.forEach(activeMessage => {
+    //         app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
+    //     });
 
-        // restore onLengthChange callback
-        app.prompts.onLengthChange = originalOnLengthChange;
-    });
+    //     // restore onLengthChange callback
+    //     app.prompts.onLengthChange = originalOnLengthChange;
+    // });
 
     // get and set page title and header h1 text from /api/app-name
     const pageTitle = document.querySelector("title");

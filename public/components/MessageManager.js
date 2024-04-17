@@ -96,7 +96,7 @@ class MessageManager {
         setTimeout(() => this.uiManager.eventManager.updateMaximizeButtonVisibility(messageElement), 0);
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        this.uiManager.updateSlider();
+        // this.uiManager.updateSlider();
     }
 
     async sendTextMessage() {
@@ -393,7 +393,7 @@ class MessageManager {
         this.uiManager.app.prompts.removePrompt(messageId);
         this.uiManager.storageManager.deleteMessage(this.uiManager.currentChatId, messageId);
         this.uiManager.syncManager.syncMessageDelete(this.uiManager.currentChatId, messageId);
-        this.uiManager.updateSlider();
+        // this.uiManager.updateSlider();
         this.uiManager.isDeleting = false;
     }
 
@@ -539,7 +539,7 @@ class MessageManager {
         messagesContainer.appendChild(followUpQuestionsElement);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        this.uiManager.updateSlider();
+        // this.uiManager.updateSlider();
     }
 
     // MessageManager.js

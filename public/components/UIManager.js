@@ -242,16 +242,16 @@ class UIManager {
     }
     
     
-    updateSlider() {
-        const messageCount = document.querySelectorAll(".message").length;
-        document.querySelector("#maxValue").textContent = messageCount;
+    // updateSlider() {
+    //     const messageCount = document.querySelectorAll(".message").length;
+    //     document.querySelector("#maxValue").textContent = messageCount;
 
-        const counversationCount = this.app.prompts.length - 1;
-        //slider.max will be 10 or the number of messages in the conversation, whichever is greater
-        const maxSliderValue = Math.max(this.messageLimit, counversationCount);
-        const slider = document.querySelector("#slider");
-        slider.max = maxSliderValue;
-    }
+    //     const counversationCount = this.app.prompts.length - 1;
+    //     //slider.max will be 10 or the number of messages in the conversation, whichever is greater
+    //     const maxSliderValue = Math.max(this.messageLimit, counversationCount);
+    //     const slider = document.querySelector("#slider");
+    //     slider.max = maxSliderValue;
+    // }
 
     getLastAssistantMessage() {
         const messagesDiv = document.getElementById("messages");
