@@ -73,19 +73,26 @@ class ChatHistoryManager {
 
 
     // 更新聊天历史记录
-    async updateChatHistory(chatId, forceGenerateTitle=false, title="") {
+    async updateChatHistory(chatId, forceGenerateTitle = false, title = "") {
         const chatHistory = this.getChatHistory();
         const chatHistoryToUpdate = chatHistory.find(history => history.id === chatId);
         const messages = this.uiManager.storageManager.getMessages(chatId);
-
+    
         if (!messages.length) return;
+    
+        // 合并所有消息，并用换行符隔开
+        const combinedMessages = messages.map(msg => msg.content).join("\n");
+    
         if (chatHistoryToUpdate) {
-            if (title) chatHistoryToUpdate.title = title;
-            if ((messages.length === 1) || forceGenerateTitle) {
-                // Assuming messages[0].content is already defined and contains text.
-                const titleExcerpt = generateExcerpt(messages[0].content, 1000, 500, 1000);
-                const title = await generateTitle(titleExcerpt);
+            if (title) {
                 chatHistoryToUpdate.title = title;
+            }
+            // 如果forceGenerateTitle为true，或者标题为"untitled"并且合并后的消息长度不小于50字符
+            if (forceGenerateTitle || ((chatHistoryToUpdate.title === "untitled" || chatHistoryToUpdate.title==="") && combinedMessages.length >= 50)) {
+                // 假设generateExcerpt函数可以处理较长文本并生成合适的摘要
+                const titleExcerpt = generateExcerpt(combinedMessages, 1000, 500, 1000);
+                const generatedTitle = await generateTitle(titleExcerpt);
+                chatHistoryToUpdate.title = generatedTitle;
             }
             chatHistoryToUpdate.updatedAt = new Date().toISOString();
             this.uiManager.storageManager.updateChatHistory(chatHistoryToUpdate);
@@ -94,6 +101,7 @@ class ChatHistoryManager {
             await this.createChatHistory(chatId);
         }
     }
+    
 
     // 删除聊天历史记录
     deleteChatHistory(chatId) {
