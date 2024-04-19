@@ -1,9 +1,5 @@
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
-    #header{
-        background: linear-gradient(to bottom right, #7F8C8D, #555F61);
-    }
-
     #main-container {
         background-color: #7F8C8D; 
     }
