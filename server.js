@@ -24,9 +24,6 @@ const bearerStrategy = new BearerStrategy({
     issuer: `https://sts.windows.net/${TENANT_ID}/`, // 与租户ID匹配
     passReqToCallback: false
 }, (token, done) => {
-    // token是已解析的JWT Token
-    // 可以在此执行一些额外的验证
-    // 如果验证成功，调用done(null, user)
     // console.log("Validated claims: ", token);
     done(null, {}, token);
 });
@@ -39,9 +36,6 @@ app.use(express.static("public"));
 app.use(passport.initialize()); // 启用passport中间件
 
 // 使用passport身份验证保护API路由
-// app.use("/api", passport.authenticate("oauth-bearer", { session: false }), apiRouter);
-// app.use("/api", apiRouter);
-// 在app.use中使用passport，以及如何处理失败的身份验证
 app.use("/api", (req, res, next) => {
     passport.authenticate("oauth-bearer", { session: false }, (err, user, info) => {
         if (err || !user) {
@@ -87,5 +81,15 @@ app.get("/redirect", (req, res) => {
 });
 
 const server = app.listen(process.env.PORT || 3000, () => console.log("Server is running"));
+
+const { wss } = require("./websocket"); // 引入上面定义的WebSocket服务器
+
+server.on("upgrade", (request, socket, head) => {
+    wss.handleUpgrade(request, socket, head, socket => {
+        wss.emit("connection", socket, request);
+    });
+});
+
+
 const close = () => server.close();
 module.exports = { app, close };

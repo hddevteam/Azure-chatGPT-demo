@@ -1,17 +1,18 @@
 /* eslint-disable no-unused-vars */
-
+// controller/azureTTSController.js
 const fs = require("fs-extra");
+const axios = require("axios");
+const eventBus = require("../eventbus"); // 引入EventEmitter
+const multer = require("multer");
+const { sendDataToClient } = require("../websocket.js"); 
 fs.ensureDirSync("./failed_audio");
 var azureTTS = null;
-const axios = require("axios");
 
 // check if AZURE_TTS is set in .env file
 if (process.env.AZURE_TTS) {
     azureTTS = JSON.parse(process.env.AZURE_TTS);
 }
 
-
-const multer = require("multer");
 const storage = multer.diskStorage({
     destination: function (_req, _file, cb) {
         cb(null, "./failed_audio");
@@ -23,6 +24,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 const SpeechSDK = require("microsoft-cognitiveservices-speech-sdk");
 exports.uploadMiddleware = upload.single("file");
+
+
+
 exports.getTextToSpeech = async (req, res) => {
     //get message from client then send to azure tts api send back the buffer to client
     const message = req.query.message;
@@ -129,8 +133,10 @@ exports.getMultiLangTextToSpeech = async (req, res) => {
 };
 
 exports.autoSpeechToText = async (req, res) => {
+    const userId = req.body.userId;
+    console.log("User ID: ", userId);
     const subscriptionKey = azureTTS.subscriptionKey;
-    const serviceRegion = "eastus"; // You can change this to match your region
+    const serviceRegion = "eastus"; // 根据你的区域进行修改
     const filePath = req.file.path;
     const audioConfig = SpeechSDK.AudioConfig.fromWavFileInput(fs.readFileSync(filePath));
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(subscriptionKey, serviceRegion);
@@ -139,16 +145,19 @@ exports.autoSpeechToText = async (req, res) => {
 
     var speechRecognizer = SpeechSDK.SpeechRecognizer.FromConfig(speechConfig, autoDetectSourceLanguageConfig, audioConfig);
 
-    let recognizedText = "";
-
-    // Add event listeners
+    // 更新：在识别过程中发送数据到客户端
     speechRecognizer.recognizing = (_sender, event) => {
         console.log(`Recognizing: ${event.result.text}`);
+        if (event.result.text) {
+            console.log(`Partial: ${event.result.text}`);
+            sendDataToClient(userId, JSON.stringify({ type: "partial", text: event.result.text }));
+        }
     };
 
     speechRecognizer.recognized = (_sender, event) => {
         if (event.result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
-            recognizedText += event.result.text;
+            console.log(`Recognized: ${event.result.text}`);
+            sendDataToClient(userId, JSON.stringify({ type: "final", text: event.result.text }));
         }
     };
 
@@ -158,6 +167,7 @@ exports.autoSpeechToText = async (req, res) => {
             res.status(400).send("Speech recognition failed");
         } else {
             console.log("Reached the end of input data");
+            res.status(200).send("Recognition process completed"); 
         }
         fs.unlinkSync(filePath);
         speechRecognizer.close();
@@ -165,12 +175,11 @@ exports.autoSpeechToText = async (req, res) => {
 
     speechRecognizer.sessionStopped = (_sender, _event) => {
         console.log("Session stopped");
-        res.send(recognizedText);
-        fs.unlinkSync(filePath);
+        fs.unlinkSync(filePath);  
         speechRecognizer.close();
     };
 
-    // Start continuous recognition
+    // 开始连续识别
     speechRecognizer.startContinuousRecognitionAsync(
         () => {
             console.log("Recognition started");
@@ -182,6 +191,7 @@ exports.autoSpeechToText = async (req, res) => {
         }
     );
 };
+
 
 exports.speechToText = async (req, res) => {
     // Your existing speechToText logic

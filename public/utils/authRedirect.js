@@ -1,7 +1,5 @@
 //public/utils/authRedirect.js
 
-// Create the main myMSALObj instance
-// configuration parameters are located at authConfig.js
 import * as msal from "@azure/msal-browser";
 import { msalConfig } from "./authConfig.js";
 
@@ -19,25 +17,6 @@ async function signIn() {
         // No user signed in
         console.log("no user signed in, redirecting to login...");
         myMSALObj.loginRedirect();
-    }
-}
-
-function selectAccount() {
-
-    /**
-     * See here for more info on account retrieval: 
-     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-common/docs/Accounts.md
-     */
-
-    const currentAccounts = myMSALObj.getAllAccounts();
-    if (currentAccounts.length === 0) {
-        return;
-    } else if (currentAccounts.length > 1) {
-        // Add choose account code here
-        console.warn("Multiple accounts detected.");
-    } else if (currentAccounts.length === 1) {
-        username = currentAccounts[0].username;
-        console.log("logged in as: " + username);
     }
 }
 
@@ -116,4 +95,30 @@ function getTokenPopup(request) {
         });
 }
 
-export { signIn, signOut, getTokenPopup, selectAccount, myMSALObj, getToken};
+
+let userId = "";  // 定义一个全局变量来存储用户ID
+
+function selectAccount() {
+    const currentAccounts = myMSALObj.getAllAccounts();
+    if (currentAccounts.length === 0) {
+        return;
+    } else if (currentAccounts.length > 1) {
+        // Add choose account code here or handle multiple accounts according to your need
+        console.warn("Multiple accounts detected.");
+    } else if (currentAccounts.length === 1) {
+        username = currentAccounts[0].username;
+        console.log("logged in as: " + username);
+
+        // 从账户信息中获取userId
+        userId = currentAccounts[0].homeAccountId;
+        console.log("userId: ", userId);
+    }
+}
+
+// 导出一个函数来获取userId
+function getUserId() {
+    selectAccount();
+    return userId;
+}
+
+export { signIn, signOut, getTokenPopup, selectAccount, myMSALObj, getToken, getUserId };
