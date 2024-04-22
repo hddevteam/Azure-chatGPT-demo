@@ -82,7 +82,7 @@ app.get("/redirect", (req, res) => {
 
 const server = app.listen(process.env.PORT || 3000, () => console.log("Server is running"));
 
-const wss = require("./websocket"); // 引入上面定义的WebSocket服务器
+const { wss } = require("./websocket"); // 引入上面定义的WebSocket服务器
 
 server.on("upgrade", (request, socket, head) => {
     wss.handleUpgrade(request, socket, head, socket => {

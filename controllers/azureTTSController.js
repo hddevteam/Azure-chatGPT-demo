@@ -4,7 +4,7 @@ const fs = require("fs-extra");
 const axios = require("axios");
 const eventBus = require("../eventbus"); // 引入EventEmitter
 const multer = require("multer");
-
+const { sendDataToClient } = require("../websocket.js"); 
 fs.ensureDirSync("./failed_audio");
 var azureTTS = null;
 
@@ -150,14 +150,14 @@ exports.autoSpeechToText = async (req, res) => {
         console.log(`Recognizing: ${event.result.text}`);
         if (event.result.text) {
             console.log(`Partial: ${event.result.text}`);
-            eventBus.emit("sendToClient", { userId: userId, data: JSON.stringify({ type: "partial", text: event.result.text }) });
+            sendDataToClient(userId, JSON.stringify({ type: "partial", text: event.result.text }));
         }
     };
 
     speechRecognizer.recognized = (_sender, event) => {
         if (event.result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
             console.log(`Recognized: ${event.result.text}`);
-            eventBus.emit("sendToClient", { userId: userId, data: JSON.stringify({ type: "final", text: event.result.text }) });
+            sendDataToClient(userId, JSON.stringify({ type: "final", text: event.result.text }));
         }
     };
 
