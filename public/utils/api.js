@@ -3,7 +3,7 @@
 
 import axios from "axios";
 import swal from "sweetalert";
-import { signIn, getToken } from "./authRedirect.js";
+import { signIn, getToken, getUserId } from "./authRedirect.js";
 
 axios.defaults.baseURL = "/api";
 axios.defaults.headers.post["Content-Type"] = "application/json";
@@ -246,6 +246,27 @@ export async function getStt(audioBlob) {
         });
         console.log(response.data);
         return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export async function sendAudioBlob(audioBlob) {
+
+    const userId = getUserId(); 
+    const formData = new FormData();
+    formData.append("file", audioBlob);
+    formData.append("userId", userId); 
+
+    try {
+        console.log("Sending audio to server");
+        await axios.post("/auto-speech-to-text", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        console.log("Audio sent successfully");
     } catch (error) {
         console.error(error);
         throw error;

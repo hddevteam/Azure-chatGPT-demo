@@ -1,6 +1,9 @@
+//public/utils/input-audio.js
 /* eslint-disable no-undef */
 // purpose: to setup the voice input and handle it on the chat page
-import { getStt } from "./api.js";
+import { sendAudioBlob } from "./api.js"; 
+import { initWebSocket } from "./websocket.js"; // 引入WebSocket初始化函数
+import swal from "sweetalert";
 
 
 // It uses the OpusMediaRecorder library to record audio from the user's microphone
@@ -54,17 +57,14 @@ export function setupVoiceInput(uiManager) {
             dataChunks = [];
 
             try {
-                const response = await getStt(audioBlob);
-                // 由于getStt已经返回了处理好的数据，这里直接使用response变量
-                const text = response;
-            
-                const messageInput = document.querySelector("#message-input");
-                messageInput.value += text; // 假设返回的是纯文本数据
+                initWebSocket();
+                await sendAudioBlob(audioBlob); // 使用 sendAudioBlob 发送音频数据
+                uiManager.showToast("Audio has been sent for processing.");
             } catch (error) {
-                // 错误处理逻辑
                 console.error(error);
-                uiManager.showToast(`Error: ${error.message}`);
-            }            
+                // 使用sweetalert显示错误信息
+                swal("Error", `Failed to send audio: ${error.message}`, "error");
+            }       
 
             // Add click event listener to start recording again
             voiceInputButton.addEventListener("click", startRecording, { once: true });
