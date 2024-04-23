@@ -21,6 +21,18 @@
         "sizes": "192x192",
         "type": "image/png",
         "purpose": "any"
+    },
+    {
+        "src": "./images/icons/144.png",
+        "sizes": "144x144",
+        "type": "image/png",
+        "purpose": "any"
+    },
+    {
+        "src": "./images/icons/96.png",
+        "sizes": "96x96",
+        "type": "image/png",
+        "purpose": "any"
     }
 ],
 "related_applications": [
@@ -34,7 +46,33 @@
     {
         "name":"Smart AI Assistant, work like a 007 agent.",
         "url":"/",
-        "description":"Smart AI Assistant, work like a 007 agent."
+        "description":"Smart AI Assistant, work like a 007 agent.",
+        "icons": [
+            {
+                "src": "./images/icons/512.png",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "maskable"
+            },
+            {
+                "src": "./images/icons/192.png",
+                "sizes": "192x192",
+                "type": "image/png",
+                "purpose": "any"
+            },
+            {
+                "src": "./images/icons/144.png",
+                "sizes": "144x144",
+                "type": "image/png",
+                "purpose": "any"
+            },
+            {
+                "src": "./images/icons/96.png",
+                "sizes": "96x96",
+                "type": "image/png",
+                "purpose": "any"
+            }
+        ]
     }
 ]
 }
