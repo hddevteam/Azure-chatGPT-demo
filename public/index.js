@@ -418,6 +418,12 @@ function initializeApp() {
 
     const generateImg = document.getElementById("generate-img");
     generateImg.addEventListener("click", () => {
+        const content = messageInput.value;
+        if (content.trim() === "") {
+            swal("Please enter the description of the image you want to generate, such as 'a cat playing guitar'.", { icon:"warning",
+                buttons: false, timer: 3000 });
+            return;
+        }
         messageInput.value = `/image ${messageInput.value}`;
         uiManager.handleMessageFormSubmit(messageInput);
     });
