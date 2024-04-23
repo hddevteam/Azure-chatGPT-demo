@@ -12,13 +12,12 @@ class SyncManager {
         this.initializeSyncWorker();
         this.isWorkerBusy = false;
         this.cachedToken = null;
-        this.updateToken();
     }
 
     // 获取并更新Token
     async updateToken() {
         this.cachedToken = await getToken();
-        console.log("Token updated in SyncManager: ", this.cachedToken);
+        console.log("Token updated in SyncManager");
     }
 
     initializeSyncWorker() {
@@ -36,12 +35,7 @@ class SyncManager {
                 break;
             case "failed":
                 // 如果Token过期，尝试更新Token并重新尝试同步
-                if (res === "TokenExpired") {
-                    this.updateToken();
-                    this.enqueueSyncItem(payload, true); // 仅重新排队一次以避免无限循环
-                } else {
-                    this.enqueueSyncItem(payload, true); // re-enqueue with retry incremented
-                }
+                this.enqueueSyncItem(payload, true); // re-enqueue with retry incremented
                 break;
             }
   
@@ -63,7 +57,7 @@ class SyncManager {
             return currentTimestamp > maxTimestamp ? history.timestamp : maxStr;
         }, "1970-01-01T00:00:00.000Z"); // ISO string representation for new Date(0)
         console.log("lastTimestamp: ", lastTimestamp);
-
+        await this.updateToken();
         const cloudHistories = await fetchCloudChatHistories(username, lastTimestamp, this.cachedToken).catch(e => console.error(e));
         console.log("syncChatHistories: ", {localHistories}, {cloudHistories});
         
@@ -191,22 +185,22 @@ class SyncManager {
                 // Handle max retries exceeded, maybe notify user or log
                 return;
             }
-        } else {
-            syncItem.token = this.cachedToken;
-        }
-  
+        } 
+
         this.syncQueue.push(syncItem);
         console.log("enqueueSyncItem syncQueue: ", this.syncQueue.length);
         this.processNextSyncItem();
     }
   
-    processNextSyncItem() {
+    async processNextSyncItem() {
         console.log("processNextSyncItem syncQueue: ", this.syncQueue.length);
         if (this.isWorkerBusy || !this.syncQueue.length) {
             console.log ("processNextSyncItem return because isWorkerBusy: ", this.isWorkerBusy, " syncQueue: ", this.syncQueue.length);
             return;
         }
         const nextItem = this.syncQueue.shift();
+        await this.updateToken();
+        nextItem.token = this.cachedToken;
         console.log("processNextSyncItem nextItem: ", nextItem);
         console.log("current syncQueue: ", this.syncQueue);
         this.isWorkerBusy = true;
