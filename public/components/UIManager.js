@@ -614,6 +614,11 @@ class UIManager {
             const content = item.querySelector(".attachment-thumbnail").style.backgroundImage.slice(5, -2); // Extract file content (remove 'url(' and ')')
             attachments.push({ fileName, content });
         });
+
+        // Clean up the UI
+        this.clearMessageInput(); // Clear the message input
+        fileUploader.clearPreview();
+        messageInput.blur();
     
         // If both message and attachments are empty, return
         if (!message && attachments.length === 0) return;
@@ -621,10 +626,7 @@ class UIManager {
         // Call sendMessage, passing in message and attachments
         await this.messageManager.sendMessage(message, attachments);
     
-        // Clean up the UI
-        this.clearMessageInput();
-        fileUploader.clearPreview();
-        messageInput.blur();
+
     }
 
     handleProfileListMenuClick(event) {

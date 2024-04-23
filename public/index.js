@@ -419,6 +419,7 @@ function initializeApp() {
     const generateImg = document.getElementById("generate-img");
     generateImg.addEventListener("click", () => {
         messageInput.value = `/image ${messageInput.value}`;
+        uiManager.handleMessageFormSubmit(messageInput);
     });
 
     // 绑定上传按钮的change事件
