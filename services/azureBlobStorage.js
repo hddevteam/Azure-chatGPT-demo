@@ -22,7 +22,7 @@ function getContentTypeByFileName(fileName) {
     return mimeTypes[extension] || "application/octet-stream";
 }
   
-async function uploadFileToBlob(containerName, originalFileName, fileContent) {
+async function uploadFileToBlob(containerName, originalFileName, fileContent, username) { 
     try {
         const containerClient = blobServiceClient.getContainerClient(containerName);
         await containerClient.createIfNotExists({ access: "blob" });
@@ -31,12 +31,12 @@ async function uploadFileToBlob(containerName, originalFileName, fileContent) {
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
         const contentType = getContentTypeByFileName(originalFileName);
-  
+
         await blockBlobClient.upload(fileContent, Buffer.byteLength(fileContent), {
-            blobHTTPHeaders: { blobContentType: contentType }
+            blobHTTPHeaders: { blobContentType: contentType },
+            metadata: { username }  // 在这里设置metadata
         });
 
-        // 仅返回Blob URL，跳过设置元数据
         return {
             url: blockBlobClient.url,
         };
@@ -80,5 +80,25 @@ async function deleteBlob(containerName, blobName) {
     }
 }
 
+async function listBlobsByUser(username) {
+    const containerClient = blobServiceClient.getContainerClient("audiofiles");
+    let blobs = [];
+    const containerUrl = containerClient.url; // 获取容器的URL
 
-module.exports = { uploadTextToBlob, getTextFromBlob, deleteBlob, uploadFileToBlob };
+    for await (const blob of containerClient.listBlobsFlat({ includeMetadata: true })) {
+        if (blob.metadata && blob.metadata.username === username) {
+            const blobUrl = `${containerUrl}/${blob.name}`; // 构造blob的完整访问URL
+            blobs.push({ 
+                name: blob.name, 
+                contentLength: blob.properties.contentLength,
+                url: blobUrl 
+            });
+        }
+    }
+    return blobs;
+}
+
+
+
+
+module.exports = { uploadTextToBlob, getTextFromBlob, deleteBlob, uploadFileToBlob, listBlobsByUser };
