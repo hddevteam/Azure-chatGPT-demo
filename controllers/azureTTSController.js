@@ -2,7 +2,6 @@
 // controller/azureTTSController.js
 const fs = require("fs-extra");
 const axios = require("axios");
-const eventBus = require("../eventbus"); // 引入EventEmitter
 const multer = require("multer");
 const { sendDataToClient } = require("../websocket.js"); 
 fs.ensureDirSync("./failed_audio");
