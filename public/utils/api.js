@@ -3,7 +3,7 @@
 
 import axios from "axios";
 import swal from "sweetalert";
-import { signIn, getToken, getUserId } from "./authRedirect.js";
+import { signIn, getToken, getUserId, getUserName } from "./authRedirect.js";
 
 axios.defaults.baseURL = "/api";
 axios.defaults.headers.post["Content-Type"] = "application/json";
@@ -122,6 +122,10 @@ export async function uploadAttachment(fileContent, fileName) {
         formData.append("fileContent", fileContent);
         formData.append("originalFileName", fileName);
 
+        // 获取当前用户的username
+        const username = getUserName();
+        formData.append("username", username);  // 将username添加到formData
+
         // 注意：移除axios默认的Content-Type头部，让浏览器自动设置，便于正确处理边界
         const response = await axios.post("/attachments/upload", formData, {
             headers: {
@@ -133,6 +137,96 @@ export async function uploadAttachment(fileContent, fileName) {
     } catch (error) {
         console.error("Failed to upload attachment:", error);
         throw error;
+    }
+}
+
+export async function uploadAudiofile(fileContent, fileName) {
+    try {
+        const formData = new FormData();
+        formData.append("fileContent", fileContent);
+        formData.append("originalFileName", fileName);
+        
+        // 获取当前用户的username
+        const username = getUserName();
+        formData.append("username", username);  // 将username添加到formData
+
+        const response = await axios.post("/audiofiles/upload", formData, {
+            headers: {
+                "Content-Type": undefined
+            }
+        });
+        
+        swal("上传成功!", "音频文件已成功上传", "success");
+        return response.data; // 返回后端响应中的附件信息
+    } catch (error) {
+        console.error("Failed to upload audio file:", error);
+        swal("上传失败!", "无法上传音频文件", "error");
+        throw error;
+    }
+}
+
+export async function fetchUploadedAudioFiles() {
+    console.log("fetchUploadedAudioFiles");
+    try {
+        const username = getUserName();
+        console.log("username", username);
+        const response = await axios.get("/audiofiles/list", { params: { username } });
+        if (response && response.data) {
+            return {
+                success: true,
+                data: response.data,
+            };
+        }
+    } catch (error) {
+        console.error("获取已上传音频文件列表失败：", error);
+        return {
+            success: false,
+            message: "无法获取已上传的音频文件列表",
+        };
+    }
+}
+
+
+export async function submitTranscriptionJob(audioUrl) {
+    try {
+        const response = await axios.post("/audiofiles/transcribe", {
+            audioUrl: audioUrl,
+            audioName: audioUrl.split("/").pop() // 假设URL的最后一部分是文件名
+        });
+        return response.data; // 返回包含 transcriptionId 和 audioName 的对象
+    } catch (error) {
+        console.error("提交转录任务失败：", error);
+        throw error;
+    }
+}
+
+export async function pollForTranscriptResults(transcriptionId, audioName) {
+    try {
+        const response = await axios.post("/audiofiles/transcript/results", {
+            transcriptionId: transcriptionId,
+            audioName: audioName
+        });
+        if (response.data.success) {
+            return response.data.transcriptResult; // 返回转录结果文本
+        } else {
+            throw new Error("获取转录结果失败");
+        }
+    } catch (error) {
+        console.error("获取转录结果失败：", error);
+        throw error;
+    }
+}
+
+export async function updateAudioFileMetadata(containerName, blobName, metadata) {
+    try {
+        await axios.post("/audiofiles/metadata", {
+            containerName,
+            blobName,
+            metadata
+        });
+        console.log("音频文件元数据更新成功");
+    } catch (error) {
+        console.error("更新音频文件元数据失败：", error);
     }
 }
 
@@ -165,15 +259,16 @@ export async function textToImage(caption) {
     }
 }
 
-
-
 //get gpt response
 export async function getGpt(promptText, model) {
     try {
         const response = await axios.post("/gpt", {
             prompt: promptText,
             model: model
+        }, {
+            timeout: 180000 // 设置超时时间为180秒
         });
+
         return response.data; // Axios automatically handles the response as JSON
     } catch (error) {
         if (error.response) {

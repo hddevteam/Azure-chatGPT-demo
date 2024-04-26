@@ -68,6 +68,13 @@ async function getTextFromBlob(url) {
     return await response.text();
 }
 
+async function updateBlobMetadata(containerName, blobName, metadata) {
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+    const blobClient = containerClient.getBlobClient(blobName);
+    const blockBlobClient = blobClient.getBlockBlobClient();
+    
+    await blockBlobClient.setMetadata(metadata);
+}
 
 async function deleteBlob(containerName, blobName) {
     try {
@@ -83,7 +90,7 @@ async function deleteBlob(containerName, blobName) {
 async function listBlobsByUser(username) {
     const containerClient = blobServiceClient.getContainerClient("audiofiles");
     let blobs = [];
-    const containerUrl = containerClient.url; // 获取容器的URL
+    const containerUrl = containerClient.url; 
 
     for await (const blob of containerClient.listBlobsFlat({ includeMetadata: true })) {
         if (blob.metadata && blob.metadata.username === username) {
@@ -98,7 +105,4 @@ async function listBlobsByUser(username) {
     return blobs;
 }
 
-
-
-
-module.exports = { uploadTextToBlob, getTextFromBlob, deleteBlob, uploadFileToBlob, listBlobsByUser };
+module.exports = { uploadTextToBlob, getTextFromBlob, deleteBlob, uploadFileToBlob, listBlobsByUser, updateBlobMetadata };

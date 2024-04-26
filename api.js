@@ -12,6 +12,7 @@ const applicationController = require("./controllers/applicationController");
 const dalleController = require("./controllers/dalleController");
 const chatHistoryController = require("./controllers/chatHistoryController");
 const messageController = require("./controllers/messageController");
+const audioFileController = require("./controllers/audioFileController");
 
 const router = express.Router();
 
@@ -53,5 +54,16 @@ router.delete("/messages/:chatId/:messageId", requireAuth, messageController.del
 
 // Message Attachment routes
 router.post("/attachments/upload", requireAuth, upload.single("fileContent"), messageController.uploadAttachment);
+
+// Audiofile routes
+router.post("/audiofiles/upload", requireAuth, upload.single("fileContent"), audioFileController.uploadAudiofile);
+router.get("/audiofiles/list", requireAuth, audioFileController.listAudioFiles);
+// 提交音频文件转录任务接口
+router.post("/audiofiles/transcribe", requireAuth, audioFileController.submitTranscriptionJob);
+// 轮询检查并获取转录结果接口
+router.post("/audiofiles/transcript/results", requireAuth, audioFileController.pollForTranscriptResults);
+router.post("/audiofiles/metadata", requireAuth, audioFileController.updateBlobMetadata);
+
+
 
 module.exports = router;
