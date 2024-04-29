@@ -1077,7 +1077,6 @@ button.action-button.invisible {
     object-fit: contain; /* 保持图片的原始宽高比，确保在限制尺寸内完整地展示图片 */
 }
 
-/* 模态窗口的CSS调整 */
 #image-modal {
     display: none; 
     position: fixed; 
@@ -1142,4 +1141,73 @@ button.action-button.invisible {
 
 #download-btn:active {
     background-color: #004080;
+}
+
+
+#audio-processing-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.5); /* 半透明背景色 */
+    align-items: center;
+}
+
+#audio-processing-modal .modal-content {
+    position: relative;
+    margin: auto;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 90%; 
+    max-width: 600px;
+}
+
+#audio-processing-modal #close-audio-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #333;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+#audio-processing-modal #upload-audio-btn {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#audio-processing-modal #upload-audio-btn i {
+    margin-right: 5px;
+}
+
+#audio-processing-modal #upload-audio-btn:hover {
+    background-color: #0056b3;
+}
+
+#audio-processing-modal #close-audio-modal-btn:hover {
+    color: #ddd;
+}
+
+#audio-processing-modal #close-audio-modal-btn:active {
+    color: #bbb;
+}
+
+#audio-processing-modal #uploaded-audio-files-list {
+    margin-top: 20px;
+}
+
+#audio-processing-modal #audio-upload-input {
+    margin-top: 20px;
 }

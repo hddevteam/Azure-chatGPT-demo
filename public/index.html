@@ -19,7 +19,16 @@
     <img class="modal-content" id="img-modal-content">
     <button id="download-btn" class="btn"><i class="fa fa-download"></i>Download</button>
   </div>
-
+  <div id="audio-processing-modal" class="modal">
+    <div class="modal-content">
+        <span id="close-audio-modal-btn"><i class="fas fa-times"></i></span>
+        <input type="file" id="audio-upload-input" accept="audio/*">
+        <button id="upload-audio-btn"><i class="fas fa-upload"></i>Upload Audio</button>
+        <div id="uploaded-audio-files-list">
+            <!-- display uploaded audio files info and recognized button/content area -->
+        </div>
+    </div>
+  </div>
   <div id="ai-actor-wrapper" class="hidden">
     <div id="ai-actor-header">
       <span>AI Actor</span>
@@ -87,6 +96,7 @@
                   class="fa-brands fa-markdown"></i><span class="btn-text">md</span></span>
               <span class="btn" id="delete-container" title="Click to delete all active messages"><i
                   class="fas fa-trash-alt"></i><span class="btn-text">Delete</span></span>
+                <span class="btn" id="audio-file-container" title="Click to attach an audio file"><i class="fas fa-file-audio"></i><span class="btn-text">STT</span></span>
             </div>
           </div>
         </div>

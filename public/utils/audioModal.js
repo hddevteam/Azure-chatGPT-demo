@@ -1,6 +1,6 @@
 //public/utils/audioModal.js
 
-import { uploadAudiofile, fetchUploadedAudioFiles, pollForTranscriptResults, submitTranscriptionJob } from "../utils/api.js";
+import { uploadAudiofile, fetchUploadedAudioFiles, fetchTranscriptionStatus, submitTranscriptionJob, fetchTranscriptText } from "../utils/api.js";
 import swal from "sweetalert";
 
 const audioModal = (() => {
@@ -37,10 +37,22 @@ const audioModal = (() => {
                     audioFiles.forEach(file => {
                         const fileElem = document.createElement("div");
                         fileElem.classList.add("uploaded-file-item"); // 添加样式类，以便于样式设定
-                        fileElem.innerHTML = `
-                                                <p>文件名: ${file.name}, 大小: ${(file.size / 1024).toFixed(2)}KB</p>
-                                                <button class="recognize-btn" data-audio-url="${file.url}">识别</button>
-                                            `;
+                        let buttonHTML = "";
+                        switch(file.transcriptionStatus) {
+                        case "Succeeded":
+                            buttonHTML = `<button class="view-result-btn" data-transcription-url="${file.transcriptionUrl}">查看识别结果</button>`;
+                            break;
+                        case "Running":
+                        case "NotStarted":
+                            buttonHTML = "<button class=\"recognize-btn\" disabled>识别中...</button>";
+                            break;
+                        case "Failed":
+                            buttonHTML = "<p>识别失败</p>";
+                            break;
+                        default:
+                            buttonHTML = `<button class="recognize-btn" data-audio-url="${file.url}">识别</button>`;
+                        }
+                        fileElem.innerHTML = ` <p>文件名: ${file.name}, 大小: ${(file.size / 1024).toFixed(2)}KB</p>${buttonHTML}`;
                         uploadedFilesList.appendChild(fileElem);
                     });
                 }
@@ -61,6 +73,15 @@ const audioModal = (() => {
             if (target.className.includes("recognize-btn")) {
                 const audioUrl = target.getAttribute("data-audio-url"); // 获取音频URL
                 await recognizeAudioFile(audioUrl); // 调用识别函数
+            } else if (target.className.includes("view-result-btn")) {
+                const transcriptionUrl = target.getAttribute("data-transcription-url");
+                try {
+                    const transcriptText = await fetchTranscriptText(transcriptionUrl); // 假设这个函数能从给定的URL获取转录文本
+                    swal("识别结果", transcriptText, "info");
+                } catch (error) {
+                    console.error("查看识别结果失败: ", error);
+                    swal("错误", "无法查看识别结果。", "error");
+                }
             }
         });
     };
@@ -69,28 +90,45 @@ const audioModal = (() => {
         try {
             const { transcriptionId, audioName } = await submitTranscriptionJob(audioUrl);
             const transcriptResult = await pollForTranscriptResults(transcriptionId, audioName);
-        
-            swal("识别成功!", "音频文件识别完成", "success");
-            // 在此处可以更新UI以显示转录结果，例如更新 uploadedFilesList 的内容
-            updateTranscriptResultInUI(audioName, transcriptResult);
+            console.log("transcriptResult", transcriptResult);
         } catch (error) {
             console.error("识别音频文件失败: ", error);
             swal("识别失败", "无法识别音频文件。", "error");
         }
     }
 
-    // 更新UI函数, 这里只是个示例实现, 具体实现可能会有所不同
-    function updateTranscriptResultInUI(audioName, transcriptResult) {
-        const uploadedFilesList = document.getElementById("uploaded-audio-files-list");
-        // 查找当前音频文件的元素，并更新其内容以显示转录结果
-        const fileElems = uploadedFilesList.getElementsByClassName("uploaded-file-item");
-        Array.from(fileElems).forEach((elem) => {
-            if (elem.textContent.includes(audioName)) {
-                elem.innerHTML += `<p>识别结果: ${transcriptResult}</p>`;
-            }
-        });
-    }
 
+    async function pollForTranscriptResults(transcriptionId, audioName) {
+        let attempts = 10; // 可以根据需要调整尝试次数
+        let pollInterval = 5000; // 初始轮询间隔5秒
+    
+        const poll = async () => {
+            if (attempts-- === 0) {
+                swal("识别失败", "获取转录结果超时。请稍后再试。", "error");
+                return;
+            }
+            try {
+                const result = await fetchTranscriptionStatus(transcriptionId, audioName); // 现在传递blobName
+                if(result.status === "Succeeded") {
+                    // 查找和更新UI，显示“查看识别结果”按钮
+                    let recognizeBtn = document.querySelector(`button[data-audio-url='${result.transcriptionUrl}']`);
+                    if (recognizeBtn) {
+                        recognizeBtn.outerHTML = `<button class="view-result-btn" data-transcription-url="${result.transcriptionUrl}">查看识别结果</button>`;
+                    }
+                    swal("识别成功!", "音频文件识别完成", "success");
+                } else if (result.status === "Running" || result.status === "NotStarted") {
+                    setTimeout(poll, pollInterval);
+                    pollInterval *= 2; // 指数退避策略
+                } else {
+                    swal("识别失败", "转录任务失败。", "error");
+                }
+            } catch(error) {
+                console.error("轮询识别状态时发生错误：", error);
+                swal("识别失败", "无法获取转录状态。请稍后再试。", "error");
+            }
+        };
+        poll();
+    }
 
     // 初始化函数，绑定事件监听器
     const init = () => {

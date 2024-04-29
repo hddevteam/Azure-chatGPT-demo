@@ -1,14 +1,14 @@
 //controller/audioFileController.js
-const { uploadFileToBlob, listBlobsByUser, uploadTextToBlob, updateBlobMetadata } = require("../services/azureBlobStorage");
+const { uploadFileToBlob, listBlobsByUser, uploadTextToBlob, updateBlobMetadata, getTextContentFromBlob} = require("../services/azureBlobStorage");
 
 const axios = require("axios");
 require("dotenv").config();
+const containerName = "audiofiles"; // 附件存储在这个容器中
 
 exports.uploadAudiofile = async (req, res) => {
     const fileContent = req.file.buffer; // 文件的二进制内容
     const originalFileName = req.body.originalFileName || req.file.originalname;
     const username = req.body.username; // 从请求中获取username
-    const containerName = "audiofiles"; // 附件存储在这个容器中
 
     try {
         // 将username作为一个参数传递给uploadFileToBlob
@@ -31,7 +31,10 @@ exports.listAudioFiles = async (req, res) => {
         const filesList = blobs.map(blob => ({
             name: blob.name,
             size: blob.contentLength,
-            url: blob.url 
+            url: blob.url,
+            transcriptionStatus: blob.transcriptionStatus, // 加入转录状态
+            transcriptionUrl: blob.transcriptionUrl, // 加入转录结果URL，也就是在transcriptions容器中的文件名
+            transcriptionId: blob.transcriptionId // 加入转录ID
         }));
         console.log("filesList", filesList);
         res.json(filesList);
@@ -40,6 +43,7 @@ exports.listAudioFiles = async (req, res) => {
         res.status(500).send("Unable to list audio files.");
     }
 };
+
 
 const azureTTS = JSON.parse(process.env.AZURE_TTS);
 const subscriptionKey = azureTTS.subscriptionKey;
@@ -59,7 +63,7 @@ exports.submitTranscriptionJob = async (req, res) => {
     
     const data = {
         contentUrls: [audioUrl],
-        locale: "zh-CN",
+        locale: "zh-cn",
         displayName: transcriptionDisplayName,
         properties: {
             wordLevelTimestampsEnabled: false,
@@ -85,6 +89,7 @@ exports.submitTranscriptionJob = async (req, res) => {
     
     try {
         const response = await axios.post(endpoint, data, config);
+        console.log("Transcription job submitted successfully: ", response.data);
         const transcriptionId = response.data.self.split("/").pop(); 
         res.status(200).json({ transcriptionId, audioName });
     } catch (error) {
@@ -93,63 +98,89 @@ exports.submitTranscriptionJob = async (req, res) => {
     }
 };
 
-// 取转录结果，处理并上传到Blob
-exports.pollForTranscriptResults = async (req, res) => {
-    console.log("pollForTranscriptResults");
-    const { transcriptionId, audioName } = req.body;
+exports.getTranscriptionStatus = async (req, res) => {
+    const { transcriptionId, blobName } = req.query;
+    console.log("Getting transcription status for transcription ID: ", transcriptionId, "Blob name: ", blobName);
     const statusEndpoint = `${endpoint}/${transcriptionId}`;
-    console.log("statusEndpoint", statusEndpoint);
     const config = {
         headers: { "Ocp-Apim-Subscription-Key": subscriptionKey }
     };
 
     try {
-        // 轮询检查转录状态
-        let transcriptResult = null;
-        let retries = 20;
-        do {
-            const statusResponse = await axios.get(statusEndpoint, config);
-            const status = statusResponse.data.status;
+        const response = await axios.get(statusEndpoint, config);
+        let status = response.data.status;
 
-            if (status === "Succeeded") {
-                const filesUrl = statusResponse.data.links.files;
-                const resultsResponse = await axios.get(filesUrl, config);
-                const results = resultsResponse.data;
-                
-                for (const fileInfo of results.values) {
-                    if (fileInfo.kind === "Transcription") {
-                        const resultsUrl = fileInfo.links.contentUrl;
-                        const finalResultsResponse = await axios.get(resultsUrl);
-                        const finalResults = finalResultsResponse.data;
-                        transcriptResult = parseAndDisplayResults(finalResults);
-                        break; // 退出循环
-                    }
-                }
+        let transcriptionUrl = null;
 
-                if (transcriptResult) {
-                    // 处理和上传转录结果
-                    await uploadTextToBlob("transcriptions", `${audioName}.txt`, transcriptResult);
-                    break; // 跳出轮询循环
-                }
-            } else if (status === "Failed") {
-                console.log("Transcription failed", statusResponse.data);
-                throw new Error("Transcription failed", statusResponse.data);
-            }
-
-            retries--;
-            await new Promise(resolve => setTimeout(resolve, 10000)); 
-        } while (!transcriptResult && retries > 0);
-
-        if (transcriptResult) {
-            res.json({ success: true, transcriptResult });
-        } else {
-            throw new Error("Transcription results processing failed or max retries exceeded.");
+        if (status === "Succeeded") {
+            const updateResult = await saveTranscriptionResultToBlobAndUpdateMetadata(transcriptionId, blobName);
+            transcriptionUrl = updateResult.transcriptionUrl;
         }
+
+        // 更新元数据可能需要调整此处的调用，以确保 metadata 已经更新
+        // 确保 saveTranscriptionResultToBlobAndUpdateMetadata 返回所需要的信息，如 transcriptionUrl
+        console.log("Transcription job status: ", status, "Transcription URL: ", transcriptionUrl);
+        res.json({ status, transcriptionUrl }); // 返回状态和转录结果URL
     } catch (error) {
-        console.error("Error fetching and processing transcription results", error);
-        res.status(500).send("Failed to fetch and process transcription results.");
+        console.error("Error fetching transcription job status", error);
+        res.status(500).send("Failed to fetch transcription job status.");
     }
 };
+
+async function saveTranscriptionResultToBlobAndUpdateMetadata(transcriptionId, audioName) {
+    console.log("Saving transcription result to blob and updating metadata: ", transcriptionId, audioName);
+    const resultsEndpoint = `${endpoint}/${transcriptionId}/files`;
+    const config = {
+        headers: { "Ocp-Apim-Subscription-Key": subscriptionKey }
+    };
+
+    try {
+        const response = await axios.get(resultsEndpoint, config);
+        let transcriptResultsUrl = null;
+        for (const file of response.data.values) {
+            if (file.kind === "Transcription") {
+                transcriptResultsUrl = file.links.contentUrl;
+                break;
+            }
+        }
+        if (transcriptResultsUrl) {
+            // 假设您已经有转录文本内容的逻辑
+            const transcriptionResult = await axios.get(transcriptResultsUrl);
+            const transcriptionText = transcriptionResult.data;
+            // 取audioName中的文件名部分，不包括扩展名，加上.json后缀
+            const blobUrl = `${audioName.split(".")[0]}.json`;
+            await uploadTextToBlob("transcriptions", blobUrl, JSON.stringify(transcriptionText));
+
+            await updateBlobMetadata("audiofiles", audioName, {
+                transcriptionUrl: blobUrl,
+                transcriptionStatus: "Succeeded"
+            });
+
+            return { transcriptionUrl: blobUrl };
+        } else {
+            throw new Error("未找到转录结果文件。");
+        }
+    } catch (error) {
+        console.error("保存转录结果到Blob并更新Metadata时发生错误", error);
+    }
+}
+
+
+exports.getTranscriptTextFromBlob = async (req, res) => {
+    const { transcriptionBlobName } = req.query;
+    try {
+        const transcriptText = await getTextContentFromBlob("transcriptions", transcriptionBlobName);
+
+        // parseAndDisplayResults 函数的逻辑此处需要实现，并假定其将JSON转换为易读文本
+        const readableText = parseAndDisplayResults(JSON.parse(transcriptText));
+        res.json({ success: true, transcriptText: readableText });
+
+    } catch (error) {
+        console.error("从Blob获取转录文本时发生错误", error);
+        res.status(500).send("无法从Blob获取转录文本。");
+    }
+};
+
 
 // 解析转录结果
 function parseAndDisplayResults(resultsJson) {
@@ -176,14 +207,4 @@ function convertDurationInTicksToMMSS(durationInTicks) {
     return `${minutes}:${seconds}`;
 }
 
-exports.updateBlobMetadata = async (req, res) => {
-    const { containerName, blobName, metadata } = req.body;
-    try {
-        await updateBlobMetadata(containerName, blobName, metadata);
-        res.json({ success: true });
-    } catch (error) {
-        console.error("更新metadata失败：", error);
-        res.status(500).send("无法更新metadata。");
-    }
-};
 

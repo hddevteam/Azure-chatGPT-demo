@@ -10,6 +10,7 @@ import { addHorizontalResizeHandleListeners } from "./utils/horizontal-resize.js
 import { addVerticalResizeHandleListeners } from "./utils/vertical-resize.js";
 import fileUploader from "./utils/fileUploader.js";
 import setup from "./setup.js";
+import audioModal from "./utils/audioModal.js";
 
 (async () => {
     try {
@@ -437,10 +438,16 @@ function initializeApp() {
         fileInput.onchange = handleFiles;
         fileInput.click();
     });
+
+    audioModal.init();
+    const openModalBtn = document.getElementById("audio-file-container");
+    openModalBtn.addEventListener("click", () => {
+        audioModal.showModal();
+    });
+
     setInitialVisibility();
     addHorizontalResizeHandleListeners(); // Add horizontal resize functionality
     addVerticalResizeHandleListeners(); // Add vertical resize functionality
-
     window.addEventListener("resize", setInitialVisibility);
     
 }

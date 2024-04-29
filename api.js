@@ -1,4 +1,4 @@
-// api.js
+// api.js backend
 
 const express = require("express");
 const multer = require("multer");
@@ -60,10 +60,9 @@ router.post("/audiofiles/upload", requireAuth, upload.single("fileContent"), aud
 router.get("/audiofiles/list", requireAuth, audioFileController.listAudioFiles);
 // 提交音频文件转录任务接口
 router.post("/audiofiles/transcribe", requireAuth, audioFileController.submitTranscriptionJob);
-// 轮询检查并获取转录结果接口
-router.post("/audiofiles/transcript/results", requireAuth, audioFileController.pollForTranscriptResults);
-router.post("/audiofiles/metadata", requireAuth, audioFileController.updateBlobMetadata);
-
+router.get("/audiofiles/transcript/status", requireAuth, audioFileController.getTranscriptionStatus);
+// 添加新的路由处理获取转录文本的请求
+router.get("/audiofiles/transcript/text", requireAuth, audioFileController.getTranscriptTextFromBlob);
 
 
 module.exports = router;

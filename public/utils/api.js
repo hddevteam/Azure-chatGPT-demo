@@ -200,35 +200,36 @@ export async function submitTranscriptionJob(audioUrl) {
     }
 }
 
-export async function pollForTranscriptResults(transcriptionId, audioName) {
+export async function fetchTranscriptionStatus(transcriptionId, blobName) {
     try {
-        const response = await axios.post("/audiofiles/transcript/results", {
-            transcriptionId: transcriptionId,
-            audioName: audioName
+        const response = await axios.get("/audiofiles/transcript/status", {
+            params: { transcriptionId, blobName }
         });
-        if (response.data.success) {
-            return response.data.transcriptResult; // 返回转录结果文本
-        } else {
-            throw new Error("获取转录结果失败");
-        }
+        return response.data; // 假设返回的数据包括转录状态以及可选的其他信息
     } catch (error) {
-        console.error("获取转录结果失败：", error);
-        throw error;
+        console.error(`获取转录状态失败：${error}`);
+        throw error; // 向调用者抛出异常，以便可以进行进一步处理
     }
 }
 
-export async function updateAudioFileMetadata(containerName, blobName, metadata) {
+// 前端API调用
+export async function fetchTranscriptText(transcriptionBlobName) {
     try {
-        await axios.post("/audiofiles/metadata", {
-            containerName,
-            blobName,
-            metadata
+        const response = await axios.get("/audiofiles/transcript/text", {
+            params: { transcriptionBlobName }
         });
-        console.log("音频文件元数据更新成功");
+        if (response.data && response.data.success) {
+            return response.data.transcriptText; // 返回已解析的转录文本
+        } else {
+            throw new Error("Failed to fetch transcription text");
+        }
     } catch (error) {
-        console.error("更新音频文件元数据失败：", error);
+        console.error("获取转录文本失败：", error);
+        throw error; // 向调用者抛出异常，以便可以进行进一步处理
     }
 }
+
+
 
 // text to image
 export async function textToImage(caption) {
