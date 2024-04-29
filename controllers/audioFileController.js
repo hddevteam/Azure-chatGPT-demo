@@ -51,8 +51,7 @@ const endpoint = "https://eastus.api.cognitive.microsoft.com/speechtotext/v3.2-p
 
 exports.submitTranscriptionJob = async (req, res) => {
     const { audioUrl, audioName } = req.body;
-    const transcriptionDisplayName = `Transcription_${audioName}_${new Date().toISOString()}`;
-    
+    const transcriptionDisplayName = `Transcription_${audioName}_${new Date().toISOString()}`;    
     const config = {
         headers: {
             "Ocp-Apim-Subscription-Key": subscriptionKey,
@@ -150,7 +149,6 @@ async function saveTranscriptionResultToBlobAndUpdateMetadata(transcriptionId, a
             // 取audioName中的文件名部分，不包括扩展名，加上.json后缀
             const blobUrl = `${audioName.split(".")[0]}.json`;
             await uploadTextToBlob("transcriptions", blobUrl, JSON.stringify(transcriptionText));
-
             await updateBlobMetadata("audiofiles", audioName, {
                 transcriptionUrl: blobUrl,
                 transcriptionStatus: "Succeeded"

@@ -72,7 +72,7 @@ const audioModal = (() => {
             // 检查点击事件的目标是否是识别按钮
             if (target.className.includes("recognize-btn")) {
                 const audioUrl = target.getAttribute("data-audio-url"); // 获取音频URL
-                await recognizeAudioFile(audioUrl); // 调用识别函数
+                await recognizeAudioFile(audioUrl, target); // 调用识别函数
             } else if (target.className.includes("view-result-btn")) {
                 const transcriptionUrl = target.getAttribute("data-transcription-url");
                 try {
@@ -86,9 +86,10 @@ const audioModal = (() => {
         });
     };
 
-    async function recognizeAudioFile(audioUrl) {
+    async function recognizeAudioFile(audioUrl, buttonElement) {
         try {
             const { transcriptionId, audioName } = await submitTranscriptionJob(audioUrl);
+            buttonElement.setAttribute("data-transcription-id", transcriptionId);
             const transcriptResult = await pollForTranscriptResults(transcriptionId, audioName);
             console.log("transcriptResult", transcriptResult);
         } catch (error) {
@@ -110,11 +111,7 @@ const audioModal = (() => {
             try {
                 const result = await fetchTranscriptionStatus(transcriptionId, audioName); // 现在传递blobName
                 if(result.status === "Succeeded") {
-                    // 查找和更新UI，显示“查看识别结果”按钮
-                    let recognizeBtn = document.querySelector(`button[data-audio-url='${result.transcriptionUrl}']`);
-                    if (recognizeBtn) {
-                        recognizeBtn.outerHTML = `<button class="view-result-btn" data-transcription-url="${result.transcriptionUrl}">查看识别结果</button>`;
-                    }
+                    document.querySelector(`button[data-transcription-id="${transcriptionId}"]`).outerHTML = `<button class="view-result-btn" data-transcription-url="${result.transcriptionUrl}">查看识别结果</button>`;
                     swal("识别成功!", "音频文件识别完成", "success");
                 } else if (result.status === "Running" || result.status === "NotStarted") {
                     setTimeout(poll, pollInterval);

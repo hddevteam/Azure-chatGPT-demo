@@ -98,13 +98,27 @@ async function getTextFromBlob(url) {
     return await response.text();
 }
 
-async function updateBlobMetadata(containerName, blobName, metadata) {
+async function updateBlobMetadata(containerName, blobName, metadataUpdates) {
     const containerClient = blobServiceClient.getContainerClient(containerName);
     const blobClient = containerClient.getBlobClient(blobName);
-    const blockBlobClient = blobClient.getBlockBlobClient();
     
-    await blockBlobClient.setMetadata(metadata);
+    try {
+        // 获取现有的元数据
+        const existingMetadata = (await blobClient.getProperties()).metadata;
+        
+        // 合并现有的元数据与更新内容
+        const updatedMetadata = { ...existingMetadata, ...metadataUpdates };
+        
+        // 更新 Blob 元数据
+        await blobClient.setMetadata(updatedMetadata);
+        
+        console.log("元数据更新成功");
+    } catch (error) {
+        console.error("更新元数据时发生错误：", error);
+        throw error;
+    }
 }
+
 
 async function deleteBlob(containerName, blobName) {
     try {
@@ -124,8 +138,7 @@ async function listBlobsByUser(username) {
 
     for await (const blob of containerClient.listBlobsFlat({ includeMetadata: true })) {
         if (blob.metadata && blob.metadata.username === username) {
-            const blobUrl = `${containerUrl}/${blob.name}`; // 构造blob的完整访问URL
-            // 确保这里提取了所有需要的metadata，如 transcriptionStatus, transcriptionUrl, 以及 transcriptionId
+            const blobUrl = `${containerUrl}/${blob.name}`; 
             blobs.push({ 
                 name: blob.name, 
                 contentLength: blob.properties.contentLength,
