@@ -1165,7 +1165,8 @@ button.action-button.invisible {
     border-radius: 10px;
     padding: 20px;
     width: 90%; 
-    max-width: 600px;
+    min-width: 80vw;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 #audio-processing-modal #close-audio-modal-btn {
@@ -1176,6 +1177,85 @@ button.action-button.invisible {
     font-size: 25px;
     cursor: pointer;
 }
+
+.upload-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.upload-section input[type="file"] {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.upload-section button {
+    padding: 10px 20px;
+    font-size: 16px;
+    line-height: 1;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;/
+}
+
+.options-section {
+    padding: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.options-section .language-select,
+.options-section .speaker-identification {
+    margin-bottom: 15px; /* 增加间距提升清晰度 */
+    display: flex;
+    align-items: center;
+}
+
+.options-section label {
+    margin-right: 10px;
+    flex-shrink: 0; /* 防止标签在小屏幕上缩小 */
+}
+
+.options-section select,
+.options-section input[type="number"] {
+    flex-grow: 1; /* 让选择框和数字输入框扩展填充可用空间 */
+}
+
+/* 调整文件列表样式 */
+.files-list {
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.files-list h3 {
+    margin-bottom: 15px;
+}
+
+.files-list .uploaded-file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.view-result-btn {
+    font-size: 16px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.view-result-btn:hover {
+    background-color: #0056b3;
+}
+
 
 #audio-processing-modal #upload-audio-btn {
     display: inline-block;
@@ -1209,5 +1289,10 @@ button.action-button.invisible {
 }
 
 #audio-processing-modal #audio-upload-input {
-    margin-top: 20px;
+    width: 75%;
+}
+
+#audio-processing-modal #upload-audio-btn {
+    width: 20%;
+    margin-left: 5%; 
 }

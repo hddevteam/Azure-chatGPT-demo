@@ -40,19 +40,20 @@ const audioModal = (() => {
                         let buttonHTML = "";
                         switch(file.transcriptionStatus) {
                         case "Succeeded":
-                            buttonHTML = `<button class="view-result-btn" data-transcription-url="${file.transcriptionUrl}">查看识别结果</button>`;
+                            buttonHTML = `<button class="view-result-btn" data-transcription-url="${file.transcriptionUrl}">View Transcript
+                            </button>`;
                             break;
                         case "Running":
                         case "NotStarted":
-                            buttonHTML = "<button class=\"recognize-btn\" disabled>识别中...</button>";
+                            buttonHTML = "<button class=\"recognize-btn\" disabled> Recognizing...</button>";
                             break;
                         case "Failed":
-                            buttonHTML = "<p>识别失败</p>";
+                            buttonHTML = "<p>Recognition failed. Please try again.</p>";
                             break;
                         default:
-                            buttonHTML = `<button class="recognize-btn" data-audio-url="${file.url}">识别</button>`;
+                            buttonHTML = `<button class="recognize-btn" data-audio-url="${file.url}">Recognize</button>`;
                         }
-                        fileElem.innerHTML = ` <p>文件名: ${file.name}, 大小: ${(file.size / 1024).toFixed(2)}KB</p>${buttonHTML}`;
+                        fileElem.innerHTML = ` <p>Filename: ${file.name}, Size: ${(file.size / 1024).toFixed(2)}KB</p>${buttonHTML}`;
                         uploadedFilesList.appendChild(fileElem);
                     });
                 }
