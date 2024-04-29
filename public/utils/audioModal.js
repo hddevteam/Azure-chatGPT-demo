@@ -86,9 +86,14 @@ const audioModal = (() => {
         });
     };
 
-    async function recognizeAudioFile(audioUrl, buttonElement) {
+    // 当用户点击识别按钮时
+    const recognizeAudioFile = async (audioUrl, buttonElement) => {
         try {
-            const { transcriptionId, audioName } = await submitTranscriptionJob(audioUrl);
+            const languages = Array.from(document.getElementById("language-options").selectedOptions).map(option => option.value);
+            const identifySpeakers = document.getElementById("identify-speakers").checked;
+            const maxSpeakers = document.getElementById("max-speakers").value;
+
+            const { transcriptionId, audioName } = await submitTranscriptionJob(audioUrl, { languages, identifySpeakers, maxSpeakers });
             buttonElement.setAttribute("data-transcription-id", transcriptionId);
             const transcriptResult = await pollForTranscriptResults(transcriptionId, audioName);
             console.log("transcriptResult", transcriptResult);
@@ -96,7 +101,8 @@ const audioModal = (() => {
             console.error("识别音频文件失败: ", error);
             swal("识别失败", "无法识别音频文件。", "error");
         }
-    }
+    };
+
 
 
     async function pollForTranscriptResults(transcriptionId, audioName) {

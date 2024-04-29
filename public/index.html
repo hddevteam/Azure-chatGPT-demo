@@ -8,7 +8,7 @@
   <link rel="icon" href="./images/icons/32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="./images/icons/180.png" sizes="180x180">
   <link rel="manifest" href="manifest.json">
-  <script>navigator.serviceWorker.register("service-worker.js")</script> 
+  <script>navigator.serviceWorker.register("service-worker.js")</script>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0 viewport-fit=cover">
 </head>
 
@@ -21,12 +21,32 @@
   </div>
   <div id="audio-processing-modal" class="modal">
     <div class="modal-content">
-        <span id="close-audio-modal-btn"><i class="fas fa-times"></i></span>
-        <input type="file" id="audio-upload-input" accept="audio/*">
-        <button id="upload-audio-btn"><i class="fas fa-upload"></i>Upload Audio</button>
-        <div id="uploaded-audio-files-list">
-            <!-- display uploaded audio files info and recognized button/content area -->
-        </div>
+      <span id="close-audio-modal-btn"><i class="fas fa-times"></i></span>
+      <input type="file" id="audio-upload-input" accept="audio/*">
+      <button id="upload-audio-btn"><i class="fas fa-upload"></i>Upload Audio</button>
+      <!-- 添加在模态框内容的合适位置 -->
+      <div>
+        <label>候选语种（支持多选）：</label>
+        <select id="language-options" multiple>
+          <option value="zh-cn">中文（简体）</option>
+          <option value="zh-tw">中文（台湾）</option>
+          <option value="zh-hk">中文（香港）</option>
+          <option value="en-us">English(US)</option>
+          <option value="ja-jp">日本語</option>
+          <option value="ko-kr">한국어</option>
+        </select>
+      </div>
+      <div>
+        <label><input type="checkbox" id="identify-speakers" /> 是否识别说话人</label>
+      </div>
+      <div>
+        <label for="max-speakers">说话人数最大值：</label>
+        <input type="number" id="max-speakers" min="2" max="10" value="2" />
+      </div>
+
+      <div id="uploaded-audio-files-list">
+        <!-- display uploaded audio files info and recognized button/content area -->
+      </div>
     </div>
   </div>
   <div id="ai-actor-wrapper" class="hidden">
@@ -82,7 +102,8 @@
                 <input type="range" id="slider" min="0" max="2" value="2" step="1">
                 <span id="currentValue">0</span>
               </div> -->
-              <span class="btn" id="generate-img" title="I can help you generate image via /image command"><i class="fas fa-image"></i><span class="btn-text">DALL·E 3</span></span>
+              <span class="btn" id="generate-img" title="I can help you generate image via /image command"><i
+                  class="fas fa-image"></i><span class="btn-text">DALL·E 3</span></span>
               </i>
             </div>
             <div class="btns">
@@ -96,7 +117,8 @@
                   class="fa-brands fa-markdown"></i><span class="btn-text">md</span></span>
               <span class="btn" id="delete-container" title="Click to delete all active messages"><i
                   class="fas fa-trash-alt"></i><span class="btn-text">Delete</span></span>
-                <span class="btn" id="audio-file-container" title="Click to attach an audio file"><i class="fas fa-file-audio"></i><span class="btn-text">STT</span></span>
+              <span class="btn" id="audio-file-container" title="Click to attach an audio file"><i
+                  class="fas fa-file-audio"></i><span class="btn-text">STT</span></span>
             </div>
           </div>
         </div>

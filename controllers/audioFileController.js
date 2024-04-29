@@ -51,35 +51,47 @@ const endpoint = "https://eastus.api.cognitive.microsoft.com/speechtotext/v3.2-p
 
 exports.submitTranscriptionJob = async (req, res) => {
     const { audioUrl, audioName } = req.body;
-    const transcriptionDisplayName = `Transcription_${audioName}_${new Date().toISOString()}`;    
+    const languages = req.body.languages || ["zh-cn"]; // 默认为中文简体
+    const identifySpeakers = req.body.identifySpeakers || false;
+    const maxSpeakers = req.body.maxSpeakers || 2;
+
+    const transcriptionDisplayName = `Transcription_${audioName}_${new Date().toISOString()}`;
+
+    // 构造请求数据基础结构
+    const data = {
+        contentUrls: [audioUrl],
+        locale: languages[0], // 使用用户选择的第一种语言作为主要语言
+        displayName: transcriptionDisplayName,
+        properties: {
+            punctuationMode: "DictatedAndAutomatic",
+            profanityFilterMode: "Masked"
+        }
+    };
+
+    // 根据条件动态添加diarization属性
+    if (identifySpeakers) {
+        data.properties.diarizationEnabled = true;
+        data.properties.diarization = {
+            speakers: {
+                minCount: 1,
+                maxCount: parseInt(maxSpeakers, 10)
+            }
+        };
+    }
+
+    // 如果languages数组中包含多个值，则添加languageIdentification属性
+    if (languages.length > 1) {
+        data.properties.languageIdentification = {
+            candidateLocales: languages
+        };
+    }
+
     const config = {
         headers: {
             "Ocp-Apim-Subscription-Key": subscriptionKey,
             "Content-Type": "application/json"
         },
-        timeout: 10000, // 增加超时设置
-    };
-    
-    const data = {
-        contentUrls: [audioUrl],
-        locale: "zh-cn",
-        displayName: transcriptionDisplayName,
-        properties: {
-            wordLevelTimestampsEnabled: false,
-            displayFormWordLevelTimestampsEnabled: true,
-            diarizationEnabled: true,
-            languageIdentification: {
-                candidateLocales: ["zh-cn", "en-us"]
-            },
-            diarization: {
-                speakers: {
-                    minCount: 1,
-                    maxCount: 2
-                }
-            },
-            punctuationMode: "DictatedAndAutomatic",
-            profanityFilterMode: "Masked"
-        }
+        timeout: 10000,
     };
 
     console.log("Submitting transcription job with data: ", data);

@@ -56,13 +56,11 @@ async function uploadTextToBlob(containerName, blobName, text) {
 
 async function getTextContentFromBlob(containerName, blobName) {
     try {
-        // 获取容器客户端
+        const decodedBlobName = decodeURIComponent(blobName);
+        console.log("decodedBlobName", decodedBlobName);
         const containerClient = blobServiceClient.getContainerClient(containerName);
-        // 获取Blob客户端
-        const blobClient = containerClient.getBlobClient(blobName);
-        // 下载Blob内容到Buffer
+        const blobClient = containerClient.getBlobClient(decodedBlobName);
         const downloadBlockBlobResponse = await blobClient.download(0);
-        // 将Buffer转为字符串
         const downloadedContent = await streamToString(downloadBlockBlobResponse.readableStreamBody);
         return downloadedContent;
     } catch (error) {
@@ -70,6 +68,7 @@ async function getTextContentFromBlob(containerName, blobName) {
         throw new Error("FailedToGetTextFromBlob");
     }
 }
+
 
 // 辅助函数，将读取流转换为字符串
 async function streamToString(readableStream) {
@@ -101,23 +100,31 @@ async function getTextFromBlob(url) {
 async function updateBlobMetadata(containerName, blobName, metadataUpdates) {
     const containerClient = blobServiceClient.getContainerClient(containerName);
     const blobClient = containerClient.getBlobClient(blobName);
-    
+
     try {
+        // 在设置之前对元数据的值进行URL编码
+        const encodedMetadataUpdates = {};
+        for (const key in metadataUpdates) {
+            const value = metadataUpdates[key];
+            encodedMetadataUpdates[key] = encodeURIComponent(value);
+        }
+
         // 获取现有的元数据
         const existingMetadata = (await blobClient.getProperties()).metadata;
-        
+
         // 合并现有的元数据与更新内容
-        const updatedMetadata = { ...existingMetadata, ...metadataUpdates };
-        
+        const updatedMetadata = { ...existingMetadata, ...encodedMetadataUpdates };
+
         // 更新 Blob 元数据
         await blobClient.setMetadata(updatedMetadata);
-        
+
         console.log("元数据更新成功");
     } catch (error) {
         console.error("更新元数据时发生错误：", error);
         throw error;
     }
 }
+
 
 
 async function deleteBlob(containerName, blobName) {

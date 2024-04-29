@@ -187,18 +187,28 @@ export async function fetchUploadedAudioFiles() {
 }
 
 
-export async function submitTranscriptionJob(audioUrl) {
+export async function submitTranscriptionJob(audioUrl, { languages, identifySpeakers, maxSpeakers }) {
     try {
-        const response = await axios.post("/audiofiles/transcribe", {
+        // 构造请求体，包括音频文件的URL、文件名，以及新的识别选项
+        const requestBody = {
             audioUrl: audioUrl,
-            audioName: audioUrl.split("/").pop() // 假设URL的最后一部分是文件名
-        });
-        return response.data; // 返回包含 transcriptionId 和 audioName 的对象
+            audioName: audioUrl.split("/").pop(), // 假设URL的最后一部分是文件名
+            languages: languages, // 用户选择的语种列表
+            identifySpeakers: identifySpeakers, // 是否识别说话人
+            maxSpeakers: maxSpeakers, // 说话人数最大值
+        };
+        console.log("requestBody", requestBody);
+
+        // 发送带有识别选项的请求
+        const response = await axios.post("/audiofiles/transcribe", requestBody);
+        
+        return response.data; // 返回后端的响应，包含 transcriptionId 和 audioName
     } catch (error) {
         console.error("提交转录任务失败：", error);
-        throw error;
+        throw error; // 将错误抛出，以便调用函数可以处理
     }
 }
+
 
 export async function fetchTranscriptionStatus(transcriptionId, blobName) {
     try {
