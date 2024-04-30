@@ -32,9 +32,10 @@ exports.listAudioFiles = async (req, res) => {
             name: blob.name,
             size: blob.contentLength,
             url: blob.url,
-            transcriptionStatus: blob.transcriptionStatus, // 加入转录状态
-            transcriptionUrl: blob.transcriptionUrl, // 加入转录结果URL，也就是在transcriptions容器中的文件名
-            transcriptionId: blob.transcriptionId // 加入转录ID
+            transcriptionStatus: blob.transcriptionStatus,
+            transcriptionUrl: blob.transcriptionUrl,
+            transcriptionId: blob.transcriptionId,
+            lastModified: blob.lastModified 
         }));
         console.log("filesList", filesList);
         res.json(filesList);
@@ -126,10 +127,10 @@ exports.getTranscriptionStatus = async (req, res) => {
         if (status === "Succeeded") {
             const updateResult = await saveTranscriptionResultToBlobAndUpdateMetadata(transcriptionId, blobName);
             transcriptionUrl = updateResult.transcriptionUrl;
+        } else {
+            await updateBlobMetadata(containerName, blobName, { transcriptionStatus: status, transcriptionId });
         }
 
-        // 更新元数据可能需要调整此处的调用，以确保 metadata 已经更新
-        // 确保 saveTranscriptionResultToBlobAndUpdateMetadata 返回所需要的信息，如 transcriptionUrl
         console.log("Transcription job status: ", status, "Transcription URL: ", transcriptionUrl);
         res.json({ status, transcriptionUrl }); // 返回状态和转录结果URL
     } catch (error) {
@@ -200,7 +201,7 @@ function parseAndDisplayResults(resultsJson) {
         const offset = convertDurationInTicksToMMSS(phrase.offsetInTicks);
         const bestN = phrase.nBest[0];
         const displayText = bestN.display;
-        const currentText = `${offset} [Speaker${speaker}]:\n${displayText}\n`;
+        const currentText = `${offset} [Speaker ${speaker}]:\n${displayText}\n`;
         resultText += currentText;
     }
     return resultText;

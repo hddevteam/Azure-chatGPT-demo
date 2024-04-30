@@ -151,7 +151,8 @@ async function listBlobsByUser(username) {
                 url: blobUrl,
                 transcriptionStatus: blob.metadata.transcriptionStatus, // 转录状态
                 transcriptionUrl: blob.metadata.transcriptionUrl, // 转录结果URL
-                transcriptionId: blob.metadata.transcriptionId // 转录ID
+                transcriptionId: blob.metadata.transcriptionId, // 转录ID
+                lastModified: blob.properties.lastModified
             });
         }
     }

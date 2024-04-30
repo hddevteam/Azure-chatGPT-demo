@@ -2,10 +2,52 @@
 
 import { uploadAudiofile, fetchUploadedAudioFiles, fetchTranscriptionStatus, submitTranscriptionJob, fetchTranscriptText, deleteAudioFile } from "../utils/api.js";
 import swal from "sweetalert";
+import ClipboardJS from "clipboard";
 
 const audioModal = (() => {
     const modal = document.getElementById("audio-processing-modal");
     const closeModalBtn = document.getElementById("close-audio-modal-btn");
+    let pollingTasks = {};
+
+    // 在 audioModal.js 文件中定义 showTranscriptionResult 函数
+    const showTranscriptionResult = async (transcriptText) => {
+        swal({
+            title: "Transcription Result",
+            content: {
+                element: "div",
+                attributes: {
+                    innerHTML: `
+                    <textarea id="transcription-result-text" readonly style="width: 100%; height: 300px;">${transcriptText}</textarea>
+                `
+                },
+            },
+            buttons: {
+                copy: {
+                    text: "Copy",
+                    value: "copy",
+                    className: "copy-button",
+                },
+                close: "Close",
+            },
+        }).then(
+            (value) => {
+                if (value === "copy") {
+                    const clipboard = new ClipboardJS(".copy-button", {
+                        text: function () {
+                            return transcriptText;
+                        },
+                    });
+                    clipboard.on("success", function () {
+                        swal("Copied!", "The transcript has been copied to the clipboard.", "success", { buttons: false, timer: 1000 });
+                    });
+                    clipboard.on("error", function () {
+                        swal("Error!", "Failed to copy the transcript to the clipboard.", "error");
+                    });
+                }
+            }
+        );
+    };
+
 
     // 显示模态框
     const showModal = () => {
@@ -24,7 +66,8 @@ const audioModal = (() => {
             // 调用API获取已上传音频文件列表
             const result = await fetchUploadedAudioFiles();
             if (result.success && result.data) {
-                const audioFiles = result.data;
+                let audioFiles = result.data;
+                audioFiles = audioFiles.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
                 const uploadedFilesList = document.getElementById("uploaded-audio-files-list");
             
                 // 清空现有列表
@@ -36,16 +79,14 @@ const audioModal = (() => {
                     // 动态生成文件信息和识别按钮，将其添加到列表中
                     audioFiles.forEach(file => {
                         const fileElem = document.createElement("div");
-                        fileElem.classList.add("uploaded-file-item"); // 添加样式类，以便于样式设定
+                        fileElem.classList.add("uploaded-file-item");
                         let buttonHTML = "";
                         switch(file.transcriptionStatus) {
                         case "Succeeded":
-                            buttonHTML = `<button class="view-result-btn" data-transcription-url="${file.transcriptionUrl}">View Transcript
-                            </button>`;
+                            buttonHTML = `<button class="view-result-btn" data-transcription-url="${file.transcriptionUrl}">View Transcript</button>`;
                             break;
                         case "Running":
-                        case "NotStarted":
-                            buttonHTML = "<button class=\"recognize-btn\" disabled> Recognizing...</button>";
+                            buttonHTML = `<button class="recognize-btn" data-audio-url="${file.url} disabled> Recognizing...</button>`;
                             break;
                         case "Failed":
                             buttonHTML = "<p>Recognition failed. Please try again.</p>";
@@ -57,6 +98,17 @@ const audioModal = (() => {
                         fileElem.innerHTML = ` <p> ${file.name}, ${(file.size / 1024).toFixed(2)}KB</p>${buttonHTML}`;
                         uploadedFilesList.appendChild(fileElem);
                     });
+                    
+                    audioFiles.forEach(file => {
+                        if (file.transcriptionStatus === "Running" && !pollingTasks[file.name]) {
+                            const buttonElement = document.querySelector(`button[data-audio-url='${file.url}']`);
+                            if(buttonElement) {
+                                pollingTasks[file.name] = { active: true };
+                                pollForTranscriptResults(file.transcriptionId, file.name, buttonElement);
+                            }
+                        }
+                    });
+                    
                 }
             } else {
             // 如果API调用失败，显示错误信息
@@ -67,45 +119,66 @@ const audioModal = (() => {
             swal("错误", "无法获取已上传的音频文件列表。", "error");
         }
     }
-    const bindEvents = () => {
+    function bindEvents() {
         document.getElementById("uploaded-audio-files-list").addEventListener("click", async (event) => {
-            const target = event.target;
+            let target = event.target;
     
-            // 检查点击事件的目标是否是识别按钮
-            if (target.className.includes("recognize-btn")) {
-                const audioUrl = target.getAttribute("data-audio-url"); // 获取音频URL
-                await recognizeAudioFile(audioUrl, target); // 调用识别函数
-            } else if (target.className.includes("view-result-btn")) {
-                const transcriptionUrl = target.getAttribute("data-transcription-url");
+            // 辅助函数：寻找具有指定类名的祖先元素（包括自身）
+            function findAncestor(el, cls) {
+                while (el && !el.classList.contains(cls)) {
+                    el = el.parentElement;
+                }
+                return el;
+            }
+    
+            const recognizeBtn = findAncestor(target, "recognize-btn");
+            const viewResultBtn = findAncestor(target, "view-result-btn");
+            const deleteAudioBtn = findAncestor(target, "delete-audio-btn");
+    
+            if (recognizeBtn) {
+                const audioUrl = recognizeBtn.getAttribute("data-audio-url");
+                await recognizeAudioFile(audioUrl, recognizeBtn); // 假设recognizeAudioFile函数存在
+            } else if (viewResultBtn) {
+                const transcriptionUrl = viewResultBtn.getAttribute("data-transcription-url");
+                swal({
+                    text: "Fetching transcription result...",
+                    button: false,
+                    closeOnClickOutside: false,
+                    closeOnEsc: false,
+                    icon: "info",
+                });
                 try {
-                    const transcriptText = await fetchTranscriptText(transcriptionUrl); // 假设这个函数能从给定的URL获取转录文本
-                    swal("识别结果", transcriptText, "info");
+                    const transcriptText = await fetchTranscriptText(transcriptionUrl); // 假设fetchTranscriptText函数存在
+                    await showTranscriptionResult(transcriptText); // 展示转录结果，假设showTranscriptionResult函数存在
+                    swal.close();
                 } catch (error) {
                     console.error("查看识别结果失败: ", error);
+                    swal.close();
                     swal("错误", "无法查看识别结果。", "error");
                 }
-            } else if (target.className.includes("delete-audio-btn")) {
-                const blobName = target.getAttribute("data-blob-name"); // 获取文件名
+            } else if (deleteAudioBtn) {
+                const blobName = deleteAudioBtn.getAttribute("data-blob-name");
                 swal({
-                    text: "Deleted files cannot be recovered. Are you sure you want to delete this file?",
+                    text: "Deleted audio files cannot be recovered. Are you sure you want to delete this file?",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
                 }).then(async (willDelete) => {
                     if (willDelete) {
-                        await deleteAudioFile(blobName); // 调用删除函数
-                        fetchAndDisplayUploadedAudioFiles(); // 刷新已上传音频文件列表
-                        swal("Your file has been deleted.", { icon: "success", timer: 2000 });
-                    } 
+                        await deleteAudioFile(blobName); 
+                        fetchAndDisplayUploadedAudioFiles(); 
+                        swal("The audio file has been deleted.", { icon: "success", timer: 2000 });
+                    }
                 });
             }
         });
-    };
+    }
+    
 
     const recognizeAudioFile = async (audioUrl, buttonElement) => {
         try {
             // 更改按钮状态为正在提交
-            buttonElement.textContent = "Submit Job";
+            buttonElement.textContent = "Submitting job";
             buttonElement.disabled = true;
     
             const languages = Array.from(document.getElementById("language-options").selectedOptions).map(option => option.value);
@@ -127,45 +200,51 @@ const audioModal = (() => {
     
 
     async function pollForTranscriptResults(transcriptionId, audioName, buttonElement) {
-        let attempts = 10; // 可以根据需要调整尝试次数
-        let pollInterval = 5000; // 初始轮询间隔5秒
+        let attempts = 20; // 最大尝试次数
+        let pollInterval = 5000; // 轮询间隔，初始为5秒
     
         const poll = async () => {
             if (attempts-- === 0) {
-                swal("识别失败", "获取转录结果超时。请稍后再试。", "error");
-                // 恢复按钮状态以允许用户重试
+                swal("识别失败", "获取转录结果超时，请稍后再试。", "error");
                 buttonElement.textContent = "Recognize";
                 buttonElement.disabled = false;
+                delete pollingTasks[audioName]; // 清理轮询任务的标记
                 return;
             }
             try {
                 const result = await fetchTranscriptionStatus(transcriptionId, audioName);
-                if(result.status === "Succeeded") {
-                    buttonElement.outerHTML = `<button class="view-result-btn" data-transcription-url="${result.transcriptionUrl}">View Transcript</button>`;
+                if (result.status === "Succeeded") {
+                    // 转录成功，更新按钮以反映可以查看结果，并停止轮询
+                    const newButton = document.createElement("button");
+                    newButton.className = "view-result-btn"; // 设置新按钮的class
+                    newButton.setAttribute("data-transcription-url", result.transcriptionUrl);
+                    newButton.textContent = "View Transcript";
+                    buttonElement.parentNode.replaceChild(newButton, buttonElement);
                     swal("The transcription is ready.", { icon: "success", timer: 2000 });
+                    delete pollingTasks[audioName]; // 清理轮询任务的标记
                 } else if (result.status === "Running" || result.status === "NotStarted") {
-                    // 任务仍在进行中，更新按钮文本
-                    buttonElement.textContent = "Recognizing";
+                    // 如果任务仍在进行中，继续轮询
+                    buttonElement.textContent = "Recognizing...";
                     setTimeout(poll, pollInterval);
-                    pollInterval *= 2; // 指数退避策略
+                    pollInterval = Math.min(pollInterval * 2, 30000); // 逐渐增加轮询间隔，但不超过30秒
                 } else {
-                    swal("识别失败", "转录任务失败。", "error");
-                    // 恢复按钮状态以允许用户重试
+                    // 转录失败或遇到未预期状态，停止轮询并显示错误消息
+                    swal("识别失败", "转录任务失败或状态未知。", "error");
                     buttonElement.textContent = "Recognize";
                     buttonElement.disabled = false;
+                    delete pollingTasks[audioName]; // 清理轮询任务的标记
                 }
-            } catch(error) {
+            } catch (error) {
                 console.error("轮询识别状态时发生错误：", error);
-                swal("识别失败", "无法获取转录状态。请稍后再试。", "error");
-                // 恢复按钮状态以允许用户重试
+                swal("识别失败", "轮询过程中发生错误，请稍后再试。", "error");
                 buttonElement.textContent = "Recognize";
                 buttonElement.disabled = false;
+                delete pollingTasks[audioName]; // 清理轮询任务的标记
             }
         };
-        poll();
+        poll(); // 启动轮询
     }
     
-
     // 初始化函数，绑定事件监听器
     const init = () => {
         // 绑定关闭按钮事件
