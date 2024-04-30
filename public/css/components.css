@@ -1045,18 +1045,23 @@ button.action-button.invisible {
 
 .attachment-delete-btn {
     position: absolute;
-    top: -10px; /* 根据需要调整，以确保图标位置正确 */
-    right: -10px; /* 根据需要调整，以确保图标位置正确 */
+    top: -10px;
+    /* 根据需要调整，以确保图标位置正确 */
+    right: -10px;
+    /* 根据需要调整，以确保图标位置正确 */
     background-color: #ff4d4d;
     border-radius: 50%;
     padding: 5px;
     cursor: pointer;
     color: white;
-    font-size: 12px; /* 调整图标大小，可能需要根据实际情况进行修改 */
-    display: flex; /* 确保内容居中显示 */
+    font-size: 12px;
+    /* 调整图标大小，可能需要根据实际情况进行修改 */
+    display: flex;
+    /* 确保内容居中显示 */
     justify-content: center;
     align-items: center;
-    width: 20px; /* 定义一个合适的宽度和高度以适应图标 */
+    width: 20px;
+    /* 定义一个合适的宽度和高度以适应图标 */
     height: 20px;
 }
 
@@ -1073,30 +1078,32 @@ button.action-button.invisible {
 .message-attachment-thumbnail {
     max-width: 50%;
     max-height: 200px;
-    cursor: pointer; /* 让用户知道这个图片是可以点击的 */
-    object-fit: contain; /* 保持图片的原始宽高比，确保在限制尺寸内完整地展示图片 */
+    cursor: pointer;
+    /* 让用户知道这个图片是可以点击的 */
+    object-fit: contain;
+    /* 保持图片的原始宽高比，确保在限制尺寸内完整地展示图片 */
 }
 
 #image-modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1; 
+    display: none;
+    position: fixed;
+    z-index: 1;
     padding-top: 100px;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto; 
-    background-color: rgba(0,0,0,0.9); 
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.9);
     align-items: center;
 }
 
 #image-modal .modal-content {
     margin: auto;
     display: block;
-    max-width: 80%; 
-    max-height: 80vh; 
-    object-fit: contain; 
+    max-width: 80%;
+    max-height: 80vh;
+    object-fit: contain;
 }
 
 #image-modal .close {
@@ -1145,16 +1152,17 @@ button.action-button.invisible {
 
 
 #audio-processing-modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1; 
+    display: none;
+    position: fixed;
+    z-index: 1;
     padding-top: 100px;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto; 
-    background-color: rgba(0,0,0,0.5); /* 半透明背景色 */
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* 半透明背景色 */
     align-items: center;
 }
 
@@ -1164,7 +1172,7 @@ button.action-button.invisible {
     background: white;
     border-radius: 10px;
     padding: 20px;
-    width: 90%; 
+    width: 90%;
     min-width: 80vw;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
@@ -1201,38 +1209,37 @@ button.action-button.invisible {
 
 .options-section .language-select,
 .options-section .speaker-identification {
-    margin-bottom: 15px; /* 增加间距提升清晰度 */
+    margin-bottom: 15px;
+    /* 增加间距提升清晰度 */
     display: flex;
     align-items: center;
 }
 
 .options-section label {
     margin-right: 10px;
-    flex-shrink: 0; /* 防止标签在小屏幕上缩小 */
+    flex-shrink: 0;
+    /* 防止标签在小屏幕上缩小 */
 }
 
 .options-section select,
 .options-section input[type="number"] {
-    flex-grow: 1; /* 让选择框和数字输入框扩展填充可用空间 */
+    flex-grow: 1;
+    /* 让选择框和数字输入框扩展填充可用空间 */
 }
 
-@media (min-width: 768px) { 
+@media (min-width: 768px) {
     .options-section {
-      display: flex;
-      justify-content: space-between; 
+        display: flex;
+        justify-content: space-between;
     }
-    .options-section > div {
-      flex-basis: 48%; 
-    }
-    .options-section select {
-      width: auto; 
-    }
-  }
-  
 
-/* 调整文件列表样式 */
-.files-list {
-    margin-top: 20px;
+    .options-section>div {
+        flex-basis: 48%;
+    }
+
+    .options-section select {
+        width: auto;
+    }
 }
 
 .modal-content h2 {
@@ -1244,7 +1251,12 @@ button.action-button.invisible {
     font-family: 'Roboto';
 }
 
-.files-list .uploaded-file-item {
+.files-list, #uploaded-audio-files-list {
+    margin-top: 20px;
+    padding: 0;
+}
+
+.files-list .uploaded-file-item, #uploaded-audio-files-list .uploaded-file-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1253,23 +1265,24 @@ button.action-button.invisible {
     padding: 10px;
     background: #f9f9f9;
     border-radius: 4px;
-    flex-wrap: wrap;
-}
-
-.files-list .uploaded-file-item p {
-    width: 70%; 
-    margin-bottom: 0; 
-}
-
-.files-list .uploaded-file-item button {
-    width: fit-content; 
-    margin-left: 5px; 
-    margin-bottom: 10px; 
+    position: relative; /* 给子元素按钮进行绝对定位 */
+    list-style-type: none; /* 移除列表标记 */
 }
 
 
-.view-result-btn, .recognize-btn {
-    font-size: 16px;
+/* 为按钮容器添加绝对定位样式 */
+.files-list .uploaded-file-item .button-container, #uploaded-audio-files-list .uploaded-file-item .button-container {
+    position: absolute;
+    right: 10px;
+}
+
+.files-list .uploaded-file-item, #uploaded-audio-files-list .uploaded-file-item {
+    position: relative;
+    padding-right: 160px; /* 确保有足够空间放置按钮容器 */
+}
+
+.button-container button {
+    margin-left: 10px;
 }
 
 .view-result-btn:hover {
@@ -1284,6 +1297,7 @@ button.action-button.invisible {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    width: 100%;
 }
 
 #audio-processing-modal #upload-audio-btn i {
@@ -1305,4 +1319,3 @@ button.action-button.invisible {
 #audio-processing-modal #uploaded-audio-files-list {
     margin-top: 20px;
 }
-

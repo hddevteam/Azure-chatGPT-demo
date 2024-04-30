@@ -58,7 +58,16 @@ const audioModal = (() => {
     // 隐藏模态框
     const hideModal = () => {
         modal.style.display = "none";
+    
+        // 停止并清理所有轮询任务
+        Object.keys(pollingTasks).forEach(audioName => {
+            if(pollingTasks[audioName].active) {
+                pollingTasks[audioName].active = false;
+                delete pollingTasks[audioName];
+            }
+        });
     };
+    
 
     async function fetchAndDisplayUploadedAudioFiles() {
         console.log("fetchAndDisplayUploadedAudioFiles");
@@ -74,36 +83,35 @@ const audioModal = (() => {
                 uploadedFilesList.innerHTML = "";
                 if (audioFiles.length === 0) {
                     // 如果没有文件，展示提示信息
-                    uploadedFilesList.innerHTML = "<p>No audio files uploaded yet.</p>";
+                    uploadedFilesList.innerHTML = "No audio files uploaded yet.";
                 } else {
-                    // 动态生成文件信息和识别按钮，将其添加到列表中
                     audioFiles.forEach(file => {
-                        const fileElem = document.createElement("div");
-                        fileElem.classList.add("uploaded-file-item");
-                        let buttonHTML = "";
+                        const fileItem = document.createElement("li");
+                        fileItem.classList.add("uploaded-file-item");
+                        let buttonHTML = "<div class=\"button-container\">"; // 按钮容器开始
                         switch(file.transcriptionStatus) {
                         case "Succeeded":
-                            buttonHTML = `<button class="view-result-btn" data-transcription-url="${file.transcriptionUrl}">View Transcript</button>`;
+                            buttonHTML += `<button class="view-result-btn" data-transcription-url="${file.transcriptionUrl}">View Transcript</button>`;
                             break;
                         case "Running":
-                            buttonHTML = `<button class="recognize-btn" data-audio-url="${file.url} disabled> Recognizing...</button>`;
+                            buttonHTML += `<button class="recognize-btn" data-audio-url="${file.url}" disabled> Recognizing...</button>`;
                             break;
                         case "Failed":
-                            buttonHTML = "<p>Recognition failed. Please try again.</p>";
+                            buttonHTML += "Recognition failed. Please try again.";
                             break;
                         default:
-                            buttonHTML = `<button class="recognize-btn" data-audio-url="${file.url}">Recognize</button>`;
+                            buttonHTML += `<button class="recognize-btn" data-audio-url="${file.url}">Recognize</button>`;
                         }
                         buttonHTML += `<button class="delete-audio-btn" data-audio-url="${file.url}" data-blob-name="${file.name}"><i class="fas fa-trash"/></button>`;
-                        fileElem.innerHTML = ` <p> ${file.name}, ${(file.size / 1024).toFixed(2)}KB</p>${buttonHTML}`;
-                        uploadedFilesList.appendChild(fileElem);
+                        buttonHTML += "</div>"; // 按钮容器结束
+                        fileItem.innerHTML = `  ${file.name}, ${(file.size / 1024).toFixed(0)}KB</p>${buttonHTML}`;
+                        uploadedFilesList.appendChild(fileItem);
                     });
-                    
+
                     audioFiles.forEach(file => {
                         if (file.transcriptionStatus === "Running" && !pollingTasks[file.name]) {
                             const buttonElement = document.querySelector(`button[data-audio-url='${file.url}']`);
                             if(buttonElement) {
-                                pollingTasks[file.name] = { active: true };
                                 pollForTranscriptResults(file.transcriptionId, file.name, buttonElement);
                             }
                         }
@@ -199,28 +207,37 @@ const audioModal = (() => {
     
 
     async function pollForTranscriptResults(transcriptionId, audioName, buttonElement) {
-        let attempts = 20; // 最大尝试次数
-        let pollInterval = 5000; // 轮询间隔，初始为5秒
+        if (pollingTasks[audioName] && pollingTasks[audioName].active) {
+            console.log(`轮询任务 ${audioName} 已在运行中`);
+            return;
+        }
+    
+        let attempts = 20;
+        let pollInterval = 5000;
     
         const poll = async () => {
-            if (attempts-- === 0) {
+            if (attempts-- === 0 || !pollingTasks[audioName].active) {
                 swal("识别失败", "获取转录结果超时，请稍后再试。", "error");
                 buttonElement.textContent = "Recognize";
                 buttonElement.disabled = false;
                 delete pollingTasks[audioName]; // 清理轮询任务的标记
                 return;
             }
+
             try {
                 const result = await fetchTranscriptionStatus(transcriptionId, audioName);
                 if (result.status === "Succeeded") {
-                    // 转录成功，更新按钮以反映可以查看结果，并停止轮询
-                    const newButton = document.createElement("button");
-                    newButton.className = "view-result-btn"; // 设置新按钮的class
-                    newButton.setAttribute("data-transcription-url", result.transcriptionUrl);
-                    newButton.textContent = "View Transcript";
-                    buttonElement.parentNode.replaceChild(newButton, buttonElement);
-                    swal("The transcription is ready.", { icon: "success", timer: 2000 });
-                    delete pollingTasks[audioName]; // 清理轮询任务的标记
+                    const audioUrl = buttonElement.getAttribute("data-audio-url");
+                    const existingButton = document.querySelector(`button.recognize-btn[data-audio-url='${audioUrl}']`);
+                    if (existingButton) {
+                        const newButton = document.createElement("button");
+                        newButton.className = "view-result-btn";
+                        newButton.setAttribute("data-transcription-url", result.transcriptionUrl);
+                        newButton.textContent = "View Transcript";
+                        existingButton.parentNode.replaceChild(newButton, existingButton); // 使用查询到的按钮进行替换
+                        swal("The transcription is ready.", { icon: "success", timer: 2000 });
+                        delete pollingTasks[audioName]; // 清理轮询任务的标记
+                    }
                 } else if (result.status === "Running" || result.status === "NotStarted") {
                     // 如果任务仍在进行中，继续轮询
                     buttonElement.textContent = "Recognizing...";
@@ -241,6 +258,8 @@ const audioModal = (() => {
                 delete pollingTasks[audioName]; // 清理轮询任务的标记
             }
         };
+
+        pollingTasks[audioName] = { active: true };
         poll(); // 启动轮询
     }
     
