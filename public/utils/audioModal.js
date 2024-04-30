@@ -1,5 +1,4 @@
 //public/utils/audioModal.js
-
 import { uploadAudiofile, fetchUploadedAudioFiles, fetchTranscriptionStatus, submitTranscriptionJob, fetchTranscriptText, deleteAudioFile } from "../utils/api.js";
 import swal from "sweetalert";
 import ClipboardJS from "clipboard";
@@ -31,6 +30,7 @@ const audioModal = (() => {
             },
         }).then(
             (value) => {
+                console.log("用户点击了按钮: ", value);
                 if (value === "copy") {
                     const clipboard = new ClipboardJS(".copy-button", {
                         text: function () {
@@ -150,7 +150,6 @@ const audioModal = (() => {
                 try {
                     const transcriptText = await fetchTranscriptText(transcriptionUrl); // 假设fetchTranscriptText函数存在
                     await showTranscriptionResult(transcriptText); // 展示转录结果，假设showTranscriptionResult函数存在
-                    swal.close();
                 } catch (error) {
                     console.error("查看识别结果失败: ", error);
                     swal.close();

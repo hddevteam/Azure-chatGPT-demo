@@ -197,7 +197,7 @@ exports.getTranscriptTextFromBlob = async (req, res) => {
 function parseAndDisplayResults(resultsJson) {
     let resultText = "";
     for (const phrase of resultsJson.recognizedPhrases) {
-        const speaker = phrase.speaker || "unknown";
+        const speaker = phrase.speaker || "";
         const offset = convertDurationInTicksToMMSS(phrase.offsetInTicks);
         const bestN = phrase.nBest[0];
         const displayText = bestN.display;
