@@ -1,5 +1,5 @@
 //controller/audioFileController.js
-const { uploadFileToBlob, listBlobsByUser, uploadTextToBlob, updateBlobMetadata, getTextContentFromBlob} = require("../services/azureBlobStorage");
+const { uploadFileToBlob, listBlobsByUser, uploadTextToBlob, updateBlobMetadata, getTextContentFromBlob, deleteBlob, checkBlobExists} = require("../services/azureBlobStorage");
 
 const axios = require("axios");
 require("dotenv").config();
@@ -216,5 +216,28 @@ function convertDurationInTicksToMMSS(durationInTicks) {
 
     return `${minutes}:${seconds}`;
 }
+
+
+exports.deleteAudioFile = async (req, res) => {
+    const { blobName } = req.body;
+    
+    try {
+        // 删除音频文件
+        await deleteBlob(containerName, blobName);
+        const transcriptionBlobName = blobName.replace(/\.[^.]+$/, ".json");
+        
+        // 检查转录文件是否存在
+        const exists = await checkBlobExists("transcriptions", transcriptionBlobName);
+        if (exists) {
+            // 如果转录文件存在，则尝试删除
+            await deleteBlob("transcriptions", transcriptionBlobName);
+        }
+        
+        res.status(200).send("文件删除成功");
+    } catch (error) {
+        console.error("删除音频文件和转录文件时发生错误：", error);
+        res.status(500).send("删除音频文件和转录文件时发生错误：", error);
+    }
+};
 
 

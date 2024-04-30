@@ -63,6 +63,6 @@ router.post("/audiofiles/transcribe", requireAuth, audioFileController.submitTra
 router.get("/audiofiles/transcript/status", requireAuth, audioFileController.getTranscriptionStatus);
 // 添加新的路由处理获取转录文本的请求
 router.get("/audiofiles/transcript/text", requireAuth, audioFileController.getTranscriptTextFromBlob);
-
+router.delete("/audiofiles/delete", requireAuth, audioFileController.deleteAudioFile);
 
 module.exports = router;

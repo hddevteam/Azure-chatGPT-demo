@@ -239,7 +239,15 @@ export async function fetchTranscriptText(transcriptionBlobName) {
     }
 }
 
-
+export async function deleteAudioFile(blobName) {
+    try {
+        await axios.delete("/audiofiles/delete", { data: { blobName: blobName } });
+    } catch (error) {
+        console.error("删除音频文件失败：", error);
+        swal("删除失败!", "无法删除音频文件", "error");
+        throw error;
+    }
+}
 
 // text to image
 export async function textToImage(caption) {

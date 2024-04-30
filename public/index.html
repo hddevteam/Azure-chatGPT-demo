@@ -25,14 +25,14 @@
       <span id="close-audio-modal-btn">&times;</span>
       <h2>Audio File Upload</h2>
       <div class="upload-section">
-        <input type="file" id="audio-upload-input" accept="audio/*">
+        <input type="file" id="audio-upload-input" accept="audio/*" style="display: none;">
         <button id="upload-audio-btn">Upload Audio</button>
       </div>
       <div class="options-section">
         <div class="language-select">
           <label for="language-options">Select Language(s):</label>
           <select id="language-options" multiple>
-            <option value="zh-cn">中文（简体）</option>
+            <option value="zh-cn" selected>中文（简体）</option>
             <option value="zh-tw">中文（台湾）</option>
             <option value="zh-hk">中文（香港）</option>
             <option value="en-us">English(US)</option>
@@ -41,10 +41,8 @@
           </select>
         </div>
         <div class="speaker-identification">
-          <label for="identify-speakers">Enable Identify Speakers:</label>
-          <input type="checkbox" id="identify-speakers">
           <label for ="max-speakers">Max Speakers:</label>
-          <input type="number" id="max-speakers" min="2" max="10" value="2">
+          <input type="number" id="max-speakers" min="1" max="10" value="1">
         </div>
       </div>
       <div class="files-list">

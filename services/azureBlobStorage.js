@@ -126,7 +126,6 @@ async function updateBlobMetadata(containerName, blobName, metadataUpdates) {
 }
 
 
-
 async function deleteBlob(containerName, blobName) {
     try {
         const containerClient = blobServiceClient.getContainerClient(containerName);
@@ -159,4 +158,18 @@ async function listBlobsByUser(username) {
     return blobs;
 }
 
-module.exports = { uploadTextToBlob, getTextFromBlob, deleteBlob, uploadFileToBlob, listBlobsByUser, updateBlobMetadata, getTextContentFromBlob };
+async function checkBlobExists(containerName, blobName) {
+    try {
+        const containerClient = blobServiceClient.getContainerClient(containerName);
+        const blobClient = containerClient.getBlobClient(blobName);
+
+        const exists = await blobClient.exists();
+        return exists;
+    } catch (error) {
+        console.error(`检查Blob存在时发生错误: ${error}`);
+        throw error;
+    }
+}
+
+
+module.exports = { uploadTextToBlob, getTextFromBlob, deleteBlob, uploadFileToBlob, listBlobsByUser, updateBlobMetadata, getTextContentFromBlob, checkBlobExists };
