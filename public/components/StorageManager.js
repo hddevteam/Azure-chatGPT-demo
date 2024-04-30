@@ -215,6 +215,20 @@ class StorageManager {
         return total.toFixed(2);
     }
 
+    parseChatId(chatId) {
+        const parts = chatId.split("_");
+        if (parts.length !== 3) {
+            throw new Error("Invalid chatId format. Expected format: username_profileName_uuid, but got: " + chatId);
+        }
+        const [username, profileName, uuid] = parts;
+        if(!username.trim() || !profileName.trim() || !uuid.trim()) {
+            console.log("Invalid chatId format: ", chatId);
+            throw new Error("Invalid chatId format. All components must be non-empty.");
+        }
+        return { username, profileName, uuid };
+    }
+
+
     cleanUpUserChatHistories(username) {
         console.log("cleanUpUserChatHistories: ", username);
         let localStorageUsage = parseFloat(this.getLocalStorageUsage());
@@ -225,6 +239,33 @@ class StorageManager {
         if (!chatHistories.length) {
             return;
         }
+
+        // 准备一个容器存放要被删除的聊天记录ID
+        let chatIdsToDelete = [];
+
+        // 筛选出有效的聊天记录，并记录下来无效记录的ID
+        chatHistories = chatHistories.filter(history => {
+            try {
+                const { profileName } = this.parseChatId(history.id);
+                if (profileName.trim() === "") {
+                    chatIdsToDelete.push(history.id); // 记录下来需要删除的聊天ID
+                    return false; // 对于profileName为空的聊天记录进行过滤
+                }
+                return true;
+            } catch (error) {
+                console.error("Error parsing chatId: ", error.message);
+                chatIdsToDelete.push(history.id);   
+                return false; // 解析出错的记录也标记为无效
+            }
+        });
+
+        // 遍历需要删除的聊天记录ID并从localStorage中移除
+        chatIdsToDelete.forEach(chatId => {
+            console.log(`Removing chat history and messages for chatId: ${chatId}`);
+            this.deleteChatHistory(chatId); // 删除整个聊天历史记录
+            this.removeMessagesByChatId(chatId); // 删除相关的消息记录
+        });
+
 
         chatHistories = chatHistories.filter(history => history.timestamp);
         // Sort by timestamp, assumed to be a number for efficiency
