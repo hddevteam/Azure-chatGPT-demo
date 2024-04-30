@@ -3,7 +3,7 @@
 
 import axios from "axios";
 import swal from "sweetalert";
-import { signIn, getToken, getUserId } from "./authRedirect.js";
+import { signIn, getToken, getUserId, getUserName } from "./authRedirect.js";
 
 axios.defaults.baseURL = "/api";
 axios.defaults.headers.post["Content-Type"] = "application/json";
@@ -122,6 +122,10 @@ export async function uploadAttachment(fileContent, fileName) {
         formData.append("fileContent", fileContent);
         formData.append("originalFileName", fileName);
 
+        // 获取当前用户的username
+        const username = getUserName();
+        formData.append("username", username);  // 将username添加到formData
+
         // 注意：移除axios默认的Content-Type头部，让浏览器自动设置，便于正确处理边界
         const response = await axios.post("/attachments/upload", formData, {
             headers: {
@@ -132,6 +136,115 @@ export async function uploadAttachment(fileContent, fileName) {
         return response.data; // 返回后端响应中的附件信息
     } catch (error) {
         console.error("Failed to upload attachment:", error);
+        throw error;
+    }
+}
+
+export async function uploadAudiofile(fileContent, fileName) {
+    try {
+        const formData = new FormData();
+        formData.append("fileContent", fileContent);
+        formData.append("originalFileName", fileName);
+        
+        // 获取当前用户的username
+        const username = getUserName();
+        formData.append("username", username);  // 将username添加到formData
+
+        const response = await axios.post("/audiofiles/upload", formData, {
+            headers: {
+                "Content-Type": undefined
+            }
+        });
+        
+        swal("上传成功!", "音频文件已成功上传", "success");
+        return response.data; // 返回后端响应中的附件信息
+    } catch (error) {
+        console.error("Failed to upload audio file:", error);
+        swal("上传失败!", "无法上传音频文件", "error");
+        throw error;
+    }
+}
+
+export async function fetchUploadedAudioFiles() {
+    console.log("fetchUploadedAudioFiles");
+    try {
+        const username = getUserName();
+        console.log("username", username);
+        const response = await axios.get("/audiofiles/list", { params: { username } });
+        if (response && response.data) {
+            return {
+                success: true,
+                data: response.data,
+            };
+        }
+    } catch (error) {
+        console.error("获取已上传音频文件列表失败：", error);
+        return {
+            success: false,
+            message: "无法获取已上传的音频文件列表",
+        };
+    }
+}
+
+
+export async function submitTranscriptionJob(audioUrl, { languages, identifySpeakers, maxSpeakers }) {
+    try {
+        // 构造请求体，包括音频文件的URL、文件名，以及新的识别选项
+        const requestBody = {
+            audioUrl: audioUrl,
+            audioName: audioUrl.split("/").pop(), // 假设URL的最后一部分是文件名
+            languages: languages, // 用户选择的语种列表
+            identifySpeakers: identifySpeakers, // 是否识别说话人
+            maxSpeakers: maxSpeakers, // 说话人数最大值
+        };
+        console.log("requestBody", requestBody);
+
+        // 发送带有识别选项的请求
+        const response = await axios.post("/audiofiles/transcribe", requestBody);
+        
+        return response.data; // 返回后端的响应，包含 transcriptionId 和 audioName
+    } catch (error) {
+        console.error("提交转录任务失败：", error);
+        throw error; // 将错误抛出，以便调用函数可以处理
+    }
+}
+
+
+export async function fetchTranscriptionStatus(transcriptionId, blobName) {
+    try {
+        const response = await axios.get("/audiofiles/transcript/status", {
+            params: { transcriptionId, blobName }
+        });
+        return response.data; // 假设返回的数据包括转录状态以及可选的其他信息
+    } catch (error) {
+        console.error(`获取转录状态失败：${error}`);
+        throw error; // 向调用者抛出异常，以便可以进行进一步处理
+    }
+}
+
+// 前端API调用
+export async function fetchTranscriptText(transcriptionBlobName) {
+    try {
+        const response = await axios.get("/audiofiles/transcript/text", {
+            params: { transcriptionBlobName }
+        });
+        if (response.data && response.data.success) {
+            return response.data.transcriptText; // 返回已解析的转录文本
+        } else {
+            throw new Error("Failed to fetch transcription text");
+        }
+    } catch (error) {
+        console.error("获取转录文本失败：", error);
+        throw error; // 向调用者抛出异常，以便可以进行进一步处理
+    }
+}
+
+export async function deleteAudioFile(blobName) {
+    try {
+        await axios.delete("/audiofiles/delete", { data: { blobName: blobName } });
+    } catch (error) {
+        console.error("删除音频文件失败：", error);
+        swal("删除失败!", "无法删除音频文件", "error");
         throw error;
     }
 }
@@ -165,15 +278,16 @@ export async function textToImage(caption) {
     }
 }
 
-
-
 //get gpt response
 export async function getGpt(promptText, model) {
     try {
         const response = await axios.post("/gpt", {
             prompt: promptText,
             model: model
+        }, {
+            timeout: 180000 // 设置超时时间为180秒
         });
+
         return response.data; // Axios automatically handles the response as JSON
     } catch (error) {
         if (error.response) {

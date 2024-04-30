@@ -1,4 +1,4 @@
-// api.js
+// api.js backend
 
 const express = require("express");
 const multer = require("multer");
@@ -12,6 +12,7 @@ const applicationController = require("./controllers/applicationController");
 const dalleController = require("./controllers/dalleController");
 const chatHistoryController = require("./controllers/chatHistoryController");
 const messageController = require("./controllers/messageController");
+const audioFileController = require("./controllers/audioFileController");
 
 const router = express.Router();
 
@@ -53,5 +54,15 @@ router.delete("/messages/:chatId/:messageId", requireAuth, messageController.del
 
 // Message Attachment routes
 router.post("/attachments/upload", requireAuth, upload.single("fileContent"), messageController.uploadAttachment);
+
+// Audiofile routes
+router.post("/audiofiles/upload", requireAuth, upload.single("fileContent"), audioFileController.uploadAudiofile);
+router.get("/audiofiles/list", requireAuth, audioFileController.listAudioFiles);
+// 提交音频文件转录任务接口
+router.post("/audiofiles/transcribe", requireAuth, audioFileController.submitTranscriptionJob);
+router.get("/audiofiles/transcript/status", requireAuth, audioFileController.getTranscriptionStatus);
+// 添加新的路由处理获取转录文本的请求
+router.get("/audiofiles/transcript/text", requireAuth, audioFileController.getTranscriptTextFromBlob);
+router.delete("/audiofiles/delete", requireAuth, audioFileController.deleteAudioFile);
 
 module.exports = router;

@@ -121,4 +121,9 @@ function getUserId() {
     return userId;
 }
 
-export { signIn, signOut, getTokenPopup, selectAccount, myMSALObj, getToken, getUserId };
+function getUserName() {
+    selectAccount();
+    return username;
+}   
+
+export { signIn, signOut, getTokenPopup, selectAccount, myMSALObj, getToken, getUserId, getUserName };

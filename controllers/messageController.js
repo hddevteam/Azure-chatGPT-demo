@@ -2,17 +2,17 @@
 const { getTableClient } = require("../services/azureTableStorage");
 const { uploadTextToBlob, getTextFromBlob, deleteBlob } = require("../services/azureBlobStorage");
 
-// controllers/messageController.js
 const { uploadFileToBlob } = require("../services/azureBlobStorage");
 
 exports.uploadAttachment = async (req, res) => {
     const fileContent = req.file.buffer; // 文件的二进制内容
     // 尝试从req.body中获取客户端提供的文件名，如果不存在，则使用原始文件名
     const originalFileName = req.body.originalFileName || req.file.originalname;
+    const username = req.body.username; // 从请求中获取username
     const containerName = "messageattachments"; // 附件存储在这个容器中
 
     try {
-        const attachment = await uploadFileToBlob(containerName, originalFileName, fileContent);
+        const attachment = await uploadFileToBlob(containerName, originalFileName, fileContent, username);
         console.log("attachment", attachment);
 
         res.status(201).json(attachment.url);
