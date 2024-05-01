@@ -20,6 +20,7 @@ class UIManager {
         this.isDeleting = false;
         this.profiles = [];
         this.clientLanguage = "en-US";
+        this.showAllChatHistories = true;
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.addEventListener("scroll", () => {
             if (messagesContainer.scrollTop === 0 && messagesContainer.innerHTML!=="") {
@@ -639,10 +640,18 @@ class UIManager {
 
     async showChatHistory() {
         const username = this.storageManager.getCurrentUsername();
+        let chatHistory = this.chatHistoryManager.getChatHistory();
+        
+        // 如果当前不是显示所有聊天历史，则筛选
+        if (!this.showAllChatHistories) {
+            const currentProfile = this.storageManager.getCurrentProfile();
+            chatHistory = chatHistory.filter(history => 
+                history.profileName === currentProfile.name);
+        }
+        
         if (!localStorage.getItem(this.chatHistoryManager.chatHistoryKeyPrefix + username)) {
             this.chatHistoryManager.generateChatHistory();
         } else {
-            const chatHistory = this.chatHistoryManager.getChatHistory();
             this.domManager.renderChatHistoryList(chatHistory, this.profiles);
         }
     }

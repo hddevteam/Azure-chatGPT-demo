@@ -35,45 +35,6 @@ function initializeApp() {
     console.log(clientLanguage);
     uiManager.setClientLanguage(clientLanguage);
 
-
-    // const slider = document.getElementById("slider");
-    // const currentValue = document.getElementById("currentValue");
-    // app.prompts.onLengthChange = function (newLength) {
-    //     slider.value = newLength;
-    //     currentValue.textContent = newLength;
-    // };
-
-    // slider.addEventListener("input", function () {
-    //     const messages = document.querySelectorAll(".message");
-    //     const sliderValue = parseInt(slider.value, 10);
-    //     currentValue.textContent = sliderValue;
-
-    //     messages.forEach((messageElement, index) => {
-    //         const messageId = messageElement.dataset.messageId;
-    //         if (index >= messages.length - sliderValue) {
-    //             messageElement.classList.add("active");
-    //             uiManager.storageManager.saveMessageActiveStatus(uiManager.currentChatId, messageId, true);
-    //         } else {
-    //             messageElement.classList.remove("active");
-    //             uiManager.storageManager.saveMessageActiveStatus(uiManager.currentChatId, messageId, false);
-    //         }
-    //         const updatedMessage = uiManager.storageManager.getMessage(uiManager.currentChatId, messageId);
-    //         uiManager.syncManager.syncMessageUpdate(uiManager.currentChatId, updatedMessage);
-    //     });
-
-    //     // save current onLengthChange callback
-    //     const originalOnLengthChange = app.prompts.onLengthChange;
-    //     app.prompts.onLengthChange = null;
-    //     app.prompts.clear();
-    //     const activeMessages = document.querySelectorAll(".message.active");
-    //     activeMessages.forEach(activeMessage => {
-    //         app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
-    //     });
-
-    //     // restore onLengthChange callback
-    //     app.prompts.onLengthChange = originalOnLengthChange;
-    // });
-
     // get and set page title and header h1 text from /api/app-name
     const pageTitle = document.querySelector("title");
     const headerH1 = document.querySelector("#header h1");
@@ -306,8 +267,36 @@ function initializeApp() {
 
     });
 
-    // split layout
+    const refreshTopic = document.getElementById("refresh-topic");
+    refreshTopic.addEventListener("click", function (event) {
+        event.stopPropagation();
+        uiManager.syncManager.syncChatHistories();
+    });
 
+    const topicFilter = document.getElementById("topic-filter");
+    topicFilter.addEventListener("click", function (event) {
+        event.stopPropagation();
+        // 切换显示所有聊天历史的状态
+        uiManager.showAllChatHistories = !uiManager.showAllChatHistories;
+
+        // 基于新的状态更新UI显示
+        uiManager.showChatHistory().then(() => {
+            console.log("Chat histories updated successfully.");
+        }).catch(err => {
+            console.error("An error occurred while updating chat histories:", err);
+        });
+
+        // 根据filter状态切换按钮的active类
+        if (uiManager.showAllChatHistories) {
+            topicFilter.classList.remove("active");
+        } else {
+            topicFilter.classList.add("active");
+        }
+    });
+
+
+
+    // split layout
     // Selecting elements that will be changed by layout toggling
     const appBar = document.getElementById("app-outer-wrapper");
     const messageContainer = document.getElementById("messages");
