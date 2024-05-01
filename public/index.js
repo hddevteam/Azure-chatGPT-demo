@@ -448,8 +448,40 @@ function initializeApp() {
     setInitialVisibility();
     addHorizontalResizeHandleListeners(); // Add horizontal resize functionality
     addVerticalResizeHandleListeners(); // Add vertical resize functionality
-    window.addEventListener("resize", setInitialVisibility);
+
+    let initialWindowSize = {
+        width: window.innerWidth,
+        height: window.innerHeight
+    };
+      
+    window.addEventListener("load", () => {
+        initialWindowSize = {
+            width: window.innerWidth,
+            height: window.innerHeight
+        };
+    });
     
+    // Resize event listener to help to fix the issue of the chat history container not showing properly after resizing the window on mobile devices
+    function handleWindowResize() {
+        const currentWindowSize = {
+            width: window.innerWidth,
+            height: window.innerHeight
+        };
+      
+        const widthChanged = initialWindowSize.width !== currentWindowSize.width;
+        const heightDifference = Math.abs(initialWindowSize.height - currentWindowSize.height);
+      
+        if (widthChanged || heightDifference > 150) {
+            setInitialVisibility();
+      
+            initialWindowSize = {
+                width: currentWindowSize.width,
+                height: currentWindowSize.height
+            };
+        }
+    }
+      
+    window.addEventListener("resize", handleWindowResize);
 }
 
 
