@@ -21,6 +21,7 @@ class MessageManager {
     addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false, attachmentUrls = "") {
         const messageElement = this.uiManager.domManager.createMessageElement(sender, messageId, isActive, isError);
         messageElement.dataset.message = message;
+        messageElement.dataset.attachmentUrls = attachmentUrls;
 
         const conversationElement = this.uiManager.domManager.createConversationElement();
         messageElement.appendChild(conversationElement);
@@ -106,11 +107,11 @@ class MessageManager {
         return await getGpt(promptText, this.uiManager.app.model);
     }
     
-    async sendMessageToGpt4V(enhancements=false, ocr = false, grounding = false) {
+    async sendMessageToGpt4V() {
         this.uiManager.showToast("AI is thinking...");
         const promptText = this.uiManager.app.prompts.getGpt4vPromptText();
         console.warn("gpt4v promptText", promptText);
-        return await getGpt4V(promptText, enhancements, ocr, grounding);
+        return await getGpt4V(promptText);
     }
 
     async sendImageMessage(message) {
@@ -165,20 +166,23 @@ class MessageManager {
         }
     }
 
-    async validateInput(message, attachments = []) {
-
+    async validateInput(message, attachments = [], isRetry = false) {
         const validationResult = await this.uiManager.validateMessage(message);
         message = validationResult.message;
         let reEdit = validationResult.reEdit;
         let attachmentUrls = "";
-        if (attachments.length > 0) {
+
+        if (attachments.length > 0 && !isRetry) {
             attachmentUrls = await this.uiManager.uploadAttachments(attachments);
-            if (attachmentUrls=="") {
+            if (attachmentUrls === "") {
                 this.uiManager.finishSubmitProcessing();
                 return false;
             } else {
                 validationResult.attachmentUrls = attachmentUrls;
             }
+        } else if (isRetry) {
+            attachmentUrls = attachments.map(a => a.fileName).join(";");
+            validationResult.attachmentUrls = attachmentUrls;
         }
 
         if (reEdit) {
@@ -196,30 +200,24 @@ class MessageManager {
         this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
         this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
-        // return validationResult if input is valid and processed successfully.
         return validationResult;
-        
     }
-    async sendMessage(inputMessage = "", attachments=[]) {
-        this.clearFollowUpQuestions();
-        this.uiManager.initSubmitButtonProcessing();
 
-        const validationResult = await this.validateInput(inputMessage, attachments);
+    async sendMessage(inputMessage = "", attachments = [], isRetry = false) {
+        this.clearFollowUpQuestions();
+        const validationResult = await this.validateInput(inputMessage, attachments, isRetry);
 
         if (!validationResult) {
             return;
         }
 
-        const { message, isSkipped} = validationResult;
+        const { message, attachmentUrls, isSkipped } = validationResult;
 
         let executeFunction; // 定义一个变量来存储根据条件选择的函数
 
-        if (attachments.length > 0) {
-            if (attachments.length > 1) {
-                executeFunction = () => this.sendMessageToGpt4V(false);
-            } else {
-                executeFunction = () => this.sendMessageToGpt4V(true, true, false); 
-            }
+        if (attachmentUrls.length > 0) {
+            executeFunction = () => this.sendMessageToGpt4V();
+
         } else if (message.startsWith("/image")) {
             executeFunction = () => this.sendImageMessage(message);
         } else if (message.startsWith("@") && !isSkipped) {
@@ -303,19 +301,22 @@ class MessageManager {
         const messageElem = document.querySelector(`[data-message-id="${messageId}"]`);
         if (messageElem) {
             const messageContent = messageElem.dataset.message;
-
-            // Check if the message to retry is the last message
+    
+            // 提取现有附件URLs
+            const attachmentUrls = messageElem.dataset.attachmentUrls;
+            const attachments = attachmentUrls ? attachmentUrls.split(";").map(url => ({
+                fileName: url  // 直接使用URL
+            })) : [];
+    
             const lastMessageId = this.getLastMessageId();
             if (messageId === lastMessageId) {
-                // If it is, delete it
                 this.deleteMessageInStorage(messageId);
             } else {
-                // If not, just set it as inactive
                 this.inactiveMessage(messageId);
             }
-
-            // Then resend the message
-            await this.sendMessage(messageContent, true);
+    
+            // 重发消息，并携带原有的附件URLs，同时标记为重试操作
+            await this.sendMessage(messageContent, attachments, true);
         }
     }
 

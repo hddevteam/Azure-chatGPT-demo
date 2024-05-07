@@ -221,18 +221,18 @@ exports.deleteCloudMessage = async (req, res) => {
             }
         }
 
-        // 删除附件
-        if (entity.attachmentUrls) {
-            const attachments = entity.attachmentUrls.split(";");
-            for (const url of attachments) {
-                const blobName = url.split("/").pop(); // 假设URL格式允许这样简单地提取
-                try {
-                    await deleteBlob("messageattachments", blobName);
-                } catch (error) {
-                    console.log(`Fail to delete attachment (${blobName}): ${error.message}`);
-                }
-            }
-        }
+        // 删除附件（将来放到单独的功能中处理）
+        // if (entity.attachmentUrls) {
+        //     const attachments = entity.attachmentUrls.split(";");
+        //     for (const url of attachments) {
+        //         const blobName = url.split("/").pop(); // 假设URL格式允许这样简单地提取
+        //         try {
+        //             await deleteBlob("messageattachments", blobName);
+        //         } catch (error) {
+        //             console.log(`Fail to delete attachment (${blobName}): ${error.message}`);
+        //         }
+        //     }
+        // }
 
         // 标记消息为已删除
         await tableClient.updateEntity({
