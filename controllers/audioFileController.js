@@ -48,7 +48,9 @@ exports.listAudioFiles = async (req, res) => {
 
 const azureTTS = JSON.parse(process.env.AZURE_TTS);
 const subscriptionKey = azureTTS.subscriptionKey;
-const endpoint = "https://eastus.api.cognitive.microsoft.com/speechtotext/v3.2-preview.2/transcriptions";
+const endpoint = process.env.AZURE_BATCH_TRANSCRIPTION_ENDPOINT;
+// const endpoint = "https://eastus.api.cognitive.microsoft.com/speechtotext/v3.1/transcriptions";
+
 
 exports.submitTranscriptionJob = async (req, res) => {
     const { audioUrl, audioName } = req.body;
