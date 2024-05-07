@@ -305,13 +305,10 @@ export async function getGpt(promptText, model) {
     }
 }
 
-export async function getGpt4V(promptText, enhancements=false, ocr = false, grounding = false) {
+export async function getGpt4V(promptText) {
     try {
         const response = await axios.post("/gpt4v", {
-            prompt: promptText, 
-            enhancements: enhancements,
-            ocr: ocr,
-            grounding: grounding,
+            prompt: promptText
         });
         return response.data; // Axios 会自动处理响应数据为 JSON
     } catch (error) {
