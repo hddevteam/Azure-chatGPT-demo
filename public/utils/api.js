@@ -280,6 +280,7 @@ export async function textToImage(caption) {
 
 //get gpt response
 export async function getGpt(promptText, model) {
+    // console.log("getGpt", promptText, model);
     try {
         const response = await axios.post("/gpt", {
             prompt: promptText,
@@ -300,27 +301,6 @@ export async function getGpt(promptText, model) {
             throw new Error("The server did not respond. Please try again later.");
         } else {
             // Something happened in setting up the request that triggered an Error
-            throw new Error(error.message);
-        }
-    }
-}
-
-export async function getGpt4V(promptText) {
-    try {
-        const response = await axios.post("/gpt4v", {
-            prompt: promptText
-        });
-        return response.data; // Axios 会自动处理响应数据为 JSON
-    } catch (error) {
-        if (error.response) {
-            // 请求成功发出，但服务器以外的 2xx 状态码回复
-            let errMsg = error.response.data.error ? error.response.data.error.message : "Error generating GPT-4-Vision response.";
-            throw new Error(`Error ${error.response.status}: ${errMsg}`);
-        } else if (error.request) {
-            // 请求发出了，但没有收到回应
-            throw new Error("The server did not respond. Please try again later.");
-        } else {
-            // 设置请求时触发了某些错误
             throw new Error(error.message);
         }
     }
