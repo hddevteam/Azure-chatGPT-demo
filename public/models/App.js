@@ -1,4 +1,4 @@
-// Purpose: Contains the App class which is used to store the current state of the application.
+//public/models/App.js
 import Prompts from "./Prompts.js";
 
 class App {
