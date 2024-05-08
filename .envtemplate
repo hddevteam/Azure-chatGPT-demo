@@ -15,10 +15,8 @@ API_DALLE_KEY=your-dalle-key
 
 GPT_4_LAST_API_URL=https://your-gpt-url.openai.azure.com/openai/deployments/gpt4/chat/completions?api-version=2024-02-15-preview
 GPT_4_LAST_API_KEY=your-gpt4-key
-GPT_4V_API_KEY=your-gpt4v-key
-GPT_4V_API_URL=https://your-gpt4v-url.openai.azure.com/openai/deployments/gpt4-vision-preview/chat/completions?api-version=2024-02-15-preview
-AZURE_CV_API_URL=https://your-azure-computer-vision.cognitiveservices.azure.com/
-AZURE_CV_API_KEY=your-azure-cv-key
+
+AZURE_BATCH_TRANSCRIPTION_ENDPOINT=https://yourregion.api.cognitive.microsoft.com/speechtotext/v3.2-preview.2/transcriptions
 
 CLOUD_INSTANCE=https://login.microsoftonline.com/
 TENANT_ID=your-azure-tenant-id
