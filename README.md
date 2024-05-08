@@ -7,14 +7,16 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
 ![Dekstop Screenshot](screenshot_desktop.png)
 ![Desktop Screenshot](screenshot_desktop_focus_mode.png)
 ![Optimize for mobile](screenshot_mobile.png)
+![Audio file transcription](screenshot_desktop_stt_batch.png)
 
-- **🎉Support for GPT-4 turbo model and GPT-4 Vision model（with Azure AI OCR Enhancement support)🎉**
+- **🎉Support for GPT-4 turbo🎉**
 - **Split view for an enhanced conversation experience, especially useful when you need to edit long messages.**
 
 - **🎉Support Azure AD authentication to protect your web app🎉**
 - **Support for syncing conversation to other devices via Azure Table Storage 📡**
 
 - **Generate follow-up questions based on the current conversation 🤔**
+- **Support Azure Speech Service batch transcription with REST API v3.2(Whisper model) support 🎙️**
 
 ## 🌟 Features
 - **Full control over messages in your current conversation: delete, hide, or unhide any message, allowing you to influence the AI's memory and enrich your conversations. 💫**
