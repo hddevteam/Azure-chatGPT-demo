@@ -814,12 +814,13 @@ class UIManager {
                 content: msg.dataset.message,
                 messageId: msg.dataset.messageId,
                 isActive: msg.classList.contains("active"),
+                attachmentUrls: msg.dataset.attachmentUrls,
             };
             let isActive = newMessageItem.isActive || false;
             if (isActive) {
                 this.app.prompts.addPrompt(newMessageItem);
             }
-            this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive);
+            this.messageManager.addMessage(newMessageItem.role, newMessageItem.content, newMessageItem.messageId, newMessageItem.isActive, "bottom", false, newMessageItem.attachmentUrls);
             this.storageManager.saveMessage(this.currentChatId, newMessageItem);
             this.syncManager.syncMessageCreate(this.currentChatId, newMessageItem);
         });

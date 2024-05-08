@@ -57,7 +57,7 @@ class EventManager {
             this.uiManager.app.prompts.clear();
             const activeMessages = this.uiManager.domManager.getActiveMessages();
             activeMessages.forEach(activeMessage => {
-                this.uiManager.app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId });
+                this.uiManager.app.prompts.addPrompt({ role: activeMessage.dataset.sender, content: activeMessage.dataset.message, messageId: activeMessage.dataset.messageId, attachmentUrls: activeMessage.dataset.attachmentUrls});
             });
             // Call the method with forceCollapse = false
             this.uiManager.messageManager.toggleCollapseMessage(messageElement, false);

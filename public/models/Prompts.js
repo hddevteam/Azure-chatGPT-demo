@@ -61,49 +61,57 @@ class Prompts {
         return removedItems;
     }
 
-    /**
-     * get the prompts array as a string
-     * @returns - The prompts array as a string
-     */
-    getPromptText() {
-        //combine the system prompt and the data array
-        // system prompt is the first prompt
-        // it looks like this: {role: "system", content: "Hello, I am a chatbot."}
-        const systemPrompt = { role: "system", content: this.systemPrompt };
-        const prompts = [systemPrompt, ...this.data];
-        return JSON.stringify(prompts.map((p) => {
-            return { role: p.role, content: p.content };
-        }));
+    // 用来在profile message中替换system prompt和最后一个user prompt
+    getPromptTextWithReplacement(externalSystemPrompt, replacementContent) {
+        const systemPrompt = {
+            role: "system",
+            content: [{ type: "text", text: externalSystemPrompt }]
+        };
+
+        // 创建一个数据副本，以保持原始数据不变
+        let modifiedData = [...this.data];
+
+        // 检索并保存最后一个prompt的附件信息
+        const lastPrompt = modifiedData.pop();  // 移除并获取最后一个prompt
+        const attachmentUrls = lastPrompt ? lastPrompt.attachmentUrls : "";
+
+        // 给新的内容添加替换的最后一个prompt，包括附件信息
+        modifiedData.push({
+            role: "user",
+            content: replacementContent,
+            attachmentUrls: attachmentUrls  // 保留附件信息
+        });
+
+        const prompts = [systemPrompt, ...modifiedData];
+        return JSON.stringify(prompts.map(p => this.formatPrompt(p)));
     }
 
-    /**
-     * get the prompts array as a string for GPT-4 v
-     * @returns - The prompts array as a string
-     */
-    getGpt4vPromptText() {
-        const systemPrompt = { 
-            role: "system", 
-            content: [{ type: "text", text: this.systemPrompt }]
+    formatPrompt(p) {
+        const attachmentContent = p.attachmentUrls ?
+            p.attachmentUrls.split(";")
+                .filter(url => url.trim() !== "")
+                .map(url => ({ type: "image_url", image_url: { url } })) : [];
+
+        let contentArray = Array.isArray(p.content) ? p.content : [{ type: "text", text: p.content }];
+        contentArray = [...contentArray, ...attachmentContent];
+        return {
+            role: p.role,
+            content: contentArray
+        };
+    }
+
+    getPromptText() {
+        return this.getPromptTextWithSystemPrompt(this.systemPrompt);
+    }
+
+    getPromptTextWithSystemPrompt(externalSystemPrompt) {
+        const systemPrompt = {
+            role: "system",
+            content: [{ type: "text", text: externalSystemPrompt }]
         };
         const prompts = [systemPrompt, ...this.data];
-        return JSON.stringify(prompts.map(p => {
-            // 如果有attachmentUrls字段，我们将其转换为image_url对象数组
-            const attachmentContent = p.attachmentUrls ?
-                p.attachmentUrls.split(";")
-                    .filter(url => url.trim() !== "") // 过滤空字符串
-                    .map(url => ({ type: "image_url", image_url: { url } })) : [];
-            // 确保content是一个数组
-            let contentArray = Array.isArray(p.content) ? p.content : [{ type: "text", text: p.content }];
-            // 将attachmentContent添加到content数组中
-            contentArray = [...contentArray, ...attachmentContent];
-            return {
-                role: p.role,
-                content: contentArray.map(c => {
-                    // 直接返回c，因为这时c已是正确格式
-                    return c;
-                })
-            };
-        }));
+        return JSON.stringify(prompts.map(p => this.formatPrompt(p)));
     }
+
 }
 export default Prompts;

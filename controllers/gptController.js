@@ -55,8 +55,7 @@ const makeRequest = async ({ apiKey, apiUrl, prompt, params }) => {
         },
         data: {
             messages: prompt,
-            ...params,
-            stop: null,
+            ...params
         },
     };
 
@@ -64,59 +63,20 @@ const makeRequest = async ({ apiKey, apiUrl, prompt, params }) => {
 };
 
 
-exports.generateGpt4VResponse = async (req, res) => {
-    console.log("generateGpt4VResponse", req.body);
-    // 解析请求体中提供的数据
-    const prompt = JSON.parse(req.body.prompt);
-    if (!prompt || !prompt.length) {
-        console.error("Invalid prompt");
-        return res.status(400).send("Invalid prompt");
-    }
-
-    let data;
-    
-    data = {
-        messages: prompt,
-        ...defaultParams
-    };
-
-    console.log("request data", data);
-
-    // 准备请求配置
-    const options = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "api-key": gpt4Apikey,
-        },
-        data: JSON.stringify(data),
-    };
-
-    console.log("gpt4v options", options);
-
-    try {
-        // 发送请求并处理响应
-        console.log("Sending request to GPT-4-Vision", gpt4ApiUrl);
-        const response = await axios(gpt4ApiUrl, options);
-        console.log("Response from GPT-4-Vision:", response.data);
-
-        // 假设数据结构和 generateResponse 中相同，我们提取 message 和 totalTokens
-        const choices = response.data.choices || [];
-        const message = choices.length > 0 ? choices[0].message.content : "No response from GPT-4-Vision";
-        const totalTokens = response.data.usage ? response.data.usage.total_tokens : 0;
-        const responseObj = { message, totalTokens };
-        console.log("responseObj", responseObj);
-        res.json(responseObj);
-    } catch (error) {
-        // 错误处理
-        handleRequestError(error, res);
-    }
-};
-
 
 exports.generateResponse = async (req, res) => {
-    const { model, temperature, top_p, frequency_penalty, presence_penalty, max_tokens } = req.body;
-    const prompt = JSON.parse(req.body.prompt);
+    console.log("generateResponse");
+    const {
+        model,
+        temperature = defaultParams.temperature,
+        top_p = defaultParams.top_p,
+        frequency_penalty = defaultParams.frequency_penalty,
+        presence_penalty = defaultParams.presence_penalty,
+        max_tokens = defaultParams.max_tokens
+    } = req.body;
+    console.log("promptText", req.body.prompt);
+    let prompt = JSON.parse(req.body.prompt);
+    // console.log("prompt", prompt);
     if (!prompt || !prompt.length) {
         console.error("Invalid prompt");
         return res.status(400).send("Invalid prompt");
@@ -128,6 +88,14 @@ exports.generateResponse = async (req, res) => {
     case "gpt-3.5-turbo":
         currentApiKey = apiKey;
         currentApiUrl = apiUrl;
+        // 为gpt-3.5-turbo移除图片URL
+        prompt = prompt.map(entry => {
+            const filteredContent = entry.content.filter(item => item.type !== "image_url");
+            return {
+                ...entry,
+                content: filteredContent
+            };
+        });
         break;
     case "gpt-4":
         currentApiKey = gpt4Apikey;
@@ -156,13 +124,17 @@ exports.generateResponse = async (req, res) => {
     };
 
     try {
+        console.log("requestData", requestData);
         const response = await makeRequest(requestData);
-        const { data } = response;
-        const message = data.choices[0].message.content || data.choices[0].finish_reason;
-        const totalTokens = data.usage.total_tokens;
+        console.log("Response from GPT:", response.data);
+
+        // 假设数据结构和 generateResponse 中相同，我们提取 message 和 totalTokens
+        const choices = response.data.choices || [];
+        const message = choices.length > 0 ? choices[0].message.content : "No response from GPT";
+        const totalTokens = response.data.usage ? response.data.usage.total_tokens : 0;
         const responseObj = { message, totalTokens };
         console.log("responseObj", responseObj);
-        res.send(responseObj);
+        res.json(responseObj);
     } catch (error) {
         handleRequestError(error, res);
     }

@@ -106,46 +106,29 @@ class MessageManager {
         // Code for getGpt, check it's proper implementation in your code.
         return await getGpt(promptText, this.uiManager.app.model);
     }
-    
-    async sendMessageToGpt4V() {
-        this.uiManager.showToast("AI is thinking...");
-        const promptText = this.uiManager.app.prompts.getGpt4vPromptText();
-        console.warn("gpt4v promptText", promptText);
-        return await getGpt4V(promptText);
-    }
 
     async sendProfileMessage(message) {
         const parts = message.split(":");
         if (parts.length >= 2) {
             const profileDisplayName = parts[0].substring(1).trim(); // Remove '@'
             const messageContent = parts.slice(1).join(":").trim();
-            let systemPrompt;
+            let externalSystemPrompt;
             const profile = this.uiManager.profiles.find(p => p.displayName === profileDisplayName);
+    
             if (profile) {
-                systemPrompt = { role: "system", content: profile.prompt };
+                externalSystemPrompt = profile.prompt;
             } else {
-                systemPrompt = { role: "system", content: `You are an experienced ${profileDisplayName}.` };
+                externalSystemPrompt = `You are an experienced ${profileDisplayName}.`;
             }
-            let data = this.uiManager.app.prompts.data.map(d => {
-                if (d.role === "assistant") {
-                    return { ...d, role: "user" };
-                }
-                return d;
-            });
-            // remove the last prompt
-            data.pop();
-            data.push({ role: "user", content: messageContent });
-            const prompts = [systemPrompt, ...data];
-            console.log(prompts);
-            const promptText = JSON.stringify(prompts.map((p) => {
-                return { role: p.role, content: p.content };
-            }));
-
+    
+            const promptText = this.uiManager.app.prompts.getPromptTextWithReplacement(externalSystemPrompt, messageContent);
+    
             // Send the new 'profile' message
             this.uiManager.showToast("AI is thinking...");
             return await getGpt(promptText, this.uiManager.app.model);
         }
     }
+    
 
     async sendImageMessage(message) {
         try {
@@ -180,19 +163,19 @@ class MessageManager {
             return;
         }
 
-        const { message, attachmentUrls, isSkipped } = validationResult;
+        const { message, isSkipped } = validationResult;
 
         let executeFunction; // 定义一个变量来存储根据条件选择的函数
 
-        if (attachmentUrls.length > 0) {
-            executeFunction = () => this.sendMessageToGpt4V();
-        } else if (message.startsWith("/image")) {
+        if (message.startsWith("/image")) {
+            // 消息以 "/image" 开头
             executeFunction = () => this.sendImageMessage(message);
         } else if (message.startsWith("@") && !isSkipped) {
+            // 消息以 "@" 开头并且没有被跳过
             executeFunction = () => this.sendProfileMessage(message);
         } else {
             executeFunction = () => this.sendTextMessage();
-        }
+        } 
 
         const data = await this.wrapWithGetGptErrorHandler(executeFunction); // 直接传递函数
         this.uiManager.finishSubmitProcessing();
