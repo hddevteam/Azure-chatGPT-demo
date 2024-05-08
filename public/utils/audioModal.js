@@ -97,7 +97,8 @@ const audioModal = (() => {
                             buttonHTML += `<button class="recognize-btn" data-audio-url="${file.url}" disabled> Recognizing...</button>`;
                             break;
                         case "Failed":
-                            buttonHTML += "Recognition failed. Please try again.";
+                            swal("Recognition failed", "Please try again.", "error");
+                            buttonHTML += `<button class="recognize-btn" data-audio-url="${file.url}">Recognize</button>`;
                             break;
                         default:
                             buttonHTML += `<button class="recognize-btn" data-audio-url="${file.url}">Recognize</button>`;
@@ -198,7 +199,7 @@ const audioModal = (() => {
             await pollForTranscriptResults(transcriptionId, audioName, buttonElement);
         } catch (error) {
             console.error("识别音频文件失败: ", error);
-            swal("识别失败", "无法识别音频文件。", "error");
+            swal("Recognition failed", "Please try again.", "error");
             // 恢复按钮状态以允许用户重试
             buttonElement.textContent = "Recognize";
             buttonElement.disabled = false;
@@ -245,7 +246,7 @@ const audioModal = (() => {
                     pollInterval = Math.min(pollInterval * 2, 30000); // 逐渐增加轮询间隔，但不超过30秒
                 } else {
                     // 转录失败或遇到未预期状态，停止轮询并显示错误消息
-                    swal("识别失败", "转录任务失败或状态未知。", "error");
+                    swal("Recognition failed", "Please try again.", "error");
                     buttonElement.textContent = "Recognize";
                     buttonElement.disabled = false;
                     delete pollingTasks[audioName]; // 清理轮询任务的标记
