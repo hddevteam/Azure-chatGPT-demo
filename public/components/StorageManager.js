@@ -53,6 +53,15 @@ class StorageManager {
         }
     }
 
+    updateCurrentUserInfo(username) {
+        if (username) {
+            // Replace the _ character with - to prevent chatId parsing errors
+            username = username.replace(/_/g, "-");
+        }
+        this.currentUserData.username = username || "";
+        this.saveCurrentUserData();
+    }
+
     setCurrentUsername(username) {
         this.currentUserData.username = username;
         this.saveCurrentUserData();
