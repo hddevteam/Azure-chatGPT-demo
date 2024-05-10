@@ -14,19 +14,21 @@ import audioModal from "./utils/audioModal.js";
 
 (async () => {
     try {
-        // 等待signIn执行完成
-        await signIn();
-        // signIn成功后，执行页面初始化逻辑
-        initializeApp();
+        const username = await signIn();  // 等待signIn执行完成，并获取用户名
+        if (username) {
+            initializeApp(username);  // 如果用户名存在，则初始化应用并传递用户名
+        } else {
+            console.error("No user signed in.");
+        }
     } catch (error) {
         console.error("SignIn failed:", error);
-        // SignIn失败的处理逻辑
     }
 })();
 
-function initializeApp() {
+function initializeApp(username) {  // 接收传入的 username 参数
     console.log("initializeApp");
-    const uiManager = setup();
+    const uiManager = setup();  // 设置UI管理器
+    uiManager.storageManager.updateCurrentUserInfo(username);  // 使用传入的 username 更新用户名信息
     const app = uiManager.app;
     new ModelDropdownManager(app, "#model-switch", "#model-dropdown");
 
@@ -117,7 +119,7 @@ function initializeApp() {
     const userBtn = document.querySelector("#user");
 
     // generate current user menulist and render it
-
+    console.log("Current user name:", uiManager.storageManager.getCurrentUsername());
     getPromptRepo(uiManager.storageManager.getCurrentUsername())
         .then(data => {
             uiManager.renderMenuList(data);
