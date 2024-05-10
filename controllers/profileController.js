@@ -1,24 +1,9 @@
 const createProfileManager = require("../services/profileService.js");
-const userNames = Object.keys(JSON.parse(process.env.PROMPT_REPO_URLS));
-const profileManagers = userNames.reduce((managers, username) => {
-    managers[username] = createProfileManager(`../.data/${username}.json`);
-    return managers;
-}, {});
-
-function sanitizeUsername(username) {
-    const sanitizedUsername = username.replace(/[^\w.-]/g, "_").substring(0, 100);
-    return sanitizedUsername;
-}
-
-function isGuestUser(username) {
-    return username === "guest";
-}
-
 async function getProfileManager(username) {
+    const profileManagers = {};
     if (!profileManagers[username]) {
         profileManagers[username] = createProfileManager(`../.data/${username}.json`);
     }
-
     return profileManagers[username];
 }
 
@@ -27,30 +12,34 @@ function handleApiError(res, error) {
     res.status(500).send("Internal Server Error");
 }
 
+function handleMissingUsername(res) {
+    res.status(401).send("Authentication required: Please log in.");
+}
+
 exports.getPromptRepo = async (req, res) => {
+    const username = req.query.username;
+    if (!username) {
+        return handleMissingUsername(res);
+    }
+
     try {
-        let username = req.query.username || "guest";
-
-        if (!userNames.includes(username)) {
-            username = "guest";
-        }
-
         const profileManager = await getProfileManager(username);
         const profiles = await profileManager.readProfiles();
-
-        const responseObj = { username, profiles: profiles };
-        res.send(responseObj);
+        res.send({ username, profiles });
     } catch (error) {
         handleApiError(res, error);
     }
 };
 
 exports.getProfiles = async (req, res) => {
+    const username = req.query.username;
+    if (!username) {
+        return handleMissingUsername(res);
+    }
+
     try {
-        const username = sanitizeUsername(req.query.username || "guest");
         const profileManager = await getProfileManager(username);
         const profiles = await profileManager.readProfiles();
-
         res.json(profiles);
     } catch (error) {
         handleApiError(res, error);
@@ -58,13 +47,12 @@ exports.getProfiles = async (req, res) => {
 };
 
 exports.createProfile = async (req, res) => {
+    const username = req.query.username;
+    if (!username) {
+        return handleMissingUsername(res);
+    }
+
     try {
-        const username = sanitizeUsername(req.query.username || "guest");
-
-        if (isGuestUser(username)) {
-            return res.status(403).send("Guest user cannot modify profiles");
-        }
-
         const profileManager = await getProfileManager(username);
         const newProfile = req.body;
         const profiles = await profileManager.readProfiles();
@@ -77,13 +65,12 @@ exports.createProfile = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
+    const username = req.query.username;
+    if (!username) {
+        return handleMissingUsername(res);
+    }
+
     try {
-        const username = sanitizeUsername(req.query.username || "guest");
-
-        if (isGuestUser(username)) {
-            return res.status(403).send("Guest user cannot modify profiles");
-        }
-
         const profileManager = await getProfileManager(username);
         const updatedProfile = req.body;
         const profiles = await profileManager.readProfiles();
@@ -102,13 +89,12 @@ exports.updateProfile = async (req, res) => {
 };
 
 exports.deleteProfile = async (req, res) => {
+    const username = req.query.username;
+    if (!username) {
+        return handleMissingUsername(res);
+    }
+
     try {
-        const username = sanitizeUsername(req.query.username || "guest");
-
-        if (isGuestUser(username)) {
-            return res.status(403).send("Guest user cannot modify profiles");
-        }
-
         const profileManager = await getProfileManager(username);
         const profiles = await profileManager.readProfiles();
         const index = profiles.findIndex((p) => p.name === req.params.name);
