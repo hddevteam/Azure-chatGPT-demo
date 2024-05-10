@@ -10,15 +10,19 @@ await myMSALObj.initialize();
 let username = "";
 console.log("msalConfig auth scopes: ", msalConfig.auth.scopes);
 
+
 async function signIn() {
     await myMSALObj.handleRedirectPromise();
     const accounts = myMSALObj.getAllAccounts();
     if (accounts.length === 0) {
-        // No user signed in
         console.log("no user signed in, redirecting to login...");
         myMSALObj.loginRedirect();
+        return null;  // 返回 null 表示没有登录用户
+    } else {
+        return accounts[0].username;  // 返回登录的用户名
     }
 }
+
 
 
 // getToken函数改进
