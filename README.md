@@ -56,13 +56,7 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
    AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
    ```
 
-4. (Optional) Add extra features with `PROMPT_REPO_URLS` and `AZURE_TTS`:
-   
-   - `PROMPT_REPO_URLS` is a JSON object containing usernames and the URLs of their prompt files:
-   
-     ```
-     PROMPT_REPO_URLS={"user1":"user1prompts.json","user2":"user2prompts.json","user3":"user3prompts.json"}
-     ```
+4. (Optional) Add extra features with `AZURE_TTS`:
 
    - `AZURE_TTS` is a JSON object containing the subscription key and endpoint for the Azure Text-to-Speech service:
 
