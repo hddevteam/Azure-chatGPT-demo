@@ -33,8 +33,7 @@ if (isCICD) {
 module.exports = {
     mode: "development",
     entry: {
-        main: "./public/index.js",
-        profileManager: "./public/profile-manager.js"
+        main: "./public/index.js"
     },
     output: {
         filename: "[name].bundle.js",
