@@ -115,9 +115,6 @@ function initializeApp(username) {  // 接收传入的 username 参数
             });
     });
 
-    // 获取模态对话框元素和触发器元素
-    const userBtn = document.querySelector("#user");
-
     // generate current user menulist and render it
     console.log("Current user name:", uiManager.storageManager.getCurrentUsername());
     getPromptRepo(uiManager.storageManager.getCurrentUsername())
@@ -136,41 +133,6 @@ function initializeApp(username) {  // 接收传入的 username 参数
         if (event.getModifierState("Alt") && event.code === "KeyS") {
             uiManager.handleMessageFormSubmit(messageInput);
         }
-    });
-    // popup the Swal when user click the username label
-    userBtn.addEventListener("click", function () {
-        swal({
-            text: "Enter your username",
-            content: "input",
-            button: {
-                text: "Submit",
-                closeModal: false,
-            },
-        })
-            .then(username => {
-                if (!username) throw null;
-
-                return getPromptRepo(username);
-            })
-            .then(data => {
-                uiManager.renderMenuList(data);
-                //practice mode will be off when user submit the username
-                uiManager.turnOffPracticeMode();
-
-                swal({
-                    title: "Success",
-                    text: "The username has been set successfully",
-                    icon: "success",
-                });
-            })
-            .catch(err => {
-                if (err) {
-                    swal("Oh noes!", "The server request failed!", "error");
-                } else {
-                    swal.stopLoading();
-                    swal.close();
-                }
-            });
     });
 
     setupVoiceInput(uiManager);

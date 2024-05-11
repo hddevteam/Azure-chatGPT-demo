@@ -56,8 +56,7 @@
   <div id="ai-actor-wrapper" class="hidden">
     <div id="ai-actor-header">
       <span>AI Actor</span>
-      <button id="new-ai-actor" class="new-button" aria-label="Create New"><i class="fas fa-plus"
-          aria-hidden="true"></i></button>
+      <button id="new-ai-actor" class="new-button" aria-label="Create New">New AI Actor</button>
     </div>
     <div id="ai-actor-container">
       <ul id="ai-actor-list">
@@ -164,14 +163,21 @@
       <div id="ai-actor-settings-inner-form-wrapper">
         <div id="ai-actor-settings-header">
           <span>AI Actor</span>
-          <button type="button" id="save-profile">Save</button>
+          <div id="ai-actor-settings-header-buttons">
+            <button type="button" id="export-profile" title="Export ai profile">Export
+            </button>
+            <button type="button" id="import-profile" title="Import ai profile">Import</button>
+            <button type="button" id="save-profile">Save</button>
+          </div>
         </div>
         <div class="setting-item">
           <label for="prompt">Prompt</label>
           <div class="textarea-container">
             <textarea id="prompt" rows="12" required></textarea>
-            <button id="generate-prompt" title="Automatic generate prompt based on your content"><i
-                class="fas fa-magic"></i></button>
+            <div id="profile-buttons">
+              <button id="generate-prompt" title="Automatic generate prompt based on your content"><i
+              class="fas fa-magic"></i></button>
+            </div>
           </div>
         </div>
         <div class="setting-item">
