@@ -4,8 +4,9 @@ import swal from "sweetalert";
 
 // ProfileFormManager.js
 export default class ProfileFormManager {
-    constructor(storageManager,saveProfileCallback, deleteProfileCallback, hideElementCallback) {
-        this.storageManager = storageManager; // Instance of StorageManager
+    constructor(uiManager,saveProfileCallback, deleteProfileCallback, hideElementCallback) {
+        this.uiManager = uiManager; // Instance of UIManager
+        this.storageManager = uiManager.storageManager; // Instance of StorageManager
         this.saveProfileCallback = saveProfileCallback; // Callback function to save profile data
         this.deleteProfileCallback = deleteProfileCallback;
         this.hideElementCallback = hideElementCallback;
@@ -59,9 +60,76 @@ export default class ProfileFormManager {
             document.getElementById("icon-preview").className = iconClass;
         });
 
+        document.getElementById("export-profile").addEventListener("click", () => this.exportProfile());
+        document.getElementById("import-profile").addEventListener("click", () => this.importProfile());
+
         document.getElementById("delete-profile").addEventListener("click", () => this.deleteCurrentProfile());
     }
 
+    exportProfile() {
+        const profileData = {
+            name: this.formElements.name.value,
+            icon: this.formElements.icon.value,
+            displayName: this.formElements.displayName.value,
+            prompt: this.formElements.prompt.value,
+            tts: this.formElements.tts.value,
+            sortedIndex: this.formElements.sortedIndex.value,
+            temperature: this.formElements.temperature.value,
+            top_p: this.formElements.top_p.value,
+            frequency_penalty: this.formElements.frequency_penalty.value,
+            presence_penalty: this.formElements.presence_penalty.value,
+            max_tokens: this.formElements.max_tokens.value,
+        };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(profileData));
+        const downloadAnchorNode = document.createElement("a");
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `${profileData.name}_ai.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+
+    checkAndAdjustName(profile) {
+        const existingNames = this.uiManager.profiles.map(p => p.name.replace(/_/g, "-"));
+        const existingDisplayNames = this.uiManager.profiles.map(p => p.displayName);
+    
+        // 检查并调整 name，使用减号代替下划线
+        let newName = profile.name.replace(/_/g, "-");
+        let counter = 1;
+        while (existingNames.includes(newName) || existingDisplayNames.includes(newName)) {
+            newName = `${profile.name.replace(/_/g, "-")}${counter}`;
+            counter++;
+        }
+        profile.name = newName;
+    
+        // 检查并调整 displayName
+        let newDisplayName = profile.displayName || newName;
+        counter = 1;
+        while (existingDisplayNames.includes(newDisplayName) || existingNames.includes(newDisplayName)) {
+            newDisplayName = `${profile.displayName || profile.name}${counter}`;
+            counter++;
+        }
+        profile.displayName = newDisplayName;
+    }
+
+    importProfile() {
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "application/json";
+        fileInput.onchange = e => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = event => {
+                const obj = JSON.parse(event.target.result);
+                this.bindProfileData(obj);
+                this.oldName = ""; // 确保视为新的Profile
+                this.saveProfile(); 
+            };
+            reader.readAsText(file);
+        };
+        fileInput.click();
+    }
+    
     // ProfileFormManager.js 中新增方法
     deleteCurrentProfile() {
         const currentProfileName = this.storageManager.getCurrentProfile().name;
@@ -146,6 +214,10 @@ export default class ProfileFormManager {
         console.log("Saving profile:", profile);
         const username = this.storageManager.getCurrentUsername();
         const isNewProfile = !this.oldName;
+
+        if (isNewProfile) {
+            this.checkAndAdjustName(profile);
+        }
 
         saveOrUpdateProfile(profile, username, isNewProfile, this.oldName)
             .then(() => {

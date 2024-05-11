@@ -42,7 +42,7 @@ class UIManager {
         this.setupUploadFunctionality();
         this.boundHideAIActorOnOutsideClick = this.hideAIActorOnOutsideClick.bind(this);
         this.handleClickOutsideCreateAIActorModal = this.handleClickOutsideCreateAIActorModal.bind(this);
-        this.profileFormManager = new ProfileFormManager(this.storageManager, 
+        this.profileFormManager = new ProfileFormManager(this, 
             async (updatedProfile, isNewProfile) => { 
                 await this.refreshProfileList(); // 使用await等待refreshProfileList完成
                 if (isNewProfile) {
