@@ -716,6 +716,7 @@ button.action-button.invisible {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
     z-index: 1;
 }
 
@@ -732,7 +733,8 @@ button.action-button.invisible {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: block;
     max-width: 600px;
-    max-height: unset;
+    max-height: 90vh; /* 设置最大高度为视窗的90%，防止内容超出屏幕 */
+    overflow-y: auto; /* 超出部分可以滚动 */
 }
 
 /* 新外层容器样式，以适配整体布局 */
@@ -946,11 +948,22 @@ button.action-button.invisible {
     /* 超出内容区域时显示滚动条 */
 }
 
-#ai-actor-settings-inner-form-wrapper h5 {
-    color: #333;
-    text-transform: uppercase;
-    margin-bottom: 5px;
+#ai-actor-settings-header {
+    display: flex;
+    flex-direction: column; /* 设置flex方向为垂直，使子元素堆叠在不同行 */
+    align-items: stretch; /* 伸展以填充父容器的宽度 */
 }
+
+#ai-actor-settings-header span {
+    align-self: flex-start; /* 左对齐 */
+    margin-bottom: 10px; /* 添加一些底部边距以分隔两行 */
+}
+
+#ai-actor-settings-header-buttons {
+    align-self: flex-end; /* 右对齐 */
+}
+
+
 
 .setting-item {
     margin-bottom: 5px;
@@ -991,12 +1004,6 @@ button.action-button.invisible {
 
 #save-profile:hover {
     background-color: #45a049;
-}
-
-#ai-actor-settings-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 .textarea-container {
