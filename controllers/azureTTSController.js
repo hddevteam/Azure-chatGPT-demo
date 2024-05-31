@@ -87,10 +87,21 @@ function getVoiceAttributes(language) {
 }
 
 const { detectFirstLanguage } = require("../services/languageDetection");
+const removeMarkdown = require('remove-markdown');
+// 去除Markdown格式字符的函数
+const cleanMarkdown = (text) => {
+    return removeMarkdown(text);
+};
+
 exports.getMultiLangTextToSpeech = async (req, res) => {
+
     // Get message from client then send to Azure TTS API and send back the buffer to client
-    const message = req.body.message;
+    let message = req.body.message;
     console.log("Message: ", message);
+
+    // 去除消息中的Markdown格式字符
+    message = cleanMarkdown(message);
+    console.log("Cleaned Message: ", message);
 
     // Detect the first language in the message
     const language = await detectFirstLanguage(message);
