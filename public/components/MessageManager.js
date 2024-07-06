@@ -1,7 +1,8 @@
 // MessageManager.js
-import { getGpt, getFollowUpQuestions, getGpt4V, textToImage } from "../utils/api.js";
+import { getGpt, getFollowUpQuestions, textToImage } from "../utils/api.js";
 import swal from "sweetalert";
 import { marked } from "marked";
+import katex from "katex";
 import { generateExcerpt } from "../utils/textUtils.js";
 
 
@@ -11,6 +12,56 @@ const modelConfig = {
     "gpt-4-last": 128000,
 };
 
+// 设置 marked 渲染器，处理 LaTeX 公式
+const renderer = new marked.Renderer();
+
+const renderWithKaTeX = (text) => {
+    console.log("Original text:", text); // 添加日志
+
+    // Match outer brackets using regex
+    const bracketRegex = /\[([^\[\]]+)\]/;
+    const parenRegex = /\(([^\(\)]+)\)/;
+
+    const processEquation = (match, equation, displayMode) => {
+        const element = document.createElement(displayMode ? "div" : "span");
+        katex.render(equation, element, { throwOnError: false, displayMode });
+        console.log(`Rendered ${displayMode ? "block" : "inline"} equation:`, element.innerHTML); // 添加日志
+        return element.innerHTML;
+    };
+
+    const matchBracket = bracketRegex.exec(text);
+    if (matchBracket) {
+        console.log("Outer bracket equation match:", matchBracket[0]); // 添加日志
+        const result = text.replace(bracketRegex, (match, equation) => {
+            return processEquation(match, equation, false);
+        });
+        console.log("Processed text with brackets:", result); // 添加日志
+        return result;
+    }
+
+    const matchParen = parenRegex.exec(text);
+    if (matchParen) {
+        console.log("Outer parenthesis equation match:", matchParen[0]); // 添加日志
+        const result = text.replace(parenRegex, (match, equation) => {
+            return processEquation(match, equation, true);
+        });
+        console.log("Processed text with parentheses:", result); // 添加日志
+        return result;
+    }
+
+    console.log("No brackets or parentheses found. Returning original text."); // 添加日志
+    return text;
+};
+
+
+renderer.paragraph = (text) => {
+    console.log("Rendering paragraph with text:", text); // 添加日志
+    return `<p>${renderWithKaTeX(text)}</p>`;
+};
+
+
+// 使用自定义的 renderer
+marked.setOptions({ renderer });
 
 class MessageManager {
     constructor(uiManager) {
@@ -389,7 +440,9 @@ class MessageManager {
             element.innerText = isActive ? message : this.getMessagePreview(message);
         } else {
             element = messageElem.querySelector("div.message-content");
+            console.log(message);
             const messageHtml = marked.parse(message);
+            console.log("after marked parse",messageHtml);
             element.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message));
         }
 
