@@ -1,67 +1,24 @@
 // MessageManager.js
 import { getGpt, getFollowUpQuestions, textToImage } from "../utils/api.js";
 import swal from "sweetalert";
-import { marked } from "marked";
-import katex from "katex";
 import { generateExcerpt } from "../utils/textUtils.js";
+import { marked } from "marked";
+import markedKatex from "marked-katex-extension";
 
+const options = {
+    throwOnError: false
+};
+marked.use(markedKatex(options));
+
+// const test = `初始角度是 $ \frac{\pi}{2} $ （即90度，向上）。`;
+// const markedTest  = marked.parse(test);
+// console.log("markedTest", markedTest);
 
 const modelConfig = {
     "gpt-4": 128000,
     "gpt-3.5-turbo": 16000,
     "gpt-4-last": 128000,
 };
-
-// 设置 marked 渲染器，处理 LaTeX 公式
-const renderer = new marked.Renderer();
-
-const renderWithKaTeX = (text) => {
-    console.log("Original text:", text); // 添加日志
-
-    // Match outer brackets using regex
-    const bracketRegex = /\[([^\[\]]+)\]/;
-    const parenRegex = /\(([^\(\)]+)\)/;
-
-    const processEquation = (match, equation, displayMode) => {
-        const element = document.createElement(displayMode ? "div" : "span");
-        katex.render(equation, element, { throwOnError: false, displayMode });
-        console.log(`Rendered ${displayMode ? "block" : "inline"} equation:`, element.innerHTML); // 添加日志
-        return element.innerHTML;
-    };
-
-    const matchBracket = bracketRegex.exec(text);
-    if (matchBracket) {
-        console.log("Outer bracket equation match:", matchBracket[0]); // 添加日志
-        const result = text.replace(bracketRegex, (match, equation) => {
-            return processEquation(match, equation, false);
-        });
-        console.log("Processed text with brackets:", result); // 添加日志
-        return result;
-    }
-
-    const matchParen = parenRegex.exec(text);
-    if (matchParen) {
-        console.log("Outer parenthesis equation match:", matchParen[0]); // 添加日志
-        const result = text.replace(parenRegex, (match, equation) => {
-            return processEquation(match, equation, true);
-        });
-        console.log("Processed text with parentheses:", result); // 添加日志
-        return result;
-    }
-
-    console.log("No brackets or parentheses found. Returning original text."); // 添加日志
-    return text;
-};
-
-
-renderer.paragraph = (text) => {
-    console.log("Rendering paragraph with text:", text); // 添加日志
-    return `<p>${renderWithKaTeX(text)}</p>`;
-};
-
-
-// 使用自定义的 renderer
-marked.setOptions({ renderer });
 
 class MessageManager {
     constructor(uiManager) {
@@ -434,6 +391,21 @@ class MessageManager {
     }
 
     setMessageContent(sender, messageElem, message, isActive) {
+        console.log("before replaceText", message);
+        const replaceText = (input) => {
+            // 替换单行数学表达式 \( ... \) 为 $ ... $
+            let outputText = input.replace(/\\\((.*?)\\\)/g, " $$$1$$ ");
+    
+            // 替换多行数学表达式 \[ ... \] 为 $$ ... $$
+            outputText = outputText.replace(/\\\[(.*?)\\\]/gs, "$$$$$1$$$$");
+    
+            return outputText;
+        };
+          
+        // 替换 inline 公式
+        message = replaceText(message);
+        console.log("after replaceText", message);
+    
         let element;
         if (sender === "user") {
             element = messageElem.querySelector("pre");
@@ -442,17 +414,17 @@ class MessageManager {
             element = messageElem.querySelector("div.message-content");
             console.log(message);
             const messageHtml = marked.parse(message);
-            console.log("after marked parse",messageHtml);
+            console.log("after marked parse", messageHtml);
             element.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message));
         }
-
+    
         const codeBlocks = element.querySelectorAll("pre > code, pre code");
         const codeBlocksWithCopyElements = [];
-
+    
         for (let i = 0; i < codeBlocks.length; i++) {
             const codeBlock = codeBlocks[i];
             const copyElement = this.uiManager.domManager.createCopyElement();
-
+    
             const wrapper = document.createElement("div");
             wrapper.classList.add("code-block-wrapper");
             wrapper.style.position = "relative";
@@ -460,12 +432,13 @@ class MessageManager {
             wrapper.appendChild(codeBlock);
             wrapper.appendChild(copyElement);
             copyElement.classList.add("code-block-copy");
-
+    
             codeBlocksWithCopyElements.push({ codeBlock, copyElement });
         }
-
+    
         return codeBlocksWithCopyElements;
     }
+    
 
     getMessagePreview(message, maxLength = 80) {
         let previewText = message.replace(/\n/g, " ");
