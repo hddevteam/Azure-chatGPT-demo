@@ -534,8 +534,8 @@ tr:hover {
     transition: all 0.2s;
 }
 
-svg path,
-svg rect {
+svg.processing path,
+svg.processing rect {
     fill: #fff;
     opacity: 0.8;
 }

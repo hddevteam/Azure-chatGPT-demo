@@ -1,16 +1,24 @@
 // MessageManager.js
-import { getGpt, getFollowUpQuestions, getGpt4V, textToImage } from "../utils/api.js";
+import { getGpt, getFollowUpQuestions, textToImage } from "../utils/api.js";
 import swal from "sweetalert";
-import { marked } from "marked";
 import { generateExcerpt } from "../utils/textUtils.js";
+import { marked } from "marked";
+import markedKatex from "marked-katex-extension";
 
+const options = {
+    throwOnError: false
+};
+marked.use(markedKatex(options));
+
+// const test = `初始角度是 $ \frac{\pi}{2} $ （即90度，向上）。`;
+// const markedTest  = marked.parse(test);
+// console.log("markedTest", markedTest);
 
 const modelConfig = {
     "gpt-4": 128000,
     "gpt-3.5-turbo": 16000,
     "gpt-4-last": 128000,
 };
-
 
 class MessageManager {
     constructor(uiManager) {
@@ -383,23 +391,40 @@ class MessageManager {
     }
 
     setMessageContent(sender, messageElem, message, isActive) {
+        // console.log("before replaceText", message);
+        const replaceText = (input) => {
+            // 替换单行数学表达式 \( ... \) 为 $ ... $
+            let outputText = input.replace(/\\\((.*?)\\\)/g, " $$$1$$ ");
+    
+            // 替换多行数学表达式 \[ ... \] 为 $$ ... $$
+            outputText = outputText.replace(/\\\[(.*?)\\\]/gs, "$$$$$1$$$$");
+    
+            return outputText;
+        };
+          
+        // 替换 inline 公式
+        message = replaceText(message);
+        // console.log("after replaceText", message);
+    
         let element;
         if (sender === "user") {
             element = messageElem.querySelector("pre");
             element.innerText = isActive ? message : this.getMessagePreview(message);
         } else {
             element = messageElem.querySelector("div.message-content");
+            // console.log(message);
             const messageHtml = marked.parse(message);
+            // console.log("after marked parse", messageHtml);
             element.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message));
         }
-
+    
         const codeBlocks = element.querySelectorAll("pre > code, pre code");
         const codeBlocksWithCopyElements = [];
-
+    
         for (let i = 0; i < codeBlocks.length; i++) {
             const codeBlock = codeBlocks[i];
             const copyElement = this.uiManager.domManager.createCopyElement();
-
+    
             const wrapper = document.createElement("div");
             wrapper.classList.add("code-block-wrapper");
             wrapper.style.position = "relative";
@@ -407,12 +432,13 @@ class MessageManager {
             wrapper.appendChild(codeBlock);
             wrapper.appendChild(copyElement);
             copyElement.classList.add("code-block-copy");
-
+    
             codeBlocksWithCopyElements.push({ codeBlock, copyElement });
         }
-
+    
         return codeBlocksWithCopyElements;
     }
+    
 
     getMessagePreview(message, maxLength = 80) {
         let previewText = message.replace(/\n/g, " ");
