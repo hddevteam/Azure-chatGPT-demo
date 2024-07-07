@@ -391,7 +391,7 @@ class MessageManager {
     }
 
     setMessageContent(sender, messageElem, message, isActive) {
-        console.log("before replaceText", message);
+        // console.log("before replaceText", message);
         const replaceText = (input) => {
             // 替换单行数学表达式 \( ... \) 为 $ ... $
             let outputText = input.replace(/\\\((.*?)\\\)/g, " $$$1$$ ");
@@ -404,7 +404,7 @@ class MessageManager {
           
         // 替换 inline 公式
         message = replaceText(message);
-        console.log("after replaceText", message);
+        // console.log("after replaceText", message);
     
         let element;
         if (sender === "user") {
@@ -412,9 +412,9 @@ class MessageManager {
             element.innerText = isActive ? message : this.getMessagePreview(message);
         } else {
             element = messageElem.querySelector("div.message-content");
-            console.log(message);
+            // console.log(message);
             const messageHtml = marked.parse(message);
-            console.log("after marked parse", messageHtml);
+            // console.log("after marked parse", messageHtml);
             element.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message));
         }
     
