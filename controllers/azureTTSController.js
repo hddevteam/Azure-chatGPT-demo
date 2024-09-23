@@ -87,7 +87,7 @@ function getVoiceAttributes(language) {
 }
 
 const { detectFirstLanguage } = require("../services/languageDetection");
-const removeMarkdown = require('remove-markdown');
+const removeMarkdown = require("remove-markdown");
 // 去除Markdown格式字符的函数
 const cleanMarkdown = (text) => {
     return removeMarkdown(text);
