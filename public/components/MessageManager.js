@@ -193,7 +193,7 @@ class MessageManager {
             this.checkTokensAndWarn(data.totalTokens);
         }
 
-        // await this.sendFollowUpQuestions();
+        await this.sendFollowUpQuestions();
         // temporary disable follow-up questions because it consumes too much tokens
     }
 
