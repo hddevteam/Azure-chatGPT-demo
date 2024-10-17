@@ -5,7 +5,7 @@ export default class ModelDropdownManager {
         this.app = app;
         this.switchElement = document.querySelector(switchElementId);
         this.dropdown = document.querySelector(dropdownElementId);
-        this.model = "gpt-3.5-turbo"; // Default model
+        this.model = "gpt-4-last"; // Default model
         this.setupDropdown();
     }
 
