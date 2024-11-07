@@ -1,13 +1,10 @@
-//public/utils/input-audio.js
+// public/utils/input-audio.js
 /* eslint-disable no-undef */
-// purpose: to setup the voice input and handle it on the chat page
 import { sendAudioBlob } from "./api.js"; 
-import { initWebSocket } from "./websocket.js"; // 引入WebSocket初始化函数
+import { initWebSocket } from "./websocket.js"; 
 import swal from "sweetalert";
 
-
-// It uses the OpusMediaRecorder library to record audio from the user's microphone
-// It then sends the audio to the server to be processed by the auto-speech-to-text API
+// 用于设置语音输入并处理聊天页面上的操作
 export function setupVoiceInput(uiManager) {
     const voiceInputButton = document.querySelector("#voice-input-button");
 
@@ -19,7 +16,9 @@ export function setupVoiceInput(uiManager) {
     let recorder;
     let dataChunks = [];
 
-    async function startRecording() {
+    async function startRecording(event) {
+        event.preventDefault(); // 阻止默认行为，以避免长按菜单
+
         uiManager.showToast("Device is warming up... please wait.");
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
 
@@ -46,11 +45,8 @@ export function setupVoiceInput(uiManager) {
 
         recorder.onstop = async () => {
             console.log("Recorder stopped");
-            // Stop all audio tracks to release the resources
-            stream.getAudioTracks().forEach((track) => track.stop());
-
             uiManager.showToast("Processing audio... please wait.");
-
+            stream.getAudioTracks().forEach((track) => track.stop());
             voiceInputButton.classList.remove("voice-input-active");
 
             let audioBlob = new Blob(dataChunks, { type: recorder.mimeType });
@@ -58,16 +54,12 @@ export function setupVoiceInput(uiManager) {
 
             try {
                 initWebSocket();
-                await sendAudioBlob(audioBlob); // 使用 sendAudioBlob 发送音频数据
+                await sendAudioBlob(audioBlob);
                 uiManager.showToast("Audio has been sent for processing.");
             } catch (error) {
                 console.error(error);
-                // 使用sweetalert显示错误信息
                 swal("Error", `Failed to send audio: ${error.message}`, "error");
             }       
-
-            // Add click event listener to start recording again
-            voiceInputButton.addEventListener("click", startRecording, { once: true });
         };
 
         recorder.onerror = (e) => {
@@ -75,15 +67,16 @@ export function setupVoiceInput(uiManager) {
         };
 
         recorder.start();
-        // Add click event listener to stop recording
-        voiceInputButton.addEventListener("click", stopRecording, { once: true });
     }
 
     async function stopRecording() {
-        recorder.stop();
-        // Remove click event listener for stop recording
-        voiceInputButton.removeEventListener("click", stopRecording);
+        if (recorder && recorder.state === "recording") {
+            recorder.stop();
+        }
     }
 
-    voiceInputButton.addEventListener("click", startRecording, { once: true });
+    // 使用pointer事件来处理触摸和鼠标输入
+    voiceInputButton.addEventListener("pointerdown", startRecording);
+    voiceInputButton.addEventListener("pointerup", stopRecording);
+    voiceInputButton.addEventListener("pointerleave", stopRecording); // 防止在按钮外松开
 }

@@ -434,9 +434,24 @@ textarea::-webkit-scrollbar-thumb:hover {
 }
 
 #voice-input-button.voice-input-active {
-    animation: buttonChange 1s infinite;
+    animation: buttonChange 1s infinite; /* 保留动画 */
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.6);
+    background-color: #ff0000; /* 录音时的背景色变化 */
+    color: #ffffff; /* 文字颜色变化，确保在红色背景下可读性 */
 }
+
+@keyframes buttonChange {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1); /* 按钮放大效果 */
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 
 #voice-input-button.voice-input-active i {
     animation: iconChange 1s infinite;
