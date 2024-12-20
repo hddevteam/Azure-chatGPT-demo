@@ -34,6 +34,8 @@ router.post("/generate-summary", requireAuth, gptController.summarizeConversatio
 router.post("/generate-title", requireAuth, gptController.generateTitle);
 router.post("/generate-followup-questions", requireAuth, gptController.generateFollowUpQuestions);
 
+router.post("/generate-chat-options", requireAuth, gptController.generateChatOptions);
+
 router.get("/profiles", requireAuth, profileController.getProfiles);
 router.post("/profiles", requireAuth, profileController.createProfile);
 router.put("/profiles/:name", requireAuth, profileController.updateProfile);

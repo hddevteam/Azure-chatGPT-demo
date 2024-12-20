@@ -11,6 +11,7 @@ import { addVerticalResizeHandleListeners } from "./utils/vertical-resize.js";
 import fileUploader from "./utils/fileUploader.js";
 import setup from "./setup.js";
 import audioModal from "./utils/audioModal.js";
+import ChatOptionsModal from "./components/ChatOptionsModal.js";
 
 (async () => {
     try {
@@ -412,6 +413,21 @@ function initializeApp(username) {  // 接收传入的 username 参数
             width: window.innerWidth,
             height: window.innerHeight
         };
+    });
+
+    // 初始化聊天选项模态框，传入clientLanguage
+    const chatOptionsModal = new ChatOptionsModal(clientLanguage);
+    
+    // 添加点击事件处理
+    document.getElementById("chat-options-button").addEventListener("click", () => {
+        const messageInput = document.getElementById("message-input");
+        const message = messageInput.value.trim();
+        
+        if (message) {
+            chatOptionsModal.showModal(message);
+        } else {
+            swal("Please enter your message first", "", "warning");
+        }
     });
     
     // Resize event listener to help to fix the issue of the chat history container not showing properly after resizing the window on mobile devices

@@ -1262,9 +1262,9 @@ button.action-button.invisible {
         justify-content: space-between;
     }
 
-    .options-section>div {
+    /* .options-section>div {
         flex-basis: 48%;
-    }
+    } */
 
     .options-section select {
         width: auto;

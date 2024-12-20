@@ -491,3 +491,15 @@ export async function deleteCloudMessage(chatId, messageId, token) {
     });
 }
 
+export async function generateChatOptions(message, language) {
+    try {
+        const response = await axios.post("/generate-chat-options", {
+            message: message,
+            language: language
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error generating chat options:", error);
+        throw error;
+    }
+}

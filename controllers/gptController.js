@@ -85,28 +85,28 @@ exports.generateResponse = async (req, res) => {
     let currentApiKey, currentApiUrl;
     console.log("model", model);
     switch (model) {
-    case "gpt-3.5-turbo":
-        currentApiKey = apiKey;
-        currentApiUrl = apiUrl;
-        // 为gpt-3.5-turbo移除图片URL
-        prompt = prompt.map(entry => {
-            const filteredContent = entry.content.filter(item => item.type !== "image_url");
-            return {
-                ...entry,
-                content: filteredContent
-            };
-        });
-        break;
-    case "gpt-4":
-        currentApiKey = gpt4Apikey;
-        currentApiUrl = gpt4ApiUrl;
-        break;
-    case "gpt-4-last":
-        currentApiKey = gpt4LastApiKey;
-        currentApiUrl = gpt4LastApiUrl;
-        break;
-    default:
-        return res.status(400).send("Invalid model specified");
+        case "gpt-3.5-turbo":
+            currentApiKey = apiKey;
+            currentApiUrl = apiUrl;
+            // 为gpt-3.5-turbo移除图片URL
+            prompt = prompt.map(entry => {
+                const filteredContent = entry.content.filter(item => item.type !== "image_url");
+                return {
+                    ...entry,
+                    content: filteredContent
+                };
+            });
+            break;
+        case "gpt-4":
+            currentApiKey = gpt4Apikey;
+            currentApiUrl = gpt4ApiUrl;
+            break;
+        case "gpt-4-last":
+            currentApiKey = gpt4LastApiKey;
+            currentApiUrl = gpt4LastApiUrl;
+            break;
+        default:
+            return res.status(400).send("Invalid model specified");
     }
 
 
@@ -303,4 +303,68 @@ exports.generateFollowUpQuestions = async (req, res) => {
     }
 };
 
+exports.generateChatOptions = async (req, res) => {
+    const { message, language } = req.body;
+
+    const prompt = [
+        {
+            role: "system",
+            content: `You are an intelligent option assistant that analyzes user questions and generates appropriate configuration options in JSON format. Generate the options in ${language} language. The output must follow this exact structure:
+
+{
+    "basicSettings": {
+        "title": "Basic Settings",
+        "type": "radio",
+        "options": [
+            {"id": "basic", "label": "Basic", "description": "Quick overview"},
+            {"id": "medium", "label": "Medium", "description": "Main details"},
+            {"id": "detailed", "label": "Detailed", "description": "Technical details"}
+        ]
+    },
+    "contentCustomization": {
+        "title": "Content",
+        "type": "checkbox",
+        "options": [
+            {"id": "overview", "label": "Overview"}
+            ...
+        ]
+    },
+    "expertiseLevel": {
+        "title": "Expertise Level",
+        "type": "slider",
+        "min": 1,
+        "max": 5,
+        "default": 3,
+        "labels": ["Beginner", "Intermediate", "Advanced", "Expert", "Technical"]
+    }
+}
+
+Note: All text content including titles, labels, and descriptions should be in ${language} language.`
+        },
+        {
+            role: "user",
+            content: `Analyze this message and generate appropriate configuration options: ${message}`
+        }
+    ];
+
+    const requestData = {
+        apiKey: apiKey,
+        apiUrl: apiUrl,
+        prompt,
+        params: {
+            temperature: 0.7,
+            max_tokens: 1000,
+            response_format: { "type": "json_object" }
+        },
+    };
+
+    try {
+        const response = await makeRequest(requestData);
+        const { data } = response;
+        const message = data.choices[0].message.content;
+        res.json(JSON.parse(message));
+    } catch (error) {
+        handleRequestError(error, res);
+    }
+};
 

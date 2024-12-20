@@ -42,7 +42,7 @@
           </select>
         </div>
         <div class="speaker-identification">
-          <label for ="max-speakers">Max Speakers:</label>
+          <label for="max-speakers">Max Speakers:</label>
           <input type="number" id="max-speakers" min="1" max="10" value="1">
         </div>
       </div>
@@ -79,8 +79,10 @@
   <div id="main-container">
     <div id="chat-history-container" class="visible">
       <h2>Chat History<div id="topic-button-container">
-        <button id="topic-filter"><i class="fas fa-filter"></i></button>
-        <button id="refresh-topic"><i class="fas fa-sync-alt"></i></button></div></h2>
+          <button id="topic-filter"><i class="fas fa-filter"></i></button>
+          <button id="refresh-topic"><i class="fas fa-sync-alt"></i></button>
+        </div>
+      </h2>
       <ul id="chat-history-list"></ul>
     </div>
     <div id="app-outer-wrapper">
@@ -124,6 +126,9 @@
                   class="fas fa-trash-alt"></i><span class="btn-text">Delete</span></span>
               <span class="btn" id="audio-file-container" title="Click to attach an audio file"><i
                   class="fas fa-file-audio"></i><span class="btn-text">STT</span></span>
+              <span id="chat-options-button" class="btn" title="Configure chat options">
+                <i class="fas fa-cog" aria-hidden="true"></i><span class="btn-text">Options</span>
+              </span>
             </div>
           </div>
         </div>
@@ -177,7 +182,7 @@
             <textarea id="prompt" rows="12" required></textarea>
             <div id="profile-buttons">
               <button id="generate-prompt" title="Automatic generate prompt based on your content"><i
-              class="fas fa-magic"></i></button>
+                  class="fas fa-magic"></i></button>
             </div>
           </div>
         </div>
