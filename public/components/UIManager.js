@@ -391,22 +391,17 @@ class UIManager {
         parentElement.appendChild(li);
 
         const self = this;
-        // add click event listener
         li.addEventListener("click", function () {
             const profileName = li.dataset.profile;
             if  (isNewTopic) {
-                const chatId = self.chatHistoryManager.generateChatId(self.storageManager.getCurrentUsername(), profileName);
-                self.changeChatTopic(chatId, true);
+                const generatedChatId = self.chatHistoryManager.generateChatId(self.storageManager.getCurrentUsername(), profileName);
+                self.changeChatTopic(generatedChatId, true);
             } else {
                 const chatHistory = self.chatHistoryManager.getChatHistory();
                 const latestChat = chatHistory.find(history => history.profileName === profileName);
-                if (latestChat) {
-                    const chatId = latestChat.id;
-                    self.changeChatTopic(chatId);
-                } else {
-                    const chatId = self.chatHistoryManager.generateChatId(self.storageManager.getCurrentUsername(), profileName);
-                    self.changeChatTopic(chatId, true);
-                }
+                const chatId = latestChat ? latestChat.id : self.chatHistoryManager.generateChatId(self.storageManager.getCurrentUsername(), profileName);
+                self.changeChatTopic(chatId, !latestChat);
+                self.changeChatTopic(chatId, false);
             }
         });
 
