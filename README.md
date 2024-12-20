@@ -10,6 +10,8 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
 ![Audio file transcription](screenshot_desktop_stt_batch.png)
 
 - **🎉Support for o1/o1-mini🎉**
+- **🎉Support question generation mode - enhances conversation quality by automatically generating structured options to guide your inquiries, leading to higher quality AI responses. When enabled, each of your questions will include multiple focused options to choose from, helping you get more precise and relevant answers.🎉**
+![Question generation mode](screenshot_options_generate.png)
 - **Split view for an enhanced conversation experience, especially useful when you need to edit long messages.**
 
 - **🎉Support Azure AD authentication to protect your web app🎉**
