@@ -1,12 +1,16 @@
 APP_NAME=AI Assistant
 
-API_KEY=your-gpt-api-key
-API_URL=https://your-gpt-url.openai.azure.com/openai/deployments/your-model-name/chat/completions?api-version=2023-03-15-preview
-GPT_4_API_KEY=your-api-key
-GPT_4_API_URL=https://your-gpt-url.openai.azure.com/openai/deployments/your-gpt4-modelname/chat/completions?api-version=2023-03-15-preview
+GPT_4O_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview
+GPT_4O_API_KEY=your-gpt4o-key
+GPT_4O_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview
+GPT_4O_MINI_API_KEY=your-gpt4o-mini-key
+O1_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/o1-mini/chat/completions?api-version=2024-12-01-preview
+O1_MINI_API_KEY=your-o1-mini-key
+O1_API_URL=https://yourserver.openai.azure.com/openai/deployments/o1-preview/chat/completions?api-version=2024-12-01-preview
+O1_API_KEY=your-o1-key
 
-PROMPT_REPO_URLS={"guest":"", "user2":"", "user3":""}
-AZURE_TTS={"subscriptionKey":"your-tts-key","endpoint":"https://eastus.tts.speech.microsoft.com"}
+
+AZURE_TTS={"yoursubscriptionKey":"your-tts-key","endpoint":"https://yourregion.tts.speech.microsoft.com"}
 
 AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
 

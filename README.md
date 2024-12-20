@@ -1,6 +1,6 @@
 # 🤖 Powerful chatGPT for Azure OpenAI GPT model 
 
-Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the Azure OpenAI GPT-3.5-turbo/GPT-4 turbo model/GPT-4 Vision model/Dalle-3 model. This project serves as an excellent starting point for developers interested in developing chatbot applications using JavaScript and the Azure OpenAI API.
+Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the Azure OpenAI GPT-4o/GPT-4o-mini/o1/o1-mini/Dalle-3 model. This project serves as an excellent starting point for developers interested in developing chatbot applications using JavaScript and the Azure OpenAI API.
 
 ## 📺 What's new in the current version
 - **✨Support PWA (Progressive Web App)✨**
@@ -9,7 +9,7 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
 ![Optimize for mobile](screenshot_mobile.png)
 ![Audio file transcription](screenshot_desktop_stt_batch.png)
 
-- **🎉Support for GPT-4 turbo🎉**
+- **🎉Support for o1/o1-mini🎉**
 - **Split view for an enhanced conversation experience, especially useful when you need to edit long messages.**
 
 - **🎉Support Azure AD authentication to protect your web app🎉**
@@ -49,10 +49,14 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
 3. Add your API key and endpoint to the `.env` file using the following format:
 
    ```
-   API_KEY=yourgpt35apikey
-   API_URL=https://$yourendpoint
-   GPT_4_API_KEY=yourgpt4apikey
-   GPT_4_API_URL=https://$yourgpt4endpoint
+   GPT_4O_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview
+   GPT_4O_API_KEY=your-gpt4o-key
+   GPT_4O_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview
+   GPT_4O_MINI_API_KEY=your-gpt4o-mini-key
+   O1_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/o1-mini/chat/completions?api-version=2024-12-01-preview
+   O1_MINI_API_KEY=your-o1-mini-key
+   O1_API_URL=https://yourserver.openai.azure.com/openai/deployments/o1-preview/chat/completions?api-version=2024-12-01-preview
+   O1_API_KEY=your-o1-key
    AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
    ```
 

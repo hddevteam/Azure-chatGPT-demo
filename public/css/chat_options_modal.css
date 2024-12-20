@@ -1,28 +1,41 @@
 /* Chat Options Modal Styles */
 .options-section {
-    margin-bottom: 32px;
+    margin-bottom: 16px;
     background-color: #fff;
     border-radius: 4px;
+    /* 确保每个section都能完整显示 */
+    min-width: 0; /* 防止内容溢出 */
+    max-width: 100%;
+    /* 新增：选项容器的网格布局 */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    padding: 16px;
 }
 
 .options-section h3 {
     color: #1976d2;
     font-size: 16px;
     font-weight: 500;
-    margin: 0 0 16px 0;
-    padding: 16px 0;
+    margin: 0;
+    padding-bottom: 16px;
     min-width: fit-content;
+    /* 新增：标题占据整行 */
+    grid-column: 1 / -1;
 }
 
 .radio-option,
 .checkbox-option {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
     padding: 12px 16px;
-    margin: 4px 0;
+    /* 修改：移除 margin，由grid gap控制间距 */
+    margin: 0;
     border-radius: 4px;
     transition: background-color 0.2s;
     cursor: pointer;
-    display: flex;
-    align-items: center;
+    align-items: start;
 }
 
 .radio-option:hover,
@@ -30,19 +43,28 @@
     background-color: rgba(25, 118, 210, 0.04);
 }
 
+.radio-option input[type="radio"],
+.checkbox-option input[type="checkbox"] {
+    margin-top: 4px; 
+}
+
 .radio-option label,
 .checkbox-option label {
-    margin-left: 12px;
+    margin: 0;
     color: rgba(0, 0, 0, 0.87);
     font-size: 14px;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .description {
     display: block;
-    margin-top: 4px;
     color: rgba(0, 0, 0, 0.6);
     font-size: 12px;
+    line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .slider-container {
@@ -53,7 +75,6 @@
 /* 新增滑块容器样式 */
 .slider-input-container {
     width: 100%;
-    max-width: 600px;
     margin: 0 auto;
 }
 
@@ -99,18 +120,28 @@ input[type="range"] {
     border-radius: 8px;
     width: 90%;
     max-width: 80%;
+    max-height: 90vh; 
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column; 
 }
 
 .modal-body {
     margin-bottom: 24px;
+    overflow-y: auto; /* 内容过多时显示滚动条 */
+    flex-grow: 1; /* 允许内容区域伸展 */
+}
+
+#chat-options-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .modal-footer {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    padding-top: 16px;
 }
 
 .modal-footer button {
@@ -141,4 +172,11 @@ input[type="range"] {
 
 #cancel-options:hover {
     background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* 在小屏幕上保持单列布局 */
+@media (max-width: 768px) {
+    .options-section {
+        grid-template-columns: 1fr;
+    }
 }

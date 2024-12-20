@@ -13,9 +13,9 @@ export default class ChatOptionsModal {
             <div id="chat-options-modal" class="modal">
                 <div class="chat-options-modal-content">
                     <div class="modal-body">
-                        <div id="loading-options" style="text-align: center; padding: 20px; display: none;">
+                        <div id="loading-options" style="text-align: center; padding: 20px; display: block;">
                             <i class="fas fa-spinner fa-spin"></i>
-                            <p>Loading configuration options...</p>
+                            <p style="padding-top: 20px;">Loading configuration options...</p>
                         </div>
                         <form id="chat-options-form">
                         </form>
@@ -163,11 +163,13 @@ export default class ChatOptionsModal {
 
     getBasicSetting(form) {
         const basicSettingInput = form.querySelector("input[name=\"basic-setting\"]:checked");
+        const selectedOption = this.optionsData.basicSettings.options.find(
+            opt => opt.id === basicSettingInput?.value
+        );
         return {
             value: basicSettingInput?.value,
-            label: this.optionsData.basicSettings.options.find(
-                opt => opt.id === basicSettingInput?.value
-            )?.label || ""
+            label: selectedOption?.label || "",
+            description: selectedOption?.description || ""
         };
     }
 
@@ -193,7 +195,7 @@ export default class ChatOptionsModal {
         const options = this.getFormattedOptions();
         return `${originalMessage}
 ------------------------------
-${this.optionsData.basicSettings.title}: ${options.basicSetting.label}
+${this.optionsData.basicSettings.title}: ${options.basicSetting.label} - ${options.basicSetting.description}
 ${this.optionsData.contentCustomization.title}: ${options.contentOptions.map(opt => opt.label).join(", ")}
 ${this.optionsData.expertiseLevel.title}: ${options.expertiseLevel.label}
 `;
