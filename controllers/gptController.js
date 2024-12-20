@@ -1,19 +1,23 @@
 // controllers/gptController.js
 
 const devMode = process.env.DEV_MODE ? eval(process.env.DEV_MODE) : false;
-let apiKey, apiUrl, gpt4Apikey, gpt4ApiUrl, gpt4LastApiKey, gpt4LastApiUrl;
+let apiKey, apiUrl;
 if (devMode) {
     apiKey = process.env.API_KEY_DEV;
     apiUrl = process.env.API_URL_DEV;
 } else {
-    apiKey = process.env.API_KEY;
-    apiUrl = process.env.API_URL;
+    apiKey = process.env.GPT_4O_MINI_API_KEY;  // 默认使用 GPT-4O-MINI
+    apiUrl = process.env.GPT_4O_MINI_API_URL;
 }
-gpt4Apikey = process.env.GPT_4_API_KEY;
-gpt4ApiUrl = process.env.GPT_4_API_URL;
-gpt4LastApiKey = process.env.GPT_4_LAST_API_KEY;
-gpt4LastApiUrl = process.env.GPT_4_LAST_API_URL;
 
+const gpt4oApiKey = process.env.GPT_4O_API_KEY;
+const gpt4oApiUrl = process.env.GPT_4O_API_URL;
+const gpt4oMiniApiKey = process.env.GPT_4O_MINI_API_KEY;
+const gpt4oMiniApiUrl = process.env.GPT_4O_MINI_API_URL;
+const o1ApiKey = process.env.O1_API_KEY;
+const o1ApiUrl = process.env.O1_API_URL;
+const o1MiniApiKey = process.env.O1_MINI_API_KEY;
+const o1MiniApiUrl = process.env.O1_MINI_API_URL;
 
 const defaultParams = {
     temperature: 0.8,
@@ -62,8 +66,6 @@ const makeRequest = async ({ apiKey, apiUrl, prompt, params }) => {
     return await axios(apiUrl, options);
 };
 
-
-
 exports.generateResponse = async (req, res) => {
     console.log("generateResponse");
     const {
@@ -76,51 +78,63 @@ exports.generateResponse = async (req, res) => {
     } = req.body;
     console.log("promptText", req.body.prompt);
     let prompt = JSON.parse(req.body.prompt);
-    // console.log("prompt", prompt);
+    
     if (!prompt || !prompt.length) {
         console.error("Invalid prompt");
         return res.status(400).send("Invalid prompt");
     }
 
+    // 针对 o1 和 o1-mini 模型过滤掉 system 消息
+    if (model === "o1" || model === "o1-mini") {
+        prompt = prompt.filter(msg => msg.role !== "system");
+    }
+
     let currentApiKey, currentApiUrl;
     console.log("model", model);
     switch (model) {
-        case "gpt-3.5-turbo":
-            currentApiKey = apiKey;
-            currentApiUrl = apiUrl;
-            // 为gpt-3.5-turbo移除图片URL
-            prompt = prompt.map(entry => {
-                const filteredContent = entry.content.filter(item => item.type !== "image_url");
-                return {
-                    ...entry,
-                    content: filteredContent
-                };
-            });
-            break;
-        case "gpt-4":
-            currentApiKey = gpt4Apikey;
-            currentApiUrl = gpt4ApiUrl;
-            break;
-        case "gpt-4-last":
-            currentApiKey = gpt4LastApiKey;
-            currentApiUrl = gpt4LastApiUrl;
-            break;
-        default:
-            return res.status(400).send("Invalid model specified");
+    case "gpt-4o":
+        currentApiKey = gpt4oApiKey;
+        currentApiUrl = gpt4oApiUrl;
+        break;
+    case "gpt-4o-mini":
+        currentApiKey = gpt4oMiniApiKey;
+        currentApiUrl = gpt4oMiniApiUrl;
+        break;
+    case "o1":
+        currentApiKey = o1ApiKey;
+        currentApiUrl = o1ApiUrl;
+        break;
+    case "o1-mini":
+        currentApiKey = o1MiniApiKey;
+        currentApiUrl = o1MiniApiUrl;
+        break;
+    default:
+        currentApiKey = gpt4oApiKey;  // 默认使用 GPT-4O
+        currentApiUrl = gpt4oApiUrl;
+        break;
     }
 
+    // 根据模型类型设置不同的参数
+    let params;
+    if (model === "o1" || model === "o1-mini") {
+        params = {
+            max_completion_tokens: max_tokens
+        };
+    } else {
+        params = {
+            temperature,
+            top_p,
+            frequency_penalty,
+            presence_penalty,
+            max_tokens
+        };
+    }
 
     const requestData = {
         apiKey: currentApiKey,
         apiUrl: currentApiUrl,
         prompt,
-        params: {
-            temperature,
-            top_p,
-            frequency_penalty,
-            presence_penalty,
-            max_tokens,
-        },
+        params,
     };
 
     try {
@@ -139,7 +153,6 @@ exports.generateResponse = async (req, res) => {
         handleRequestError(error, res);
     }
 };
-
 
 exports.createChatProfile = async (req, res) => {
     const profession = req.body.profession;
@@ -164,8 +177,8 @@ exports.createChatProfile = async (req, res) => {
     ];
 
     const requestData = {
-        apiKey: gpt4Apikey,
-        apiUrl: gpt4ApiUrl,
+        apiKey: gpt4oApiKey,
+        apiUrl: gpt4oApiUrl,
         prompt,
         params: {
             temperature: 0.8,
@@ -281,8 +294,8 @@ exports.generateFollowUpQuestions = async (req, res) => {
     const prompt = JSON.parse(req.body.prompt);
 
     const requestData = {
-        apiKey: apiKey,
-        apiUrl: apiUrl,
+        apiKey: gpt4oMiniApiKey,
+        apiUrl: gpt4oMiniApiUrl,
         prompt,
         params: {
             temperature: 0.8,
@@ -348,8 +361,8 @@ Note: All text content including titles, labels, and descriptions should be in $
     ];
 
     const requestData = {
-        apiKey: apiKey,
-        apiUrl: apiUrl,
+        apiKey: gpt4oMiniApiKey,
+        apiUrl: gpt4oMiniApiUrl,
         prompt,
         params: {
             temperature: 0.7,
