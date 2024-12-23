@@ -244,6 +244,7 @@
 @media (max-width: 768px) {
   .im-modal-content {
     flex-direction: column;
+    height: 100%;
   }
 
   .im-settings-section {
@@ -269,8 +270,41 @@
     padding: 10px 20px;
   }
 
-  .im-text-container {
-    max-height: 200px;
+  .im-chat-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: none;
+    position: relative;
+    height: 100%;
+  }
+
+  .im-settings-section {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100%;
+    width: 85%;
+    max-width: none;
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    transition: right 0.3s ease;
+    z-index: 2;
+  }
+
+  .im-settings-section.show {
+    right: 0;
+  }
+
+  .im-settings-toggle {
+    display: block;
+  }
+
+  .im-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
   }
 }
 
@@ -291,4 +325,183 @@
 
 .im-text-container::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.4);
+}
+
+/* 聊天消息样式 */
+.im-message {
+  margin: 8px 0;
+  max-width: 85%;
+  clear: both;
+}
+
+.im-message-user {
+  float: right;
+}
+
+.im-message-assistant {
+  float: left;
+}
+
+.im-message-content {
+  padding: 12px 16px;
+  border-radius: 16px;
+  position: relative;
+  word-wrap: break-word;
+}
+
+.im-message-user .im-message-content {
+  background: #4CAF50;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.im-message-assistant .im-message-content {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-bottom-left-radius: 4px;
+}
+
+.im-message-meta {
+  font-size: 12px;
+  margin: 4px 8px;
+  opacity: 0.7;
+}
+
+/* 设置切换按钮 */
+.im-settings-toggle {
+  display: none;  /* 默认隐藏 */
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;  /* 增大图标尺寸 */
+  padding: 8px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+/* 清除浮动 */
+.im-text-container::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+/* 修改响应式设计 */
+@media (max-width: 768px) {
+  .im-modal {
+    background-color: #1976D2;  /* 使用纯色背景 */
+  }
+
+  .im-modal-content {
+    position: fixed;  /* 改为 fixed 定位 */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    overflow: hidden;
+  }
+
+  .im-chat-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;  /* 使用视口高度 */
+    width: 100%;
+    position: relative;
+  }
+
+  .im-settings-section {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100%;
+    width: 85%;
+    max-width: none;
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    transition: right 0.3s ease;
+    z-index: 1000;  /* 提高层级 */
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .im-settings-toggle {
+    display: block !important;  /* 强制显示设置按钮 */
+  }
+
+  .im-text-container {
+    flex: 1;
+    height: calc(100vh - 140px);  /* 减去header和controls的高度 */
+    overflow-y: auto;
+    padding: 16px;
+    margin: 0;
+    background: transparent;
+  }
+
+  .im-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+  }
+
+  .im-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .im-button-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 0 8px;
+  }
+
+  .im-button {
+    width: 100%;
+    height: 48px;  /* 固定高度 */
+    justify-content: center;
+    font-size: 16px;  /* 增大字体 */
+    padding: 12px;
+  }
+
+  /* 主要动作按钮样式调整 */
+  .im-button-primary,
+  .im-button-secondary {
+    font-weight: 600;
+  }
+
+  /* 降低Clear All按钮的视觉优先级 */
+  .im-button-warning {
+    grid-column: 1 / -1;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+    height: 40px;  /* 稍矮一些 */
+    font-size: 14px;  /* 字体小一号 */
+  }
+
+  .im-button-warning:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* 图标大小调整 */
+  .im-button i {
+    font-size: 18px;
+  }
 }

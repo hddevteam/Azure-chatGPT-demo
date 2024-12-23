@@ -18,9 +18,28 @@ export default class IntercomModal {
         <div class="im-modal-content">
           <div class="im-chat-section">
             <div class="im-header">
-              <h2>Real-Time Chat</h2>
+              <h2 id="chat-title">Real-Time Chat</h2>
+              <button class="im-settings-toggle">
+                <i class="fas fa-cog"></i>
+              </button>
             </div>
             <div id="received-text-container" class="im-text-container"></div>
+            <div class="im-controls">
+              <div class="im-button-group">
+                <button id="start-recording" class="im-button im-button-primary" type="button">
+                  <i class="fas fa-microphone"></i>
+                  Start
+                </button>
+                <button id="stop-recording" class="im-button im-button-secondary" type="button" disabled>
+                  <i class="fas fa-stop"></i>
+                  Stop
+                </button>
+                <button id="clear-all" class="im-button im-button-warning" type="button">
+                  <i class="fas fa-trash"></i>
+                  Clear All
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="im-settings-section">
@@ -61,23 +80,6 @@ export default class IntercomModal {
                 </select>
               </div>
             </div>
-
-            <div class="im-controls">
-              <div class="im-button-group">
-                <button id="start-recording" class="im-button im-button-primary" type="button">
-                  <i class="fas fa-microphone"></i>
-                  Start Recording
-                </button>
-                <button id="stop-recording" class="im-button im-button-secondary" type="button" disabled>
-                  <i class="fas fa-stop"></i>
-                  Stop
-                </button>
-                <button id="clear-all" class="im-button im-button-warning" type="button">
-                  <i class="fas fa-trash"></i>
-                  Clear
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>`;
@@ -109,6 +111,23 @@ export default class IntercomModal {
         clearBtn.addEventListener("click", () => {
             document.getElementById("received-text-container").innerHTML = "";
         });
+
+        // 添加设置切换按钮事件
+        const settingsToggle = document.querySelector(".im-settings-toggle");
+        const settingsSection = document.querySelector(".im-settings-section");
+        
+        settingsToggle.addEventListener("click", () => {
+            settingsSection.classList.toggle("show");
+        });
+
+        // 点击设置面板外部时关闭设置
+        this.modal.addEventListener("click", (e) => {
+            if (settingsSection.classList.contains("show") &&
+                !settingsSection.contains(e.target) &&
+                !settingsToggle.contains(e.target)) {
+                settingsSection.classList.remove("show");
+            }
+        });
     }
 
     showModal() {
@@ -127,6 +146,9 @@ export default class IntercomModal {
                 config.apiKey, 
                 config.deployment
             );
+
+            // 更新标题显示当前模型名称
+            document.getElementById("chat-title").textContent = this.realtimeClient.getModelName();
 
             const sessionConfig = {
                 instructions: document.getElementById("session-instructions").value,
@@ -176,6 +198,11 @@ export default class IntercomModal {
             break;
 
         case "input_audio_buffer.speech_started": {
+            // 停止当前正在播放的音频
+            if (this.realtimeClient && this.realtimeClient.audioPlayer) {
+                this.realtimeClient.audioPlayer.stop();
+            }
+            
             this.makeNewTextBlock("<< Speech Started >>");
             const textElements = container.children;
             this.latestInputSpeechBlock = textElements[textElements.length - 1];
@@ -190,7 +217,6 @@ export default class IntercomModal {
             break;
 
         case "response.done":
-            container.appendChild(document.createElement("hr"));
             break;
 
         case "error":
@@ -205,17 +231,37 @@ export default class IntercomModal {
 
     makeNewTextBlock(text = "") {
         const container = document.getElementById("received-text-container");
-        const p = document.createElement("p");
-        p.textContent = text;
-        container.appendChild(p);
-        return p;
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `im-message ${text.includes("User:") ? "im-message-user" : "im-message-assistant"}`;
+        
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "im-message-content";
+        contentDiv.textContent = text.replace("User: ", "");
+        
+        const metaDiv = document.createElement("div");
+        metaDiv.className = "im-message-meta";
+        metaDiv.textContent = new Date().toLocaleTimeString();
+        
+        messageDiv.appendChild(contentDiv);
+        messageDiv.appendChild(metaDiv);
+        container.appendChild(messageDiv);
+        
+        // 自动滚动到底部
+        container.scrollTop = container.scrollHeight;
+        return contentDiv;
     }
 
     appendToTextBlock(text) {
         const container = document.getElementById("received-text-container");
         const lastElement = container.lastElementChild;
         if (lastElement) {
-            lastElement.textContent += text;
+            const contentDiv = lastElement.querySelector(".im-message-content");
+            if (contentDiv) {
+                contentDiv.textContent += text;
+                container.scrollTop = container.scrollHeight;
+            } else {
+                this.makeNewTextBlock(text);
+            }
         } else {
             this.makeNewTextBlock(text);
         }

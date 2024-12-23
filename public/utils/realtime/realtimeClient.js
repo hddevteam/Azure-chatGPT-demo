@@ -20,6 +20,7 @@ export class RealtimeClient {
     }
 
     async initialize(endpoint, apiKey, deploymentOrModel, isAzure = true) {
+        this.modelName = deploymentOrModel.toUpperCase();
         if (isAzure) {
             this.client = new LowLevelRTClient(
                 new URL(endpoint), 
@@ -35,6 +36,10 @@ export class RealtimeClient {
 
         // 初始化音频
         await this.resetAudio(false);
+    }
+
+    getModelName() {
+        return this.modelName || 'UNKNOWN MODEL';
     }
 
     async resetAudio(startRecording) {

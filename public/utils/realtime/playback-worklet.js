@@ -7,6 +7,10 @@ class PlaybackWorklet extends AudioWorkletProcessor {
     }
 
     handleMessage(event) {
+        if (event.data === "stop") {
+            this.buffer = [];
+            return;
+        }
         if (event.data === null) {
             this.buffer = [];
             return;

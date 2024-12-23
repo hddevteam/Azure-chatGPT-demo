@@ -17,6 +17,12 @@ export class Player {
         }
     }
 
+    stop() {
+        if (this.playbackNode) {
+            this.playbackNode.port.postMessage("stop");
+        }
+    }
+
     clear() {
         if (this.playbackNode) {
             this.playbackNode.port.postMessage(null);
