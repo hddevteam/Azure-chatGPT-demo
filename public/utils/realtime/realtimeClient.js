@@ -11,8 +11,15 @@ export class RealtimeClient {
         this.buffer = new Uint8Array();
     }
 
+    // add audio buffer processing function
+    combineArray(newData) {
+        const newBuffer = new Uint8Array(this.buffer.length + newData.length);
+        newBuffer.set(this.buffer);
+        newBuffer.set(newData, this.buffer.length);
+        this.buffer = newBuffer;
+    }
+
     async initialize(endpoint, apiKey, deploymentOrModel, isAzure = true) {
-        // 初始化客户端
         if (isAzure) {
             this.client = new LowLevelRTClient(
                 new URL(endpoint), 
@@ -51,22 +58,22 @@ export class RealtimeClient {
     }
 
     processAudioBuffer(data) {
-        if (this.recordingActive && this.client) {
-            // 将 buffer 数据转换为 base64 字符串
-            const uint8Array = new Uint8Array(data);
-            const regularArray = String.fromCharCode(...uint8Array);
+        const uint8Array = new Uint8Array(data);
+        this.combineArray(uint8Array);
+        
+        // make sure enough audio data accumulated
+        if (this.buffer.length >= 4800) {
+            const toSend = new Uint8Array(this.buffer.slice(0, 4800));
+            this.buffer = new Uint8Array(this.buffer.slice(4800));
+            const regularArray = String.fromCharCode(...toSend);
             const base64 = btoa(regularArray);
             
-            // 发送正确格式的音频数据
-            this.client.send({
-                type: "input_audio_buffer.append",
-                audio: base64  // 直接发送 base64 字符串，而不是包装在对象中
-            });
-
-            // 发送 commit 消息
-            this.client.send({
-                type: "input_audio_buffer.commit"
-            });
+            if (this.recordingActive && this.client) {
+                this.client.send({
+                    type: "input_audio_buffer.append",
+                    audio: base64,
+                });
+            }
         }
     }
 
@@ -116,12 +123,13 @@ export class RealtimeClient {
         }
     }
 
+    // add audio playback function
     handleAudioPlayback(audioData) {
-        if (this.audioPlayer) {
-            const binary = atob(audioData);
-            const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
-            const pcmData = new Int16Array(bytes.buffer);
-            this.audioPlayer.play(pcmData);
-        }
+        if (!this.audioPlayer) return;
+        
+        const binary = atob(audioData);
+        const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+        const pcmData = new Int16Array(bytes.buffer);
+        this.audioPlayer.play(pcmData);
     }
 }
