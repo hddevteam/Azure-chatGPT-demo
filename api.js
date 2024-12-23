@@ -13,6 +13,8 @@ const dalleController = require("./controllers/dalleController");
 const chatHistoryController = require("./controllers/chatHistoryController");
 const messageController = require("./controllers/messageController");
 const audioFileController = require("./controllers/audioFileController");
+const realtimeController = require("./controllers/realtimeController");
+
 
 const router = express.Router();
 
@@ -59,11 +61,16 @@ router.post("/attachments/upload", requireAuth, upload.single("fileContent"), me
 // Audiofile routes
 router.post("/audiofiles/upload", requireAuth, upload.single("fileContent"), audioFileController.uploadAudiofile);
 router.get("/audiofiles/list", requireAuth, audioFileController.listAudioFiles);
+
 // 提交音频文件转录任务接口
 router.post("/audiofiles/transcribe", requireAuth, audioFileController.submitTranscriptionJob);
 router.get("/audiofiles/transcript/status", requireAuth, audioFileController.getTranscriptionStatus);
+
 // 添加新的路由处理获取转录文本的请求
 router.get("/audiofiles/transcript/text", requireAuth, audioFileController.getTranscriptTextFromBlob);
 router.delete("/audiofiles/delete", requireAuth, audioFileController.deleteAudioFile);
+
+// 添加实时对话配置路由
+router.get("/realtime-config", requireAuth, realtimeController.getConfig);
 
 module.exports = router;

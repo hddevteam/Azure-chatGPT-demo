@@ -46,7 +46,8 @@
     "remove-markdown": "^0.5.0",
     "request": "^2.88.2",
     "sweetalert": "^2.1.2",
-    "wss": "^3.3.4"
+    "wss": "^3.3.4",
+    "rt-client": "https://github.com/Azure-Samples/aoai-realtime-audio-sdk/releases/download/js/v0.5.0/rt-client-0.5.0.tgz"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.23.3",

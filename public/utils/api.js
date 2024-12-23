@@ -43,6 +43,16 @@ axios.interceptors.response.use(response => {
     return Promise.reject(error);
 });
 
+export async function fetchRealtimeConfig() {
+    try {
+        const response = await axios.get("/realtime-config");
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch realtime config:", error);
+        throw error;
+    }
+}
+
 export async function getAppName() {
     try {
         const response = await axios.get("/app_name");

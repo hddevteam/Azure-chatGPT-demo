@@ -10,6 +10,7 @@ import SyncManager from "./SyncManager.js";
 import ProfileFormManager from "./ProfileFormManager.js";
 import { getPromptRepo, uploadAttachment } from "../utils/api.js";
 import fileUploader from "../utils/fileUploader.js";
+import IntercomModal from "./IntercomModal.js";
 
 
 
@@ -66,6 +67,15 @@ class UIManager {
                 this.hiddenElement(actorSettingsWrapper); 
             });
         document.getElementById("new-ai-actor").addEventListener("click", this.showNewAIActorModal.bind(this));
+        this.intercomModal = new IntercomModal();
+        this.setupIntercomHandler();
+    }
+
+    setupIntercomHandler() {
+        const intercomBtn = document.getElementById("intercom");
+        intercomBtn.addEventListener("click", () => {
+            this.intercomModal.showModal();
+        });
     }
 
     // 确保refreshProfileList返回一个Promise

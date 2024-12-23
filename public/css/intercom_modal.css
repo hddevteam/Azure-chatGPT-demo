@@ -1,0 +1,294 @@
+/* Intercom Modal - 根容器 */
+.im-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+}
+
+/* 内容容器 */
+.im-modal-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  display: flex;
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  border-radius: 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.im-chat-section {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.im-settings-section {
+  flex: 1;
+  min-width: 300px;
+  max-width: 400px;
+  overflow-y: auto;
+}
+
+/* 主容器 */
+.im-container {
+  padding: 24px;
+  color: #fff;
+}
+
+/* 头部样式 */
+.im-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 0;
+}
+
+.im-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.im-close-button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  padding: 8px;
+  font-size: 20px;
+  transition: color 0.3s;
+}
+
+.im-close-button:hover {
+  color: #fff;
+}
+
+/* 文本容器 */
+.im-text-container {
+  flex: 1;
+  margin: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0;
+  padding: 16px;
+  min-height: 120px;
+  max-height: none;
+  overflow-y: auto;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* 控制区域 */
+.im-controls {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 按钮组 */
+.im-button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+/* 输入组 */
+.im-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 标签 */
+.im-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 文本框 */
+.im-textarea {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  color: #fff;
+  resize: vertical;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.im-textarea:focus {
+  border-color: rgba(255, 255, 255, 0.5);
+  outline: none;
+}
+
+/* 输入框 */
+.im-input {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  color: #fff;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.im-input:focus {
+  border-color: rgba(255, 255, 255, 0.5);
+  outline: none;
+}
+
+/* 选择框 */
+.im-select {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white'%3E%3Cpath d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* 按钮基础样式 */
+.im-button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+
+/* 主要按钮 */
+.im-button-primary {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.im-button-primary:hover {
+  background-color: #43A047;
+}
+
+.im-button-primary:disabled {
+  background-color: rgba(76, 175, 80, 0.5);
+  cursor: not-allowed;
+}
+
+/* 次要按钮 */
+.im-button-secondary {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.im-button-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.im-button-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 警告按钮 */
+.im-button-warning {
+  background-color: #F44336;
+  color: white;
+}
+
+.im-button-warning:hover {
+  background-color: #E53935;
+}
+
+/* 页脚 */
+.im-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  justify-content: flex-end;
+}
+
+.im-chat-controls {
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .im-modal-content {
+    flex-direction: column;
+  }
+
+  .im-settings-section {
+    max-width: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .im-chat-section {
+    border-right: none;
+  }
+
+  .im-modal-content {
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .im-container {
+    padding: 16px;
+  }
+
+  .im-button {
+    padding: 10px 20px;
+  }
+
+  .im-text-container {
+    max-height: 200px;
+  }
+}
+
+/* 滚动条样式 */
+.im-text-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.im-text-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.im-text-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.im-text-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
