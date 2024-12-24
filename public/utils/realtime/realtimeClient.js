@@ -9,6 +9,11 @@ export class RealtimeClient {
         this.audioPlayer = null;
         this.recordingActive = false;
         this.buffer = new Uint8Array();
+        this.messageLimit = 10; // default message history limit
+        this.messageHistory = []; // message history
+        this.totalTokens = 0; // total token number
+        this.inputTokens = 0; // input token number
+        this.outputTokens = 0; // output token number
     }
 
     // add audio buffer processing function
@@ -136,5 +141,89 @@ export class RealtimeClient {
         const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
         const pcmData = new Int16Array(bytes.buffer);
         this.audioPlayer.play(pcmData);
+    }
+
+    setMessageLimit(limit) {
+        this.messageLimit = limit;
+        console.log(`Message history limit set to: ${limit} (0 means unlimited)`);
+        this.pruneMessageHistory();
+    }
+
+    async pruneMessageHistory() {
+        if (this.messageLimit === 0) return;
+
+        while (this.messageHistory.length > this.messageLimit) {
+            const oldestMessage = this.messageHistory.shift();
+            if (this.client && oldestMessage.id) {
+                try {
+                    await this.client.send({
+                        type: "conversation.item.delete",
+                        item_id: oldestMessage.id
+                    });
+                    console.log(`Removed old message: ${oldestMessage.id.substring(0, 8)}... (${this.messageHistory.length}/${this.messageLimit})`);
+                } catch (error) {
+                    console.error("Failed to delete message:", error);
+                }
+            }
+        }
+    }
+
+    addMessageToHistory(message, type) {
+        const messageData = {
+            id: message.id,
+            type,
+            timestamp: new Date(),
+            content: message.content
+        };
+        
+        this.messageHistory.push(messageData);
+        console.log(`Message added: ${messageData.id} (${this.messageHistory.length}/${this.messageLimit || "∞"})`);
+        
+        this.pruneMessageHistory();
+    }
+
+    // 更新使用情况统计
+    updateUsageStats(usage) {
+        if (usage) {
+            const prevTotal = this.totalTokens;
+            this.totalTokens = usage.total_tokens || this.totalTokens;
+            this.inputTokens = usage.input_tokens || this.inputTokens;
+            this.outputTokens = usage.output_tokens || this.outputTokens;
+            
+            if (this.totalTokens !== prevTotal) {
+                console.log(`Token usage updated - Total: ${this.totalTokens}, Input: ${this.inputTokens}, Output: ${this.outputTokens}`);
+            }
+        }
+    }
+
+    // 更新速率限制信息
+    updateRateLimits(rateLimits) {
+        if (rateLimits) {
+            console.log("Rate limits status:", rateLimits.map(limit => 
+                `${limit.name}: ${limit.remaining}/${limit.limit} (resets in ${limit.reset_seconds}s)`
+            ).join(", "));
+        }
+    }
+
+    // 处理消息删除确认
+    handleMessageDeleted(itemId) {
+        const index = this.messageHistory.findIndex(msg => msg.id === itemId);
+        if (index !== -1) {
+            // const message = this.messageHistory[index];
+            console.log(`Server confirmed message deletion: ${itemId.substring(0, 8)}...`);
+            // 可选：从历史记录中移除
+            // this.messageHistory.splice(index, 1);
+        }
+    }
+
+    // 获取当前会话统计信息
+    getSessionStats() {
+        return {
+            messageCount: this.messageHistory.length,
+            messageLimit: this.messageLimit,
+            totalTokens: this.totalTokens,
+            inputTokens: this.inputTokens,
+            outputTokens: this.outputTokens
+        };
     }
 }

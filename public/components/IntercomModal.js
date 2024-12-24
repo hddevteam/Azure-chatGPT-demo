@@ -7,6 +7,7 @@ export default class IntercomModal {
         this.modal = null;
         this.wakeLock = null;
         this.noSleep = null; 
+        this.messageLimit = 10;  // limit message history
         this.init();
     }
 
@@ -84,6 +85,18 @@ export default class IntercomModal {
                   <option value="shimmer">Shimmer</option>
                 </select>
               </div>
+
+              <div class="im-input-group">
+                <label for="message-limit" class="im-label">Message History Limit</label>
+                <input id="message-limit" 
+                  class="im-input" 
+                  type="number" 
+                  min="0" 
+                  max="100" 
+                  step="1" 
+                  placeholder="0-100 (0 means unlimited, default 10)"
+                  value="10"/>
+              </div>
             </div>
           </div>
         </div>
@@ -99,7 +112,7 @@ export default class IntercomModal {
         const stopBtn = document.getElementById("stop-recording");
         const clearBtn = document.getElementById("clear-all");
 
-        // 从后端获取API配置
+        // get realtime config
         this.config = await fetchRealtimeConfig();
         
         closeBtn.addEventListener("click", () => this.hideModal());
@@ -117,7 +130,7 @@ export default class IntercomModal {
             document.getElementById("received-text-container").innerHTML = "";
         });
 
-        // 添加设置切换按钮事件
+        // settings section toggle
         const settingsToggle = document.querySelector(".im-settings-toggle");
         const settingsSection = document.querySelector(".im-settings-section");
         
@@ -125,12 +138,26 @@ export default class IntercomModal {
             settingsSection.classList.toggle("show");
         });
 
-        // 点击设置面板外部时关闭设置
+        // hide settings section when clicking outside
         this.modal.addEventListener("click", (e) => {
             if (settingsSection.classList.contains("show") &&
                 !settingsSection.contains(e.target) &&
                 !settingsToggle.contains(e.target)) {
                 settingsSection.classList.remove("show");
+            }
+        });
+
+        // add event listener for message history limit input
+        const messageLimitInput = document.getElementById("message-limit");
+        messageLimitInput.addEventListener("change", (e) => {
+            const value = parseInt(e.target.value);
+            if (value >= 0 && value <= 100) {
+                this.messageLimit = value;
+                if (this.realtimeClient) {
+                    this.realtimeClient.setMessageLimit(value);
+                }
+            } else {
+                e.target.value = this.messageLimit;
             }
         });
     }
@@ -146,10 +173,10 @@ export default class IntercomModal {
 
     async acquireWakeLock() {
         try {
-            // 确保 NoSleep 实例只创建一次
+            // initialize NoSleep
             if (!this.noSleep) {
                 this.noSleep = new NoSleep();
-                // 用户交互时启用 NoSleep
+                // enable NoSleep
                 await this.noSleep.enable();
                 console.log("NoSleep initialized and enabled");
             }
@@ -159,7 +186,7 @@ export default class IntercomModal {
                 console.log("Wake Lock is active");
             }
 
-            // 添加可见性变化监听
+            // add visibility change event listener
             document.addEventListener("visibilitychange", this.handleVisibilityChange.bind(this));
             
         } catch (err) {
@@ -167,10 +194,10 @@ export default class IntercomModal {
         }
     }
 
-    // 添加页面可见性变化处理
+    // handle visibility change event
     async handleVisibilityChange() {
         if (document.visibilityState === "visible" && this.recordingActive) {
-            // 如果页面重新变为可见且正在录音，重新获取 wake lock
+            // if the page is visible and recording is active, re-acquire wake lock
             await this.acquireWakeLock();
         }
     }
@@ -187,7 +214,7 @@ export default class IntercomModal {
             this.noSleep.disable();
             console.log("NoSleep disabled");
         }
-        // 移除可见性变化监听
+        // remove visibility change event listener
         document.removeEventListener("visibilitychange", this.handleVisibilityChange.bind(this));
     }
 
@@ -203,7 +230,7 @@ export default class IntercomModal {
                 config.deployment
             );
 
-            // 更新标题显示当前模型名称
+            // update chat title to model name
             document.getElementById("chat-title").textContent = this.realtimeClient.getModelName();
 
             const sessionConfig = {
@@ -211,6 +238,9 @@ export default class IntercomModal {
                 temperature: parseFloat(document.getElementById("temperature").value) || 0.8,
                 voice: document.getElementById("voice").value || "alloy"
             };
+
+            // set message history limit
+            this.realtimeClient.setMessageLimit(this.messageLimit);
 
             await this.realtimeClient.start(sessionConfig);
 
@@ -250,8 +280,21 @@ export default class IntercomModal {
             this.makeNewTextBlock("Assistant: Hello! How can I help you today?", "assistant");
             break;
 
-        case "session.updated":
-            console.log("Session configuration updated:", message.session);
+        case "conversation.item.created":
+            if (this.realtimeClient) {
+                this.realtimeClient.addMessageToHistory(message.item, message.item.role);
+
+                // display current session stats
+                const stats = this.realtimeClient.getSessionStats();
+                console.log("Current session stats:", {
+                    messages: `${stats.messageCount}/${stats.messageLimit || "∞"}`,
+                    tokens: {
+                        total: stats.totalTokens,
+                        input: stats.inputTokens,
+                        output: stats.outputTokens
+                    }
+                });
+            }
             break;
 
         case "response.audio_transcript.delta":
@@ -265,11 +308,11 @@ export default class IntercomModal {
             break;
 
         case "input_audio_buffer.speech_started": {
-            // 停止当前正在播放的音频
+            // stop any existing audio playback
             if (this.realtimeClient && this.realtimeClient.audioPlayer) {
                 this.realtimeClient.audioPlayer.stop();
             }
-            
+                
             const messageDiv = this.makeNewTextBlock("", "user");
             messageDiv.querySelector(".im-message-content").innerHTML = this.createSpeechIndicator();
             this.latestInputSpeechBlock = messageDiv;
@@ -281,17 +324,47 @@ export default class IntercomModal {
                 const content = this.latestInputSpeechBlock.querySelector(".im-message-content");
                 content.textContent = message.transcript;
             }
-            this.makeNewTextBlock("", "assistant"); // 为助手回复创建新的消息块
+            this.makeNewTextBlock("", "assistant"); // create a new block for assistant response
             break;
 
         case "response.done":
+            if (this.realtimeClient) {
+                // 更新使用情况统计
+                if (message.response && message.response.usage) {
+                    this.realtimeClient.updateUsageStats(message.response.usage);
+                }
+                
+                // 显示当前会话统计
+                const stats = this.realtimeClient.getSessionStats();
+                console.log("Response completed. Session stats:", {
+                    messages: `${stats.messageCount}/${stats.messageLimit || "∞"}`,
+                    tokens: {
+                        total: stats.totalTokens,
+                        input: stats.inputTokens,
+                        output: stats.outputTokens
+                    }
+                });
+            }
+            break;
+
+        case "rate_limits.updated":
+            if (this.realtimeClient) {
+                this.realtimeClient.updateRateLimits(message.rate_limits);
+                console.log("Rate limits updated:", message.rate_limits);
+            }
+            break;
+
+        case "conversation.item.deleted":
+            if (this.realtimeClient) {
+                this.realtimeClient.handleMessageDeleted(message.item_id);
+            }
             break;
 
         case "error":
             console.error("Realtime error:", message.error);
             this.makeNewTextBlock(`<< Error: ${message.error.message} >>`);
             break;
-
+        
         default:
             console.log("Unhandled message:", JSON.stringify(message, null, 2));
         }
@@ -314,7 +387,15 @@ export default class IntercomModal {
         messageDiv.appendChild(metaDiv);
         container.appendChild(messageDiv);
         
-        // 自动滚动到底部
+        // if RealtimeClient is available, add message to history
+        if (this.realtimeClient) {
+            this.realtimeClient.addMessageToHistory({
+                id: messageDiv.id,
+                role: type,
+                content: [{ type: "text", text }]
+            }, type);
+        }
+        
         container.scrollTop = container.scrollHeight;
         return messageDiv;
     }
