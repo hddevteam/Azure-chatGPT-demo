@@ -22,9 +22,14 @@ export default class IntercomModal {
           <div class="im-chat-section">
             <div class="im-header">
               <h2 id="chat-title">Real-Time Chat</h2>
-              <button class="im-settings-toggle">
-                <i class="fas fa-cog"></i>
-              </button>
+              <div class="im-header-buttons">
+                <button class="im-settings-toggle">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <button id="close-intercom" class="im-close-button">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
             </div>
             <div id="received-text-container" class="im-text-container"></div>
             <div class="im-controls">
@@ -48,9 +53,6 @@ export default class IntercomModal {
           <div class="im-settings-section">
             <div class="im-header">
               <h2>Settings</h2>
-              <button id="close-intercom" class="im-close-button">
-                <i class="fas fa-times"></i>
-              </button>
             </div>
             
             <div class="im-container">
@@ -158,7 +160,7 @@ export default class IntercomModal {
             }
 
             // 添加可见性变化监听
-            document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+            document.addEventListener("visibilitychange", this.handleVisibilityChange.bind(this));
             
         } catch (err) {
             console.error(`Failed to keep screen awake: ${err.message}`);
@@ -167,7 +169,7 @@ export default class IntercomModal {
 
     // 添加页面可见性变化处理
     async handleVisibilityChange() {
-        if (document.visibilityState === 'visible' && this.recordingActive) {
+        if (document.visibilityState === "visible" && this.recordingActive) {
             // 如果页面重新变为可见且正在录音，重新获取 wake lock
             await this.acquireWakeLock();
         }
@@ -186,12 +188,13 @@ export default class IntercomModal {
             console.log("NoSleep disabled");
         }
         // 移除可见性变化监听
-        document.removeEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+        document.removeEventListener("visibilitychange", this.handleVisibilityChange.bind(this));
     }
 
     async startRealtime(config) {
         try {
-            this.recordingActive = true; // 添加录音状态标记
+            this.recordingActive = true;
+            document.querySelector(".im-text-container").classList.add("recording-active");
             await this.acquireWakeLock();
             this.realtimeClient = new RealtimeClient();
             await this.realtimeClient.initialize(
@@ -215,7 +218,8 @@ export default class IntercomModal {
                 this.handleRealtimeMessage(message);
             }
         } catch (error) {
-            this.recordingActive = false; // 发生错误时更新状态
+            this.recordingActive = false;
+            document.querySelector(".im-text-container").classList.remove("recording-active");
             this.releaseWakeLock();
             console.error("Realtime chat error:", error);
             this.makeNewTextBlock(`<< Connection error: ${error.message} >>`);
@@ -223,21 +227,27 @@ export default class IntercomModal {
     }
 
     stopRealtime() {
-        this.recordingActive = false; // 停止时更新状态
+        this.recordingActive = false;
+        document.querySelector(".im-text-container").classList.remove("recording-active");
         this.releaseWakeLock();
         if (this.realtimeClient) {
             this.realtimeClient.stop();
         }
     }
 
+    createSpeechIndicator() {
+        return `<span class="speech-indicator">
+            <span class="speech-dot"></span>
+            <span class="speech-dot"></span>
+            <span class="speech-dot"></span>
+        </span>`;
+    }
+
     handleRealtimeMessage(message) {
         console.log("Received message:", message.type);
-        const container = document.getElementById("received-text-container");
-
         switch (message.type) {
         case "session.created":
-            this.makeNewTextBlock("<< Session Started >>");
-            this.makeNewTextBlock("Session initialized successfully");
+            this.makeNewTextBlock("Assistant: Hello! How can I help you today?", "assistant");
             break;
 
         case "session.updated":
@@ -260,17 +270,18 @@ export default class IntercomModal {
                 this.realtimeClient.audioPlayer.stop();
             }
             
-            this.makeNewTextBlock("<< Speech Started >>");
-            const textElements = container.children;
-            this.latestInputSpeechBlock = textElements[textElements.length - 1];
-            this.makeNewTextBlock();
+            const messageDiv = this.makeNewTextBlock("", "user");
+            messageDiv.querySelector(".im-message-content").innerHTML = this.createSpeechIndicator();
+            this.latestInputSpeechBlock = messageDiv;
             break;
         }
 
         case "conversation.item.input_audio_transcription.completed":
             if (this.latestInputSpeechBlock) {
-                this.latestInputSpeechBlock.textContent += " User: " + message.transcript;
+                const content = this.latestInputSpeechBlock.querySelector(".im-message-content");
+                content.textContent = message.transcript;
             }
+            this.makeNewTextBlock("", "assistant"); // 为助手回复创建新的消息块
             break;
 
         case "response.done":
@@ -286,14 +297,14 @@ export default class IntercomModal {
         }
     }
 
-    makeNewTextBlock(text = "") {
+    makeNewTextBlock(text = "", type = "assistant") {
         const container = document.getElementById("received-text-container");
         const messageDiv = document.createElement("div");
-        messageDiv.className = `im-message ${text.includes("User:") ? "im-message-user" : "im-message-assistant"}`;
+        messageDiv.className = `im-message im-message-${type}`;
         
         const contentDiv = document.createElement("div");
         contentDiv.className = "im-message-content";
-        contentDiv.textContent = text.replace("User: ", "");
+        contentDiv.textContent = text;
         
         const metaDiv = document.createElement("div");
         metaDiv.className = "im-message-meta";
@@ -305,22 +316,20 @@ export default class IntercomModal {
         
         // 自动滚动到底部
         container.scrollTop = container.scrollHeight;
-        return contentDiv;
+        return messageDiv;
     }
 
     appendToTextBlock(text) {
         const container = document.getElementById("received-text-container");
-        const lastElement = container.lastElementChild;
-        if (lastElement) {
-            const contentDiv = lastElement.querySelector(".im-message-content");
+        const lastMessage = container.lastElementChild;
+        if (lastMessage && lastMessage.classList.contains("im-message-assistant")) {
+            const contentDiv = lastMessage.querySelector(".im-message-content");
             if (contentDiv) {
                 contentDiv.textContent += text;
                 container.scrollTop = container.scrollHeight;
-            } else {
-                this.makeNewTextBlock(text);
             }
         } else {
-            this.makeNewTextBlock(text);
+            this.makeNewTextBlock(text, "assistant");
         }
     }
 }
