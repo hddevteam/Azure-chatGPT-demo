@@ -42,6 +42,9 @@
     }
 ],
 "prefer_related_applications": false,
+"permissions": [
+    "wake-lock"
+],
 "shortcuts": [
     {
         "name":"Smart AI Assistant, work like a 007 agent.",

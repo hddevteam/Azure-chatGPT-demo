@@ -39,7 +39,7 @@ export class RealtimeClient {
     }
 
     getModelName() {
-        return this.modelName || 'UNKNOWN MODEL';
+        return this.modelName || "UNKNOWN MODEL";
     }
 
     async resetAudio(startRecording) {

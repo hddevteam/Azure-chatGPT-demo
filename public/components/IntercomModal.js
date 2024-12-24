@@ -1,9 +1,12 @@
 import { RealtimeClient } from "../utils/realtime/realtimeClient.js";
 import { fetchRealtimeConfig } from "../utils/api.js";
 
+
 export default class IntercomModal {
     constructor() {
         this.modal = null;
+        this.wakeLock = null;
+        this.noSleep = null; 
         this.init();
     }
 
@@ -135,11 +138,61 @@ export default class IntercomModal {
     }
 
     hideModal() {
+        this.releaseWakeLock();
         this.modal.style.display = "none";
+    }
+
+    async acquireWakeLock() {
+        try {
+            // 确保 NoSleep 实例只创建一次
+            if (!this.noSleep) {
+                this.noSleep = new NoSleep();
+                // 用户交互时启用 NoSleep
+                await this.noSleep.enable();
+                console.log("NoSleep initialized and enabled");
+            }
+
+            if ("wakeLock" in navigator) {
+                this.wakeLock = await navigator.wakeLock.request("screen");
+                console.log("Wake Lock is active");
+            }
+
+            // 添加可见性变化监听
+            document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+            
+        } catch (err) {
+            console.error(`Failed to keep screen awake: ${err.message}`);
+        }
+    }
+
+    // 添加页面可见性变化处理
+    async handleVisibilityChange() {
+        if (document.visibilityState === 'visible' && this.recordingActive) {
+            // 如果页面重新变为可见且正在录音，重新获取 wake lock
+            await this.acquireWakeLock();
+        }
+    }
+
+    releaseWakeLock() {
+        if (this.wakeLock) {
+            this.wakeLock.release()
+                .then(() => {
+                    this.wakeLock = null;
+                    console.log("Wake Lock released");
+                });
+        }
+        if (this.noSleep) {
+            this.noSleep.disable();
+            console.log("NoSleep disabled");
+        }
+        // 移除可见性变化监听
+        document.removeEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
     }
 
     async startRealtime(config) {
         try {
+            this.recordingActive = true; // 添加录音状态标记
+            await this.acquireWakeLock();
             this.realtimeClient = new RealtimeClient();
             await this.realtimeClient.initialize(
                 config.endpoint,
@@ -162,12 +215,16 @@ export default class IntercomModal {
                 this.handleRealtimeMessage(message);
             }
         } catch (error) {
+            this.recordingActive = false; // 发生错误时更新状态
+            this.releaseWakeLock();
             console.error("Realtime chat error:", error);
             this.makeNewTextBlock(`<< Connection error: ${error.message} >>`);
         }
     }
 
     stopRealtime() {
+        this.recordingActive = false; // 停止时更新状态
+        this.releaseWakeLock();
         if (this.realtimeClient) {
             this.realtimeClient.stop();
         }
