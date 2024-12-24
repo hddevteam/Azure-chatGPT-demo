@@ -270,14 +270,6 @@
     padding: 10px 20px;
   }
 
-  .im-chat-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border-right: none;
-    position: relative;
-    height: 100%;
-  }
 
   .im-settings-section {
     position: fixed;
@@ -410,9 +402,10 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 100vh;  /* 使用视口高度 */
+    height: 100%;  /* 改为100% */
     width: 100%;
     position: relative;
+    padding-bottom: 40px; /* 为底部控制栏留出空间 */
   }
 
   .im-settings-section {
@@ -434,11 +427,12 @@
 
   .im-text-container {
     flex: 1;
-    height: calc(100vh - 140px);  /* 减去header和controls的高度 */
+    height: auto; /* 移除固定高度计算 */
     overflow-y: auto;
     padding: 16px;
     margin: 0;
     background: transparent;
+    padding-bottom: 16px; /* 确保内容底部有足够间距 */
   }
 
   .im-controls {
@@ -450,6 +444,7 @@
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(10px);
     z-index: 100;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .im-header {
