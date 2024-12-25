@@ -51,7 +51,13 @@ export default class IntercomModal {
                 </button>
               </div>
             </div>
-            <div id="received-text-container" class="im-text-container"></div>
+            <div id="received-text-container" class="im-text-container">
+              <div class="welcome-message">
+                <div class="welcome-icon">👋</div>
+                <h3>Hello there!</h3>
+                <p>Ready for a chat? Press the Start button below to begin our real-time conversation! 🎯✨</p>
+              </div>
+            </div>
             <div class="im-controls">
               <div class="im-button-group">
                 <button id="start-recording" class="im-button im-button-primary" type="button">
@@ -183,7 +189,13 @@ export default class IntercomModal {
             this.stopRealtime();
         });
         clearBtn.addEventListener("click", () => {
-            document.getElementById("received-text-container").innerHTML = "";
+            const container = document.getElementById("received-text-container");
+            container.innerHTML = `
+              <div class="welcome-message">
+                <div class="welcome-icon">👋</div>
+                <h3>Hello there!</h3>
+                <p>Ready for a chat? Press the Start button below to begin our real-time conversation! 🎯✨</p>
+              </div>`;
         });
 
         // settings section toggle
@@ -280,6 +292,10 @@ export default class IntercomModal {
             // 添加录音状态类到根元素
             this.modal.classList.add("recording-active");
             document.querySelector(".im-text-container").classList.add("recording-active");
+            
+            // 添加初始化提示消息
+            this.makeNewTextBlock("🔄 Initializing AI connection... Please wait", "assistant");
+            
             await this.acquireWakeLock();
             this.realtimeClient = new RealtimeClient();
             await this.realtimeClient.initialize(
@@ -333,6 +349,16 @@ export default class IntercomModal {
         this.recordingActive = false;
         this.modal.classList.remove("recording-active");
         document.querySelector(".im-text-container").classList.remove("recording-active");
+        
+        // 清理可能存在的语音指示器
+        if (this.latestInputSpeechBlock) {
+            const content = this.latestInputSpeechBlock.querySelector(".im-message-content");
+            if (content && content.querySelector(".speech-indicator")) {
+                this.latestInputSpeechBlock.remove();
+            }
+            this.latestInputSpeechBlock = null;
+        }
+        
         this.releaseWakeLock();
         if (this.realtimeClient) {
             this.realtimeClient.stop();
@@ -351,7 +377,7 @@ export default class IntercomModal {
         console.log("Received message:", message.type);
         switch (message.type) {
         case "session.created":
-            this.makeNewTextBlock("Session created...", "assistant");
+            this.makeNewTextBlock("Session created. You can start speaking now!", "assistant");
             break;
 
         case "conversation.item.created":
@@ -397,6 +423,7 @@ export default class IntercomModal {
             if (this.latestInputSpeechBlock) {
                 const content = this.latestInputSpeechBlock.querySelector(".im-message-content");
                 content.textContent = message.transcript;
+                this.latestInputSpeechBlock = null; // 重置引用
             }
             this.makeNewTextBlock("", "assistant"); // create a new block for assistant response
             break;
@@ -454,6 +481,11 @@ export default class IntercomModal {
 
     makeNewTextBlock(text = "", type = "assistant") {
         const container = document.getElementById("received-text-container");
+        // Clear welcome message if it exists
+        const welcomeMessage = container.querySelector(".welcome-message");
+        if (welcomeMessage) {
+            welcomeMessage.remove();
+        }
         const messageDiv = document.createElement("div");
         messageDiv.className = `im-message im-message-${type}`;
         

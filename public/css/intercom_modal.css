@@ -260,6 +260,7 @@
   color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
   font-weight: 500;
+  padding-top: 5px;
 }
 
 /* 文本框 */
@@ -617,7 +618,7 @@
     left: 0;
     right: 0;
     padding: 16px;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     z-index: 100;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -627,7 +628,7 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     padding: 16px;
     display: flex;
@@ -713,3 +714,41 @@
 .speech-dot:nth-child(1) { animation: speechDotPulse 1s infinite 0s; }
 .speech-dot:nth-child(2) { animation: speechDotPulse 1s infinite 0.2s; }
 .speech-dot:nth-child(3) { animation: speechDotPulse 1s infinite 0.4s; }
+
+.welcome-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #fefefe;
+  font-size: 16px;
+  padding: 20px;
+}
+
+.welcome-message .welcome-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  animation: wave 1s infinite;
+}
+
+.welcome-message h3 {
+  margin: 0;
+  margin-bottom: 12px;
+  font-size: 24px;
+  color: #fefefe;
+}
+
+.welcome-message p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
