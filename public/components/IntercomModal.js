@@ -122,6 +122,45 @@ export default class IntercomModal {
                   placeholder="0-100 (0 means unlimited, default 10)"
                   value="10"/>
               </div>
+
+              <div class="im-input-group">
+                <label for="vad-threshold" class="im-label">Voice Detection Sensitivity</label>
+                <input id="vad-threshold" 
+                  class="im-input" 
+                  type="number" 
+                  min="0" 
+                  max="1" 
+                  step="0.1" 
+                  placeholder="0.0-1.0 (default 0.6)"
+                  value="0.6"/>
+                <small class="im-help-text">Higher values make it less likely to detect non-speech sounds as speech.</small>
+              </div>
+
+              <div class="im-input-group">
+                <label for="prefix-padding" class="im-label">Audio Prefix Padding (ms)</label>
+                <input id="prefix-padding" 
+                  class="im-input" 
+                  type="number" 
+                  min="100" 
+                  max="1000" 
+                  step="100" 
+                  placeholder="100-1000 (default 400)"
+                  value="400"/>
+                <small class="im-help-text">Amount of audio included before speech is detected.</small>
+              </div>
+
+              <div class="im-input-group">
+                <label for="silence-duration" class="im-label">Silence Duration (ms)</label>
+                <input id="silence-duration" 
+                  class="im-input" 
+                  type="number" 
+                  min="500" 
+                  max="5000" 
+                  step="100" 
+                  placeholder="500-5000 (default 2000)"
+                  value="2000"/>
+                <small class="im-help-text">Duration of silence to detect end of speech.</small>
+              </div>
             </div>
           </div>
         </div>
@@ -311,17 +350,11 @@ export default class IntercomModal {
                 instructions: document.getElementById("session-instructions").value,
                 temperature: parseFloat(document.getElementById("temperature").value) || 0.8,
                 voice: document.getElementById("voice").value || "alloy",
-                // Add turn_detection configuration
                 turn_detection: {
                     type: "server_vad",
-                    // Adjust voice detection sensitivity threshold (range: 0.0–1.0, default is 0.5).
-                    // Higher values make it less likely to detect non-speech sounds as speech.
-                    threshold: 0.6,
-                    // Amount of audio (ms) included before speech is detected (default 300ms).
-                    prefix_padding_ms: 400,
-                    // Extend the silence duration (ms) to detect end of speech (default may be shorter).
-                    // Recommended 1500–2000ms, adjust as needed.
-                    silence_duration_ms: 2000
+                    threshold: parseFloat(document.getElementById("vad-threshold").value) || 0.6,
+                    prefix_padding_ms: parseInt(document.getElementById("prefix-padding").value) || 400,
+                    silence_duration_ms: parseInt(document.getElementById("silence-duration").value) || 2000
                 }
             };
 
