@@ -19,6 +19,25 @@ export default class IntercomModal {
     createModal() {
         const modalHtml = `
       <div id="intercom-modal" class="im-modal">
+        <div class="gradient-bg">
+          <svg xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo" />
+                <feBlend in="SourceGraphic" in2="goo" />
+              </filter>
+            </defs>
+          </svg>
+          <div class="gradients-container">
+            <div class="gradient-circle g1"></div>
+            <div class="gradient-circle g2"></div>
+            <div class="gradient-circle g3"></div>
+            <div class="gradient-circle g4"></div>
+            <div class="gradient-circle g5"></div>
+            <div class="gradient-circle interactive"></div>
+          </div>
+        </div>
         <div class="im-modal-content">
           <div class="im-chat-section">
             <div class="im-header">
@@ -104,6 +123,43 @@ export default class IntercomModal {
 
         document.body.insertAdjacentHTML("beforeend", modalHtml);
         this.modal = document.getElementById("intercom-modal");
+        this.initGradientAnimation();
+    }
+
+    initGradientAnimation() {
+        const interBubble = document.querySelector(".interactive");
+        let curX = 0;
+        let curY = 0;
+        let tgX = 0;
+        let tgY = 0;
+
+        const moveToRandomPosition = () => {
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // 生成新的随机目标位置
+            tgX = Math.random() * viewportWidth;
+            tgY = Math.random() * viewportHeight;
+            
+            // 3-7秒后再次移动到新位置
+            setTimeout(moveToRandomPosition, 3000 + Math.random() * 4000);
+        };
+
+        const animate = () => {
+            // 平滑过渡到目标位置
+            curX += (tgX - curX) / 20;
+            curY += (tgY - curY) / 20;
+            
+            if (interBubble) {
+                interBubble.style.transform = `translate(${Math.round(curX)}px, ${Math.round(curY)}px)`;
+            }
+            
+            requestAnimationFrame(animate);
+        };
+
+        // 开始动画
+        moveToRandomPosition();
+        animate();
     }
 
     async bindEvents() {
@@ -221,6 +277,8 @@ export default class IntercomModal {
     async startRealtime(config) {
         try {
             this.recordingActive = true;
+            // 添加录音状态类到根元素
+            this.modal.classList.add("recording-active");
             document.querySelector(".im-text-container").classList.add("recording-active");
             await this.acquireWakeLock();
             this.realtimeClient = new RealtimeClient();
@@ -247,7 +305,7 @@ export default class IntercomModal {
                     prefix_padding_ms: 400,
                     // Extend the silence duration (ms) to detect end of speech (default may be shorter).
                     // Recommended 1500–2000ms, adjust as needed.
-                    silence_duration_ms: 1500
+                    silence_duration_ms: 2000
                 }
             };
 
@@ -263,6 +321,7 @@ export default class IntercomModal {
             }
         } catch (error) {
             this.recordingActive = false;
+            this.modal.classList.remove("recording-active");
             document.querySelector(".im-text-container").classList.remove("recording-active");
             this.releaseWakeLock();
             console.error("Realtime chat error:", error);
@@ -272,6 +331,7 @@ export default class IntercomModal {
 
     stopRealtime() {
         this.recordingActive = false;
+        this.modal.classList.remove("recording-active");
         document.querySelector(".im-text-container").classList.remove("recording-active");
         this.releaseWakeLock();
         if (this.realtimeClient) {
@@ -291,7 +351,7 @@ export default class IntercomModal {
         console.log("Received message:", message.type);
         switch (message.type) {
         case "session.created":
-            this.makeNewTextBlock("Assistant: Hello! How can I help you today?", "assistant");
+            this.makeNewTextBlock("Session created...", "assistant");
             break;
 
         case "conversation.item.created":

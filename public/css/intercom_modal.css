@@ -1,28 +1,165 @@
-/* Intercom Modal - 根容器 */
+:root {
+  /* 色彩变量 */
+  --color-bg1: #1d2b52;
+  --color-bg2: #000428;
+  --color1: 41, 128, 185;   /* 蓝色 */
+  --color2: 142, 68, 173;   /* 紫色 */
+  --color3: 39, 174, 96;    /* 绿色 */
+  --color4: 230, 126, 34;   /* 橙色 */
+  --color5: 52, 152, 219;   /* 天蓝色 */
+  --color-interactive: 155, 89, 182; /* 亮紫色 */
+  
+  /* 布局变量 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  
+  /* 边框变量 */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 18px;
+  
+  /* 其他变量 */
+  --circle-size: 200%;
+  --blending: screen;
+  --transition-speed: 0.3s;
+  
+  /* 常用背景色 */
+  --bg-overlay: rgba(0, 0, 0, 0.1);
+  --bg-overlay-dark: rgba(0, 0, 0, 0.3);
+  --bg-gradient: linear-gradient(135deg, var(--color-bg1), var(--color-bg2));
+  
+  /* 常用边框色 */
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-medium: rgba(255, 255, 255, 0.2);
+}
+
+/* 通用样式混入 */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backdrop-blur {
+  backdrop-filter: blur(10px);
+}
+
+.transparent-bg {
+  background-color: transparent;
+}
+
+/* 基础布局容器 */
 .im-modal {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: var(--bg-gradient);
   z-index: 1000;
   display: none;
 }
 
-/* 内容容器 */
 .im-modal-content {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative;
+  z-index: 2;
   width: 100%;
   height: 100%;
-  max-width: none;
   display: flex;
-  background: linear-gradient(135deg, #2196F3, #1976D2);
-  border-radius: 0;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  background: transparent;
   overflow: hidden;
+}
+
+/* 渐变背景动画 */
+.gradient-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  background-color: var(--bg-overlay-dark);
+  opacity: 0;
+  transition: opacity var(--transition-speed) ease;
+}
+
+/* 录音时显示动画背景 */
+.recording-active .gradient-bg {
+  opacity: 1;
+}
+
+.gradient-bg svg {
+  display: none;
+}
+
+.gradients-container {
+  filter: blur(40px);
+  width: 100%;
+  height: 100%;
+  opacity: 0.6; /* 降低整体动画的不透明度 */
+  visibility: hidden; /* 默认隐藏动画容器 */
+}
+
+/* 录音时显示动画容器 */
+.recording-active .gradients-container {
+  visibility: visible;
+}
+
+.gradient-circle {
+  position: absolute;
+  mix-blend-mode: var(--blending);
+  width: var(--circle-size);
+  height: var(--circle-size);
+  opacity: 0.8;
+  transition: transform 0.5s ease-out;
+}
+
+@keyframes moveInCircle {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(180deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes moveVertical {
+  0% { transform: translateY(-50%); }
+  50% { transform: translateY(50%); }
+  100% { transform: translateY(-50%); }
+}
+
+@keyframes moveHorizontal {
+  0% { transform: translateX(-50%) translateY(-10%); }
+  50% { transform: translateX(50%) translateY(10%); }
+  100% { transform: translateX(-50%) translateY(-10%); }
+}
+
+.g1 {
+  background: radial-gradient(circle at center, rgba(var(--color1), 0.8) 0, rgba(var(--color1), 0) 50%) no-repeat;
+  animation: moveVertical 30s ease infinite;
+}
+
+.g2 {
+  background: radial-gradient(circle at center, rgba(var(--color2), 0.8) 0, rgba(var(--color2), 0) 50%) no-repeat;
+  animation: moveInCircle 20s reverse infinite;
+}
+
+.g3 {
+  background: radial-gradient(circle at center, rgba(var(--color3), 0.8) 0, rgba(var(--color3), 0) 50%) no-repeat;
+  animation: moveInCircle 40s linear infinite;
+}
+
+.g4 {
+  background: radial-gradient(circle at center, rgba(var(--color4), 0.8) 0, rgba(var(--color4), 0) 50%) no-repeat;
+  animation: moveHorizontal 40s ease infinite;
+}
+
+.g5 {
+  background: radial-gradient(circle at center, rgba(var(--color5), 0.8) 0, rgba(var(--color5), 0) 50%) no-repeat;
+  animation: moveInCircle 20s ease infinite;
+}
+
+.interactive {
+  background: radial-gradient(circle at center, rgba(var(--color-interactive), 0.8) 0, rgba(var(--color-interactive), 0) 50%) no-repeat;
+  opacity: 0.7;
 }
 
 .im-chat-section {
@@ -41,7 +178,7 @@
 
 /* 主容器 */
 .im-container {
-  padding: 24px;
+  padding: var(--spacing-xl);
   color: #fff;
 }
 
@@ -77,7 +214,7 @@
   color: #fff;
 }
 
-/* 文本容器 */
+/* 文本容器 - 移除初始动画 */
 .im-text-container {
   flex: 1;
   margin: 0;
@@ -90,7 +227,6 @@
   font-size: 16px;
   line-height: 1.5;
   transition: background 0.3s ease;
-  animation: initialGradientFlow 2s ease-out forwards;
 }
 
 /* 控制区域 */
@@ -177,16 +313,16 @@
 
 /* 按钮基础样式 */
 .im-button {
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--border-radius-md);
   border: none;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
-  transition: all 0.3s;
+  gap: var(--spacing-sm);
+  transition: all var(--transition-speed);
 }
 
 /* 主要按钮 */
@@ -244,9 +380,8 @@
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .im-modal-content {
-    flex-direction: column;
-    height: 100%;
+  .im-modal {
+    background: linear-gradient(135deg, #1d2b52, #000428);  /* 使用和桌面端一样的背景色 */
   }
 
   .im-container {
@@ -257,33 +392,12 @@
     padding: 10px 20px;
   }
 
-  .im-settings-section {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    height: 100%;
-    width: 85%;
-    max-width: none;
-    background: linear-gradient(135deg, #2196F3, #1976D2);
-    transition: right 0.3s ease;
-    z-index: 2;
-  }
-
   .im-settings-section.show {
     right: 0;
   }
 
   .im-settings-toggle {
     display: block;
-  }
-
-  .im-header {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    padding: 16px;
   }
 
   .im-header-buttons {
@@ -308,6 +422,47 @@
   .im-settings-section .im-close-button {
     display: none !important;
   }
+
+  .im-button-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 0 8px;
+  }
+
+  .im-button {
+    width: 100%;
+    height: 48px;  /* 固定高度 */
+    justify-content: center;
+    font-size: 16px;  /* 增大字体 */
+    padding: 12px;
+  }
+
+  /* 主要动作按钮样式调整 */
+  .im-button-primary,
+  .im-button-secondary {
+    font-weight: 600;
+  }
+
+  /* 降低Clear All按钮的视觉优先级 */
+  .im-button-warning {
+    grid-column: 1 / -1;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+    height: 40px;  /* 稍矮一些 */
+    font-size: 14px;  /* 字体小一号 */
+  }
+
+  .im-button-warning:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* 图标大小调整 */
+  .im-button i {
+    font-size: 18px;
+  }
 }
 
 /* 滚动条样式 */
@@ -331,7 +486,7 @@
 
 /* 聊天消息样式 */
 .im-message {
-  margin: 8px 0;
+  margin: var(--spacing-sm) 0;
   max-width: 85%;
   clear: both;
 }
@@ -351,6 +506,7 @@
   position: relative;
   word-wrap: break-word;
   line-height: 1.4;
+  min-width: fit-content;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -404,9 +560,6 @@
 
 /* 修改响应式设计 */
 @media (max-width: 768px) {
-  .im-modal {
-    background-color: #1976D2;  /* 使用纯色背景 */
-  }
 
   .im-modal-content {
     position: fixed;  /* 改为 fixed 定位 */
@@ -418,7 +571,6 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #2196F3, #1976D2);
     overflow: hidden;
   }
 
@@ -525,22 +677,6 @@
   }
 }
 
-/* 初始动画效果 */
-@keyframes initialGradientFlow {
-    0% {
-        background: linear-gradient(135deg, rgba(33, 150, 243, 0.3), rgba(25, 118, 210, 0.2));
-        opacity: 0;
-    }
-    50% {
-        background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(33, 150, 243, 0.2));
-        opacity: 1;
-    }
-    100% {
-        background: rgba(255, 255, 255, 0.1);
-        opacity: 1;
-    }
-}
-
 /* 聊天区域录音状态动画 */
 @keyframes recordingPulse {
     0% { background: rgba(255, 255, 255, 0.05); }
@@ -577,28 +713,3 @@
 .speech-dot:nth-child(1) { animation: speechDotPulse 1s infinite 0s; }
 .speech-dot:nth-child(2) { animation: speechDotPulse 1s infinite 0.2s; }
 .speech-dot:nth-child(3) { animation: speechDotPulse 1s infinite 0.4s; }
-
-/* 录音状态动画 */
-@keyframes gradientFlow {
-    0% {
-        background: linear-gradient(135deg, rgba(33, 150, 243, 0.25), rgba(25, 118, 210, 0.15));
-    }
-    25% {
-        background: linear-gradient(135deg, rgba(76, 175, 80, 0.25), rgba(33, 150, 243, 0.15));
-    }
-    50% {
-        background: linear-gradient(135deg, rgba(156, 39, 176, 0.25), rgba(76, 175, 80, 0.15));
-    }
-    75% {
-        background: linear-gradient(135deg, rgba(244, 67, 54, 0.25), rgba(156, 39, 176, 0.15));
-    }
-    100% {
-        background: linear-gradient(135deg, rgba(33, 150, 243, 0.25), rgba(25, 118, 210, 0.15));
-    }
-}
-
-.recording-active .im-text-container {
-    animation: gradientFlow 15s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    background-size: 400% 400%;
-    transition: background 1s ease;
-}
