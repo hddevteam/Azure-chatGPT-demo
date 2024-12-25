@@ -111,8 +111,19 @@ class MessageManager {
     async sendTextMessage() {
         this.uiManager.showToast("AI is thinking...");
         const promptText = this.uiManager.app.prompts.getPromptText();
-        // Code for getGpt, check it's proper implementation in your code.
-        return await getGpt(promptText, this.uiManager.app.model);
+        const currentProfile = this.uiManager.storageManager.getCurrentProfile();
+        
+        // 从 profile 中提取参数并确保正确的类型
+        const params = {
+            temperature: parseFloat(currentProfile.temperature) || 0.8,
+            top_p: parseFloat(currentProfile.top_p) || 0.95,
+            frequency_penalty: parseFloat(currentProfile.frequency_penalty) || 0,
+            presence_penalty: parseFloat(currentProfile.presence_penalty) || 0,
+            max_tokens: parseInt(currentProfile.max_tokens) || 2000
+        };
+        
+        console.log("Sending request with params:", params); // 添加调试信息
+        return await getGpt(promptText, this.uiManager.app.model, params);
     }
 
     async sendProfileMessage(message) {

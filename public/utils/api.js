@@ -289,29 +289,34 @@ export async function textToImage(caption) {
 }
 
 //get gpt response
-export async function getGpt(promptText, model) {
-    // console.log("getGpt", promptText, model);
+export async function getGpt(prompt, model = "gpt-4o", params = {}) {
     try {
+        console.log("getGpt params:", { prompt, model, params }); // 添加调试信息
+        
         const response = await axios.post("/gpt", {
-            prompt: promptText,
-            model: model
-        }, {
-            timeout: 180000 // 设置超时时间为180秒
+            prompt,
+            model,
+            ...params  // 添加其他参数的传递
         });
 
-        return response.data; // Axios automatically handles the response as JSON
+        console.log("GPT API response:", response.data); // 添加响应调试信息
+        return response.data;
     } catch (error) {
+        console.error("Error in getGpt:", error); // 添加错误调试信息
+        
+        // 处理 axios 错误
         if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            let errMsg = error.response.data.error ? error.response.data.error.message : "Error generating response.";
-            throw new Error(`Error ${error.response.status}: ${errMsg}`);
+            // 服务器返回了错误状态码
+            console.error("GPT API error:", error.response.data);
+            throw new Error(error.response.data);
         } else if (error.request) {
-            // The request was made but no response was received
-            throw new Error("The server did not respond. Please try again later.");
+            // 请求已经发出，但没有收到响应
+            console.error("No response received:", error.request);
+            throw new Error("No response received from server");
         } else {
-            // Something happened in setting up the request that triggered an Error
-            throw new Error(error.message);
+            // 发生了一些错误，阻止了请求的发送
+            console.error("Request error:", error.message);
+            throw error;
         }
     }
 }

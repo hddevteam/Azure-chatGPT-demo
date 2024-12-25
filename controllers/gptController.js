@@ -67,7 +67,8 @@ const makeRequest = async ({ apiKey, apiUrl, prompt, params }) => {
 };
 
 exports.generateResponse = async (req, res) => {
-    console.log("generateResponse");
+    console.log("generateResponse - Request body:", req.body); // 添加请求体调试信息
+    
     const {
         model,
         temperature = defaultParams.temperature,
@@ -76,7 +77,18 @@ exports.generateResponse = async (req, res) => {
         presence_penalty = defaultParams.presence_penalty,
         max_tokens = defaultParams.max_tokens
     } = req.body;
-    console.log("promptText", req.body.prompt);
+    
+    // 确保所有参数都是正确的类型
+    const params = {
+        temperature: parseFloat(temperature),
+        top_p: parseFloat(top_p),
+        frequency_penalty: parseFloat(frequency_penalty),
+        presence_penalty: parseFloat(presence_penalty),
+        max_tokens: parseInt(max_tokens)
+    };
+    
+    console.log("Parsed parameters:", params);
+    
     let prompt = JSON.parse(req.body.prompt);
     
     if (!prompt || !prompt.length) {
@@ -115,30 +127,26 @@ exports.generateResponse = async (req, res) => {
     }
 
     // 根据模型类型设置不同的参数
-    let params;
+    let requestParams;
     if (model === "o1" || model === "o1-mini") {
-        params = {
-            max_completion_tokens: max_tokens
+        requestParams = {
+            max_completion_tokens: parseInt(max_tokens)
         };
     } else {
-        params = {
-            temperature,
-            top_p,
-            frequency_penalty,
-            presence_penalty,
-            max_tokens
-        };
+        requestParams = params;
     }
+
+    console.log("Final request parameters:", requestParams); // 添加最终参数调试信息
 
     const requestData = {
         apiKey: currentApiKey,
         apiUrl: currentApiUrl,
         prompt,
-        params,
+        params: requestParams,
     };
 
     try {
-        console.log("requestData", requestData);
+        console.log("Making request with data:", JSON.stringify(requestData, null, 2)); // 添加请求数据调试信息
         const response = await makeRequest(requestData);
         console.log("Response from GPT:", response.data);
 
