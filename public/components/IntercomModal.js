@@ -55,22 +55,16 @@ export default class IntercomModal {
               <div class="welcome-message">
                 <div class="welcome-icon">👋</div>
                 <h3>Hello there!</h3>
-                <p>Ready for a chat? Press the Start button below to begin our real-time conversation! 🎯✨</p>
+                <p>Tap the microphone button below to start our conversation! 🎙️✨</p>
               </div>
             </div>
             <div class="im-controls">
               <div class="im-button-group">
-                <button id="start-recording" class="im-button im-button-primary" type="button">
-                  <i class="fas fa-microphone"></i>
-                  Start
-                </button>
-                <button id="stop-recording" class="im-button im-button-secondary" type="button" disabled>
-                  <i class="fas fa-stop"></i>
-                  Stop
-                </button>
                 <button id="clear-all" class="im-button im-button-warning" type="button">
                   <i class="fas fa-trash"></i>
-                  Clear All
+                </button>
+                <button id="record-button" class="im-record-button" type="button">
+                  <i class="fas fa-microphone"></i>
                 </button>
               </div>
             </div>
@@ -209,31 +203,34 @@ export default class IntercomModal {
 
     async bindEvents() {
         const closeBtn = document.getElementById("close-intercom");
-        const startBtn = document.getElementById("start-recording");
-        const stopBtn = document.getElementById("stop-recording");
+        const recordBtn = document.getElementById("record-button");
         const clearBtn = document.getElementById("clear-all");
 
         // get realtime config
         this.config = await fetchRealtimeConfig();
         
         closeBtn.addEventListener("click", () => this.hideModal());
-        startBtn.addEventListener("click", async () => {
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-            await this.startRealtime(this.config);
+        
+        // 新的录音按钮事件处理
+        recordBtn.addEventListener("click", async () => {
+            if (!this.recordingActive) {
+                recordBtn.classList.add("recording");
+                this.recordingActive = true;
+                await this.startRealtime(this.config);
+            } else {
+                recordBtn.classList.remove("recording");
+                this.recordingActive = false;
+                this.stopRealtime();
+            }
         });
-        stopBtn.addEventListener("click", () => {
-            startBtn.disabled = false; 
-            stopBtn.disabled = true;
-            this.stopRealtime();
-        });
+
         clearBtn.addEventListener("click", () => {
             const container = document.getElementById("received-text-container");
             container.innerHTML = `
               <div class="welcome-message">
                 <div class="welcome-icon">👋</div>
                 <h3>Hello there!</h3>
-                <p>Ready for a chat? Press the Start button below to begin our real-time conversation! 🎯✨</p>
+                <p>Tap the microphone button below to start our conversation! 🎙️✨</p>
               </div>`;
         });
 

@@ -243,9 +243,11 @@
 /* 按钮组 */
 .im-button-group {
   display: flex;
-  gap: 12px;
-  justify-content: flex-start;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  position: relative;
+  padding: 0 8px;
 }
 
 /* 输入组 */
@@ -358,12 +360,24 @@
 
 /* 警告按钮 */
 .im-button-warning {
-  background-color: #F44336;
-  color: white;
+  position: absolute;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
 }
 
 .im-button-warning:hover {
-  background-color: #E53935;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* 页脚 */
@@ -432,8 +446,6 @@
   }
 
   .im-button {
-    width: 100%;
-    height: 48px;  /* 固定高度 */
     justify-content: center;
     font-size: 16px;  /* 增大字体 */
     padding: 12px;
@@ -445,16 +457,6 @@
     font-weight: 600;
   }
 
-  /* 降低Clear All按钮的视觉优先级 */
-  .im-button-warning {
-    grid-column: 1 / -1;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.7);
-    height: 40px;  /* 稍矮一些 */
-    font-size: 14px;  /* 字体小一号 */
-  }
-
   .im-button-warning:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.3);
@@ -463,6 +465,18 @@
   /* 图标大小调整 */
   .im-button i {
     font-size: 18px;
+  }
+
+  .im-record-button {
+    width: 72px;
+    height: 72px;
+    font-size: 28px;
+  }
+
+  .im-button-warning {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
   }
 }
 
@@ -561,6 +575,17 @@
 
 /* 修改响应式设计 */
 @media (max-width: 768px) {
+  
+  .im-record-button {
+    width: 72px;
+    height: 72px;
+    font-size: 28px;
+  }
+
+  .im-button-group {
+    justify-content: center;
+    gap: 20px;
+  }
 
   .im-modal-content {
     position: fixed;  /* 改为 fixed 定位 */
@@ -643,14 +668,6 @@
     padding: 0 8px;
   }
 
-  .im-button {
-    width: 100%;
-    height: 48px;  /* 固定高度 */
-    justify-content: center;
-    font-size: 16px;  /* 增大字体 */
-    padding: 12px;
-  }
-
   /* 主要动作按钮样式调整 */
   .im-button-primary,
   .im-button-secondary {
@@ -663,7 +680,6 @@
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: rgba(255, 255, 255, 0.7);
-    height: 40px;  /* 稍矮一些 */
     font-size: 14px;  /* 字体小一号 */
   }
 
@@ -751,4 +767,53 @@
   25% { transform: rotate(-10deg); }
   75% { transform: rotate(10deg); }
   100% { transform: rotate(0deg); }
+}
+
+/* 录音按钮样式 */
+.im-record-button {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  background: #ffffff;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.4s ease-in-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.im-record-button::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  border: 4px solid rgba(46, 116, 143, 0.8);
+  border-top-color: transparent;
+  animation: spin 4s linear infinite;
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.im-record-button.recording {
+  background: #ED6A5F;
+  color: #ffffff;
+}
+
+.im-record-button.recording::before {
+  opacity: 1;
+}
+
+@keyframes spin { 
+  from { 
+    transform: rotate(0deg); 
+  } 
+  to { 
+    transform: rotate(360deg); 
+  }
 }
