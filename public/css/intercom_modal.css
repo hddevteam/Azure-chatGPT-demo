@@ -575,7 +575,7 @@
 
 /* 修改响应式设计 */
 @media (max-width: 768px) {
-  
+
   .im-record-button {
     width: 72px;
     height: 72px;
@@ -634,7 +634,7 @@
     padding: 16px;
     margin: 0;
     background: transparent;
-    margin-bottom: 100px;
+    margin-bottom: 55px;
   }
 
   .im-controls {

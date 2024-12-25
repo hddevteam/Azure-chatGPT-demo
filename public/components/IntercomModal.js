@@ -330,7 +330,7 @@ export default class IntercomModal {
             document.querySelector(".im-text-container").classList.add("recording-active");
             
             // 添加初始化提示消息
-            this.makeNewTextBlock("🔄 Initializing AI connection... Please wait", "assistant");
+            this.makeNewTextBlock("Initializing AI connection. Please wait...", "assistant");
             
             await this.acquireWakeLock();
             this.realtimeClient = new RealtimeClient();
