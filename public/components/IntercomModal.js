@@ -236,8 +236,22 @@ export default class IntercomModal {
             const sessionConfig = {
                 instructions: document.getElementById("session-instructions").value,
                 temperature: parseFloat(document.getElementById("temperature").value) || 0.8,
-                voice: document.getElementById("voice").value || "alloy"
+                voice: document.getElementById("voice").value || "alloy",
+                // Add turn_detection configuration
+                turn_detection: {
+                    type: "server_vad",
+                    // Adjust voice detection sensitivity threshold (range: 0.0–1.0, default is 0.5).
+                    // Higher values make it less likely to detect non-speech sounds as speech.
+                    threshold: 0.6,
+                    // Amount of audio (ms) included before speech is detected (default 300ms).
+                    prefix_padding_ms: 400,
+                    // Extend the silence duration (ms) to detect end of speech (default may be shorter).
+                    // Recommended 1500–2000ms, adjust as needed.
+                    silence_duration_ms: 1500
+                }
             };
+
+            console.log("Starting Realtime chat with config:", sessionConfig);
 
             // set message history limit
             this.realtimeClient.setMessageLimit(this.messageLimit);
@@ -357,6 +371,14 @@ export default class IntercomModal {
         case "conversation.item.deleted":
             if (this.realtimeClient) {
                 this.realtimeClient.handleMessageDeleted(message.item_id);
+            }
+            break;
+
+        case "session.updated":
+            console.log("Session updated with config:", message.session);
+            // 可以在这里验证配置是否正确应用
+            if (message.session.turn_detection) {
+                console.log("Turn detection settings:", message.session.turn_detection);
             }
             break;
 

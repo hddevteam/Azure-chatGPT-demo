@@ -89,18 +89,35 @@ export class RealtimeClient {
 
     async start(config) {
         try {
+            // 创建基础配置
+            const baseConfig = {
+                modalities: ["text", "audio"],
+                input_audio_format: "pcm16",
+                output_audio_format: "pcm16",
+                input_audio_transcription: {
+                    model: "whisper-1"
+                },
+                tool_choice: "auto"
+            };
+
+            // 合并配置，确保用户配置优先级更高
+            const sessionConfig = {
+                ...baseConfig,
+                ...config,
+                // 如果用户提供了 turn_detection，使用用户的配置
+                turn_detection: config.turn_detection || {
+                    type: "server_vad",
+                    threshold: 0.5,
+                    prefix_padding_ms: 300,
+                    silence_duration_ms: 1000
+                }
+            };
+
             await this.client.send({
                 type: "session.update",
-                session: {
-                    ...config,
-                    turn_detection: {
-                        type: "server_vad",
-                    },
-                    input_audio_transcription: {
-                        model: "whisper-1"
-                    }
-                }
+                session: sessionConfig
             });
+            
             await this.resetAudio(true);
             return true;
         } catch (error) {
