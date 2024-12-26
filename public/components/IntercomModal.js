@@ -460,9 +460,16 @@ export default class IntercomModal {
 
         case "response.done":
             if (this.realtimeClient) {
-                // 更新使用情况统计
+                // 更新使用情况统计,包括 cached_tokens
                 if (message.response && message.response.usage) {
-                    this.realtimeClient.updateUsageStats(message.response.usage);
+                    const usage = message.response.usage;
+                    const cachedTokens = usage.input_token_details?.cached_tokens || 0;
+                    console.log("Cached tokens used:", cachedTokens);
+                    
+                    this.realtimeClient.updateUsageStats({
+                        ...usage,
+                        cached_tokens: cachedTokens
+                    });
                 }
                 
                 // 显示当前会话统计
