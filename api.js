@@ -73,4 +73,7 @@ router.delete("/audiofiles/delete", requireAuth, audioFileController.deleteAudio
 // 添加实时对话配置路由
 router.get("/realtime-config", requireAuth, realtimeController.getConfig);
 
+// 添加新的路由
+router.post("/realtime-summary", requireAuth, gptController.generateRealtimeSummary);
+
 module.exports = router;

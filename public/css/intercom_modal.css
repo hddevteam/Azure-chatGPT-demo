@@ -174,12 +174,31 @@
   min-width: 300px;
   max-width: 400px;
   overflow-y: auto;
+  padding-bottom: 20px; /* 确保底部有足够空间 */
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.2);
 }
 
-/* 主容器 */
+.im-settings-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.im-settings-section::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.im-settings-section::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
 .im-container {
   padding: var(--spacing-xl);
   color: #fff;
+  flex: 1;
+  overflow-y: auto;
 }
 
 /* 头部样式 */
@@ -816,4 +835,65 @@
   to { 
     transform: rotate(360deg); 
   }
+}
+
+/* 摘要部分样式 */
+.im-summary-section {
+    margin-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 16px;
+}
+
+.im-summary-header {
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.im-summary-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.im-summary-container {
+    max-height: none; /* 移除最大高度限制 */
+}
+
+.im-summary-item {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.im-summary-content h4 {
+    margin: 8px 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.im-summary-content p {
+    margin: 4px 0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.im-summary-content ul {
+    margin: 4px 0;
+    padding-left: 20px;
+}
+
+.im-summary-content li {
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.im-summary-timestamp {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* 当有摘要时显示摘要部分 */
+.has-summary .im-summary-section {
+    display: block;
 }

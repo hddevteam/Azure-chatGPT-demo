@@ -389,3 +389,60 @@ Note: All text content including titles, labels, and descriptions should be in $
     }
 };
 
+exports.generateRealtimeSummary = async (req, res) => {
+    const messages = req.body.messages;
+
+    const prompt = [
+        {
+            role: "system",
+            content: `You are a conversation summarizer that processes Markdown-formatted conversations. 
+            Create a contextual summary that helps maintain conversation coherence. Focus on key information 
+            that will be useful for continuing the conversation.
+
+            The input will be in Markdown format with sections for previous summary and current conversation.
+            Pay special attention to both sections to maintain complete context.
+
+            Output must be in JSON format:
+            {
+                "summary": "concise overview of the entire conversation flow including previous context",
+                "key_points": ["important fact 1", "important fact 2", "..."],
+                "context": "specific context needed for continuing naturally",
+                "tokens": number_of_tokens_used
+            }`
+        },
+        {
+            role: "user",
+            content: messages[0].content  // Markdown 格式的内容已经在 client 端处理好
+        }
+    ];
+
+    const requestData = {
+        apiKey: gpt4oMiniApiKey,
+        apiUrl: gpt4oMiniApiUrl,
+        prompt,
+        params: {
+            temperature: 0.3,
+            max_tokens: 2000,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+            response_format: { "type": "json_object" }
+        },
+    };
+
+    try {
+        const response = await makeRequest(requestData);
+        const { data } = response;
+        const message = data.choices[0].message.content;
+        const summaryData = JSON.parse(message);
+        
+        // Add token count if not provided by the model
+        if (!summaryData.tokens && data.usage) {
+            summaryData.tokens = data.usage.total_tokens;
+        }
+        console.log("Realtime chat summaryData", summaryData);
+        res.json(summaryData);
+    } catch (error) {
+        handleRequestError(error, res);
+    }
+};
+

@@ -155,6 +155,12 @@ export default class IntercomModal {
                   value="2000"/>
                 <small class="im-help-text">Duration of silence to detect end of speech.</small>
               </div>
+                <div class="im-summary-section">
+                    <div class="im-summary-header">
+                        <h3>Conversation Summary</h3>
+                    </div>
+                    <div id="summary-container" class="im-summary-container"></div>
+                </div>
             </div>
           </div>
         </div>
@@ -404,7 +410,8 @@ export default class IntercomModal {
     }
 
     handleRealtimeMessage(message) {
-        console.log("Received message:", message.type);
+        // console.log("Received message:", message);
+        
         switch (message.type) {
         case "session.created":
             this.makeNewTextBlock("Session created. You can start speaking now!", "assistant");
@@ -442,36 +449,65 @@ export default class IntercomModal {
             if (this.realtimeClient && this.realtimeClient.audioPlayer) {
                 this.realtimeClient.audioPlayer.stop();
             }
-                
-            const messageDiv = this.makeNewTextBlock("", "user");
-            messageDiv.querySelector(".im-message-content").innerHTML = this.createSpeechIndicator();
+                    
+            const messageDiv = this.makeNewTextBlock(this.createSpeechIndicator(), "user");
             this.latestInputSpeechBlock = messageDiv;
             break;
         }
 
         case "conversation.item.input_audio_transcription.completed":
-            if (this.latestInputSpeechBlock) {
+            if (this.latestInputSpeechBlock && message.transcript && message.item_id) {
                 const content = this.latestInputSpeechBlock.querySelector(".im-message-content");
-                content.textContent = message.transcript;
-                this.latestInputSpeechBlock = null; // 重置引用
+                const transcriptText = message.transcript;
+                content.textContent = transcriptText;
+                    
+                // 存储转录后的文本
+                if (this.realtimeClient) {
+                    this.realtimeClient.addMessageToHistory({
+                        id: message.item_id,
+                        type: "user",
+                        timestamp: new Date(),
+                        text: transcriptText,
+                        content: [{
+                            type: "input_audio",
+                            transcript: transcriptText
+                        }],
+                        status: "completed"
+                    });
+                }
+                    
+                this.latestInputSpeechBlock = null;
             }
             this.makeNewTextBlock("", "assistant"); // create a new block for assistant response
             break;
 
+        case "response.output_item.done":
+            // 删除对消息处理的部分，因为这不是最终状态
+            break;
+
         case "response.done":
-            if (this.realtimeClient) {
-                // 更新使用情况统计,包括 cached_tokens
-                if (message.response && message.response.usage) {
-                    const usage = message.response.usage;
-                    const cachedTokens = usage.input_token_details?.cached_tokens || 0;
-                    console.log("Cached tokens used:", cachedTokens);
-                    
-                    this.realtimeClient.updateUsageStats({
-                        ...usage,
-                        cached_tokens: cachedTokens
-                    });
+            if (this.realtimeClient && message.response?.output) {
+                // 只处理完成状态的消息
+                const completedMessages = message.response.output.filter(
+                    item => item.type === "message" && 
+                        item.status === "completed" &&
+                        item.id
+                );
+
+                for (const item of completedMessages) {
+                    const textContent = this.extractTextContent(item);
+                    if (textContent) {
+                        this.realtimeClient.addMessageToHistory({
+                            id: item.id,
+                            type: item.role,
+                            timestamp: new Date(),
+                            text: textContent,
+                            content: item.content,
+                            status: item.status
+                        });
+                    }
                 }
-                
+
                 // 显示当前会话统计
                 const stats = this.realtimeClient.getSessionStats();
                 console.log("Response completed. Session stats:", {
@@ -482,6 +518,11 @@ export default class IntercomModal {
                         output: stats.outputTokens
                     }
                 });
+
+                // 获取并显示最新的摘要
+                if (this.realtimeClient.currentSummary) {
+                    this.displaySummary(this.realtimeClient.currentSummary);
+                }
             }
             break;
 
@@ -510,10 +551,20 @@ export default class IntercomModal {
             console.error("Realtime error:", message.error);
             this.makeNewTextBlock(`<< Error: ${message.error.message} >>`);
             break;
-        
+            
         default:
             console.log("Unhandled message:", JSON.stringify(message, null, 2));
         }
+    }
+
+    extractTextContent(item) {
+        if (!item.content) return null;
+        
+        return item.content
+            .filter(c => c.type === "audio" && c.transcript)
+            .map(c => c.transcript)
+            .join(" ")
+            .trim();
     }
 
     makeNewTextBlock(text = "", type = "assistant") {
@@ -523,12 +574,14 @@ export default class IntercomModal {
         if (welcomeMessage) {
             welcomeMessage.remove();
         }
+
         const messageDiv = document.createElement("div");
         messageDiv.className = `im-message im-message-${type}`;
         
         const contentDiv = document.createElement("div");
         contentDiv.className = "im-message-content";
-        contentDiv.textContent = text;
+        // 不要检查 text.trim()，让空文本也能创建消息块
+        contentDiv.innerHTML = text;
         
         const metaDiv = document.createElement("div");
         metaDiv.className = "im-message-meta";
@@ -537,15 +590,6 @@ export default class IntercomModal {
         messageDiv.appendChild(contentDiv);
         messageDiv.appendChild(metaDiv);
         container.appendChild(messageDiv);
-        
-        // if RealtimeClient is available, add message to history
-        if (this.realtimeClient) {
-            this.realtimeClient.addMessageToHistory({
-                id: messageDiv.id,
-                role: type,
-                content: [{ type: "text", text }]
-            }, type);
-        }
         
         container.scrollTop = container.scrollHeight;
         return messageDiv;
@@ -563,5 +607,43 @@ export default class IntercomModal {
         } else {
             this.makeNewTextBlock(text, "assistant");
         }
+    }
+
+    displaySummary(summary) {
+        const summaryContainer = document.getElementById("summary-container");
+        const settingsSection = document.querySelector(".im-settings-section");
+        
+        // 清空之前的摘要
+        summaryContainer.innerHTML = '';
+        
+        // 创建新的摘要元素
+        const summaryElement = document.createElement("div");
+        summaryElement.className = "im-summary-item";
+        
+        // 构建摘要内容
+        const content = `
+            <div class="im-summary-content">
+                <h4>Current Summary:</h4>
+                <p>${summary.content.summary}</p>
+                
+                <h4>Key Points:</h4>
+                <ul>
+                    ${summary.content.keyPoints.map(point => `<li>${point}</li>`).join("")}
+                </ul>
+                
+                <h4>Context:</h4>
+                <p>${summary.content.context}</p>
+            </div>
+            <div class="im-summary-timestamp">Last updated: ${new Date(summary.timestamp).toLocaleTimeString()}</div>
+        `;
+        
+        summaryElement.innerHTML = content;
+        summaryContainer.appendChild(summaryElement);
+
+        // 确保新的摘要内容可见
+        settingsSection.scrollTo({
+            top: summaryContainer.offsetTop,
+            behavior: 'smooth'
+        });
     }
 }

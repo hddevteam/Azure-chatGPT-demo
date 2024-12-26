@@ -518,3 +518,15 @@ export async function generateChatOptions(message, language) {
         throw error;
     }
 }
+
+export async function generateRealtimeSummary(messages) {
+    try {
+        const response = await axios.post("/realtime-summary", {
+            messages: messages
+        });
+        return response.data;
+    } catch (error) {
+        console.error("生成实时对话摘要时出错:", error);
+        throw error;
+    }
+}
