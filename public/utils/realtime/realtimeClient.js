@@ -105,7 +105,23 @@ export class RealtimeClient {
                 input_audio_transcription: {
                     model: "whisper-1"
                 },
-                tool_choice: "auto"
+                tool_choice: "auto",
+                // 添加时间获取工具
+                tools: [{
+                    type: "function",
+                    name: "get_current_time",
+                    description: "Get the current time in the specified timezone",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            timezone: {
+                                type: "string",
+                                description: "The timezone to get the time in (e.g. 'Asia/Shanghai', 'America/New_York')"
+                            }
+                        },
+                        required: ["timezone"]
+                    }
+                }]
             };
 
             // 合并配置，确保用户配置优先级更高
@@ -145,11 +161,46 @@ export class RealtimeClient {
                 this.currentSummary = initialSummary;
             }
 
+            // 添加函数调用响应处理
+            this.functionHandlers = {
+                get_current_time: this.handleGetCurrentTime.bind(this)
+            };
+
             await this.resetAudio(true);
             return true;
         } catch (error) {
             console.error("Start error:", error);
             return false;
+        }
+    }
+
+    // 处理获取时间的函数调用
+    async handleGetCurrentTime(args) {
+        try {
+            const { timezone } = args;
+            const options = {
+                hour12: false,
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit", 
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            };
+
+            // 如果提供了时区就使用指定时区,否则使用本地时区
+            if (timezone) {
+                options.timeZone = timezone;
+            }
+
+            const time = new Date().toLocaleString("zh-CN", options);
+            return JSON.stringify({ 
+                time,
+                timezone: timezone || Intl.DateTimeFormat().resolvedOptions().timeZone // 返回使用的时区信息
+            });
+        } catch (error) {
+            console.error("Error getting time:", error);
+            return JSON.stringify({ error: "Failed to get time" });
         }
     }
 
@@ -169,6 +220,32 @@ export class RealtimeClient {
     async *getMessages() {
         if (this.client) {
             for await (const message of this.client.messages()) {
+                // 处理函数调用
+                if (message.type === "response.function_call_arguments.done") {
+                    const handler = this.functionHandlers[message.name];
+                    if (handler) {
+                        try {
+                            const args = JSON.parse(message.arguments);
+                            const result = await handler(args);
+                            // 发送函数调用结果
+                            await this.client.send({
+                                type: "conversation.item.create",
+                                item: {
+                                    type: "function_call_output",
+                                    call_id: message.call_id,
+                                    output: result
+                                }
+                            });
+                            
+                            // 发送 response.create 事件以获取 AI 的响应
+                            await this.client.send({
+                                type: "response.create"
+                            });
+                        } catch (error) {
+                            console.error("Function call error:", error);
+                        }
+                    }
+                }
                 if (message.type === "audio") {
                     this.audioPlayer.play(message.audio.buffer);
                 }
