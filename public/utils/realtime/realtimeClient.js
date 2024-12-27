@@ -1,7 +1,7 @@
 import { Player } from "./player.js";
 import { Recorder } from "./recorder.js";
 import { LowLevelRTClient } from "rt-client";
-import { generateRealtimeSummary } from "../api.js";
+import { generateRealtimeSummary, searchBing } from "../api.js";
 
 export class RealtimeClient {
     constructor() {
@@ -121,6 +121,21 @@ export class RealtimeClient {
                         },
                         required: ["timezone"]
                     }
+                },
+                {
+                    type: "function",
+                    name: "search_bing",
+                    description: "Search the internet using Bing Search API",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            query: {
+                                type: "string",
+                                description: "The search query to send to Bing"
+                            }
+                        },
+                        required: ["query"]
+                    }
                 }]
             };
 
@@ -163,7 +178,8 @@ export class RealtimeClient {
 
             // 添加函数调用响应处理
             this.functionHandlers = {
-                get_current_time: this.handleGetCurrentTime.bind(this)
+                get_current_time: this.handleGetCurrentTime.bind(this),
+                search_bing: this.handleBingSearch.bind(this)
             };
 
             await this.resetAudio(true);
@@ -201,6 +217,33 @@ export class RealtimeClient {
         } catch (error) {
             console.error("Error getting time:", error);
             return JSON.stringify({ error: "Failed to get time" });
+        }
+    }
+
+    // 添加Bing搜索处理函数
+    async handleBingSearch(args) {
+        try {
+            const { query } = args;
+            const searchResults = await searchBing(query);
+            console.log("Bing search results:", searchResults);
+            // 将结果格式化为字符串
+            const formattedResults = searchResults
+                .slice(0, 3) // 只返回前3个结果
+                .map((result, index) => {
+                    return `${index + 1}. ${result.title}\n   ${result.snippet}\n   URL: ${result.link}`;
+                })
+                .join("\n\n");
+            
+            return JSON.stringify({
+                query: query,
+                results: formattedResults
+            });
+        } catch (error) {
+            console.error("Bing search error:", error);
+            return JSON.stringify({ 
+                error: "Failed to perform search",
+                details: error.message 
+            });
         }
     }
 

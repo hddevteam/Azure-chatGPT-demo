@@ -14,7 +14,7 @@ const chatHistoryController = require("./controllers/chatHistoryController");
 const messageController = require("./controllers/messageController");
 const audioFileController = require("./controllers/audioFileController");
 const realtimeController = require("./controllers/realtimeController");
-
+const bingController = require("./controllers/bingController");
 
 const router = express.Router();
 
@@ -75,5 +75,8 @@ router.get("/realtime-config", requireAuth, realtimeController.getConfig);
 
 // 添加新的路由
 router.post("/realtime-summary", requireAuth, gptController.generateRealtimeSummary);
+
+// 添加Bing搜索路由
+router.post("/bing-search", requireAuth, bingController.search);
 
 module.exports = router;

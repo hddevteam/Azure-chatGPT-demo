@@ -530,3 +530,13 @@ export async function generateRealtimeSummary(messages) {
         throw error;
     }
 }
+
+export async function searchBing(query) {
+    try {
+        const response = await axios.post("/bing-search", { query });
+        return response.data;
+    } catch (error) {
+        console.error("Bing search error:", error);
+        throw error;
+    }
+}
