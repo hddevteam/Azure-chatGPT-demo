@@ -35,3 +35,7 @@ EXPRESS_SESSION_SECRET=Enter_the_Express_Session_Secret_Here
 GPT_4O_REALTIME_API_URL=https://yourserver.openai.azure.com/openai/realtime?api-version=2024-10-01-preview&deployment=yourdeployment
 GPT_4O_REALTIME_API_KEY=your-gpt4o-realtime-key
 GPT_4O_REALTIME_DEPLOYMENT=yourdeployment
+
+BING_SEARCH_API_KEY=your-bing-search-key
+BING_SEARCH_API_URL=https://api.bing.microsoft.com/
+BING_SEARCH_API_LOCALE=global
