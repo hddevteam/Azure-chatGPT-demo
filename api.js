@@ -38,6 +38,9 @@ router.post("/generate-followup-questions", requireAuth, gptController.generateF
 
 router.post("/generate-chat-options", requireAuth, gptController.generateChatOptions);
 
+// 添加新的路由
+router.post("/generate-system-prompt", requireAuth, gptController.generateSystemPrompt);
+
 router.get("/profiles", requireAuth, profileController.getProfiles);
 router.post("/profiles", requireAuth, profileController.createProfile);
 router.put("/profiles/:name", requireAuth, profileController.updateProfile);

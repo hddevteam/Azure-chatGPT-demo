@@ -1,5 +1,5 @@
 import { RealtimeClient } from "../utils/realtime/realtimeClient.js";
-import { fetchRealtimeConfig } from "../utils/api.js";
+import { fetchRealtimeConfig, generateSystemPrompt } from "../utils/api.js";
 
 
 export default class IntercomModal {
@@ -78,10 +78,15 @@ export default class IntercomModal {
             <div class="im-container">
               <div class="im-input-group">
                 <label for="session-instructions" class="im-label">System Instructions</label>
-                <textarea id="session-instructions" 
-                  class="im-textarea" 
-                  placeholder="Optional conversation instruction, e.g.: 'Talk like a pirate'" 
-                  rows="4"></textarea>
+                <div class="im-textarea-group">
+                  <textarea id="session-instructions" 
+                    class="im-textarea" 
+                    placeholder="Optional conversation instruction, e.g.: 'Talk like a pirate'" 
+                    rows="4"></textarea>
+                  <button id="im-generate-prompt" class="im-button im-button-secondary">
+                    <i class="fas fa-magic"></i> Generate Prompt
+                  </button>
+                </div>
               </div>
 
               <div class="im-input-group">
@@ -268,6 +273,33 @@ export default class IntercomModal {
                 }
             } else {
                 e.target.value = this.messageLimit;
+            }
+        });
+
+        // 为生成提示按钮添加事件监听
+        const generatePromptBtn = document.getElementById("im-generate-prompt");
+        const instructionsTextarea = document.getElementById("session-instructions");
+
+        generatePromptBtn.addEventListener("click", async () => {
+            const context = instructionsTextarea.value.trim();
+            if (!context) {
+                swal("Input Required", "Please describe the conversation style or scenario in the input box.", "warning");
+                return;
+            }
+
+            try {
+                generatePromptBtn.disabled = true;
+                generatePromptBtn.innerHTML = "<i class=\"fas fa-spinner fa-spin\"></i> Generating...";
+            
+                const { prompt } = await generateSystemPrompt(context);
+                instructionsTextarea.value = prompt;
+
+            } catch (error) {
+                console.error("Failed to generate prompt:", error);
+                swal("Generation Failed", error.message || "Error occurred while generating system prompt", "error");
+            } finally {
+                generatePromptBtn.disabled = false;
+                generatePromptBtn.innerHTML = "<i class=\"fas fa-magic\"></i> Generate Prompt";
             }
         });
     }

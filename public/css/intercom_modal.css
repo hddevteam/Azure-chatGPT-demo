@@ -294,6 +294,7 @@
   resize: vertical;
   font-size: 14px;
   transition: border-color 0.3s;
+  width: 100%;
 }
 
 .im-textarea:focus {
@@ -896,4 +897,21 @@
 /* 当有摘要时显示摘要部分 */
 .has-summary .im-summary-section {
     display: block;
+}
+
+
+.im-textarea-group .im-button {
+    padding: 6px 12px;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.im-textarea-group .im-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.im-textarea-group .im-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }

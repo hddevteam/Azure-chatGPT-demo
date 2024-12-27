@@ -540,3 +540,15 @@ export async function searchBing(query) {
         throw error;
     }
 }
+
+export async function generateSystemPrompt(context) {
+    try {
+        const response = await axios.post("/generate-system-prompt", {
+            context
+        });
+        return response.data;
+    } catch (error) {
+        console.error("生成系统提示时出错:", error);
+        throw error;
+    }
+}
