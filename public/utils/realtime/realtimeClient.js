@@ -109,16 +109,16 @@ export class RealtimeClient {
                 tools: [{
                     type: "function",
                     name: "get_current_time",
-                    description: "Get the current time in the specified timezone",
+                    description: "Get the current time in the specified timezone, if no timezone specified, use browser's timezone",
                     parameters: {
                         type: "object",
                         properties: {
                             timezone: {
                                 type: "string",
-                                description: "The timezone to get the time in (e.g. 'Asia/Shanghai', 'America/New_York')"
+                                description: "The timezone to get the time in (e.g. 'Asia/Shanghai', 'America/New_York'). Optional - will use browser timezone if not specified."
                             }
                         },
-                        required: ["timezone"]
+                        required: []
                     }
                 },
                 {
@@ -192,6 +192,9 @@ export class RealtimeClient {
     async handleGetCurrentTime(args) {
         try {
             const { timezone } = args;
+            const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            console.log("Getting time for timezone:", timezone || browserTimezone);
+            
             const options = {
                 hour12: false,
                 year: "numeric",
@@ -199,22 +202,22 @@ export class RealtimeClient {
                 day: "2-digit", 
                 hour: "2-digit",
                 minute: "2-digit",
-                second: "2-digit"
+                second: "2-digit",
+                timeZone: timezone || browserTimezone // 如果没有指定时区，使用浏览器时区
             };
 
-            // Use specified timezone if provided, otherwise use local timezone
-            if (timezone) {
-                options.timeZone = timezone;
-            }
-
-            const time = new Date().toLocaleString(navigator.language || Intl.DateTimeFormat().resolvedOptions().locale, options);
+            const time = new Date().toLocaleString(navigator.language, options);
             return JSON.stringify({ 
                 time,
-                timezone: timezone || Intl.DateTimeFormat().resolvedOptions().timeZone // Return the timezone information used
+                timezone: options.timeZone,
+                isDefaultTimezone: !timezone
             });
         } catch (error) {
             console.error("Error getting time:", error);
-            return JSON.stringify({ error: "Failed to get time" });
+            return JSON.stringify({ 
+                error: "Failed to get time",
+                browserTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            });
         }
     }
 
@@ -224,11 +227,11 @@ export class RealtimeClient {
             const { query } = args;
             const searchResults = await searchBing(query);
             console.log("Bing search results:", searchResults);
-            // Format the results as a string
+            // Format the results as a string，移除 URL
             const formattedResults = searchResults
-                .slice(0, 3) // Only return the top 3 results
+                .slice(0, 5) 
                 .map((result, index) => {
-                    return `${index + 1}. ${result.title}\n   ${result.snippet}\n   URL: ${result.link}`;
+                    return `${index + 1}. ${result.title}\n   ${result.snippet}`;
                 })
                 .join("\n\n");
             
