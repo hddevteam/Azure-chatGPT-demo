@@ -21,13 +21,12 @@ const bingController = {
                 { headers, params }
             );
 
-            // 格式化搜索结果
             const results = response.data.webPages.value.map(result => ({
                 title: result.name,
                 link: result.url,
                 snippet: result.snippet
             }));
-
+            console.log("Bing search results:", results);
             res.json(results);
             
         } catch (error) {

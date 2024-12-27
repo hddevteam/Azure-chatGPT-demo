@@ -7,7 +7,7 @@ export default class IntercomModal {
         this.modal = null;
         this.wakeLock = null;
         this.noSleep = null; 
-        this.messageLimit = 10;  // limit message history
+        this.messageLimit = 10;  
         this.init();
     }
 
@@ -182,16 +182,16 @@ export default class IntercomModal {
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
             
-            // 生成新的随机目标位置
+            // Generate new random target position
             tgX = Math.random() * viewportWidth;
             tgY = Math.random() * viewportHeight;
             
-            // 3-7秒后再次移动到新位置
+            // Move to a new position after 3-7 seconds
             setTimeout(moveToRandomPosition, 3000 + Math.random() * 4000);
         };
 
         const animate = () => {
-            // 平滑过渡到目标位置
+            // Smooth transition to target position
             curX += (tgX - curX) / 20;
             curY += (tgY - curY) / 20;
             
@@ -202,7 +202,7 @@ export default class IntercomModal {
             requestAnimationFrame(animate);
         };
 
-        // 开始动画
+        // Start animation
         moveToRandomPosition();
         animate();
     }
@@ -217,7 +217,7 @@ export default class IntercomModal {
         
         closeBtn.addEventListener("click", () => this.hideModal());
         
-        // 新的录音按钮事件处理
+        // New record button event handler
         recordBtn.addEventListener("click", async () => {
             if (!this.recordingActive) {
                 recordBtn.classList.add("recording");
@@ -331,11 +331,11 @@ export default class IntercomModal {
     async startRealtime(config) {
         try {
             this.recordingActive = true;
-            // 添加录音状态类到根元素
+            // Add recording state class to root element
             this.modal.classList.add("recording-active");
             document.querySelector(".im-text-container").classList.add("recording-active");
             
-            // 添加初始化提示消息
+            // Add initialization prompt message
             this.makeNewTextBlock("Initializing AI connection. Please wait...", "assistant");
             
             await this.acquireWakeLock();
@@ -386,7 +386,7 @@ export default class IntercomModal {
         this.modal.classList.remove("recording-active");
         document.querySelector(".im-text-container").classList.remove("recording-active");
         
-        // 清理可能存在的语音指示器
+        // Clear any existing speech indicators
         if (this.latestInputSpeechBlock) {
             const content = this.latestInputSpeechBlock.querySelector(".im-message-content");
             if (content && content.querySelector(".speech-indicator")) {
@@ -461,7 +461,7 @@ export default class IntercomModal {
                 const transcriptText = message.transcript;
                 content.textContent = transcriptText;
                     
-                // 存储转录后的文本
+                // Store transcribed text
                 if (this.realtimeClient) {
                     this.realtimeClient.addMessageToHistory({
                         id: message.item_id,
@@ -482,12 +482,12 @@ export default class IntercomModal {
             break;
 
         case "response.output_item.done":
-            // 删除对消息处理的部分，因为这不是最终状态
+            // Remove message handling part as this is not the final state
             break;
 
         case "response.done":
             if (this.realtimeClient && message.response?.output) {
-                // 只处理完成状态的消息
+                // Only handle completed state messages
                 const completedMessages = message.response.output.filter(
                     item => item.type === "message" && 
                         item.status === "completed" &&
@@ -508,7 +508,7 @@ export default class IntercomModal {
                     }
                 }
 
-                // 显示当前会话统计
+                // Display current session stats
                 const stats = this.realtimeClient.getSessionStats();
                 console.log("Response completed. Session stats:", {
                     messages: `${stats.messageCount}/${stats.messageLimit || "∞"}`,
@@ -519,7 +519,7 @@ export default class IntercomModal {
                     }
                 });
 
-                // 获取并显示最新的摘要
+                // Get and display the latest summary
                 if (this.realtimeClient.currentSummary) {
                     this.displaySummary(this.realtimeClient.currentSummary);
                 }
@@ -541,7 +541,6 @@ export default class IntercomModal {
 
         case "session.updated":
             console.log("Session updated with config:", message.session);
-            // 可以在这里验证配置是否正确应用
             if (message.session.turn_detection) {
                 console.log("Turn detection settings:", message.session.turn_detection);
             }
@@ -580,7 +579,6 @@ export default class IntercomModal {
         
         const contentDiv = document.createElement("div");
         contentDiv.className = "im-message-content";
-        // 不要检查 text.trim()，让空文本也能创建消息块
         contentDiv.innerHTML = text;
         
         const metaDiv = document.createElement("div");
@@ -613,14 +611,14 @@ export default class IntercomModal {
         const summaryContainer = document.getElementById("summary-container");
         const settingsSection = document.querySelector(".im-settings-section");
         
-        // 清空之前的摘要
-        summaryContainer.innerHTML = '';
+        // Clear previous summary
+        summaryContainer.innerHTML = "";
         
-        // 创建新的摘要元素
+        // Create new summary element
         const summaryElement = document.createElement("div");
         summaryElement.className = "im-summary-item";
         
-        // 构建摘要内容
+        // Build summary content
         const content = `
             <div class="im-summary-content">
                 <h4>Current Summary:</h4>
@@ -640,10 +638,10 @@ export default class IntercomModal {
         summaryElement.innerHTML = content;
         summaryContainer.appendChild(summaryElement);
 
-        // 确保新的摘要内容可见
+        // Ensure new summary content is visible
         settingsSection.scrollTo({
             top: summaryContainer.offsetTop,
-            behavior: 'smooth'
+            behavior: "smooth"
         });
     }
 }

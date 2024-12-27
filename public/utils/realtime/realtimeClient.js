@@ -15,13 +15,13 @@ export class RealtimeClient {
         this.totalTokens = 0; // total token number
         this.inputTokens = 0; // input token number
         this.outputTokens = 0; // output token number
-        this.currentSummary = null; // 只保存当前摘要，替换之前的 summarizedMessages 数组
-        this.lastSummaryTime = null; // 上次摘要时间
-        this.lastSummaryTokens = 0; // 上次摘要的token数
-        this.originalInstructions = null; // 保存初始instructions
-        this.lastSummaryIndex = 0; // 记录上次摘要的位置
-        this.summaryRatio = 0.8; // 触发摘要的比例(80%)
-        this.initialContext = null; // 添加初始上下文存储
+        this.currentSummary = null; // Only save the current summary, replacing the previous summarizedMessages array
+        this.lastSummaryTime = null; // Last summary time
+        this.lastSummaryTokens = 0; // Number of tokens in the last summary
+        this.originalInstructions = null; // Save initial instructions
+        this.lastSummaryIndex = 0; // Record the position of the last summary
+        this.summaryRatio = 0.8; // Ratio to trigger summary (80%)
+        this.initialContext = null; // Add initial context storage
     }
 
     // add audio buffer processing function
@@ -47,7 +47,7 @@ export class RealtimeClient {
             );
         }
 
-        // 初始化音频
+        // Initialize audio
         await this.resetAudio(false);
     }
 
@@ -97,7 +97,7 @@ export class RealtimeClient {
 
     async start(config) {
         try {
-            // 创建基础配置
+            // Create base configuration
             const baseConfig = {
                 modalities: ["text", "audio"],
                 input_audio_format: "pcm16",
@@ -106,7 +106,6 @@ export class RealtimeClient {
                     model: "whisper-1"
                 },
                 tool_choice: "auto",
-                // 添加时间获取工具
                 tools: [{
                     type: "function",
                     name: "get_current_time",
@@ -139,11 +138,10 @@ export class RealtimeClient {
                 }]
             };
 
-            // 合并配置，确保用户配置优先级更高
             const sessionConfig = {
                 ...baseConfig,
                 ...config,
-                // 如果用户提供了 turn_detection，使用用户的配置
+                // Use user's turn_detection config if provided
                 turn_detection: config.turn_detection || {
                     type: "server_vad",
                     threshold: 0.5,
@@ -158,9 +156,9 @@ export class RealtimeClient {
             });
             
             this.originalInstructions = config.instructions;
-            this.initialContext = config.instructions; // 保存初始上下文
+            this.initialContext = config.instructions; // Save initial context
             
-            // 创建初始摘要
+            // Create initial summary
             if (config.instructions) {
                 const initialSummary = {
                     id: `summary-init-${Date.now()}`,
@@ -176,7 +174,7 @@ export class RealtimeClient {
                 this.currentSummary = initialSummary;
             }
 
-            // 添加函数调用响应处理
+            // Add function call response handling
             this.functionHandlers = {
                 get_current_time: this.handleGetCurrentTime.bind(this),
                 search_bing: this.handleBingSearch.bind(this)
@@ -190,7 +188,7 @@ export class RealtimeClient {
         }
     }
 
-    // 处理获取时间的函数调用
+    // Handle get current time function call
     async handleGetCurrentTime(args) {
         try {
             const { timezone } = args;
@@ -204,15 +202,15 @@ export class RealtimeClient {
                 second: "2-digit"
             };
 
-            // 如果提供了时区就使用指定时区,否则使用本地时区
+            // Use specified timezone if provided, otherwise use local timezone
             if (timezone) {
                 options.timeZone = timezone;
             }
 
-            const time = new Date().toLocaleString("zh-CN", options);
+            const time = new Date().toLocaleString(navigator.language || Intl.DateTimeFormat().resolvedOptions().locale, options);
             return JSON.stringify({ 
                 time,
-                timezone: timezone || Intl.DateTimeFormat().resolvedOptions().timeZone // 返回使用的时区信息
+                timezone: timezone || Intl.DateTimeFormat().resolvedOptions().timeZone // Return the timezone information used
             });
         } catch (error) {
             console.error("Error getting time:", error);
@@ -220,15 +218,15 @@ export class RealtimeClient {
         }
     }
 
-    // 添加Bing搜索处理函数
+    // Add Bing search handling function
     async handleBingSearch(args) {
         try {
             const { query } = args;
             const searchResults = await searchBing(query);
             console.log("Bing search results:", searchResults);
-            // 将结果格式化为字符串
+            // Format the results as a string
             const formattedResults = searchResults
-                .slice(0, 3) // 只返回前3个结果
+                .slice(0, 3) // Only return the top 3 results
                 .map((result, index) => {
                     return `${index + 1}. ${result.title}\n   ${result.snippet}\n   URL: ${result.link}`;
                 })
@@ -263,14 +261,14 @@ export class RealtimeClient {
     async *getMessages() {
         if (this.client) {
             for await (const message of this.client.messages()) {
-                // 处理函数调用
+                // Handle function call
                 if (message.type === "response.function_call_arguments.done") {
                     const handler = this.functionHandlers[message.name];
                     if (handler) {
                         try {
                             const args = JSON.parse(message.arguments);
                             const result = await handler(args);
-                            // 发送函数调用结果
+                            // Send function call result
                             await this.client.send({
                                 type: "conversation.item.create",
                                 item: {
@@ -280,7 +278,7 @@ export class RealtimeClient {
                                 }
                             });
                             
-                            // 发送 response.create 事件以获取 AI 的响应
+                            // Send response.create event to get AI's response
                             await this.client.send({
                                 type: "response.create"
                             });
@@ -315,7 +313,6 @@ export class RealtimeClient {
 
     async generateSummary(messages) {
         try {
-            // 将消息转换为 Markdown 格式
             const markdownContent = this.convertToMarkdown(messages);
             console.log("Markdown formatted content:", markdownContent);
 
@@ -340,13 +337,13 @@ export class RealtimeClient {
     convertToMarkdown(messages) {
         const sections = [];
 
-        // 1. 添加之前的摘要部分
+        // 1. Add previous summary section
         const previousSummary = messages.find(msg => msg.role === "Previous Summary");
         if (previousSummary) {
             sections.push(`## Previous Summary\n\n${previousSummary.content}\n`);
         }
 
-        // 2. 添加当前对话部分
+        // 2. Add current conversation section
         const currentMessages = messages.filter(msg => msg.role !== "Previous Summary");
         if (currentMessages.length > 0) {
             sections.push("## Current Conversation\n");
@@ -362,11 +359,11 @@ export class RealtimeClient {
     async pruneMessageHistory() {
         if (this.messageLimit === 0) return;
         
-        // 1. 检查是否需要删除多余的消息
+        // 1. Check if excess messages need to be deleted
         const excessMessages = this.messageHistory.length - this.messageLimit;
         if (excessMessages > 0) {
-            // 获取已被总结过的消息
-            // 注意：由于删除消息会影响索引，我们需要记录消息的相对位置
+            // Get messages that have been summarized
+            // Note: Since deleting messages affects indices, we need to record the relative position of messages
             const summarizedMessageIds = this.messageHistory
                 .slice(0, this.lastSummaryIndex)
                 .map(msg => msg.id)
@@ -374,7 +371,7 @@ export class RealtimeClient {
 
             console.log(`Messages already summarized: ${summarizedMessageIds.length}`);
             
-            // 只删除已被总结过的消息，且最多删除 excessMessages 条
+            // Only delete messages that have been summarized, and delete up to excessMessages
             const messagesToDelete = this.messageHistory
                 .filter(msg => summarizedMessageIds.includes(msg.id))
                 .slice(0, excessMessages);
@@ -382,12 +379,12 @@ export class RealtimeClient {
             if (messagesToDelete.length > 0) {
                 console.log(`Deleting ${messagesToDelete.length} summarized messages...`);
                 
-                // 记录删除前的状态
+                // Record the state before deletion
                 const deletedIndices = messagesToDelete.map(msg => 
                     this.messageHistory.findIndex(m => m.id === msg.id)
                 ).sort((a, b) => a - b);
                 
-                // 批量删除消息
+                // Batch delete messages
                 for (const msg of messagesToDelete) {
                     try {
                         await this.client.send({
@@ -395,7 +392,7 @@ export class RealtimeClient {
                             item_id: msg.id
                         });
                         
-                        // 从本地历史记录中移除
+                        // Remove from local history
                         const index = this.messageHistory.findIndex(m => m.id === msg.id);
                         if (index !== -1) {
                             this.messageHistory.splice(index, 1);
@@ -405,8 +402,8 @@ export class RealtimeClient {
                     }
                 }
 
-                // 重新计算 lastSummaryIndex
-                // 计算有多少个被删除的消息位于 lastSummaryIndex 之前
+                // Recalculate lastSummaryIndex
+                // Calculate how many deleted messages were before lastSummaryIndex
                 const deletedBeforeSummary = deletedIndices.filter(index => index < this.lastSummaryIndex).length;
                 this.lastSummaryIndex = Math.max(0, this.lastSummaryIndex - deletedBeforeSummary);
                 
@@ -416,12 +413,12 @@ export class RealtimeClient {
             }
         }
 
-        // 2. 检查是否需要生成新的摘要
+        // 2. Check if a new summary needs to be generated
         if (this.shouldGenerateSummary()) {
-            // 准备摘要内容
+            // Prepare summary content
             const allContentToSummarize = [];
             
-            // 添加之前的摘要内容
+            // Add previous summary content
             if (this.currentSummary) {
                 allContentToSummarize.push({
                     role: "Previous Summary",
@@ -429,7 +426,7 @@ export class RealtimeClient {
                 });
             }
             
-            // 添加新消息内容
+            // Add new message content
             const newMessages = this.messageHistory.slice(this.lastSummaryIndex);
             const processedNewMessages = newMessages
                 .filter(msg => msg.text && msg.text.trim() !== "")
@@ -444,7 +441,7 @@ export class RealtimeClient {
                 const summaryResult = await this.generateSummary(allContentToSummarize);
                 
                 if (summaryResult) {
-                    // 更新当前摘要，保留初始上下文
+                    // Update current summary, retaining initial context
                     this.currentSummary = {
                         id: `summary-${Date.now()}`,
                         type: "summary",
@@ -458,12 +455,12 @@ export class RealtimeClient {
                     };
                     console.log("Summary updated:", this.currentSummary);
 
-                    // 更新摘要相关状态
+                    // Update summary-related state
                     this.lastSummaryIndex = this.messageHistory.length;
                     this.lastSummaryTime = Date.now();
                     this.lastSummaryTokens = summaryResult.tokens;
 
-                    // 更新系统指令
+                    // Update system instructions
                     const updatedInstructions = this.buildUpdatedInstructions(summaryResult);
                     if (!this.isGeneratingResponse) {
                         await this.client.send({
@@ -481,13 +478,13 @@ export class RealtimeClient {
     shouldGenerateSummary() {
         if (this.messageLimit === 0) return false;
         
-        // 计算自上次摘要后的新消息数量
+        // Calculate the number of new messages since the last summary
         const newMessagesCount = this.messageHistory.length - this.lastSummaryIndex;
         
-        // 计算动态阈值 (messageLimit的80%)
+        // Calculate dynamic threshold (80% of messageLimit)
         const dynamicThreshold = Math.floor(this.messageLimit * this.summaryRatio);
         
-        // 如果新消息数量达到阈值或者总消息数量超过限制，就需要生成摘要
+        // If the number of new messages reaches the threshold or the total number of messages exceeds the limit, a summary needs to be generated
         return newMessagesCount >= dynamicThreshold || 
                this.messageHistory.length > this.messageLimit;
     }
@@ -495,7 +492,7 @@ export class RealtimeClient {
     extractMessageContent(message) {
         if (!message) return null;
 
-        // 处理不同类型的消息内容
+        // Handle different types of message content
         if (message.rawContent) {
             return message.rawContent.map(content => {
                 if (content.type === "text") return content.text;
@@ -505,7 +502,7 @@ export class RealtimeClient {
             }).filter(Boolean).join(" ");
         }
 
-        // 如果是直接的文本内容
+        // If it is direct text content
         if (typeof message.content === "string") {
             return message.content;
         }
@@ -514,26 +511,26 @@ export class RealtimeClient {
     }
 
     addMessageToHistory(messageData) {
-        // 只有有效的服务器端消息才添加到历史记录
+        // Only add valid server-side messages to history
         if (!messageData.id || messageData.status === "in_progress") {
             console.log("[Message Skipped] Invalid message:", messageData);
             return;
         }
 
-        // 检查消息是否已存在
+        // Check if the message already exists
         const existingMessageIndex = this.messageHistory.findIndex(msg => msg.id === messageData.id);
         if (existingMessageIndex !== -1) {
             const existingMessage = this.messageHistory[existingMessageIndex];
             const existingText = existingMessage.text || "";
             const newText = messageData.text || "";
             
-            // 如果新消息内容不同于现有消息
+            // If the new message content is different from the existing message
             if (existingText !== newText) {
                 console.log(`[Message Updated] ID: ${messageData.id}`);
                 console.log("- Old text:", existingText);
                 console.log("- New text:", newText);
                 
-                // 更新现有消息的内容
+                // Update the content of the existing message
                 this.messageHistory[existingMessageIndex] = {
                     ...existingMessage,
                     text: newText,
@@ -546,13 +543,13 @@ export class RealtimeClient {
             return;
         }
 
-        // 检查消息内容的有效性
+        // Check the validity of the message content
         if (!this.validateMessageContent(messageData)) {
             console.log("[Message Invalid] Missing required content:", messageData);
             return;
         }
 
-        // 添加消息到历史记录
+        // Add message to history
         this.messageHistory.push({
             ...messageData,
             createdAt: new Date(),
@@ -572,12 +569,12 @@ export class RealtimeClient {
     }
 
     validateMessageContent(messageData) {
-        // 验证消息内容
+        // Validate message content
         if (!messageData.type || !messageData.content) {
             return false;
         }
 
-        // 确保文本内容存在
+        // Ensure text content exists
         if (Array.isArray(messageData.content)) {
             const hasValidContent = messageData.content.some(item => {
                 return (item.type === "text" && item.text) || 
@@ -590,7 +587,7 @@ export class RealtimeClient {
         return false;
     }
 
-    // 更新使用情况统计
+    // Update usage statistics
     updateUsageStats(usage) {
         if (usage) {
             const prevTotal = this.totalTokens;
@@ -604,7 +601,7 @@ export class RealtimeClient {
         }
     }
 
-    // 更新速率限制信息
+    // Update rate limit information
     updateRateLimits(rateLimits) {
         if (rateLimits) {
             console.log("Rate limits status:", rateLimits.map(limit => 
@@ -613,7 +610,7 @@ export class RealtimeClient {
         }
     }
 
-    // 处理消息删除确认
+    // Handle message deletion confirmation
     handleMessageDeleted(itemId) {
         const index = this.messageHistory.findIndex(msg => msg.id === itemId);
         if (index !== -1) {
@@ -624,7 +621,7 @@ export class RealtimeClient {
         }
     }
 
-    // 获取当前会话统计信息
+    // Get current session statistics
     getSessionStats() {
         return {
             messageCount: this.messageHistory.length,
@@ -636,15 +633,15 @@ export class RealtimeClient {
     }
 
     buildUpdatedInstructions(summaryResult) {
-        // 始终以原始指令开头，保持初始上下文
+        // Always start with the original instructions to maintain initial context
         const instructions = [];
         
-        // 1. 添加原始指令
+        // 1. Add original instructions
         if (this.originalInstructions) {
             instructions.push(this.originalInstructions);
         }
         
-        // 2. 添加当前总结
+        // 2. Add current summary
         instructions.push(`
 Current Conversation Summary:
 ${summaryResult.summary}
@@ -657,7 +654,7 @@ ${summaryResult.context}
 
 Please continue the conversation while maintaining consistency with the above context and key points.`);
 
-        // 返回组合后的指令
+        // Return the combined instructions
         return instructions.join("\n\n").trim();
     }
 }
