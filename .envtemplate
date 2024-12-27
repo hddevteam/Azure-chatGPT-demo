@@ -31,3 +31,7 @@ POST_LOGOUT_REDIRECT_URI=your-azure-post-logout-redirect-uri
 SCOPES=your-app-api-scope
 GRAPH_API_ENDPOINT=https://graph.microsoft.com/ # graph api endpoint string should end with a trailing slash
 EXPRESS_SESSION_SECRET=Enter_the_Express_Session_Secret_Here
+
+GPT_4O_REALTIME_API_URL=https://yourserver.openai.azure.com/openai/realtime?api-version=2024-10-01-preview&deployment=yourdeployment
+GPT_4O_REALTIME_API_KEY=your-gpt4o-realtime-key
+GPT_4O_REALTIME_DEPLOYMENT=yourdeployment

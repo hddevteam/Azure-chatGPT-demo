@@ -4,12 +4,15 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
 
 ## 📺 What's new in the current version
 - **✨Support PWA (Progressive Web App)✨**
+![GPT4O Realtime Chat Desktop Screenshot](screenshot_realtime_desktop.png)
+![GPT4O Realtime Chat Mobile Screenshot](screenshot_realtime_mobile.png)
 ![Dekstop Screenshot](screenshot_desktop.png)
 ![Desktop Screenshot](screenshot_desktop_focus_mode.png)
 ![Optimize for mobile](screenshot_mobile.png)
 ![Audio file transcription](screenshot_desktop_stt_batch.png)
 
-- **🎉Support for o1/o1-mini🎉**
+- **🎉Support for GPT-4O Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview-3🎉**
+- **🎉Support for o1/o1-mini/GPT-4O/GPT-4O-mini🎉**
 - **🎉Support question generation mode - enhances conversation quality by automatically generating structured options to guide your inquiries, leading to higher quality AI responses. When enabled, each of your questions will include multiple focused options to choose from, helping you get more precise and relevant answers.🎉**
 ![Question generation mode](screenshot_options_generate.png)
 - **Split view for an enhanced conversation experience, especially useful when you need to edit long messages.**
@@ -59,6 +62,9 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
    O1_MINI_API_KEY=your-o1-mini-key
    O1_API_URL=https://yourserver.openai.azure.com/openai/deployments/o1-preview/chat/completions?api-version=2024-12-01-preview
    O1_API_KEY=your-o1-key
+   GPT_4O_REALTIME_API_URL=https://yourserver.openai.azure.com/openai/realtime?api-version=2024-10-01-preview&deployment=yourdeployment
+   GPT_4O_REALTIME_API_KEY=your-gpt4o-realtime-key
+   GPT_4O_REALTIME_DEPLOYMENT=yourdeployment
    AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
    ```
 
