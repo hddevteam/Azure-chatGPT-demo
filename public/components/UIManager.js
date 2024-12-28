@@ -68,6 +68,7 @@ class UIManager {
             });
         document.getElementById("new-ai-actor").addEventListener("click", this.showNewAIActorModal.bind(this));
         this.intercomModal = new IntercomModal();
+        this.intercomModal.setUIManager(this); // 在初始化时设置 UIManager 引用
         this.setupIntercomHandler();
     }
 

@@ -1,5 +1,6 @@
 import { RealtimeClient } from "../utils/realtime/realtimeClient.js";
 import { fetchRealtimeConfig, generateSystemPrompt } from "../utils/api.js";
+import { ConversationSummaryHelper } from "../utils/ConversationSummaryHelper.js";
 
 
 export default class IntercomModal {
@@ -9,7 +10,13 @@ export default class IntercomModal {
         this.noSleep = null; 
         this.messageLimit = 10;  
         this.pttEnabled = false; // ptt mode disabled by default
+        this.uiManager = null; // Add UIManager reference
         this.init();
+    }
+
+    // Add method to set UIManager reference
+    setUIManager(uiManager) {
+        this.uiManager = uiManager;
     }
 
     init() {
@@ -333,11 +340,75 @@ export default class IntercomModal {
         });
     }
 
-    showModal() {
+    async showModal() {
         this.modal.style.display = "block";
+        console.log("Showing Intercom modal");
+        
+        if (this.uiManager) {
+            const currentProfile = this.uiManager.storageManager.getCurrentProfile();
+            const instructionsTextarea = document.getElementById("session-instructions");
+            const summaryContainer = document.getElementById("summary-container");
+            
+            // Set current profile's prompt as system instructions
+            instructionsTextarea.value = currentProfile.prompt;
+            
+            const messages = this.uiManager.storageManager.getMessages(this.uiManager.currentChatId);
+            
+            if (messages.length > 0) {
+                try {
+                    // Initialize RealtimeClient if needed
+                    if (!this.realtimeClient) {
+                        this.realtimeClient = new RealtimeClient();
+                        await this.realtimeClient.initialize(
+                            this.config.endpoint,
+                            this.config.apiKey, 
+                            this.config.deployment
+                        );
+                    }
+
+                    const summaryResult = await ConversationSummaryHelper.generateSummary(
+                        messages, 
+                        this.realtimeClient
+                    );
+
+                    if (summaryResult) {
+                        const summaryContent = {
+                            id: `summary-${Date.now()}`,
+                            type: "summary",
+                            content: {
+                                summary: summaryResult.summary,
+                                keyPoints: summaryResult.keyPoints,
+                                context: `${currentProfile.prompt}\n\nCurrent Context: ${summaryResult.context}`
+                            },
+                            timestamp: new Date()
+                        };
+                        
+                        this.displaySummary(summaryContent);
+
+                        const updatedInstructions = ConversationSummaryHelper.buildUpdatedInstructions(
+                            currentProfile.prompt, 
+                            summaryResult
+                        );
+                        instructionsTextarea.value = updatedInstructions;
+                    }
+                } catch (error) {
+                    console.error("Failed to process summary:", error);
+                    summaryContainer.innerHTML = `<div class="error">Failed to generate conversation summary: ${error.message}</div>`;
+                }
+            } else {
+                summaryContainer.innerHTML = "";
+            }
+        }
     }
 
     hideModal() {
+        // Stop realtime chat if it's active
+        if (this.recordingActive) {
+            const recordBtn = document.getElementById("record-button");
+            recordBtn.classList.remove("recording");
+            this.stopRealtime();
+        }
+        
         this.releaseWakeLock();
         this.modal.style.display = "none";
     }
@@ -473,6 +544,45 @@ export default class IntercomModal {
         </span>`;
     }
 
+    // 添加新的辅助方法来处理消息同步
+    syncMessageToUIManager(messageData) {
+        if (!this.uiManager) return;
+
+        const newMessage = {
+            role: messageData.type || messageData.role,
+            content: messageData.text || messageData.content,
+            messageId: messageData.id,
+            isActive: true,
+            timestamp: new Date().toISOString()
+        };
+
+        // 添加消息到UI
+        this.uiManager.messageManager.addMessage(
+            newMessage.role,
+            newMessage.content,
+            newMessage.messageId,
+            newMessage.isActive
+        );
+
+        // 保存到存储
+        this.uiManager.storageManager.saveMessage(
+            this.uiManager.currentChatId,
+            newMessage
+        );
+
+        // 同步到服务器
+        this.uiManager.syncManager.syncMessageCreate(
+            this.uiManager.currentChatId,
+            newMessage
+        );
+
+        // 更新聊天历史
+        this.uiManager.chatHistoryManager.updateChatHistory(
+            this.uiManager.currentChatId,
+            true
+        );
+    }
+
     handleRealtimeMessage(message) {
         // console.log("Received message:", message);
         
@@ -520,14 +630,15 @@ export default class IntercomModal {
         }
 
         case "conversation.item.input_audio_transcription.completed":
+            console.log("handleRealtimeMessage input_audio_transcription.completed:", message);
             if (this.latestInputSpeechBlock && message.transcript && message.item_id) {
                 const content = this.latestInputSpeechBlock.querySelector(".im-message-content");
                 const transcriptText = message.transcript;
                 content.textContent = transcriptText;
                     
-                // Store transcribed text
+                // Store transcribed text and sync with UI Manager
                 if (this.realtimeClient) {
-                    this.realtimeClient.addMessageToHistory({
+                    const messageData = {
                         id: message.item_id,
                         type: "user",
                         timestamp: new Date(),
@@ -537,12 +648,17 @@ export default class IntercomModal {
                             transcript: transcriptText
                         }],
                         status: "completed"
-                    });
-                }
+                    };
+
+                    // 添加到 realtime 历史记录
+                    this.realtimeClient.addMessageToHistory(messageData);
                     
+                    // 同步到 UI Manager
+                    this.syncMessageToUIManager(messageData);
+                }
                 this.latestInputSpeechBlock = null;
             }
-            this.makeNewTextBlock("", "assistant"); // create a new block for assistant response
+            this.makeNewTextBlock("", "assistant"); // 为助手响应创建新块
             break;
 
         case "response.output_item.done":
@@ -550,6 +666,7 @@ export default class IntercomModal {
             break;
 
         case "response.done":
+            console.log("handleRealtimeMessage response.done:", message);
             if (this.realtimeClient && message.response?.output) {
                 // Only handle completed state messages
                 const completedMessages = message.response.output.filter(
@@ -561,14 +678,20 @@ export default class IntercomModal {
                 for (const item of completedMessages) {
                     const textContent = this.extractTextContent(item);
                     if (textContent) {
-                        this.realtimeClient.addMessageToHistory({
+                        const messageData = {
                             id: item.id,
-                            type: item.role,
+                            role: item.role,
                             timestamp: new Date(),
                             text: textContent,
                             content: item.content,
                             status: item.status
-                        });
+                        };
+
+                        // 添加到 realtime 历史记录
+                        this.realtimeClient.addMessageToHistory(messageData);
+
+                        // 同步到 UI Manager
+                        this.syncMessageToUIManager(messageData);
                     }
                 }
 

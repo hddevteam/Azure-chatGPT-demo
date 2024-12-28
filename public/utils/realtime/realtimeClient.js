@@ -2,6 +2,7 @@ import { Player } from "./player.js";
 import { Recorder } from "./recorder.js";
 import { LowLevelRTClient } from "rt-client";
 import { generateRealtimeSummary, searchBing } from "../api.js";
+import { ConversationSummaryHelper } from "../ConversationSummaryHelper.js";
 
 export class RealtimeClient {
     constructor() {
@@ -343,8 +344,7 @@ export class RealtimeClient {
     async generateSummary(messages) {
         try {
             const markdownContent = this.convertToMarkdown(messages);
-            console.log("Markdown formatted content:", markdownContent);
-
+            
             const messageContent = [{
                 role: "user",
                 content: markdownContent
@@ -447,7 +447,7 @@ export class RealtimeClient {
             // Prepare summary content
             const allContentToSummarize = [];
             
-            // Add previous summary content
+            // Add previous summary content if exists
             if (this.currentSummary) {
                 allContentToSummarize.push({
                     role: "Previous Summary",
@@ -455,7 +455,7 @@ export class RealtimeClient {
                 });
             }
             
-            // Add new message content
+            // Add new messages
             const newMessages = this.messageHistory.slice(this.lastSummaryIndex);
             const processedNewMessages = newMessages
                 .filter(msg => msg.text && msg.text.trim() !== "")
@@ -467,10 +467,12 @@ export class RealtimeClient {
             allContentToSummarize.push(...processedNewMessages);
 
             if (allContentToSummarize.length > 0) {
-                const summaryResult = await this.generateSummary(allContentToSummarize);
+                const summaryResult = await ConversationSummaryHelper.generateSummary(
+                    allContentToSummarize,
+                    this
+                );
                 
                 if (summaryResult) {
-                    // Update current summary, retaining initial context
                     this.currentSummary = {
                         id: `summary-${Date.now()}`,
                         type: "summary",
@@ -482,15 +484,16 @@ export class RealtimeClient {
                         tokens: summaryResult.tokens,
                         timestamp: new Date()
                     };
-                    console.log("Summary updated:", this.currentSummary);
 
-                    // Update summary-related state
                     this.lastSummaryIndex = this.messageHistory.length;
                     this.lastSummaryTime = Date.now();
                     this.lastSummaryTokens = summaryResult.tokens;
 
-                    // Update system instructions
-                    const updatedInstructions = this.buildUpdatedInstructions(summaryResult);
+                    const updatedInstructions = ConversationSummaryHelper.buildUpdatedInstructions(
+                        this.originalInstructions,
+                        summaryResult
+                    );
+
                     if (!this.isGeneratingResponse) {
                         await this.client.send({
                             type: "session.update",
