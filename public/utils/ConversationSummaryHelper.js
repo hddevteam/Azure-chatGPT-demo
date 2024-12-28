@@ -1,9 +1,19 @@
+import { generateRealtimeSummary } from "./api.js";
+
 export class ConversationSummaryHelper {
-    static async generateSummary(messages, realtimeClient) {
+    static async generateSummary(messages, previousSummary = null) {
         try {
             const allContentToSummarize = [];
             
-            // Convert messages to the expected format
+            // Add previous summary if exists
+            if (previousSummary) {
+                allContentToSummarize.push({
+                    role: "Previous Summary",
+                    content: `${previousSummary.content.summary}\nKey Points: ${previousSummary.content.keyPoints.join(", ")}`
+                });
+            }
+            
+            // Add new messages
             const processedMessages = messages
                 .filter(msg => msg.content && msg.content.trim() !== "")
                 .map(msg => ({
@@ -14,7 +24,27 @@ export class ConversationSummaryHelper {
             allContentToSummarize.push(...processedMessages);
 
             if (allContentToSummarize.length > 0) {
-                return await realtimeClient.generateSummary(allContentToSummarize);
+                // Convert to markdown so that we can generate summary more effectively
+                const markdownContent = this.convertToMarkdown(allContentToSummarize);
+                
+                // generateRealtimeSummary via markdownContent
+                const summaryData = await generateRealtimeSummary([{
+                    role: "user",
+                    content: markdownContent
+                }]);
+
+                return {
+                    id: `summary-${Date.now()}`,
+                    type: "summary",
+                    content: {
+                        summary: summaryData.summary,
+                        keyPoints: summaryData.key_points,
+                        context: summaryData.context
+                    },
+                    tokens: summaryData.tokens,
+                    timestamp: new Date(),
+                    messageIds: messages.map(m => m.id || m.messageId).filter(Boolean)
+                };
             }
             
             return null;
@@ -24,26 +54,59 @@ export class ConversationSummaryHelper {
         }
     }
 
-    static buildUpdatedInstructions(originalInstructions, summaryResult) {
-        const instructions = [];
+    static convertToMarkdown(messages) {
+        const sections = [];
+
+        // 1. Add previous summary section
+        const previousSummary = messages.find(msg => msg.role === "Previous Summary");
+        if (previousSummary) {
+            sections.push(`## Previous Summary\n\n${previousSummary.content}\n`);
+        }
+
+        // 2. Add current conversation section
+        const currentMessages = messages.filter(msg => msg.role !== "Previous Summary");
+        if (currentMessages.length > 0) {
+            sections.push("## Current Conversation\n");
+            currentMessages.forEach(msg => {
+                const role = msg.role === "assistant" ? "Assistant" : "User";
+                sections.push(`### ${role}\n${msg.content}\n`);
+            });
+        }
+
+        return sections.join("\n");
+    }
+
+    static buildSessionInstructions(prompt, summary = null) {
+        const instructions = [prompt];
         
-        // 1. Add original instructions
-        instructions.push(originalInstructions);
-        
-        // 2. Add current summary
-        instructions.push(`
+        if (summary) {
+            instructions.push(`
 Current Conversation Summary:
-${summaryResult.summary}
+${summary.content.summary}
 
 Key Discussion Points:
-${summaryResult.keyPoints.map(point => `• ${point}`).join("\n")}
+${summary.content.keyPoints.map(point => `• ${point}`).join("\n")}
 
 Current Context:
-${summaryResult.context}
+${summary.content.context}
 
 Please continue the conversation while maintaining consistency with the above context and key points.`);
+        }
 
-        // Return the combined instructions
         return instructions.join("\n\n").trim();
+    }
+
+    static shouldGenerateNewSummary(currentSummary, messageHistory, ratio, messageLimit) {
+        if (messageLimit === 0) return false;
+        
+        const lastSummaryIndex = currentSummary ? 
+            messageHistory.findIndex(m => currentSummary.messageIds.includes(m.id)) :
+            -1;
+            
+        const newMessagesCount = messageHistory.length - (lastSummaryIndex + 1);
+        const dynamicThreshold = Math.floor(messageLimit * ratio);
+        
+        return newMessagesCount >= dynamicThreshold || 
+               messageHistory.length > messageLimit;
     }
 }

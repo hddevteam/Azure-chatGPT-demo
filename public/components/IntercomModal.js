@@ -353,43 +353,17 @@ export default class IntercomModal {
             instructionsTextarea.value = currentProfile.prompt;
             
             const messages = this.uiManager.storageManager.getMessages(this.uiManager.currentChatId);
+            console.log("Current chat messages:", messages);
             
             if (messages.length > 0) {
                 try {
-                    // Initialize RealtimeClient if needed
-                    if (!this.realtimeClient) {
-                        this.realtimeClient = new RealtimeClient();
-                        await this.realtimeClient.initialize(
-                            this.config.endpoint,
-                            this.config.apiKey, 
-                            this.config.deployment
-                        );
-                    }
-
-                    const summaryResult = await ConversationSummaryHelper.generateSummary(
-                        messages, 
-                        this.realtimeClient
-                    );
-
-                    if (summaryResult) {
-                        const summaryContent = {
-                            id: `summary-${Date.now()}`,
-                            type: "summary",
-                            content: {
-                                summary: summaryResult.summary,
-                                keyPoints: summaryResult.keyPoints,
-                                context: `${currentProfile.prompt}\n\nCurrent Context: ${summaryResult.context}`
-                            },
-                            timestamp: new Date()
-                        };
-                        
-                        this.displaySummary(summaryContent);
-
-                        const updatedInstructions = ConversationSummaryHelper.buildUpdatedInstructions(
-                            currentProfile.prompt, 
-                            summaryResult
-                        );
-                        instructionsTextarea.value = updatedInstructions;
+                    // Generate initial summary
+                    const initialSummary = await ConversationSummaryHelper.generateSummary(messages);
+                    
+                    if (initialSummary) {
+                        // Display summary in UI
+                        this.displaySummary(initialSummary);
+                        this.currentSummary = initialSummary; // Store for later use
                     }
                 } catch (error) {
                     console.error("Failed to process summary:", error);
@@ -463,7 +437,6 @@ export default class IntercomModal {
     async startRealtime(config) {
         try {
             this.recordingActive = true;
-            // Add recording state class to root element
             this.modal.classList.add("recording-active");
             document.querySelector(".im-text-container").classList.add("recording-active");
             
@@ -471,21 +444,30 @@ export default class IntercomModal {
             this.makeNewTextBlock("Initializing AI connection. Please wait...", "assistant");
             
             await this.acquireWakeLock();
+
+            // Get current prompt from textarea
+            const currentPrompt = document.getElementById("session-instructions").value;
+
+            // Initialize RealtimeClient with all necessary parameters
             this.realtimeClient = new RealtimeClient();
             await this.realtimeClient.initialize(
                 config.endpoint,
                 config.apiKey, 
-                config.deployment
+                config.deployment,
+                true,
+                this.currentSummary,  // 传入之前保存的summary
+                currentPrompt        // 传入当前prompt
             );
             
-            // set ptt mode on start
+            // Set additional configs
             this.realtimeClient.pttMode = this.pttEnabled;
-
-            // update chat title to model name
+            this.realtimeClient.setMessageLimit(this.messageLimit);
+            
+            // Update chat title
             document.getElementById("chat-title").textContent = this.realtimeClient.getModelName();
 
+            // Prepare session config (without instructions)
             const sessionConfig = {
-                instructions: document.getElementById("session-instructions").value,
                 temperature: parseFloat(document.getElementById("temperature").value) || 0.8,
                 voice: document.getElementById("voice").value || "alloy",
                 turn_detection: {
@@ -497,9 +479,6 @@ export default class IntercomModal {
             };
 
             console.log("Starting Realtime chat with config:", sessionConfig);
-
-            // set message history limit
-            this.realtimeClient.setMessageLimit(this.messageLimit);
 
             await this.realtimeClient.start(sessionConfig);
 

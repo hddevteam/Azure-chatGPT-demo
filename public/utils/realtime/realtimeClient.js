@@ -1,7 +1,7 @@
 import { Player } from "./player.js";
 import { Recorder } from "./recorder.js";
 import { LowLevelRTClient } from "rt-client";
-import { generateRealtimeSummary, searchBing } from "../api.js";
+import { searchBing } from "../api.js";
 import { ConversationSummaryHelper } from "../ConversationSummaryHelper.js";
 
 export class RealtimeClient {
@@ -26,6 +26,7 @@ export class RealtimeClient {
         this.pttMode = false; // Add PTT mode flag 
         this.aiSpeaking = false; // Add AI speaking status flag
         this.audioBufferQueue = []; // Add audio buffer queue
+        this.originalPrompt = null;
     }
 
     // add audio buffer processing function
@@ -36,7 +37,7 @@ export class RealtimeClient {
         this.buffer = newBuffer;
     }
 
-    async initialize(endpoint, apiKey, deploymentOrModel, isAzure = true) {
+    async initialize(endpoint, apiKey, deploymentOrModel, isAzure = true, initialSummary = null, originalPrompt = null) {
         this.modelName = deploymentOrModel.toUpperCase();
         if (isAzure) {
             this.client = new LowLevelRTClient(
@@ -53,6 +54,8 @@ export class RealtimeClient {
 
         // Initialize audio
         await this.resetAudio(false);
+        this.currentSummary = initialSummary;
+        this.originalPrompt = originalPrompt;
     }
 
     getModelName() {
@@ -106,82 +109,25 @@ export class RealtimeClient {
 
     async start(config) {
         try {
-            // Create base configuration
-            const baseConfig = {
-                modalities: ["text", "audio"],
-                input_audio_format: "pcm16",
-                output_audio_format: "pcm16",
-                input_audio_transcription: {
-                    model: "whisper-1"
-                },
-                tool_choice: "auto",
-                tools: [{
-                    type: "function",
-                    name: "get_current_time",
-                    description: "Get the current time in the specified timezone, if no timezone specified, use browser's timezone",
-                    parameters: {
-                        type: "object",
-                        properties: {
-                            timezone: {
-                                type: "string",
-                                description: "The timezone to get the time in (e.g. 'Asia/Shanghai', 'America/New_York'). Optional - will use browser timezone if not specified."
-                            }
-                        },
-                        required: []
-                    }
-                },
-                {
-                    type: "function",
-                    name: "search_bing",
-                    description: "Search the internet using Bing Search API",
-                    parameters: {
-                        type: "object",
-                        properties: {
-                            query: {
-                                type: "string",
-                                description: "The search query to send to Bing"
-                            }
-                        },
-                        required: ["query"]
-                    }
-                }]
-            };
-
+            // 使用传入的originalPrompt，而不是config中的instructions
+            const prompt = this.originalPrompt || config.instructions;
+            
+            // Create session config with combined instructions
             const sessionConfig = {
-                ...baseConfig,
                 ...config,
-                // Use user's turn_detection config if provided
-                turn_detection: config.turn_detection || {
-                    type: "server_vad",
-                    threshold: 0.5,
-                    prefix_padding_ms: 300,
-                    silence_duration_ms: 1000
-                }
+                instructions: ConversationSummaryHelper.buildSessionInstructions(
+                    prompt,
+                    this.currentSummary
+                )
             };
 
             await this.client.send({
                 type: "session.update",
                 session: sessionConfig
             });
-            
-            this.originalInstructions = config.instructions;
-            this.initialContext = config.instructions; // Save initial context
-            
-            // Create initial summary
-            if (config.instructions) {
-                const initialSummary = {
-                    id: `summary-init-${Date.now()}`,
-                    type: "initial",
-                    content: {
-                        summary: "",
-                        keyPoints: [],
-                        context: config.instructions
-                    },
-                    timestamp: new Date(),
-                    originalMessages: []
-                };
-                this.currentSummary = initialSummary;
-            }
+
+            // 不再使用config.instructions
+            this.initialContext = prompt;
 
             // Add function call response handling
             this.functionHandlers = {
@@ -341,48 +287,36 @@ export class RealtimeClient {
         this.pruneMessageHistory();
     }
 
-    async generateSummary(messages) {
-        try {
-            const markdownContent = this.convertToMarkdown(messages);
+    async updateSummary() {
+        if (!ConversationSummaryHelper.shouldGenerateNewSummary(
+            this.currentSummary,
+            this.messageHistory,
+            this.summaryRatio,
+            this.messageLimit
+        )) {
+            return;
+        }
+
+        const newSummary = await ConversationSummaryHelper.generateSummary(
+            this.messageHistory,
+            this.currentSummary
+        );
+
+        if (newSummary) {
+            this.currentSummary = newSummary;
             
-            const messageContent = [{
-                role: "user",
-                content: markdownContent
-            }];
-
-            const summaryData = await generateRealtimeSummary(messageContent);
-            return {
-                summary: summaryData.summary,
-                keyPoints: summaryData.key_points,
-                context: summaryData.context,
-                tokens: summaryData.tokens
-            };
-        } catch (error) {
-            console.error("Failed to generate summary:", error);
-            return null;
+            if (!this.isGeneratingResponse) {
+                await this.client.send({
+                    type: "session.update",
+                    session: {
+                        instructions: ConversationSummaryHelper.buildSessionInstructions(
+                            this.originalPrompt,
+                            this.currentSummary
+                        )
+                    }
+                });
+            }
         }
-    }
-
-    convertToMarkdown(messages) {
-        const sections = [];
-
-        // 1. Add previous summary section
-        const previousSummary = messages.find(msg => msg.role === "Previous Summary");
-        if (previousSummary) {
-            sections.push(`## Previous Summary\n\n${previousSummary.content}\n`);
-        }
-
-        // 2. Add current conversation section
-        const currentMessages = messages.filter(msg => msg.role !== "Previous Summary");
-        if (currentMessages.length > 0) {
-            sections.push("## Current Conversation\n");
-            currentMessages.forEach(msg => {
-                const role = msg.role === "assistant" ? "Assistant" : "User";
-                sections.push(`### ${role}\n${msg.content}\n`);
-            });
-        }
-
-        return sections.join("\n");
     }
 
     async pruneMessageHistory() {
