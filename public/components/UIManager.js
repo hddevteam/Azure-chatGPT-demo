@@ -72,8 +72,8 @@ class UIManager {
     }
 
     setupIntercomHandler() {
-        const intercomBtn = document.getElementById("intercom");
-        intercomBtn.addEventListener("click", () => {
+        const voiceInputBtn = document.getElementById("voice-input-button");
+        voiceInputBtn.addEventListener("click", () => {
             this.intercomModal.showModal();
         });
     }

@@ -2,7 +2,6 @@
 // purpose: entry point of the application. It is responsible for creating the App object and passing it to the UIManager object. It also contains the event listeners for the message form and the modal form.
 import { signIn } from "./utils/authRedirect.js";
 import { getAppName, getPromptRepo } from "./utils/api.js";
-import { setupVoiceInput } from "./utils/input-audio.js";
 import swal from "sweetalert";
 import MarkdownManager from "./components/MarkdownManager.js";
 import ModelDropdownManager from "./utils/ModelDropdownManager.js";
@@ -135,8 +134,6 @@ function initializeApp(username) {  // 接收传入的 username 参数
             uiManager.handleMessageFormSubmit(messageInput);
         }
     });
-
-    setupVoiceInput(uiManager);
 
     const messageForm = document.querySelector("#message-form");
 
