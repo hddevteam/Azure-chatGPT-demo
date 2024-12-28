@@ -353,7 +353,7 @@ export default class IntercomModal {
             instructionsTextarea.value = currentProfile.prompt;
             
             const messages = this.uiManager.storageManager.getMessages(this.uiManager.currentChatId);
-            console.log("Current chat messages:", messages);
+            // console.log("Current chat messages:", messages);
             
             if (messages.length > 0) {
                 try {
@@ -466,7 +466,7 @@ export default class IntercomModal {
             // Update chat title
             document.getElementById("chat-title").textContent = this.realtimeClient.getModelName();
 
-            // Prepare session config (without instructions)
+            // Prepare session config (only additional settings)
             const sessionConfig = {
                 temperature: parseFloat(document.getElementById("temperature").value) || 0.8,
                 voice: document.getElementById("voice").value || "alloy",
@@ -557,17 +557,16 @@ export default class IntercomModal {
 
         // Update chat history
         this.uiManager.chatHistoryManager.updateChatHistory(
-            this.uiManager.currentChatId,
-            true
+            this.uiManager.currentChatId
         );
     }
 
     handleRealtimeMessage(message) {
-        // console.log("Received message:", message);
         
         switch (message.type) {
         case "session.created":
             this.makeNewTextBlock("Session created. You can start speaking now!", "assistant");
+            console.log("Session created with config:", message.session);
             break;
 
         case "conversation.item.created":

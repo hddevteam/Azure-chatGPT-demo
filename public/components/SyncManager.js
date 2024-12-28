@@ -17,17 +17,17 @@ class SyncManager {
     // 获取并更新Token
     async updateToken() {
         this.cachedToken = await getToken();
-        console.log("Token updated in SyncManager");
+        // console.log("Token updated in SyncManager");
     }
 
     initializeSyncWorker() {
         this.webWorker.onmessage = (event) => {
         // Handle messages from web worker
-            console.log("SyncManager onmessage: ");
+            // console.log("SyncManager onmessage: ");
             const { action, payload, res} = event.data;
-            console.log("action: ", action);
-            console.log("payload: ", payload);
-            console.log("res: ", res);
+            // console.log("action: ", action);
+            // console.log("payload: ", payload);
+            // console.log("res: ", res);
             
             switch (action) {
             case "synced":
@@ -117,7 +117,7 @@ class SyncManager {
     // /public/components/SyncManager.js
 
     async syncMessages(chatId) {
-        console.log("syncMessages: ", chatId);
+        // console.log("syncMessages: ", chatId);
         const localMessages = this.uiManager.storageManager.getMessages(chatId);
         const lastTimestamp = localMessages.reduce((maxStr, message) => {
             const currentTimestamp = new Date(message.timestamp);
@@ -125,10 +125,10 @@ class SyncManager {
             
             return currentTimestamp > maxTimestamp ? message.timestamp : maxStr;
         }, "1970-01-01T00:00:00.000Z"); // ISO string representation for new Date(0)
-        console.log("lastTimestamp: ", lastTimestamp);
+        // console.log("lastTimestamp: ", lastTimestamp);
 
         const cloudMessages = await fetchCloudMessages(chatId, lastTimestamp, this.cachedToken).catch(e => console.error(e));
-        console.log("syncMessages: ", {localMessages}, {cloudMessages});
+        // console.log("syncMessages: ", {localMessages}, {cloudMessages});
 
         cloudMessages.forEach(cloudMessage => {
             const localMessage = localMessages.find(lm => lm.messageId === cloudMessage.messageId);
@@ -188,33 +188,33 @@ class SyncManager {
         } 
 
         this.syncQueue.push(syncItem);
-        console.log("enqueueSyncItem syncQueue: ", this.syncQueue.length);
+        // console.log("enqueueSyncItem syncQueue: ", this.syncQueue.length);
         this.processNextSyncItem();
     }
   
     async processNextSyncItem() {
-        console.log("processNextSyncItem syncQueue: ", this.syncQueue.length);
+        // console.log("processNextSyncItem syncQueue: ", this.syncQueue.length);
         if (this.isWorkerBusy || !this.syncQueue.length) {
-            console.log ("processNextSyncItem return because isWorkerBusy: ", this.isWorkerBusy, " syncQueue: ", this.syncQueue.length);
+            // console.log ("processNextSyncItem return because isWorkerBusy: ", this.isWorkerBusy, " syncQueue: ", this.syncQueue.length);
             return;
         }
         const nextItem = this.syncQueue.shift();
         await this.updateToken();
         nextItem.token = this.cachedToken;
-        console.log("processNextSyncItem nextItem: ", nextItem);
-        console.log("current syncQueue: ", this.syncQueue);
+        // console.log("processNextSyncItem nextItem: ", nextItem);
+        // console.log("current syncQueue: ", this.syncQueue);
         this.isWorkerBusy = true;
         this.webWorker.postMessage(nextItem);
     }
   
     handleSyncedItem(syncedItem, res) {
-        console.log("handleSyncedItem: ", syncedItem, res);
+        // console.log("handleSyncedItem: ", syncedItem, res);
         if (syncedItem && ["create", "update"].includes(syncedItem.action) && res && syncedItem.type === "chatHistory") {
-            console.log("syncedItem: ", syncedItem);
+            // console.log("syncedItem: ", syncedItem);
             // 更新LocalStorage中的timestamp
             this.uiManager.storageManager.updateChatHistoryTimestamp(res.id, res.timestamp);
         } else if (syncedItem && ["create", "update"].includes(syncedItem.action) && res && syncedItem.type === "message") {
-            console.log("syncedItem: ", syncedItem);
+            // console.log("syncedItem: ", syncedItem);
             // 更新LocalStorage中的timestamp
             this.uiManager.storageManager.updateMessageTimestamp(syncedItem.data.chatId, res.rowKey, res.timestamp);
         }

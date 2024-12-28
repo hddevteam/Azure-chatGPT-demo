@@ -109,17 +109,62 @@ export class RealtimeClient {
 
     async start(config) {
         try {
-            // 使用传入的originalPrompt，而不是config中的instructions
+            // use the originalPrompt passed in, not the instructions in config
             const prompt = this.originalPrompt || config.instructions;
             
-            // Create session config with combined instructions
+            // Create base configuration
+            const baseConfig = {
+                modalities: ["text", "audio"],
+                input_audio_format: "pcm16",
+                output_audio_format: "pcm16",
+                input_audio_transcription: {
+                    model: "whisper-1"
+                },
+                tool_choice: "auto",
+                tools: [{
+                    type: "function",
+                    name: "get_current_time",
+                    description: "Get the current time in the specified timezone, if no timezone specified, use browser's timezone",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            timezone: {
+                                type: "string",
+                                description: "The timezone to get the time in (e.g. 'Asia/Shanghai', 'America/New_York'). Optional - will use browser timezone if not specified."
+                            }
+                        },
+                        required: []
+                    }
+                },
+                {
+                    type: "function",
+                    name: "search_bing",
+                    description: "Search the internet using Bing Search API",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            query: {
+                                type: "string",
+                                description: "The search query to send to Bing"
+                            }
+                        },
+                        required: ["query"]
+                    }
+                }]
+            };
+            console.log("Base config:", baseConfig);
+            console.log("config:", config);
+                
+            // Create session config by merging base config with passed config
             const sessionConfig = {
+                ...baseConfig,
                 ...config,
                 instructions: ConversationSummaryHelper.buildSessionInstructions(
                     prompt,
                     this.currentSummary
                 )
             };
+            console.log("Session config:", sessionConfig);
 
             await this.client.send({
                 type: "session.update",
@@ -376,83 +421,44 @@ export class RealtimeClient {
             }
         }
 
-        // 2. Check if a new summary needs to be generated
+        // 2. Check and generate new summary if needed
         if (this.shouldGenerateSummary()) {
-            // Prepare summary content
-            const allContentToSummarize = [];
-            
-            // Add previous summary content if exists
-            if (this.currentSummary) {
-                allContentToSummarize.push({
-                    role: "Previous Summary",
-                    content: `${this.currentSummary.content.summary}\nKey Points: ${this.currentSummary.content.keyPoints.join(", ")}`
-                });
-            }
-            
-            // Add new messages
-            const newMessages = this.messageHistory.slice(this.lastSummaryIndex);
-            const processedNewMessages = newMessages
-                .filter(msg => msg.text && msg.text.trim() !== "")
-                .map(msg => ({
-                    role: msg.type,
-                    content: msg.text
-                }));
-                
-            allContentToSummarize.push(...processedNewMessages);
+            // Use Helper to generate new summary
+            const newSummary = await ConversationSummaryHelper.generateSummary(
+                this.messageHistory,
+                this.currentSummary
+            );
 
-            if (allContentToSummarize.length > 0) {
-                const summaryResult = await ConversationSummaryHelper.generateSummary(
-                    allContentToSummarize,
-                    this
-                );
-                
-                if (summaryResult) {
-                    this.currentSummary = {
-                        id: `summary-${Date.now()}`,
-                        type: "summary",
-                        content: {
-                            summary: summaryResult.summary,
-                            keyPoints: summaryResult.keyPoints,
-                            context: `${this.initialContext}\n\nCurrent Context: ${summaryResult.context}`
-                        },
-                        tokens: summaryResult.tokens,
-                        timestamp: new Date()
-                    };
+            if (newSummary) {
+                this.currentSummary = newSummary;
+                this.lastSummaryIndex = this.messageHistory.length;
+                this.lastSummaryTime = Date.now();
+                this.lastSummaryTokens = newSummary.tokens;
 
-                    this.lastSummaryIndex = this.messageHistory.length;
-                    this.lastSummaryTime = Date.now();
-                    this.lastSummaryTokens = summaryResult.tokens;
-
-                    const updatedInstructions = ConversationSummaryHelper.buildUpdatedInstructions(
-                        this.originalInstructions,
-                        summaryResult
-                    );
-
-                    if (!this.isGeneratingResponse) {
-                        await this.client.send({
-                            type: "session.update",
-                            session: {
-                                instructions: updatedInstructions
-                            }
-                        });
-                    }
+                // Update session instructions if not currently generating response
+                if (!this.isGeneratingResponse) {
+                    await this.client.send({
+                        type: "session.update",
+                        session: {
+                            instructions: ConversationSummaryHelper.buildSessionInstructions(
+                                this.originalPrompt,
+                                this.currentSummary
+                            )
+                        }
+                    });
                 }
             }
         }
     }
 
     shouldGenerateSummary() {
-        if (this.messageLimit === 0) return false;
-        
-        // Calculate the number of new messages since the last summary
-        const newMessagesCount = this.messageHistory.length - this.lastSummaryIndex;
-        
-        // Calculate dynamic threshold (80% of messageLimit)
-        const dynamicThreshold = Math.floor(this.messageLimit * this.summaryRatio);
-        
-        // If the number of new messages reaches the threshold or the total number of messages exceeds the limit, a summary needs to be generated
-        return newMessagesCount >= dynamicThreshold || 
-               this.messageHistory.length > this.messageLimit;
+        // Use Helper's method instead
+        return ConversationSummaryHelper.shouldGenerateNewSummary(
+            this.currentSummary,
+            this.messageHistory,
+            this.summaryRatio,
+            this.messageLimit
+        );
     }
 
     extractMessageContent(message) {
@@ -614,31 +620,5 @@ export class RealtimeClient {
             inputTokens: this.inputTokens,
             outputTokens: this.outputTokens
         };
-    }
-
-    buildUpdatedInstructions(summaryResult) {
-        // Always start with the original instructions to maintain initial context
-        const instructions = [];
-        
-        // 1. Add original instructions
-        if (this.originalInstructions) {
-            instructions.push(this.originalInstructions);
-        }
-        
-        // 2. Add current summary
-        instructions.push(`
-Current Conversation Summary:
-${summaryResult.summary}
-
-Key Discussion Points:
-${summaryResult.keyPoints.map(point => `• ${point}`).join("\n")}
-
-Current Context:
-${summaryResult.context}
-
-Please continue the conversation while maintaining consistency with the above context and key points.`);
-
-        // Return the combined instructions
-        return instructions.join("\n\n").trim();
     }
 }

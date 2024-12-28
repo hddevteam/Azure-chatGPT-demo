@@ -1,8 +1,53 @@
 import { generateRealtimeSummary } from "./api.js";
 
 export class ConversationSummaryHelper {
+    static extractMessageContent(msg) {
+        if (!msg) return "";
+
+        // deal with content as array
+        if (Array.isArray(msg.content)) {
+            return msg.content
+                .map(content => {
+                    if (content.type === "text") return content.text;
+                    if (content.type === "input_audio" && content.transcript) return content.transcript;
+                    if (content.type === "audio" && content.transcript) return content.transcript;
+                    return "";
+                })
+                .filter(Boolean)
+                .join(" ");
+        }
+
+        // 处理直接是字符串的情况
+        if (typeof msg.content === "string") {
+            return msg.content;
+        }
+
+        // 处理text属性的情况
+        if (msg.text) {
+            return msg.text;
+        }
+
+        return "";
+    }
+
     static async generateSummary(messages, previousSummary = null) {
         try {
+            if (!messages || messages.length === 0) return null;
+
+            // 过滤并提取消息内容
+            const validMessages = messages
+                .filter(msg => msg && (msg.content || msg.text))
+                .map(msg => ({
+                    role: msg.role || msg.type,
+                    content: this.extractMessageContent(msg)
+                }))
+                .filter(msg => msg.content.length > 0);
+
+            if (validMessages.length === 0) {
+                console.log("No valid messages to summarize");
+                return null;
+            }
+
             const allContentToSummarize = [];
             
             // Add previous summary if exists
@@ -14,7 +59,7 @@ export class ConversationSummaryHelper {
             }
             
             // Add new messages
-            const processedMessages = messages
+            const processedMessages = validMessages
                 .filter(msg => msg.content && msg.content.trim() !== "")
                 .map(msg => ({
                     role: msg.role,
@@ -92,7 +137,7 @@ ${summary.content.context}
 
 Please continue the conversation while maintaining consistency with the above context and key points.`);
         }
-
+        console.log("instructions", instructions);
         return instructions.join("\n\n").trim();
     }
 
