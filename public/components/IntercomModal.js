@@ -299,7 +299,7 @@ export default class IntercomModal {
             }
         });
 
-        // 为生成提示按钮添加事件监听
+        // Add event listener for generate prompt button
         const generatePromptBtn = document.getElementById("im-generate-prompt");
         const instructionsTextarea = document.getElementById("session-instructions");
 
@@ -326,10 +326,10 @@ export default class IntercomModal {
             }
         });
 
-        // PTT 切换事件
+        // PTT switch event
         const pttSwitch = document.getElementById("ptt-switch");
         
-        // 添加初始状态同步
+        // Sync initial state
         pttSwitch.checked = this.pttEnabled;
         
         pttSwitch.addEventListener("change", (e) => {
@@ -544,7 +544,7 @@ export default class IntercomModal {
         </span>`;
     }
 
-    // 添加新的辅助方法来处理消息同步
+    // Add helper method for message synchronization with UI Manager
     syncMessageToUIManager(messageData) {
         if (!this.uiManager) return;
 
@@ -556,7 +556,7 @@ export default class IntercomModal {
             timestamp: new Date().toISOString()
         };
 
-        // 添加消息到UI
+        // Add message to UI
         this.uiManager.messageManager.addMessage(
             newMessage.role,
             newMessage.content,
@@ -564,19 +564,19 @@ export default class IntercomModal {
             newMessage.isActive
         );
 
-        // 保存到存储
+        // Save to storage
         this.uiManager.storageManager.saveMessage(
             this.uiManager.currentChatId,
             newMessage
         );
 
-        // 同步到服务器
+        // Sync to server
         this.uiManager.syncManager.syncMessageCreate(
             this.uiManager.currentChatId,
             newMessage
         );
 
-        // 更新聊天历史
+        // Update chat history
         this.uiManager.chatHistoryManager.updateChatHistory(
             this.uiManager.currentChatId,
             true
@@ -650,15 +650,15 @@ export default class IntercomModal {
                         status: "completed"
                     };
 
-                    // 添加到 realtime 历史记录
+                    // Add to realtime history
                     this.realtimeClient.addMessageToHistory(messageData);
                     
-                    // 同步到 UI Manager
+                    // Sync to UI Manager
                     this.syncMessageToUIManager(messageData);
                 }
                 this.latestInputSpeechBlock = null;
             }
-            this.makeNewTextBlock("", "assistant"); // 为助手响应创建新块
+            this.makeNewTextBlock("", "assistant"); // Create new block for assistant response
             break;
 
         case "response.output_item.done":
@@ -667,48 +667,56 @@ export default class IntercomModal {
 
         case "response.done":
             console.log("handleRealtimeMessage response.done:", message);
-            if (this.realtimeClient && message.response?.output) {
-                // Only handle completed state messages
-                const completedMessages = message.response.output.filter(
-                    item => item.type === "message" && 
-                        item.status === "completed" &&
-                        item.id
-                );
-
-                for (const item of completedMessages) {
-                    const textContent = this.extractTextContent(item);
-                    if (textContent) {
-                        const messageData = {
-                            id: item.id,
-                            role: item.role,
-                            timestamp: new Date(),
-                            text: textContent,
-                            content: item.content,
-                            status: item.status
-                        };
-
-                        // 添加到 realtime 历史记录
-                        this.realtimeClient.addMessageToHistory(messageData);
-
-                        // 同步到 UI Manager
-                        this.syncMessageToUIManager(messageData);
-                    }
+            if (this.realtimeClient && message.response) {
+                // Handle usage statistics
+                if (message.response.usage) {
+                    this.realtimeClient.updateUsageStats(message.response.usage);
                 }
 
-                // Display current session stats
-                const stats = this.realtimeClient.getSessionStats();
-                console.log("Response completed. Session stats:", {
-                    messages: `${stats.messageCount}/${stats.messageLimit || "∞"}`,
-                    tokens: {
-                        total: stats.totalTokens,
-                        input: stats.inputTokens,
-                        output: stats.outputTokens
-                    }
-                });
+                // Handle output messages
+                if (message.response.output) {
+                    // Only handle completed state messages
+                    const completedMessages = message.response.output.filter(
+                        item => item.type === "message" && 
+                            item.status === "completed" &&
+                            item.id
+                    );
 
-                // Get and display the latest summary
-                if (this.realtimeClient.currentSummary) {
-                    this.displaySummary(this.realtimeClient.currentSummary);
+                    for (const item of completedMessages) {
+                        const textContent = this.extractTextContent(item);
+                        if (textContent) {
+                            const messageData = {
+                                id: item.id,
+                                role: item.role,
+                                timestamp: new Date(),
+                                text: textContent,
+                                content: item.content,
+                                status: item.status
+                            };
+
+                            // Add to realtime history
+                            this.realtimeClient.addMessageToHistory(messageData);
+
+                            // Sync to UI Manager
+                            this.syncMessageToUIManager(messageData);
+                        }
+                    }
+
+                    // Display current session stats
+                    const stats = this.realtimeClient.getSessionStats();
+                    console.log("Response completed. Session stats:", {
+                        messages: `${stats.messageCount}/${stats.messageLimit || "∞"}`,
+                        tokens: {
+                            total: stats.totalTokens,
+                            input: stats.inputTokens,
+                            output: stats.outputTokens
+                        }
+                    });
+
+                    // Get and display the latest summary
+                    if (this.realtimeClient.currentSummary) {
+                        this.displaySummary(this.realtimeClient.currentSummary);
+                    }
                 }
             }
             break;

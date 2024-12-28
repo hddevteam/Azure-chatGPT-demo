@@ -212,7 +212,7 @@ export class RealtimeClient {
                 hour: "2-digit",
                 minute: "2-digit",
                 second: "2-digit",
-                timeZone: timezone || browserTimezone // 如果没有指定时区，使用浏览器时区
+                timeZone: timezone || browserTimezone // Use browser timezone if none specified
             };
 
             const time = new Date().toLocaleString(navigator.language, options);
@@ -236,7 +236,7 @@ export class RealtimeClient {
             const { query } = args;
             const searchResults = await searchBing(query);
             console.log("Bing search results:", searchResults);
-            // Format the results as a string，移除 URL
+            // Format the results as a string, remove URLs
             const formattedResults = searchResults
                 .slice(0, 5) 
                 .map((result, index) => {
@@ -273,12 +273,12 @@ export class RealtimeClient {
     async *getMessages() {
         if (this.client) {
             for await (const message of this.client.messages()) {
-                // 更新 AI 说话状态
+                // Update AI speaking status
                 if (message.type === "response.audio.delta") {
                     this.aiSpeaking = true;
                 } else if (message.type === "response.audio.done") {
-                    // 此处不再直接设置 aiSpeaking = false
-                    // 等待实际播放完成后再设置
+                    // Don't set aiSpeaking = false directly here
+                    // Wait for actual playback completion
                     console.log("Response audio generation completed");
                 }
 
@@ -621,16 +621,34 @@ export class RealtimeClient {
 
     // Update usage statistics
     updateUsageStats(usage) {
-        if (usage) {
-            const prevTotal = this.totalTokens;
-            this.totalTokens = usage.total_tokens || this.totalTokens;
-            this.inputTokens = usage.input_tokens || this.inputTokens;
-            this.outputTokens = usage.output_tokens || this.outputTokens;
-            
-            if (this.totalTokens !== prevTotal) {
-                console.log(`Token usage updated - Total: ${this.totalTokens}, Input: ${this.inputTokens}, Output: ${this.outputTokens}`);
-            }
+        if (!usage) return;
+        
+        // Update cumulative token usage
+        this.totalTokens += usage.total_tokens || 0;
+        this.inputTokens += usage.input_tokens || 0;
+        this.outputTokens += usage.output_tokens || 0;
+
+        // Log detailed token information if available
+        if (usage.input_token_details) {
+            console.log("Input token details:", {
+                cached: usage.input_token_details.cached_tokens,
+                text: usage.input_token_details.text_tokens,
+                audio: usage.input_token_details.audio_tokens
+            });
         }
+
+        if (usage.output_token_details) {
+            console.log("Output token details:", {
+                text: usage.output_token_details.text_tokens,
+                audio: usage.output_token_details.audio_tokens
+            });
+        }
+
+        console.log("Updated token usage:", {
+            total: this.totalTokens,
+            input: this.inputTokens,
+            output: this.outputTokens
+        });
     }
 
     // Update rate limit information
