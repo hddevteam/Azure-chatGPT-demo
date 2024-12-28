@@ -10,14 +10,14 @@ axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.headers.put["Content-Type"] = "application/json";
 
 
-// 使用改进后的getToken方法更新axios请求拦截器
+// Update axios request interceptor with improved getToken method
 axios.interceptors.request.use(async config => {
     if (!config.headers.Authorization) {
         try {
-            const token = await getToken(); // 获取Token
-            config.headers.Authorization = `Bearer ${token}`; // 将Token加入请求头部
+            const token = await getToken(); // Get Token
+            config.headers.Authorization = `Bearer ${token}`; // Add Token to request header
         } catch (error) {
-            console.error("在请求中添加Token失败", error);
+            console.error("Failed to add token to request", error);
             swal("Login required", "Will be redirected to login page, if not, please try to refresh the page manually.", {"buttons": false, "timer": 1500});
             return Promise.reject("Cannot add token to request. The request will not be sent.");
         }
@@ -75,9 +75,9 @@ export async function getPromptRepo(username) {
 }
 
 /**
- * 删除当前用户的指定配置文件
- * @param {string} profileName 要删除的配置文件名
- * @param {string} username 当前用户名
+ * Delete user profile configuration
+ * @param {string} profileName - Name of the profile to delete
+ * @param {string} username - Current username
  */
 export async function deleteProfile(profileName, username) {
     try {
@@ -90,8 +90,8 @@ export async function deleteProfile(profileName, username) {
 }
 
 /**
- * 生成AI角色的配置文件
- * @param {Object} profileData 包含创建配置文件所需数据的对象
+ * Generate AI role profile configuration
+ * @param {Object} profileData - Object containing profile creation data
  */
 export async function createChatProfile(profileData) {
     try {
@@ -104,11 +104,11 @@ export async function createChatProfile(profileData) {
 }
 
 /**
- * 保存或更新配置文件
- * @param {Object} profile 配置文件数据
- * @param {string} username 用户名
- * @param {boolean} isNewProfile 是否是新配置文件（决定是创建还是更新）
- * @param {string} [oldName] 旧配置文件的名称（更新时需要）
+ * Save or update profile configuration
+ * @param {Object} profile - Profile data
+ * @param {string} username - Username
+ * @param {boolean} isNewProfile - Whether it's a new profile (determines create or update)
+ * @param {string} [oldName] - Old profile name (required for updates)
  */
 export async function saveOrUpdateProfile(profile, username, isNewProfile, oldName = "") {
     const endpoint = `/profiles${isNewProfile ? "" : `/${oldName}`}?username=${username}`;
@@ -132,18 +132,18 @@ export async function uploadAttachment(fileContent, fileName) {
         formData.append("fileContent", fileContent);
         formData.append("originalFileName", fileName);
 
-        // 获取当前用户的username
+        // Get current username
         const username = getUserName();
-        formData.append("username", username);  // 将username添加到formData
+        formData.append("username", username);  // Add username to formData
 
-        // 注意：移除axios默认的Content-Type头部，让浏览器自动设置，便于正确处理边界
+        // Note: Remove axios default Content-Type header to let browser handle boundary correctly
         const response = await axios.post("/attachments/upload", formData, {
             headers: {
                 "Content-Type": undefined
             }
         });
         console.log(response.data);
-        return response.data; // 返回后端响应中的附件信息
+        return response.data; // Return attachment info from backend response
     } catch (error) {
         console.error("Failed to upload attachment:", error);
         throw error;
@@ -156,9 +156,8 @@ export async function uploadAudiofile(fileContent, fileName) {
         formData.append("fileContent", fileContent);
         formData.append("originalFileName", fileName);
         
-        // 获取当前用户的username
         const username = getUserName();
-        formData.append("username", username);  // 将username添加到formData
+        formData.append("username", username);
 
         const response = await axios.post("/audiofiles/upload", formData, {
             headers: {
@@ -166,11 +165,11 @@ export async function uploadAudiofile(fileContent, fileName) {
             }
         });
         
-        swal("上传成功!", "音频文件已成功上传", "success");
-        return response.data; // 返回后端响应中的附件信息
+        swal("Upload Success!", "Audio file has been uploaded successfully", "success");
+        return response.data;
     } catch (error) {
         console.error("Failed to upload audio file:", error);
-        swal("上传失败!", "无法上传音频文件", "error");
+        swal("Upload Failed!", "Unable to upload audio file", "error");
         throw error;
     }
 }
@@ -188,10 +187,10 @@ export async function fetchUploadedAudioFiles() {
             };
         }
     } catch (error) {
-        console.error("获取已上传音频文件列表失败：", error);
+        console.error("Failed to get uploaded audio files list:", error);
         return {
             success: false,
-            message: "无法获取已上传的音频文件列表",
+            message: "Unable to fetch uploaded audio files list",
         };
     }
 }
@@ -199,23 +198,20 @@ export async function fetchUploadedAudioFiles() {
 
 export async function submitTranscriptionJob(audioUrl, { languages, identifySpeakers, maxSpeakers }) {
     try {
-        // 构造请求体，包括音频文件的URL、文件名，以及新的识别选项
         const requestBody = {
             audioUrl: audioUrl,
-            audioName: audioUrl.split("/").pop(), // 假设URL的最后一部分是文件名
-            languages: languages, // 用户选择的语种列表
-            identifySpeakers: identifySpeakers, // 是否识别说话人
-            maxSpeakers: maxSpeakers, // 说话人数最大值
+            audioName: audioUrl.split("/").pop(),
+            languages: languages,
+            identifySpeakers: identifySpeakers,
+            maxSpeakers: maxSpeakers,
         };
         console.log("requestBody", requestBody);
 
-        // 发送带有识别选项的请求
         const response = await axios.post("/audiofiles/transcribe", requestBody);
-        
-        return response.data; // 返回后端的响应，包含 transcriptionId 和 audioName
+        return response.data;
     } catch (error) {
-        console.error("提交转录任务失败：", error);
-        throw error; // 将错误抛出，以便调用函数可以处理
+        console.error("Failed to submit transcription job:", error);
+        throw error;
     }
 }
 
@@ -225,27 +221,27 @@ export async function fetchTranscriptionStatus(transcriptionId, blobName) {
         const response = await axios.get("/audiofiles/transcript/status", {
             params: { transcriptionId, blobName }
         });
-        return response.data; // 假设返回的数据包括转录状态以及可选的其他信息
+        return response.data; // Returns transcription status and optional info
     } catch (error) {
-        console.error(`获取转录状态失败：${error}`);
-        throw error; // 向调用者抛出异常，以便可以进行进一步处理
+        console.error(`Failed to fetch transcription status: ${error}`);
+        throw error; // Throw error to caller for further handling
     }
 }
 
-// 前端API调用
+// Frontend API call
 export async function fetchTranscriptText(transcriptionBlobName) {
     try {
         const response = await axios.get("/audiofiles/transcript/text", {
             params: { transcriptionBlobName }
         });
         if (response.data && response.data.success) {
-            return response.data.transcriptText; // 返回已解析的转录文本
+            return response.data.transcriptText;
         } else {
             throw new Error("Failed to fetch transcription text");
         }
     } catch (error) {
-        console.error("获取转录文本失败：", error);
-        throw error; // 向调用者抛出异常，以便可以进行进一步处理
+        console.error("Failed to fetch transcript text:", error);
+        throw error;
     }
 }
 
@@ -253,8 +249,8 @@ export async function deleteAudioFile(blobName) {
     try {
         await axios.delete("/audiofiles/delete", { data: { blobName: blobName } });
     } catch (error) {
-        console.error("删除音频文件失败：", error);
-        swal("删除失败!", "无法删除音频文件", "error");
+        console.error("Failed to delete audio file:", error);
+        swal("Delete Failed!", "Unable to delete audio file", "error");
         throw error;
     }
 }
@@ -268,22 +264,22 @@ export async function textToImage(caption) {
 
         return response.data;
     } catch (error) {
-        // 当axios抛出错误时，error对象中的response属性包含了响应对象
+        // When axios throws error, response property contains response object
         if (error.response) {
             const { status, data } = error.response;
-            console.error(`请求失败，状态码: ${status}`, data);
+            console.error(`Request failed with status: ${status}`, data);
 
-            // 检查是否存在特定的错误信息
+            // Check for specific error information
             if (data.contentFilterResults) {
                 const filterResultsString = JSON.stringify(data.contentFilterResults);
-                throw new Error(`${data.message} 内容过滤结果: ${filterResultsString}`);
+                throw new Error(`${data.message} Content filter results: ${filterResultsString}`);
             } else {
-                // 抛出通用错误消息
-                throw new Error(data.message || "请求未成功");
+                // Throw generic error message
+                throw new Error(data.message || "Request failed");
             }
         } else {
-            // 没有响应对象的其他错误（例如网络问题等）
-            throw new Error("网络错误或服务器无响应");
+            // Other errors without response object (e.g., network issues)
+            throw new Error("Network error or server not responding");
         }
     }
 }
@@ -291,30 +287,26 @@ export async function textToImage(caption) {
 //get gpt response
 export async function getGpt(prompt, model = "gpt-4o", params = {}) {
     try {
-        console.log("getGpt params:", { prompt, model, params }); // 添加调试信息
+        console.log("getGpt params:", { prompt, model, params });
         
         const response = await axios.post("/gpt", {
             prompt,
             model,
-            ...params  // 添加其他参数的传递
+            ...params
         });
 
-        console.log("GPT API response:", response.data); // 添加响应调试信息
+        console.log("GPT API response:", response.data);
         return response.data;
     } catch (error) {
-        console.error("Error in getGpt:", error); // 添加错误调试信息
+        console.error("Error in getGpt:", error);
         
-        // 处理 axios 错误
         if (error.response) {
-            // 服务器返回了错误状态码
             console.error("GPT API error:", error.response.data);
             throw new Error(error.response.data);
         } else if (error.request) {
-            // 请求已经发出，但没有收到响应
             console.error("No response received:", error.request);
             throw new Error("No response received from server");
         } else {
-            // 发生了一些错误，阻止了请求的发送
             console.error("Request error:", error.message);
             throw error;
         }
@@ -328,7 +320,7 @@ export async function getTts(message) {
         const response = await axios.post("/tts", {
             message,
         }, {
-            responseType: "blob", // 很重要，因为TTS API应该返回音频文件
+            responseType: "blob", // Very important, as TTS API should return audio file
         });
 
         return response.data;
@@ -385,7 +377,7 @@ export async function getDefaultParams() {
         const response = await axios.get("/gpt-default-params");
         return response.data;
     } catch (error) {
-        console.error("获取默认参数时出错:", error);
+        console.error("Error getting default parameters:", error);
         throw new Error("Error getting default params.");
     }
 }
@@ -399,10 +391,10 @@ export async function generateTitle(content) {
                 "Content-Type": "application/json"
             }
         });
-        // axios默认处理response.data, 这里获取文本，可以直接返回response.data如果API返回的是JSON格式
+        // axios handles response.data by default, return response.data if API returns JSON format
         return response.data; 
     } catch (error) {
-        console.error("标题生成时出错:", error);
+        console.error("Error generating title:", error);
         throw new Error("Error generating title.");
     }
 }
@@ -420,16 +412,16 @@ export async function getFollowUpQuestions(prompt) {
 
         console.log(response.data);
 
-        return response.data; // 直接返回解析后的JSON
+        return response.data; // Return parsed JSON directly
     } catch (error) {
-        console.error("获取后续问题时出错:", error);
+        console.error("Error getting follow-up questions:", error);
         if (error.response) {
-            // 处理具体的错误信息
+            // Handle specific error message
             const errMsg = error.response.data && error.response.data.error ? error.response.data.error.message : "Error generating follow up questions.";
             throw new Error(`Error ${error.response.status}: ${errMsg}`);
         } else {
-            // 没有响应时的错误处理
-            throw new Error("网络错误或服务器无响应");
+            // Handle no response error
+            throw new Error("Network error or server not responding");
         }
     }
 }
@@ -526,7 +518,7 @@ export async function generateRealtimeSummary(messages) {
         });
         return response.data;
     } catch (error) {
-        console.error("生成实时对话摘要时出错:", error);
+        console.error("Error generating realtime conversation summary:", error);
         throw error;
     }
 }
@@ -548,7 +540,7 @@ export async function generateSystemPrompt(context) {
         });
         return response.data;
     } catch (error) {
-        console.error("生成系统提示时出错:", error);
+        console.error("Error generating system prompt:", error);
         throw error;
     }
 }

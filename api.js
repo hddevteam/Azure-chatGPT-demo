@@ -1,8 +1,6 @@
-// api.js backend
-
 const express = require("express");
 const multer = require("multer");
-const passport = require("passport"); // 引入passport
+const passport = require("passport");
 const upload = multer();
 
 const azureTTSController = require("./controllers/azureTTSController");
@@ -18,29 +16,30 @@ const bingController = require("./controllers/bingController");
 
 const router = express.Router();
 
-// 使用 passport.authenticate 中间件替换 checkAuth
-// 设置为 {session: false} 表示不创建session，因为API通常是无状态的
+// Use passport.authenticate middleware instead of checkAuth
+// Set {session: false} since APIs are typically stateless
 const requireAuth = passport.authenticate("oauth-bearer", { session: false });
 
+// Application routes
 router.get("/app_name", applicationController.getAppName);
 router.get("/prompt_repo", requireAuth, profileController.getPromptRepo);
 
+// Image and speech routes
 router.post("/text-to-image", requireAuth, dalleController.textToImageHandler);
 router.post("/tts", requireAuth, azureTTSController.getMultiLangTextToSpeech);
 router.post("/auto-speech-to-text", requireAuth, azureTTSController.uploadMiddleware, azureTTSController.autoSpeechToText);
 router.post("/speech-to-text", requireAuth, azureTTSController.uploadMiddleware, azureTTSController.speechToText);
 
+// GPT routes
 router.post("/gpt", requireAuth, gptController.generateResponse);
 router.post("/create-chat-profile", requireAuth, gptController.createChatProfile);
 router.post("/generate-summary", requireAuth, gptController.summarizeConversation);
 router.post("/generate-title", requireAuth, gptController.generateTitle);
 router.post("/generate-followup-questions", requireAuth, gptController.generateFollowUpQuestions);
-
 router.post("/generate-chat-options", requireAuth, gptController.generateChatOptions);
-
-// 添加新的路由
 router.post("/generate-system-prompt", requireAuth, gptController.generateSystemPrompt);
 
+// Profile management routes
 router.get("/profiles", requireAuth, profileController.getProfiles);
 router.post("/profiles", requireAuth, profileController.createProfile);
 router.put("/profiles/:name", requireAuth, profileController.updateProfile);
@@ -61,25 +60,21 @@ router.delete("/messages/:chatId/:messageId", requireAuth, messageController.del
 // Message Attachment routes
 router.post("/attachments/upload", requireAuth, upload.single("fileContent"), messageController.uploadAttachment);
 
-// Audiofile routes
+// Audio file routes
 router.post("/audiofiles/upload", requireAuth, upload.single("fileContent"), audioFileController.uploadAudiofile);
 router.get("/audiofiles/list", requireAuth, audioFileController.listAudioFiles);
 
-// 提交音频文件转录任务接口
+// Transcription job routes
 router.post("/audiofiles/transcribe", requireAuth, audioFileController.submitTranscriptionJob);
 router.get("/audiofiles/transcript/status", requireAuth, audioFileController.getTranscriptionStatus);
-
-// 添加新的路由处理获取转录文本的请求
 router.get("/audiofiles/transcript/text", requireAuth, audioFileController.getTranscriptTextFromBlob);
 router.delete("/audiofiles/delete", requireAuth, audioFileController.deleteAudioFile);
 
-// 添加实时对话配置路由
+// Realtime conversation routes
 router.get("/realtime-config", requireAuth, realtimeController.getConfig);
-
-// 添加新的路由
 router.post("/realtime-summary", requireAuth, gptController.generateRealtimeSummary);
 
-// 添加Bing搜索路由
+// Bing search route
 router.post("/bing-search", requireAuth, bingController.search);
 
 module.exports = router;
