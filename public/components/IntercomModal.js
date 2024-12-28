@@ -8,6 +8,7 @@ export default class IntercomModal {
         this.wakeLock = null;
         this.noSleep = null; 
         this.messageLimit = 10;  
+        this.pttEnabled = false; // ptt mode disabled by default
         this.init();
     }
 
@@ -60,11 +61,16 @@ export default class IntercomModal {
             </div>
             <div class="im-controls">
               <div class="im-button-group">
-                <button id="clear-all" class="im-button im-button-warning" type="button">
-                  <i class="fas fa-trash"></i>
-                </button>
+                <div class="ptt-toggle">
+                    <input type="checkbox" id="ptt-switch" class="checkbox">
+                    <div class="knob"></div>
+                    <div class="btn-bg"></div>
+                </div>
                 <button id="record-button" class="im-record-button" type="button">
-                  <i class="fas fa-microphone"></i>
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button id="clear-all" class="im-button im-button-warning" type="button">
+                    <i class="fas fa-trash"></i>
                 </button>
               </div>
             </div>
@@ -302,6 +308,19 @@ export default class IntercomModal {
                 generatePromptBtn.innerHTML = "<i class=\"fas fa-magic\"></i> Generate Prompt";
             }
         });
+
+        // PTT 切换事件
+        const pttSwitch = document.getElementById("ptt-switch");
+        
+        // 添加初始状态同步
+        pttSwitch.checked = this.pttEnabled;
+        
+        pttSwitch.addEventListener("change", (e) => {
+            this.pttEnabled = e.target.checked;
+            if (this.realtimeClient) {
+                this.realtimeClient.pttMode = this.pttEnabled;
+            }
+        });
     }
 
     showModal() {
@@ -377,6 +396,9 @@ export default class IntercomModal {
                 config.apiKey, 
                 config.deployment
             );
+            
+            // set ptt mode on start
+            this.realtimeClient.pttMode = this.pttEnabled;
 
             // update chat title to model name
             document.getElementById("chat-title").textContent = this.realtimeClient.getModelName();

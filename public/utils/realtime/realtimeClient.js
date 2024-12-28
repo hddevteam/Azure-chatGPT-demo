@@ -22,6 +22,9 @@ export class RealtimeClient {
         this.lastSummaryIndex = 0; // Record the position of the last summary
         this.summaryRatio = 0.8; // Ratio to trigger summary (80%)
         this.initialContext = null; // Add initial context storage
+        this.pttMode = false; // Add PTT mode flag 
+        this.aiSpeaking = false; // Add AI speaking status flag
+        this.audioBufferQueue = []; // Add audio buffer queue
     }
 
     // add audio buffer processing function
@@ -79,18 +82,23 @@ export class RealtimeClient {
         const uint8Array = new Uint8Array(data);
         this.combineArray(uint8Array);
         
-        // make sure enough audio data accumulated
         if (this.buffer.length >= 4800) {
             const toSend = new Uint8Array(this.buffer.slice(0, 4800));
             this.buffer = new Uint8Array(this.buffer.slice(4800));
             const regularArray = String.fromCharCode(...toSend);
             const base64 = btoa(regularArray);
             
+            // Optimize audio sending logic in PTT mode
             if (this.recordingActive && this.client) {
-                this.client.send({
-                    type: "input_audio_buffer.append",
-                    audio: base64,
-                });
+                if (!this.pttMode || !this.aiSpeaking || !this.audioPlayer.getPlaybackState()) {
+                    this.client.send({
+                        type: "input_audio_buffer.append",
+                        audio: base64,
+                    });
+                } else {
+                    // Drop audio input while AI is speaking in PTT mode
+                    // console.log("Dropping audio input while AI is speaking (PTT mode)");
+                }
             }
         }
     }
@@ -264,6 +272,15 @@ export class RealtimeClient {
     async *getMessages() {
         if (this.client) {
             for await (const message of this.client.messages()) {
+                // 更新 AI 说话状态
+                if (message.type === "response.audio.delta") {
+                    this.aiSpeaking = true;
+                } else if (message.type === "response.audio.done") {
+                    // 此处不再直接设置 aiSpeaking = false
+                    // 等待实际播放完成后再设置
+                    console.log("Response audio generation completed");
+                }
+
                 // Handle function call
                 if (message.type === "response.function_call_arguments.done") {
                     const handler = this.functionHandlers[message.name];
@@ -301,10 +318,19 @@ export class RealtimeClient {
     // add audio playback function
     handleAudioPlayback(audioData) {
         if (!this.audioPlayer) return;
-        
+
         const binary = atob(audioData);
         const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
         const pcmData = new Int16Array(bytes.buffer);
+        
+        // Add listener to track playback status
+        this.audioPlayer.playbackNode.port.onmessage = (event) => {
+            if (event.data.type === "playback_ended") {
+                console.log("Audio playback completed");
+                this.aiSpeaking = false;
+            }
+        };
+        
         this.audioPlayer.play(pcmData);
     }
 

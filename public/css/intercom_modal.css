@@ -269,6 +269,68 @@
   padding: 0 8px;
 }
 
+/* PTT Toggle Button */
+.ptt-toggle {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.ptt-toggle .checkbox {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.ptt-toggle .knob {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  transition: 0.3s ease all;
+}
+
+.ptt-toggle .knob:before {
+  content: "PTT";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.ptt-toggle .checkbox:checked + .knob:before {
+  content: "ON";
+  color: #4CAF50;
+}
+
+.ptt-toggle .btn-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  transition: 0.3s ease all;
+  z-index: 1;
+}
+
+.ptt-toggle .checkbox:checked ~ .btn-bg {
+  background: rgba(76, 175, 80, 0.2);
+}
+
 /* 输入组 */
 .im-input-group {
   display: flex;
