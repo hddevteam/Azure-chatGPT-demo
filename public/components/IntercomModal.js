@@ -57,6 +57,11 @@ export default class IntercomModal {
                 <div class="welcome-icon">👋</div>
                 <h3>Hello there!</h3>
                 <p>Tap the microphone button below to start our conversation! 🎙️✨</p>
+                <div class="welcome-ptt-info">
+                  <p><strong>PTT Mode:</strong></p>
+                  <p>- When ON: AI's speech cannot be interrupted</p>
+                  <p>- When OFF: You can interrupt AI at any time</p>
+                </div>
               </div>
             </div>
             <div class="im-controls">
@@ -248,6 +253,11 @@ export default class IntercomModal {
                 <div class="welcome-icon">👋</div>
                 <h3>Hello there!</h3>
                 <p>Tap the microphone button below to start our conversation! 🎙️✨</p>
+                <div class="welcome-ptt-info">
+                  <p><strong>PTT Mode:</strong></p>
+                  <p>- When ON: AI's speech cannot be interrupted</p>
+                  <p>- When OFF: You can interrupt AI at any time</p>
+                </div>
               </div>`;
         });
 

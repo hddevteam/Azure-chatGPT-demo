@@ -1,42 +1,42 @@
 :root {
-  /* 色彩变量 */
+  /* Color variables */
   --color-bg1: #1d2b52;
   --color-bg2: #000428;
-  --color1: 41, 128, 185;   /* 蓝色 */
-  --color2: 142, 68, 173;   /* 紫色 */
-  --color3: 39, 174, 96;    /* 绿色 */
-  --color4: 230, 126, 34;   /* 橙色 */
-  --color5: 52, 152, 219;   /* 天蓝色 */
-  --color-interactive: 155, 89, 182; /* 亮紫色 */
+  --color1: 41, 128, 185;   /* Blue */
+  --color2: 142, 68, 173;   /* Purple */
+  --color3: 39, 174, 96;    /* Green */
+  --color4: 230, 126, 34;   /* Orange */
+  --color5: 52, 152, 219;   /* Sky blue */
+  --color-interactive: 155, 89, 182; /* Light purple */
   
-  /* 布局变量 */
+  /* Layout variables */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 12px;
   --spacing-lg: 16px;
   --spacing-xl: 24px;
   
-  /* 边框变量 */
+  /* Border variables */
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 18px;
   
-  /* 其他变量 */
+  /* Other variables */
   --circle-size: 200%;
   --blending: screen;
   --transition-speed: 0.3s;
   
-  /* 常用背景色 */
+  /* Common background colors */
   --bg-overlay: rgba(0, 0, 0, 0.1);
   --bg-overlay-dark: rgba(0, 0, 0, 0.3);
   --bg-gradient: linear-gradient(135deg, var(--color-bg1), var(--color-bg2));
   
-  /* 常用边框色 */
+  /* Common border colors */
   --border-light: rgba(255, 255, 255, 0.1);
   --border-medium: rgba(255, 255, 255, 0.2);
 }
 
-/* 通用样式混入 */
+/* Common style mixins */
 .flex-center {
   display: flex;
   align-items: center;
@@ -51,7 +51,7 @@
   background-color: transparent;
 }
 
-/* 基础布局容器 */
+/* Base layout containers */
 .im-modal {
   position: fixed;
   inset: 0;
@@ -72,7 +72,7 @@
   overflow: hidden;
 }
 
-/* 渐变背景动画 */
+/* Gradient background animation */
 .gradient-bg {
   position: absolute;
   inset: 0;
@@ -83,7 +83,7 @@
   transition: opacity var(--transition-speed) ease;
 }
 
-/* 录音时显示动画背景 */
+/* Show animation background when recording */
 .recording-active .gradient-bg {
   opacity: 1;
 }
@@ -96,11 +96,11 @@
   filter: blur(40px);
   width: 100%;
   height: 100%;
-  opacity: 0.6; /* 降低整体动画的不透明度 */
-  visibility: hidden; /* 默认隐藏动画容器 */
+  opacity: 0.6; /* Lower the opacity of the overall animation */
+  visibility: hidden; /* Hide the animation container by default */
 }
 
-/* 录音时显示动画容器 */
+/* Show animation container when recording */
 .recording-active .gradients-container {
   visibility: visible;
 }
@@ -174,7 +174,7 @@
   min-width: 300px;
   max-width: 400px;
   overflow-y: auto;
-  padding-bottom: 20px; /* 确保底部有足够空间 */
+  padding-bottom: 20px; /* Ensure there is enough space at the bottom */
   display: flex;
   flex-direction: column;
   background: rgba(0, 0, 0, 0.2);
@@ -201,7 +201,7 @@
   overflow-y: auto;
 }
 
-/* 头部样式 */
+/* Header styles */
 .im-header {
   display: flex;
   justify-content: space-between;
@@ -233,7 +233,7 @@
   color: #fff;
 }
 
-/* 文本容器 - 移除初始动画 */
+/* Text container - remove initial animation */
 .im-text-container {
   flex: 1;
   margin: 0;
@@ -248,7 +248,7 @@
   transition: background 0.3s ease;
 }
 
-/* 控制区域 */
+/* Control area */
 .im-controls {
   margin-top: auto;
   padding: 16px;
@@ -259,7 +259,7 @@
   gap: 16px;
 }
 
-/* 按钮组 */
+/* Button group */
 .im-button-group {
   display: flex;
   align-items: center;
@@ -331,14 +331,14 @@
   background: rgba(76, 175, 80, 0.2);
 }
 
-/* 输入组 */
+/* Input group */
 .im-input-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* 标签 */
+/* Labels */
 .im-label {
   color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
@@ -346,7 +346,7 @@
   padding-top: 5px;
 }
 
-/* 文本框 */
+/* Text area */
 .im-textarea {
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -364,7 +364,7 @@
   outline: none;
 }
 
-/* 输入框 */
+/* Input field */
 .im-input {
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -380,7 +380,7 @@
   outline: none;
 }
 
-/* 选择框 */
+/* Select box */
 .im-select {
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -396,7 +396,7 @@
   padding-right: 36px;
 }
 
-/* 按钮基础样式 */
+/* Base button styles */
 .im-button {
   padding: var(--spacing-md) var(--spacing-xl);
   border-radius: var(--border-radius-md);
@@ -410,7 +410,7 @@
   transition: all var(--transition-speed);
 }
 
-/* 主要按钮 */
+/* Primary button */
 .im-button-primary {
   background-color: #4CAF50;
   color: white;
@@ -425,7 +425,7 @@
   cursor: not-allowed;
 }
 
-/* 次要按钮 */
+/* Secondary button */
 .im-button-secondary {
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
@@ -440,7 +440,7 @@
   cursor: not-allowed;
 }
 
-/* 警告按钮 */
+/* Warning button */
 .im-button-warning {
   position: absolute;
   right: 8px;
@@ -462,7 +462,7 @@
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* 页脚 */
+/* Footer */
 .im-footer {
   margin-top: 24px;
   padding-top: 16px;
@@ -475,10 +475,10 @@
   background: rgba(0, 0, 0, 0.1);
 }
 
-/* 响应式设计 */
+/* Responsive design */
 @media (max-width: 768px) {
   .im-modal {
-    background: linear-gradient(135deg, #1d2b52, #000428);  /* 使用和桌面端一样的背景色 */
+    background: linear-gradient(135deg, #1d2b52, #000428);  /* Use the same background color as the desktop version */
   }
 
   .im-container {
@@ -521,19 +521,36 @@
   }
 
   .im-button-group {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    display: flex;  /* Use flex layout instead of grid */
+    justify-content: space-between; /* Distribute evenly */
+    align-items: center;
+    width: 100%;
     padding: 0 8px;
+    gap: 8px; /* Reduce spacing */
+  }
+
+  /* Ensure all buttons occupy appropriate space */
+  .ptt-toggle {
+    flex: 0 0 40px; /* Fixed width */
+  }
+
+  .im-record-button {
+    flex: 0 0 64px; /* Fixed width */
+  }
+
+  .im-button-warning {
+    flex: 0 0 40px; /* Fixed width */
+    position: relative; /* Remove absolute positioning */
+    right: auto;
   }
 
   .im-button {
     justify-content: center;
-    font-size: 16px;  /* 增大字体 */
+    font-size: 16px;  /* Increase font size */
     padding: 12px;
   }
 
-  /* 主要动作按钮样式调整 */
+  /* Adjust primary action button styles */
   .im-button-primary,
   .im-button-secondary {
     font-weight: 600;
@@ -544,7 +561,7 @@
     border-color: rgba(255, 255, 255, 0.3);
   }
 
-  /* 图标大小调整 */
+  /* Adjust icon size */
   .im-button i {
     font-size: 18px;
   }
@@ -562,7 +579,7 @@
   }
 }
 
-/* 滚动条样式 */
+/* Scrollbar styles */
 .im-text-container::-webkit-scrollbar {
   width: 8px;
 }
@@ -581,7 +598,7 @@
   background: rgba(255, 255, 255, 0.4);
 }
 
-/* 聊天消息样式 */
+/* Chat message styles */
 .im-message {
   margin: var(--spacing-sm) 0;
   max-width: 85%;
@@ -636,26 +653,25 @@
   text-align: left;
 }
 
-/* 设置切换按钮 */
+/* Settings toggle button */
 .im-settings-toggle {
-  display: none;  /* 默认隐藏 */
+  display: none;  /* Hide by default */
   background: none;
   border: none;
   color: white;
-  font-size: 24px;  /* 增大图标尺寸 */
+  font-size: 24px;  /* Increase icon size */
   padding: 8px;
   cursor: pointer;
   margin-left: 8px;
 }
 
-/* 清除浮动 */
+/* Clear float */
 .im-text-container::after {
   content: '';
   display: table;
   clear: both;
 }
 
-/* 修改响应式设计 */
 @media (max-width: 768px) {
 
   .im-record-button {
@@ -664,13 +680,9 @@
     font-size: 28px;
   }
 
-  .im-button-group {
-    justify-content: center;
-    gap: 20px;
-  }
 
   .im-modal-content {
-    position: fixed;  /* 改为 fixed 定位 */
+    position: fixed;  /* Change to fixed positioning */
     top: 0;
     left: 0;
     right: 0;
@@ -686,10 +698,10 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 100%;  /* 改为100% */
+    height: 100%;  /* Change to 100% */
     width: 100%;
     position: relative;
-    padding-bottom: 40px; /* 为底部控制栏留出空间 */
+    padding-bottom: 40px; /* Leave space for the bottom control bar */
   }
 
   .im-settings-section {
@@ -701,17 +713,17 @@
     max-width: none;
     background: linear-gradient(135deg, #2196F3, #1976D2);
     transition: right 0.3s ease;
-    z-index: 1000;  /* 提高层级 */
+    z-index: 1000;  /* Increase z-index */
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
   }
 
   .im-settings-toggle {
-    display: block !important;  /* 强制显示设置按钮 */
+    display: block !important;  /* Force display of settings button */
   }
 
   .im-text-container {
     flex: 1;
-    height: auto; /* 移除固定高度计算 */
+    height: auto; /* Remove fixed height calculation */
     overflow-y: auto;
     padding: 16px;
     margin: 0;
@@ -743,26 +755,21 @@
     justify-content: space-between;
   }
 
-  .im-button-group {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 0 8px;
-  }
 
-  /* 主要动作按钮样式调整 */
+
+  /* Adjust primary action button styles */
   .im-button-primary,
   .im-button-secondary {
     font-weight: 600;
   }
 
-  /* 降低Clear All按钮的视觉优先级 */
+  /* Lower the visual priority of the Clear All button */
   .im-button-warning {
     grid-column: 1 / -1;
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: rgba(255, 255, 255, 0.7);
-    font-size: 14px;  /* 字体小一号 */
+    font-size: 14px;  /* Smaller font size */
   }
 
   .im-button-warning:hover {
@@ -770,13 +777,13 @@
     border-color: rgba(255, 255, 255, 0.3);
   }
 
-  /* 图标大小调整 */
+  /* Adjust icon size */
   .im-button i {
     font-size: 18px;
   }
 }
 
-/* 聊天区域录音状态动画 */
+/* Chat area recording status animation */
 @keyframes recordingPulse {
     0% { background: rgba(255, 255, 255, 0.05); }
     50% { background: rgba(255, 82, 82, 0.1); }
@@ -787,7 +794,7 @@
     animation: recordingPulse 2s ease-in-out infinite;
 }
 
-/* 用户正在说话的动画指示器 */
+/* User speaking animation indicator */
 @keyframes speechDotPulse {
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
@@ -844,6 +851,24 @@
   line-height: 1.5;
 }
 
+.welcome-message .welcome-ptt-info {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.welcome-message .welcome-ptt-info p {
+  margin: 5px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.welcome-message .welcome-ptt-info strong {
+  color: #4CAF50;
+}
+
 @keyframes wave {
   0% { transform: rotate(0deg); }
   25% { transform: rotate(-10deg); }
@@ -851,7 +876,7 @@
   100% { transform: rotate(0deg); }
 }
 
-/* 录音按钮样式 */
+/* Recording button styles */
 .im-record-button {
   position: relative;
   width: 64px;
@@ -900,7 +925,7 @@
   }
 }
 
-/* 摘要部分样式 */
+/* Summary section styles */
 .im-summary-section {
     margin-top: 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -919,7 +944,7 @@
 }
 
 .im-summary-container {
-    max-height: none; /* 移除最大高度限制 */
+    max-height: none; /* Remove max height limit */
 }
 
 .im-summary-item {
@@ -956,7 +981,7 @@
     color: rgba(255, 255, 255, 0.6);
 }
 
-/* 当有摘要时显示摘要部分 */
+/* Show summary section when there is a summary */
 .has-summary .im-summary-section {
     display: block;
 }
