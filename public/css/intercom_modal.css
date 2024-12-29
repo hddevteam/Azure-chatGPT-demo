@@ -1002,3 +1002,21 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+.welcome-features {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.welcome-features p {
+    margin: 5px 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.welcome-features strong {
+    color: #4CAF50;
+}

@@ -2,6 +2,24 @@ import { RealtimeClient } from "../utils/realtime/realtimeClient.js";
 import { fetchRealtimeConfig, generateSystemPrompt } from "../utils/api.js";
 import { ConversationSummaryHelper } from "../utils/ConversationSummaryHelper.js";
 
+// 在类的顶部添加常量
+const WELCOME_MESSAGE_TEMPLATE = `
+  <div class="welcome-message">
+    <div class="welcome-icon">👋</div>
+    <h3>Hello there!</h3>
+    <p>Tap the microphone button below to start our conversation! 🎙️✨</p>
+    <div class="welcome-ptt-info">
+      <p><strong>PTT Mode:</strong></p>
+      <p>- When ON: AI's speech cannot be interrupted</p>
+      <p>- When OFF: You can interrupt AI at any time</p>
+    </div>
+    <div class="welcome-features">
+      <p><strong>💡 Pro Tips:</strong></p>
+      <p>- Ask me to search the internet for up-to-date information</p>
+      <p>- Get real-time data and current events</p>
+    </div>
+  </div>
+`;
 
 export default class IntercomModal {
     constructor() {
@@ -60,16 +78,7 @@ export default class IntercomModal {
               </div>
             </div>
             <div id="received-text-container" class="im-text-container">
-              <div class="welcome-message">
-                <div class="welcome-icon">👋</div>
-                <h3>Hello there!</h3>
-                <p>Tap the microphone button below to start our conversation! 🎙️✨</p>
-                <div class="welcome-ptt-info">
-                  <p><strong>PTT Mode:</strong></p>
-                  <p>- When ON: AI's speech cannot be interrupted</p>
-                  <p>- When OFF: You can interrupt AI at any time</p>
-                </div>
-              </div>
+              ${WELCOME_MESSAGE_TEMPLATE}
             </div>
             <div class="im-controls">
               <div class="im-button-group">
@@ -255,17 +264,7 @@ export default class IntercomModal {
 
         clearBtn.addEventListener("click", () => {
             const container = document.getElementById("received-text-container");
-            container.innerHTML = `
-              <div class="welcome-message">
-                <div class="welcome-icon">👋</div>
-                <h3>Hello there!</h3>
-                <p>Tap the microphone button below to start our conversation! 🎙️✨</p>
-                <div class="welcome-ptt-info">
-                  <p><strong>PTT Mode:</strong></p>
-                  <p>- When ON: AI's speech cannot be interrupted</p>
-                  <p>- When OFF: You can interrupt AI at any time</p>
-                </div>
-              </div>`;
+            container.innerHTML = WELCOME_MESSAGE_TEMPLATE;
         });
 
         // settings section toggle
