@@ -617,7 +617,7 @@ export default class IntercomModal {
                 if (this.realtimeClient) {
                     const messageData = {
                         id: message.item_id,
-                        type: "user",
+                        role: "user",
                         timestamp: new Date(),
                         text: transcriptText,
                         content: [{

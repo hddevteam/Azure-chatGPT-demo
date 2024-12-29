@@ -38,7 +38,7 @@ export class ConversationSummaryHelper {
             const validMessages = messages
                 .filter(msg => msg && (msg.content || msg.text))
                 .map(msg => ({
-                    role: msg.role || msg.type,
+                    role: msg.role,
                     content: this.extractMessageContent(msg)
                 }))
                 .filter(msg => msg.content.length > 0);

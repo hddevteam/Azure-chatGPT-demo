@@ -488,6 +488,7 @@ export class RealtimeClient {
             console.log("[Message Skipped] Invalid message:", messageData);
             return;
         }
+        console.log("addMessageToHistory Message data:", messageData);
 
         // Check if the message already exists
         const existingMessageIndex = this.messageHistory.findIndex(msg => msg.id === messageData.id);
@@ -530,7 +531,7 @@ export class RealtimeClient {
         
         console.log("[Message Added]", {
             id: messageData.id,
-            type: messageData.type,
+            role: messageData.role,
             messageCount: `${this.messageHistory.length}/${this.messageLimit || "∞"}`,
             text: messageData.text?.substring(0, 50) + (messageData.text?.length > 50 ? "..." : "")
         });
@@ -542,7 +543,8 @@ export class RealtimeClient {
 
     validateMessageContent(messageData) {
         // Validate message content
-        if (!messageData.type || !messageData.content) {
+        if (!messageData.role || !messageData.content) {
+            console.log("Message missing type or content:", messageData);
             return false;
         }
 
@@ -554,6 +556,8 @@ export class RealtimeClient {
                        (item.type === "input_audio" && item.transcript);
             });
             return hasValidContent;
+        } else {
+            console.log("Invalid message content format:", messageData);
         }
 
         return false;
