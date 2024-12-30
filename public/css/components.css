@@ -1348,3 +1348,117 @@ button.action-button.invisible {
 #audio-processing-modal #uploaded-audio-files-list {
     margin-top: 20px;
 }
+
+#welcome-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2em;
+    color: #333;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    backdrop-filter: blur(5px);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    animation: fadeIn 0.5s ease-in;
+}
+
+#welcome-message h2 {
+    color: #2b2b2b;
+    margin-bottom: 0.8em;
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+#welcome-message ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.8em 0;
+}
+
+#welcome-message li {
+    margin: 0.3em 0;
+    font-size: 1.1em;
+    color: #444;
+    padding: 0.3em 0.8em;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+}
+
+#welcome-message p {
+    margin: 0.5em 0;
+    line-height: 1.4;
+    color: #555;
+}
+
+#welcome-message .tip {
+    margin-top: 1.5em;
+    color: #007bff;
+    font-style: italic;
+    background: rgba(0, 123, 255, 0.1);
+    padding: 0.8em;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* 深色模式适配 */
+.split-view #welcome-message {
+    background: rgba(40, 44, 52, 0.95);
+    color: #e6e6e6;
+}
+
+.split-view #welcome-message h2 {
+    color: #fff;
+}
+
+.split-view #welcome-message li {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e6e6e6;
+}
+
+.split-view #welcome-message p {
+    color: #ccc;
+}
+
+.split-view #welcome-message .tip {
+    color: #66b3ff;
+    background: rgba(102, 179, 255, 0.1);
+}
+
+/* 移动设备适配 */
+@media screen and (max-width: 768px) {
+    #welcome-message {
+        margin: 10px;
+        padding: 1.5em 1em;
+    }
+
+    #welcome-message h2 {
+        font-size: 1.5em;
+        margin-bottom: 0.5em;
+    }
+
+    #welcome-message li {
+        font-size: 1em;
+        padding: 0.2em 0.5em;
+    }
+
+    #welcome-message .tip {
+        padding: 0.5em;
+        margin-top: 1em;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

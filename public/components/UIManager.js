@@ -456,6 +456,25 @@ class UIManager {
         }
     }
 
+    showWelcomeMessage() {
+        document.querySelector("#messages").innerHTML = `
+            <div id="welcome-message">
+                <h2>Welcome to Azure ChatGPT!</h2>
+                <p>Your advanced AI assistant powered by:</p>
+                <ul>
+                    <li>🚀 GPT-4o Realtime</li>
+                    <li>🌟 GPT-4o</li>
+                    <li>✨ GPT-4o Mini</li>
+                    <li>🌈 o1</li>
+                    <li>💫 o1 Mini</li>
+                    <li>🎨 DALL·E 3</li>
+                </ul>
+                <p>Start chatting now to experience the power of these cutting-edge AI models!</p>
+                <p class="tip">💡 Tip: Type your message below and press Enter to start the conversation.</p>
+            </div>
+        `;
+    }
+
     changeChatTopic(chatId, isNewTopic = false) {
         // check if chatId is current chatId
         if (this.currentChatId !== chatId) {
@@ -500,7 +519,7 @@ class UIManager {
         this.app.prompts.clear();
 
         if (isNewTopic) {
-            document.querySelector("#messages").innerHTML = "";
+            this.showWelcomeMessage();
             this.chatHistoryManager.createChatHistory(chatId);
         } else {
             this.syncManager.syncMessages(chatId);
@@ -516,6 +535,10 @@ class UIManager {
         document.querySelector("#messages").innerHTML = "";
         // load chat messages by chatId
         const savedMessages = this.storageManager.getMessages(chatId);
+        if (savedMessages.length === 0) {
+            this.showWelcomeMessage();
+            return;
+        }
         const startingIndex = savedMessages.length > this.messageLimit ? savedMessages.length - this.messageLimit : 0;
         savedMessages.slice(startingIndex).forEach((message, index, arr) => {
             let isActive = message.isActive || false;

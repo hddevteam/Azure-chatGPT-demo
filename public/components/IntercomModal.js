@@ -4,21 +4,22 @@ import { ConversationSummaryHelper } from "../utils/ConversationSummaryHelper.js
 
 // 在类的顶部添加常量
 const WELCOME_MESSAGE_TEMPLATE = `
-  <div class="welcome-message">
-    <div class="welcome-icon">👋</div>
-    <h3>Hello there!</h3>
-    <p>Tap the microphone button below to start our conversation! 🎙️✨</p>
-    <div class="welcome-ptt-info">
-      <p><strong>PTT Mode:</strong></p>
-      <p>- When ON: AI's speech cannot be interrupted</p>
-      <p>- When OFF: You can interrupt AI at any time</p>
+    <div class="welcome-message">
+        <div class="welcome-icon">👋</div>
+        <h3>Let's Start Our Voice Chat!</h3>
+        <p>Click the microphone button below to begin our real-time conversation! 🎙️✨</p>
+        <div class="welcome-ptt-info">
+            <p><strong>Push-To-Talk Mode:</strong></p>
+            <p>- ON: AI response cannot be interrupted</p>
+            <p>- OFF: You can speak anytime to interrupt AI</p>
+        </div>
+        <div class="welcome-features">
+            <p><strong>💡 Quick Tips:</strong></p>
+            <p>- Speak naturally and clearly</p>
+            <p>- Feel free to ask anything</p>
+            <p>- I'm here to help and chat with you!</p>
+        </div>
     </div>
-    <div class="welcome-features">
-      <p><strong>💡 Pro Tips:</strong></p>
-      <p>- Ask me to search the internet for up-to-date information</p>
-      <p>- Get real-time data and current events</p>
-    </div>
-  </div>
 `;
 
 export default class IntercomModal {

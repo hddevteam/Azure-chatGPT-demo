@@ -174,6 +174,9 @@ class MessageManager {
     }
     
     async sendMessage(inputMessage = "", attachments = [], isRetry = false) {
+        // Clear welcome message before sending first message
+        document.querySelector("#messages").innerHTML = "";
+        
         this.clearFollowUpQuestions();
         this.uiManager.initSubmitButtonProcessing();
         const validationResult = await this.validateInput(inputMessage, attachments, isRetry);
@@ -397,7 +400,13 @@ class MessageManager {
         this.uiManager.app.prompts.removePrompt(messageId);
         this.uiManager.storageManager.deleteMessage(this.uiManager.currentChatId, messageId);
         this.uiManager.syncManager.syncMessageDelete(this.uiManager.currentChatId, messageId);
-        // this.uiManager.updateSlider();
+        
+        // Check if all messages are deleted
+        const remainingMessages = document.querySelectorAll(".message");
+        if (remainingMessages.length === 0) {
+            this.uiManager.showWelcomeMessage();
+        }
+        
         this.uiManager.isDeleting = false;
     }
 

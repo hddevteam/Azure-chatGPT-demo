@@ -30,6 +30,10 @@ function initializeApp(username) {  // 接收传入的 username 参数
     const uiManager = setup();  // 设置UI管理器
     uiManager.storageManager.updateCurrentUserInfo(username);  // 使用传入的 username 更新用户名信息
     const app = uiManager.app;
+    
+    // 初始化显示欢迎信息
+    uiManager.showWelcomeMessage();
+    
     new ModelDropdownManager(app, "#model-switch", "#model-dropdown");
 
     //get client language

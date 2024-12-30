@@ -1,6 +1,6 @@
 # 🤖 Powerful chatGPT for Azure OpenAI GPT model 
 
-Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the Azure OpenAI GPT-4o/GPT-4o-mini/o1/o1-mini/Dalle-3 model. This project serves as an excellent starting point for developers interested in developing chatbot applications using JavaScript and the Azure OpenAI API.
+Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the Azure OpenAI GPT-4o-realtime/GPT-4o/GPT-4o-mini/o1/o1-mini/Dalle-3 model. This project serves as an excellent starting point for developers interested in developing chatbot applications using JavaScript and the Azure OpenAI API.
 
 ## 📺 What's new in the current version
 - **✨Support PWA (Progressive Web App)✨**
@@ -11,7 +11,7 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
 ![Optimize for mobile](screenshot_mobile.png)
 ![Audio file transcription](screenshot_desktop_stt_batch.png)
 
-- **🎉Support for GPT-4O Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview-3🎉**
+- **🎉Support for GPT-4o Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview-3🎉**
 - **🎉Support for o1/o1-mini/GPT-4O/GPT-4O-mini🎉**
 - **🎉Support question generation mode - enhances conversation quality by automatically generating structured options to guide your inquiries, leading to higher quality AI responses. When enabled, each of your questions will include multiple focused options to choose from, helping you get more precise and relevant answers.🎉**
 ![Question generation mode](screenshot_options_generate.png)
