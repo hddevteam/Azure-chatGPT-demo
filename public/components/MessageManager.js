@@ -174,9 +174,14 @@ class MessageManager {
     }
     
     async sendMessage(inputMessage = "", attachments = [], isRetry = false) {
-        // Clear welcome message before sending first message
-        document.querySelector("#messages").innerHTML = "";
-        
+        // 只在第一次发消息时清除欢迎消息
+        const messagesContainer = document.querySelector("#messages");
+        if (messagesContainer.children.length === 1 && 
+            messagesContainer.children[0].id === "welcome-message") {
+            messagesContainer.innerHTML = "";
+        }
+
+        // ...原有代码继续...
         this.clearFollowUpQuestions();
         this.uiManager.initSubmitButtonProcessing();
         const validationResult = await this.validateInput(inputMessage, attachments, isRetry);
