@@ -523,9 +523,12 @@ export async function generateRealtimeSummary(messages) {
     }
 }
 
-export async function searchBing(query) {
+export async function searchBing(query, options = {}) {
     try {
-        const response = await axios.post("/bing-search", { query });
+        const response = await axios.post("/bing-search", { 
+            query,
+            ...options 
+        });
         return response.data;
     } catch (error) {
         console.error("Bing search error:", error);

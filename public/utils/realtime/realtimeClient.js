@@ -139,13 +139,38 @@ export class RealtimeClient {
                 {
                     type: "function",
                     name: "search_bing",
-                    description: "Search the internet using Bing Search API",
+                    description: `Search the internet using Bing Search API with advanced options.
+            
+Examples:
+1. Basic search: {"query": "latest AI news"}
+2. With market: {"query": "local restaurants", "mkt": "zh-CN"}
+3. With filters: {"query": "OpenAI", "responseFilter": ["news", "videos"]}
+4. With time range: {"query": "AI news", "freshness": "Week"}
+
+Note: The search will automatically include the current time context for more relevant results.`,
                     parameters: {
                         type: "object",
                         properties: {
                             query: {
                                 type: "string",
                                 description: "The search query to send to Bing"
+                            },
+                            mkt: {
+                                type: "string",
+                                description: "Optional. The market where the results come from (e.g., 'en-US', 'zh-CN', 'ja-JP')"
+                            },
+                            responseFilter: {
+                                type: "array",
+                                description: "Optional. Additional content types to include in results. Default: ['WebPages','News','Entities']",
+                                items: {
+                                    type: "string",
+                                    enum: ["Computation", "Entities", "Images", "News", "Places", "RelatedSearches", "SpellSuggestions", "TimeZone", "Translations", "Videos", "Webpages"]
+                                }
+                            },
+                            freshness: {
+                                type: "string",
+                                description: "Optional. Filter results by age. Default: 'Day'",
+                                enum: ["Day", "Week", "Month"]
                             }
                         },
                         required: ["query"]
@@ -224,20 +249,16 @@ export class RealtimeClient {
     // Add Bing search handling function
     async handleBingSearch(args) {
         try {
-            const { query } = args;
-            const searchResults = await searchBing(query);
+            const { query, mkt, responseFilter, freshness } = args;
+            const searchResults = await searchBing(query, { mkt, responseFilter, freshness });
             console.log("Bing search results:", searchResults);
-            // Format the results as a string, remove URLs
-            const formattedResults = searchResults
-                .slice(0, 5) 
-                .map((result, index) => {
-                    return `${index + 1}. ${result.title}\n   ${result.snippet}`;
-                })
-                .join("\n\n");
             
             return JSON.stringify({
-                query: query,
-                results: formattedResults
+                query: searchResults.query,
+                market: searchResults.market,
+                filters: searchResults.filters,
+                freshness: searchResults.freshness,
+                results: searchResults.results
             });
         } catch (error) {
             console.error("Bing search error:", error);

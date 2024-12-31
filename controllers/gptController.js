@@ -28,6 +28,7 @@ const defaultParams = {
 };
 
 const axios = require("axios");
+const bingController = require("./bingController");
 
 exports.getDefaultParams = (req, res) => {
     res.json(defaultParams);
@@ -49,7 +50,97 @@ const handleRequestError = (error, res) => {
     }
 };
 
-const makeRequest = async ({ apiKey, apiUrl, prompt, params }) => {
+// 添加工具定义
+const tools = [
+    {
+        type: "function",
+        function: {
+            name: "get_current_time",
+            description: "Get the current time in the specified timezone, if no timezone specified, use server timezone",
+            parameters: {
+                type: "object",
+                properties: {
+                    timezone: {
+                        type: "string",
+                        description: "The timezone to get the time in (e.g. 'Asia/Shanghai', 'America/New_York'). Optional."
+                    }
+                },
+                required: []
+            }
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "search_bing",
+            description: `Search the internet using Bing Search API with advanced options.
+            
+Examples:
+1. Basic search: {"query": "latest AI news"}
+2. With market: {"query": "local restaurants", "mkt": "zh-CN"}
+3. With filters: {"query": "OpenAI", "responseFilter": ["news", "videos"]}
+4. With time range: {"query": "AI news", "freshness": "Week"}
+
+Note: The search will automatically include the current time context for more relevant results.`,
+            parameters: {
+                type: "object",
+                properties: {
+                    query: {
+                        type: "string",
+                        description: "The search query to send to Bing"
+                    },
+                    mkt: {
+                        type: "string",
+                        description: "Optional. The market where the results come from (e.g., 'en-US', 'zh-CN', 'ja-JP')"
+                    },
+                    responseFilter: {
+                        type: "array",
+                        description: "Optional. Additional content types to include in results. Default: ['WebPages','News','Entities']",
+                        items: {
+                            type: "string",
+                            enum: ["Computation", "Entities", "Images", "News", "Places", "RelatedSearches", "SpellSuggestions", "TimeZone", "Translations", "Videos", "Webpages"]
+                        }
+                    },
+                    freshness: {
+                        type: "string",
+                        description: "Optional. Filter results by age. Default: 'Day'",
+                        enum: ["Day", "Week", "Month"]
+                    }
+                },
+                required: ["query"]
+            }
+        }
+    }
+];
+
+
+// 添加工具处理函数
+const handleGetCurrentTime = (args) => {
+    const { timezone } = args;
+    const options = {
+        hour12: false,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZone: timezone || "Asia/Shanghai"
+    };
+
+    const time = new Date().toLocaleString(undefined, options);
+    return {
+        time,
+        timezone: options.timeZone
+    };
+};
+
+const handleBingSearch = async (args) => {
+    const { query, mkt, responseFilter, freshness } = args;
+    return await bingController.advancedSearch(query, { mkt, responseFilter, freshness });
+};
+
+const makeRequest = async ({ apiKey, apiUrl, prompt, params, includeFunctionCalls = false }) => {
     console.log("makeRequest", prompt);
     const options = {
         method: "POST",
@@ -62,6 +153,11 @@ const makeRequest = async ({ apiKey, apiUrl, prompt, params }) => {
             ...params
         },
     };
+
+    // 只在 generateResponse 调用时添加 tools
+    if (includeFunctionCalls) {
+        options.data.tools = tools;
+    }
 
     return await axios(apiUrl, options);
 };
@@ -143,6 +239,7 @@ exports.generateResponse = async (req, res) => {
         apiUrl: currentApiUrl,
         prompt,
         params: requestParams,
+        includeFunctionCalls: true // 在 generateResponse 中设置为 true
     };
 
     try {
@@ -150,13 +247,48 @@ exports.generateResponse = async (req, res) => {
         const response = await makeRequest(requestData);
         console.log("Response from GPT:", response.data);
 
-        // 假设数据结构和 generateResponse 中相同，我们提取 message 和 totalTokens
         const choices = response.data.choices || [];
-        const message = choices.length > 0 ? choices[0].message.content : "No response from GPT";
-        const totalTokens = response.data.usage ? response.data.usage.total_tokens : 0;
-        const responseObj = { message, totalTokens };
-        console.log("responseObj", responseObj);
-        res.json(responseObj);
+        const responseMessage = choices[0]?.message;
+        
+        // 处理函数调用
+        if (responseMessage?.tool_calls) {
+            for (const toolCall of responseMessage.tool_calls) {
+                const functionName = toolCall.function.name;
+                const args = JSON.parse(toolCall.function.arguments);
+
+                let result;
+                if (functionName === "get_current_time") {
+                    result = handleGetCurrentTime(args);
+                } else if (functionName === "search_bing") {
+                    result = await handleBingSearch(args);
+                }
+
+                // 将函数调用结果添加到会话
+                prompt.push({
+                    role: "assistant",
+                    content: null,
+                    tool_calls: [toolCall]
+                });
+                prompt.push({
+                    role: "tool",
+                    tool_call_id: toolCall.id,
+                    content: JSON.stringify(result)
+                });
+            }
+
+            // 再次调用 API 获取最终响应
+            requestData.prompt = prompt;
+            console.log("Making request with data:", JSON.stringify(requestData, null, 2)); 
+            const finalResponse = await makeRequest(requestData);
+            const message = finalResponse.data.choices[0].message.content;
+            const totalTokens = finalResponse.data.usage.total_tokens;
+            res.json({ message, totalTokens });
+        } else {
+            // 普通响应处理
+            const message = responseMessage?.content || "No response from GPT";
+            const totalTokens = response.data.usage?.total_tokens || 0;
+            res.json({ message, totalTokens });
+        }
     } catch (error) {
         handleRequestError(error, res);
     }
