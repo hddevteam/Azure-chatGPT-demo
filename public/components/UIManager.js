@@ -459,18 +459,18 @@ class UIManager {
     showWelcomeMessage() {
         document.querySelector("#messages").innerHTML = `
             <div id="welcome-message">
-                <h2>Welcome to Azure ChatGPT!</h2>
-                <p>Your advanced AI assistant powered by:</p>
-                <ul>
-                    <li>🚀 GPT-4o Realtime</li>
-                    <li>🌟 GPT-4o</li>
-                    <li>✨ GPT-4o Mini</li>
-                    <li>🌈 o1</li>
-                    <li>💫 o1 Mini</li>
-                    <li>🎨 DALL·E 3</li>
-                </ul>
-                <p>Start chatting now to experience the power of these cutting-edge AI models!</p>
-                <p class="tip">💡 Tip: Type your message below and press Enter to start the conversation.</p>
+            <h2>Welcome to Azure ChatGPT!</h2>
+            <p>Your advanced AI assistant powered by:</p>
+            <ul>
+                <li>🚀 GPT-4o Realtime</li>
+                <li>🌟 GPT-4o</li>
+                <li>✨ GPT-4o Mini</li>
+                <li>🌈 o1</li>
+                <li>💫 o1 Mini</li>
+                <li>🎨 DALL·E 3</li>
+            </ul>
+            <p>Start chatting now to experience the power of these cutting-edge AI models!</p>
+            <p class="tip">💡 Tip: When searching with keywords, it will use Bing to find the latest information online.</p>
             </div>
         `;
     }

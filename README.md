@@ -13,6 +13,7 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
 
 - **🎉Support for GPT-4o Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview-3🎉**
 - **🎉Support for o1/o1-mini/GPT-4O/GPT-4O-mini🎉**
+- **🎉Support for Bing API - Get the latest news updates through API integration🎉**
 - **🎉Support question generation mode - enhances conversation quality by automatically generating structured options to guide your inquiries, leading to higher quality AI responses. When enabled, each of your questions will include multiple focused options to choose from, helping you get more precise and relevant answers.🎉**
 ![Question generation mode](screenshot_options_generate.png)
 - **Split view for an enhanced conversation experience, especially useful when you need to edit long messages.**
