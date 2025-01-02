@@ -1462,3 +1462,36 @@ button.action-button.invisible {
         transform: translateY(0);
     }
 }
+
+.link-popup {
+    position: fixed;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 1000;
+    padding: 4px 0;
+}
+
+.link-popup-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.link-popup-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* 移动设备适配 */
+@media (max-width: 768px) {
+    .link-popup {
+        width: auto;
+        max-width: 90vw;
+    }
+    
+    .link-popup-item {
+        padding: 12px 16px; /* 增大点击区域 */
+    }
+}

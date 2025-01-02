@@ -4,6 +4,7 @@ import swal from "sweetalert";
 import { generateExcerpt } from "../utils/textUtils.js";
 import { marked } from "marked";
 import markedKatex from "marked-katex-extension";
+import LinkHandler from "../utils/linkHandler.js";
 
 const options = {
     throwOnError: false
@@ -17,6 +18,7 @@ marked.use(markedKatex(options));
 class MessageManager {
     constructor(uiManager) {
         this.uiManager = uiManager;
+        this.linkHandler = new LinkHandler(uiManager);
     }
 
     // Add message to DOM
@@ -467,6 +469,13 @@ class MessageManager {
             copyElement.classList.add("code-block-copy");
     
             codeBlocksWithCopyElements.push({ codeBlock, copyElement });
+        }
+
+        // 处理链接
+        if (sender === "assistant") {
+            setTimeout(() => {
+                this.linkHandler.attachLinkHandlers();
+            }, 0);
         }
     
         return codeBlocksWithCopyElements;
