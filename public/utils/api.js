@@ -547,3 +547,19 @@ export async function generateSystemPrompt(context) {
         throw error;
     }
 }
+
+// URL summary API
+export async function getUrlSummary(url, language) {
+    console.log("[API] Sending URL for summarization:", url, "Language:", language);
+    try {
+        const response = await axios.post("/url-summary", { 
+            url,
+            language 
+        });
+        console.log("[API] Received URL summary response:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("[API] Error in URL summarization:", error);
+        throw new Error(`Failed to summarize URL content: ${error.message}`);
+    }
+}

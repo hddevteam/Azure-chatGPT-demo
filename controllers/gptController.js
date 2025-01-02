@@ -689,3 +689,24 @@ When a student says 'I very like pizza', respond like this:
     }
 };
 
+exports.summarizeWebContent = async (prompt) => {
+    const requestData = {
+        apiKey: gpt4oMiniApiKey,
+        apiUrl: gpt4oMiniApiUrl,
+        prompt,
+        params: {
+            temperature: 0.3,
+            max_tokens: 4000,
+            response_format: { "type": "json_object" }
+        },
+    };
+
+    try {
+        const response = await makeRequest(requestData);
+        const { data } = response;
+        return JSON.parse(data.choices[0].message.content);
+    } catch (error) {
+        throw new Error("Failed to summarize content: " + error.message);
+    }
+};
+

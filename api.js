@@ -13,6 +13,7 @@ const messageController = require("./controllers/messageController");
 const audioFileController = require("./controllers/audioFileController");
 const realtimeController = require("./controllers/realtimeController");
 const bingController = require("./controllers/bingController");
+const urlController = require("./controllers/urlController");
 
 const router = express.Router();
 
@@ -76,5 +77,8 @@ router.post("/realtime-summary", requireAuth, gptController.generateRealtimeSumm
 
 // Bing search route
 router.post("/bing-search", requireAuth, bingController.search);
+
+// URL summary route
+router.post("/url-summary", requireAuth, urlController.getUrlSummary);
 
 module.exports = router;

@@ -1,5 +1,5 @@
 // MessageManager.js
-import { getGpt, getFollowUpQuestions, textToImage } from "../utils/api.js";
+import { getGpt, getFollowUpQuestions, textToImage, getUrlSummary } from "../utils/api.js";
 import swal from "sweetalert";
 import { generateExcerpt } from "../utils/textUtils.js";
 import { marked } from "marked";
@@ -168,6 +168,12 @@ class MessageManager {
     }
     
     async sendMessage(inputMessage = "", attachments = [], isRetry = false) {
+        console.log("[MessageManager] Processing message:", { 
+            inputMessage: inputMessage.substring(0, 100) + "...", 
+            attachmentsCount: attachments.length, 
+            isRetry 
+        });
+
         // 只在第一次发消息时清除欢迎消息
         const messagesContainer = document.querySelector("#messages");
         if (messagesContainer.children.length === 1 && 
@@ -188,13 +194,17 @@ class MessageManager {
 
         let executeFunction; // 定义一个变量来存储根据条件选择的函数
 
-        if (message.startsWith("/image")) {
-            // 消息以 "/image" 开头
+        if (this.isValidUrl(inputMessage)) {
+            console.log("[MessageManager] Detected URL input, processing as URL summary");
+            executeFunction = () => this.sendUrlSummaryMessage(inputMessage);
+        } else if (message.startsWith("/image")) {
+            console.log("[MessageManager] Detected image generation request");
             executeFunction = () => this.sendImageMessage(message);
         } else if (message.startsWith("@") && !isSkipped) {
-            // 消息以 "@" 开头并且没有被跳过
+            console.log("[MessageManager] Detected profile-specific message");
             executeFunction = () => this.sendProfileMessage(message);
         } else {
+            console.log("[MessageManager] Processing as regular message");
             executeFunction = () => this.sendTextMessage();
         } 
 
@@ -205,6 +215,39 @@ class MessageManager {
 
     }
 
+    isValidUrl(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    async sendUrlSummaryMessage(url) {
+        this.uiManager.showToast("Analyzing webpage content...");
+        
+        try {
+            const response = await getUrlSummary(url, this.uiManager.clientLanguage);
+            const { summary } = response;
+            
+            // 构造更丰富的返回消息
+            const message = `## ${summary.title}\n\n` +
+                `**Topic Overview:** ${summary.topic}\n\n` +
+                "**Key Points:**\n" +
+                summary.keyPoints.map(point => `- ${point}`).join("\n") +
+                "\n\n**Additional Context:**\n" +
+                `- **Background:** ${summary.additionalInfo.context}\n` +
+                `- **Significance:** ${summary.additionalInfo.significance}\n` +
+                `- **Target Audience:** ${summary.additionalInfo.targetAudience}\n\n` +
+                `**Conclusion:** ${summary.conclusion}\n\n` +
+                `**Related Topics:** ${summary.relatedTopics.join(", ")}`;
+            
+            return { message };
+        } catch (error) {
+            throw error;
+        }
+    }
 
     async wrapWithGetGptErrorHandler(dataPromise) {
         try {
