@@ -2,17 +2,30 @@
 
 Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the Azure OpenAI GPT-4o-realtime/GPT-4o/GPT-4o-mini/o1/o1-mini/Dalle-3 model. This project serves as an excellent starting point for developers interested in developing chatbot applications using JavaScript and the Azure OpenAI API.
 
+## 📚 Learnings from this Project
+
+By working on this project, you will gain hands-on experience with several key APIs and services, including:
+
+- **Azure OpenAI API**: Learn how to integrate and utilize various GPT models, such as GPT-4o, GPT-4o-mini, and GPT-4o-realtime, to build intelligent conversational agents.
+- **Azure Speech Service**: Understand how to implement both Text-to-Speech and Speech-to-Text functionalities to enhance user interactions with voice capabilities.
+- **Azure Table Storage**: Discover how to sync and store conversation data across devices, ensuring a seamless user experience.
+- **Bing API**: Explore how to fetch and display the latest news updates within your chatbot application.
+- **DALL-E API**: Learn to generate images from text inputs, adding a visual dimension to your chatbot's responses.
+- **Azure AD Authentication**: Gain insights into securing your web application using Azure Active Directory, managing user authentication, and protecting sensitive data.
+
+These learnings will equip you with the skills to build robust, feature-rich chatbot applications leveraging the power of Azure's AI and cloud services.
+
 ## 📺 What's new in the current version
-- **✨Support PWA (Progressive Web App)✨**
+
+- **🎉Support for GPT-4o Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview-3🎉**
 ![GPT4O Realtime Chat Desktop Screenshot](screenshot_realtime_desktop.png)
 ![GPT4O Realtime Chat Mobile Screenshot](screenshot_realtime_mobile.png)
+- **🎉Support for o1/o1-mini/GPT-4O/GPT-4O-mini🎉**
+- **✨Support PWA (Progressive Web App)✨**
 ![Dekstop Screenshot](screenshot_desktop.png)
 ![Desktop Screenshot](screenshot_desktop_focus_mode.png)
 ![Optimize for mobile](screenshot_mobile.png)
 ![Audio file transcription](screenshot_desktop_stt_batch.png)
-
-- **🎉Support for GPT-4o Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview-3🎉**
-- **🎉Support for o1/o1-mini/GPT-4O/GPT-4O-mini🎉**
 - **🎉Support for Bing API - Get the latest news updates through API integration🎉**
 - **🎉Support question generation mode - enhances conversation quality by automatically generating structured options to guide your inquiries, leading to higher quality AI responses. When enabled, each of your questions will include multiple focused options to choose from, helping you get more precise and relevant answers.🎉**
 ![Question generation mode](screenshot_options_generate.png)

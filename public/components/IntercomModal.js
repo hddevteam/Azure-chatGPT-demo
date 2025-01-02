@@ -112,7 +112,7 @@ export default class IntercomModal {
                     placeholder="Optional conversation instruction, e.g.: 'Talk like a pirate'" 
                     rows="4"></textarea>
                   <button id="im-generate-prompt" class="im-button im-button-secondary">
-                    <i class="fas fa-magic"></i> Generate Prompt
+                    <i class="fas fa-magic"></i> Optimize Prompt
                   </button>
                 </div>
               </div>
