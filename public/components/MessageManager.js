@@ -14,12 +14,6 @@ marked.use(markedKatex(options));
 // const markedTest  = marked.parse(test);
 // console.log("markedTest", markedTest);
 
-const modelConfig = {
-    "gpt-4": 128000,
-    "gpt-3.5-turbo": 16000,
-    "gpt-4-last": 128000,
-};
-
 class MessageManager {
     constructor(uiManager) {
         this.uiManager = uiManager;
@@ -207,13 +201,8 @@ class MessageManager {
         const data = await this.wrapWithGetGptErrorHandler(executeFunction); // 直接传递函数
         this.uiManager.finishSubmitProcessing();
 
-        // Don't forget to perform follow-up actions after the response if any
-        if (data && data.totalTokens) {
-            this.checkTokensAndWarn(data.totalTokens);
-        }
-
         await this.sendFollowUpQuestions();
-        // temporary disable follow-up questions because it consumes too much tokens
+
     }
 
 
@@ -280,30 +269,6 @@ class MessageManager {
         this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
         return validationResult;
-    }
-
-
-    checkTokensAndWarn(tokens) {
-        const tokensSpan = document.querySelector("#tokens");
-        tokensSpan.textContent = `${tokens}t`;
-        tokensSpan.parentNode.classList.add("updated");
-        setTimeout(() => {
-            tokensSpan.parentNode.classList.remove("updated");
-        }, 500);
-
-        const max_tokens = modelConfig[this.uiManager.app.model] || 8000;
-        if (tokens > max_tokens * 0.9) {
-            swal({
-                title: "The conersation tokens are over 90% of the limit, will remove the first round conversation from cache to maintain the conversation flow.",
-                icon: "warning",
-                buttons: false,
-                timer: 3000,
-            });
-            const removedPrompts = this.uiManager.app.prompts.removeRange(1, 2);
-            removedPrompts.forEach((p) => {
-                this.inactiveMessage(p.messageId);
-            });
-        }
     }
 
 
