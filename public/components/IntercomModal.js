@@ -2,7 +2,6 @@ import { RealtimeClient } from "../utils/realtime/realtimeClient.js";
 import { fetchRealtimeConfig, generateSystemPrompt } from "../utils/api.js";
 import { ConversationSummaryHelper } from "../utils/ConversationSummaryHelper.js";
 
-// 在类的顶部添加常量
 const WELCOME_MESSAGE_TEMPLATE = `
     <div class="welcome-message">
         <div class="welcome-icon">👋</div>

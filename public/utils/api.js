@@ -331,7 +331,7 @@ export async function getTts(message) {
 }
 
 
-// get stt response - 使用 axios
+// get stt response
 export async function getStt(audioBlob) {
     try {
         const formData = new FormData();
@@ -549,12 +549,13 @@ export async function generateSystemPrompt(context) {
 }
 
 // URL summary API
-export async function getUrlSummary(url, language) {
+export async function getUrlSummary(url, language, prompt = "") {
     console.log("[API] Sending URL for summarization:", url, "Language:", language);
     try {
         const response = await axios.post("/url-summary", { 
             url,
-            language 
+            language,
+            prompt // Add prompt parameter
         });
         console.log("[API] Received URL summary response:", response.data);
         return response.data;

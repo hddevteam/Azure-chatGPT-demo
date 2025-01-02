@@ -5,15 +5,15 @@ export default class LinkHandler {
     }
 
     attachLinkHandlers() {
-        // 获取所有消息内容中的链接
+        // Get all links in message content
         const links = document.querySelectorAll(".message-content a");
         
         links.forEach(link => {
-            // 移除已有的事件监听器
+            // Remove existing event listeners
             link.removeEventListener("mouseover", this.handleLinkHover);
             link.removeEventListener("click", this.handleLinkClick);
             
-            // 添加新的事件监听器
+            // Add new event listeners
             link.addEventListener("mouseover", (e) => this.handleLinkHover(e));
             link.addEventListener("click", (e) => this.handleLinkClick(e));
         });
@@ -23,17 +23,17 @@ export default class LinkHandler {
         const link = event.target;
         const url = link.href;
         
-        // 创建弹出菜单
+        // Create popup menu
         this.showPopupMenu(event, url);
         
-        // 监听鼠标离开事件
+        // Listen for mouse leave event
         link.addEventListener("mouseleave", () => {
             this.hidePopupMenuWithDelay();
         });
     }
 
     handleLinkClick(event) {
-        // 在移动设备上，点击时显示弹出菜单
+        // On mobile devices, show popup menu on click
         if ("ontouchstart" in window) {
             event.preventDefault();
             const link = event.target;
@@ -43,23 +43,23 @@ export default class LinkHandler {
     }
 
     showPopupMenu(event, url) {
-        // 移除任何现有的弹出菜单
+        // Remove any existing popup menu
         this.removeCurrentPopup();
 
         const popup = document.createElement("div");
         popup.className = "link-popup";
         popup.innerHTML = `
             <div class="link-popup-item" data-action="open">Open in New Page</div>
-            <div class="link-popup-item" data-action="summary">Summarize Content</div>
+            <div class="link-popup-item" data-action="summary">Quick Summary</div>
         `;
 
-        // 设置弹出菜单位置
+        // Set popup menu position
         const rect = event.target.getBoundingClientRect();
         popup.style.position = "fixed";
         popup.style.left = `${rect.left}px`;
         popup.style.top = `${rect.bottom + 5}px`;
 
-        // 添加事件监听器
+        // Add event listeners
         popup.querySelector("[data-action=\"open\"]").onclick = () => {
             window.open(url, "_blank");
             this.removeCurrentPopup();
@@ -67,19 +67,19 @@ export default class LinkHandler {
 
         popup.querySelector("[data-action=\"summary\"]").onclick = async () => {
             this.removeCurrentPopup();
-            // 使用 messageInput 和提交按钮来模拟用户操作
+            // Use messageInput and submit button to simulate user action
             const messageInput = document.querySelector("#message-input");
             messageInput.value = url;
             const submitButton = document.querySelector("#submitButton");
             submitButton.click();
         };
 
-        // 监听鼠标进入弹出菜单
+        // Listen for mouse enter event on popup menu
         popup.addEventListener("mouseenter", () => {
             this.clearHideTimeout();
         });
 
-        // 监听鼠标离开弹出菜单
+        // Listen for mouse leave event on popup menu
         popup.addEventListener("mouseleave", () => {
             this.hidePopupMenuWithDelay();
         });
@@ -106,6 +106,6 @@ export default class LinkHandler {
         this.clearHideTimeout();
         this.hideTimeout = setTimeout(() => {
             this.removeCurrentPopup();
-        }, 300); // 300ms延迟，给用户时间移动到弹出菜单
+        }, 300); // 300ms delay to give user time to move to popup menu
     }
 }

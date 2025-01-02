@@ -6,7 +6,7 @@ if (devMode) {
     apiKey = process.env.API_KEY_DEV;
     apiUrl = process.env.API_URL_DEV;
 } else {
-    apiKey = process.env.GPT_4O_MINI_API_KEY;  // 默认使用 GPT-4O-MINI
+    apiKey = process.env.GPT_4O_MINI_API_KEY;  // Default using GPT-4O-MINI
     apiUrl = process.env.GPT_4O_MINI_API_URL;
 }
 
@@ -29,6 +29,7 @@ const defaultParams = {
 
 const axios = require("axios");
 const bingController = require("./bingController");
+const urlController = require("./urlController");
 
 exports.getDefaultParams = (req, res) => {
     res.json(defaultParams);
@@ -78,7 +79,7 @@ const tools = [
 Examples:
 1. Basic search: {"query": "latest AI news"}
 2. With market: {"query": "local restaurants", "mkt": "zh-CN"}
-3. With filters: {"query": "OpenAI", "responseFilter": ["news", "videos"]}
+3. With filters: {"query": "OpenAI", "responseFilter": ['WebPages','News','Entities']}
 4. With time range: {"query": "AI news", "freshness": "Week"}
 
 Note: The search will automatically include the current time context for more relevant results.`,
@@ -110,11 +111,51 @@ Note: The search will automatically include the current time context for more re
                 required: ["query"]
             }
         }
+    },
+    {
+        type: "function",
+        function: {
+            name: "analyze_webpage",
+            description: `Analyze and summarize webpage content with advanced options.
+
+Examples:
+1. Basic summary: {"url": "https://example.com/article"}
+2. With specific question: {"url": "https://example.com/tech", "question": "What are the key technical features mentioned?"}
+3. With language preference: {"url": "https://example.com/news", "language": "zh-CN"}
+4. Complex analysis: {"url": "https://example.com/research", "question": "What are the main findings and methodology?", "language": "en"}
+
+The function will:
+1. Extract main content from the webpage
+2. Remove ads and irrelevant elements
+3. Generate comprehensive or focused analysis based on input
+4. Support multilingual output
+5. Handle different types of content (articles, news, research, etc.)
+
+Note: Use specific questions to get more focused analysis of the webpage content.`,
+            parameters: {
+                type: "object",
+                properties: {
+                    url: {
+                        type: "string",
+                        description: "The URL of the webpage to analyze"
+                    },
+                    question: {
+                        type: "string",
+                        description: "Optional. Specific question or analysis focus (e.g., 'What are the main arguments?', 'Summarize the methodology')"
+                    },
+                    language: {
+                        type: "string",
+                        description: "Optional. The language for the analysis response (e.g., 'en', 'zh-CN', 'ja'). Default is 'en'"
+                    }
+                },
+                required: ["url"]
+            }
+        }
     }
 ];
 
 
-// 添加工具处理函数
+// add tool handling functions
 const handleGetCurrentTime = (args) => {
     const { timezone } = args;
     const options = {
@@ -140,6 +181,17 @@ const handleBingSearch = async (args) => {
     return await bingController.advancedSearch(query, { mkt, responseFilter, freshness });
 };
 
+const handleWebpageAnalysis = async (args) => {
+    const { url, question, language = "en" } = args;
+    try {
+        const summary = await urlController.summarizeUrl(url, question, language);
+        console.log("Webpage analysis summary:", summary);
+        return summary;
+    } catch (error) {
+        return `Error analyzing webpage: ${error.message}`;
+    }
+};
+
 const makeRequest = async ({ apiKey, apiUrl, prompt, params, includeFunctionCalls = false }) => {
     console.log("makeRequest", prompt);
     const options = {
@@ -154,7 +206,7 @@ const makeRequest = async ({ apiKey, apiUrl, prompt, params, includeFunctionCall
         },
     };
 
-    // 只在 generateResponse 调用时添加 tools
+    // Only add tools when generateResponse is called
     if (includeFunctionCalls) {
         options.data.tools = tools;
     }
@@ -163,7 +215,7 @@ const makeRequest = async ({ apiKey, apiUrl, prompt, params, includeFunctionCall
 };
 
 exports.generateResponse = async (req, res) => {
-    console.log("generateResponse - Request body:", req.body); // 添加请求体调试信息
+    console.log("generateResponse - Request body:", req.body); // Adding request body debug info
     
     const {
         model,
@@ -174,7 +226,7 @@ exports.generateResponse = async (req, res) => {
         max_tokens = defaultParams.max_tokens
     } = req.body;
     
-    // 确保所有参数都是正确的类型
+    // Ensure all parameters are of correct type
     const params = {
         temperature: parseFloat(temperature),
         top_p: parseFloat(top_p),
@@ -192,7 +244,7 @@ exports.generateResponse = async (req, res) => {
         return res.status(400).send("Invalid prompt");
     }
 
-    // 针对 o1 和 o1-mini 模型过滤掉 system 消息
+    // Filter out system messages for o1 and o1-mini models
     if (model === "o1" || model === "o1-mini") {
         prompt = prompt.filter(msg => msg.role !== "system");
     }
@@ -261,6 +313,8 @@ exports.generateResponse = async (req, res) => {
                     result = handleGetCurrentTime(args);
                 } else if (functionName === "search_bing") {
                     result = await handleBingSearch(args);
+                } else if (functionName === "analyze_webpage") {
+                    result = await handleWebpageAnalysis(args);
                 }
 
                 // 将函数调用结果添加到会话
@@ -595,7 +649,7 @@ exports.generateRealtimeSummary = async (req, res) => {
         },
         {
             role: "user",
-            content: messages[0].content  // Markdown 格式的内容已经在 client 端处理好
+            content: messages[0].content  // Markdown formatted content processed on client side
         }
     ];
 
@@ -696,15 +750,15 @@ exports.summarizeWebContent = async (prompt) => {
         prompt,
         params: {
             temperature: 0.3,
-            max_tokens: 4000,
-            response_format: { "type": "json_object" }
+            max_tokens: 4000
+            // 移除 response_format 参数，不再要求JSON格式
         },
     };
 
     try {
         const response = await makeRequest(requestData);
         const { data } = response;
-        return JSON.parse(data.choices[0].message.content);
+        return data.choices[0].message.content; // 直接返回文本内容
     } catch (error) {
         throw new Error("Failed to summarize content: " + error.message);
     }

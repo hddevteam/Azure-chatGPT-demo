@@ -1,5 +1,5 @@
 // MessageManager.js
-import { getGpt, getFollowUpQuestions, textToImage, getUrlSummary } from "../utils/api.js";
+import { getGpt, getFollowUpQuestions, textToImage } from "../utils/api.js";
 import swal from "sweetalert";
 import { generateExcerpt } from "../utils/textUtils.js";
 import { marked } from "marked";
@@ -109,7 +109,7 @@ class MessageManager {
         const promptText = this.uiManager.app.prompts.getPromptText();
         const currentProfile = this.uiManager.storageManager.getCurrentProfile();
         
-        // 从 profile 中提取参数并确保正确的类型
+        // Extract parameters from profile and ensure correct types
         const params = {
             temperature: parseFloat(currentProfile.temperature) || 0.8,
             top_p: parseFloat(currentProfile.top_p) || 0.95,
@@ -118,7 +118,7 @@ class MessageManager {
             max_tokens: parseInt(currentProfile.max_tokens) || 2000
         };
         
-        console.log("Sending request with params:", params); // 添加调试信息
+        console.log("Sending request with params:", params); // Add debug info
         return await getGpt(promptText, this.uiManager.app.model, params);
     }
 
@@ -176,14 +176,13 @@ class MessageManager {
             isRetry 
         });
 
-        // 只在第一次发消息时清除欢迎消息
+        // Only clear welcome message on first message
         const messagesContainer = document.querySelector("#messages");
         if (messagesContainer.children.length === 1 && 
             messagesContainer.children[0].id === "welcome-message") {
             messagesContainer.innerHTML = "";
         }
 
-        // ...原有代码继续...
         this.clearFollowUpQuestions();
         this.uiManager.initSubmitButtonProcessing();
         const validationResult = await this.validateInput(inputMessage, attachments, isRetry);
@@ -196,10 +195,7 @@ class MessageManager {
 
         let executeFunction; // 定义一个变量来存储根据条件选择的函数
 
-        if (this.isValidUrl(inputMessage)) {
-            console.log("[MessageManager] Detected URL input, processing as URL summary");
-            executeFunction = () => this.sendUrlSummaryMessage(inputMessage);
-        } else if (message.startsWith("/image")) {
+        if (message.startsWith("/image")) {
             console.log("[MessageManager] Detected image generation request");
             executeFunction = () => this.sendImageMessage(message);
         } else if (message.startsWith("@") && !isSkipped) {
@@ -226,31 +222,6 @@ class MessageManager {
         }
     }
 
-    async sendUrlSummaryMessage(url) {
-        this.uiManager.showToast("Analyzing webpage content...");
-        
-        try {
-            const response = await getUrlSummary(url, this.uiManager.clientLanguage);
-            const { summary } = response;
-            
-            // 构造更丰富的返回消息
-            const message = `## ${summary.title}\n\n` +
-                `**Topic Overview:** ${summary.topic}\n\n` +
-                "**Key Points:**\n" +
-                summary.keyPoints.map(point => `- ${point}`).join("\n") +
-                "\n\n**Additional Context:**\n" +
-                `- **Background:** ${summary.additionalInfo.context}\n` +
-                `- **Significance:** ${summary.additionalInfo.significance}\n` +
-                `- **Target Audience:** ${summary.additionalInfo.targetAudience}\n\n` +
-                `**Conclusion:** ${summary.conclusion}\n\n` +
-                `**Related Topics:** ${summary.relatedTopics.join(", ")}`;
-            
-            return { message };
-        } catch (error) {
-            throw error;
-        }
-    }
-
     async wrapWithGetGptErrorHandler(dataPromise) {
         try {
             const data = await dataPromise();
@@ -267,14 +238,14 @@ class MessageManager {
             }
             return data;
         } catch (error) {
-            // 解析抛出的错误信息并显示
-            let errorMessage = error.message; // 使用从API抛出的具体错误信息
+            // Parse and display the thrown error message
+            let errorMessage = error.message; // Use specific error message from API
             if (!navigator.onLine) {
-                errorMessage = "您当前处于离线状态，请检查您的网络连接。"; // 特别处理网络离线错误
+                errorMessage = "You are currently offline, please check your network connection."; // Special handling for offline error
             }
-            swal("请求出错", errorMessage, { icon: "error" });
+            swal("Request Error", errorMessage, { icon: "error" });
             this.uiManager.finishSubmitProcessing();
-            return null; // 当发生错误时，返回null或适当的错误指示
+            return null; // Return null or appropriate error indicator when an error occurs
         }
     }
 
@@ -323,10 +294,10 @@ class MessageManager {
         if (messageElem) {
             const messageContent = messageElem.dataset.message;
     
-            // 提取现有附件URLs
+            // Extract existing attachment URLs
             const attachmentUrls = messageElem.dataset.attachmentUrls;
             const attachments = attachmentUrls ? attachmentUrls.split(";").map(url => ({
-                fileName: url  // 直接使用URL
+                fileName: url  // Directly use URL
             })) : [];
     
             const lastMessageId = this.getLastMessageId();
@@ -336,7 +307,7 @@ class MessageManager {
                 this.inactiveMessage(messageId);
             }
     
-            // 重发消息，并携带原有的附件URLs，同时标记为重试操作
+            // Resend message with original attachments and mark as retry
             await this.sendMessage(messageContent, attachments, true);
         }
     }
@@ -428,16 +399,16 @@ class MessageManager {
     setMessageContent(sender, messageElem, message, isActive) {
         // console.log("before replaceText", message);
         const replaceText = (input) => {
-            // 替换单行数学表达式 \( ... \) 为 $ ... $
+            // Replace single-line math expressions \( ... \) with $ ... $
             let outputText = input.replace(/\\\((.*?)\\\)/g, " $$$1$$ ");
     
-            // 替换多行数学表达式 \[ ... \] 为 $$ ... $$
-            outputText = outputText.replace(/\\\[(.*?)\\\]/gs, "$$$$$1$$$$");
+            // Replace multi-line math expressions \[ ... \] with $$ ... $$
+            outputText = input.replace(/\\\[(.*?)\\\]/gs, "$$$$$1$$$$");
     
             return outputText;
         };
           
-        // 替换 inline 公式
+        // Replace inline formulas
         message = replaceText(message);
         // console.log("after replaceText", message);
     
@@ -471,7 +442,7 @@ class MessageManager {
             codeBlocksWithCopyElements.push({ codeBlock, copyElement });
         }
 
-        // 处理链接
+        // Handle links
         if (sender === "assistant") {
             setTimeout(() => {
                 this.linkHandler.attachLinkHandlers();

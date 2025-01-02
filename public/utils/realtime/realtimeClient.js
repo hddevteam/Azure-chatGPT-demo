@@ -1,7 +1,7 @@
 import { Player } from "./player.js";
 import { Recorder } from "./recorder.js";
 import { LowLevelRTClient } from "rt-client";
-import { searchBing } from "../api.js";
+import { searchBing, getUrlSummary } from "../api.js";
 import { ConversationSummaryHelper } from "../ConversationSummaryHelper.js";
 
 export class RealtimeClient {
@@ -27,6 +27,101 @@ export class RealtimeClient {
         this.aiSpeaking = false; // Add AI speaking status flag
         this.audioBufferQueue = []; // Add audio buffer queue
         this.originalPrompt = null;
+        this.tools = [
+            {
+                type: "function",
+                name: "get_current_time",
+                description: "Get the current time in the specified timezone, if no timezone specified, use browser's timezone",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        timezone: {
+                            type: "string",
+                            description: "The timezone to get the time in (e.g. 'Asia/Shanghai', 'America/New_York'). Optional - will use browser timezone if not specified."
+                        }
+                    },
+                    required: []
+                }
+            },
+            {
+                type: "function",
+                name: "search_bing",
+                description: `Search the internet using Bing Search API with advanced options.
+        
+Examples:
+1. Basic search: {"query": "latest AI news"}
+2. With market: {"query": "local restaurants", "mkt": "zh-CN"}
+3. With filters: {"query": "OpenAI", "responseFilter": ['WebPages','News','Entities']}
+4. With time range: {"query": "AI news", "freshness": "Week"}
+
+Note: The search will automatically include the current time context for more relevant results.`,
+                parameters: {
+                    type: "object",
+                    properties: {
+                        query: {
+                            type: "string",
+                            description: "The search query to send to Bing"
+                        },
+                        mkt: {
+                            type: "string",
+                            description: "Optional. The market where the results come from (e.g., 'en-US', 'zh-CN', 'ja-JP')"
+                        },
+                        responseFilter: {
+                            type: "array",
+                            description: "Optional. Additional content types to include in results. Default: ['WebPages','News','Entities']",
+                            items: {
+                                type: "string",
+                                enum: ["Computation", "Entities", "Images", "News", "Places", "RelatedSearches", "SpellSuggestions", "TimeZone", "Translations", "Videos", "Webpages"]
+                            }
+                        },
+                        freshness: {
+                            type: "string",
+                            description: "Optional. Filter results by age. Default: 'Day'",
+                            enum: ["Day", "Week", "Month"]
+                        }
+                    },
+                    required: ["query"]
+                }
+            },
+            {
+                type: "function",
+                name: "analyze_webpage",
+                description: `Analyze and summarize webpage content with advanced options.
+
+Examples:
+1. Basic summary: {"url": "https://example.com/article"}
+2. With specific question: {"url": "https://example.com/tech", "question": "What are the key technical features mentioned?"}
+3. With language preference: {"url": "https://example.com/news", "language": "zh-CN"}
+4. Complex analysis: {"url": "https://example.com/research", "question": "What are the main findings and methodology?", "language": "en"}
+
+The function will:
+1. Extract main content from the webpage
+2. Remove ads and irrelevant elements
+3. Generate comprehensive or focused analysis based on input
+4. Support multilingual output
+5. Handle different types of content (articles, news, research, etc.)
+
+Note: Use specific questions to get more focused analysis of the webpage content.`,
+                parameters: {
+                    type: "object",
+                    properties: {
+                        url: {
+                            type: "string",
+                            description: "The URL of the webpage to analyze"
+                        },
+                        question: {
+                            type: "string",
+                            description: "Optional. Specific question or analysis focus (e.g., 'What are the main arguments?', 'Summarize the methodology')"
+                        },
+                        language: {
+                            type: "string",
+                            description: "Optional. The language for the analysis response (e.g., 'en', 'zh-CN', 'ja'). Default is 'en'"
+                        }
+                    },
+                    required: ["url"]
+                }
+            }
+        ];
     }
 
     // add audio buffer processing function
@@ -109,7 +204,7 @@ export class RealtimeClient {
 
     async start(config) {
         try {
-            // use the originalPrompt passed in, not the instructions in config
+            // Use the originalPrompt passed in instead of config instructions
             const prompt = this.originalPrompt || config.instructions;
             
             // Create base configuration
@@ -121,61 +216,7 @@ export class RealtimeClient {
                     model: "whisper-1"
                 },
                 tool_choice: "auto",
-                tools: [{
-                    type: "function",
-                    name: "get_current_time",
-                    description: "Get the current time in the specified timezone, if no timezone specified, use browser's timezone",
-                    parameters: {
-                        type: "object",
-                        properties: {
-                            timezone: {
-                                type: "string",
-                                description: "The timezone to get the time in (e.g. 'Asia/Shanghai', 'America/New_York'). Optional - will use browser timezone if not specified."
-                            }
-                        },
-                        required: []
-                    }
-                },
-                {
-                    type: "function",
-                    name: "search_bing",
-                    description: `Search the internet using Bing Search API with advanced options.
-            
-Examples:
-1. Basic search: {"query": "latest AI news"}
-2. With market: {"query": "local restaurants", "mkt": "zh-CN"}
-3. With filters: {"query": "OpenAI", "responseFilter": ["news", "videos"]}
-4. With time range: {"query": "AI news", "freshness": "Week"}
-
-Note: The search will automatically include the current time context for more relevant results.`,
-                    parameters: {
-                        type: "object",
-                        properties: {
-                            query: {
-                                type: "string",
-                                description: "The search query to send to Bing"
-                            },
-                            mkt: {
-                                type: "string",
-                                description: "Optional. The market where the results come from (e.g., 'en-US', 'zh-CN', 'ja-JP')"
-                            },
-                            responseFilter: {
-                                type: "array",
-                                description: "Optional. Additional content types to include in results. Default: ['WebPages','News','Entities']",
-                                items: {
-                                    type: "string",
-                                    enum: ["Computation", "Entities", "Images", "News", "Places", "RelatedSearches", "SpellSuggestions", "TimeZone", "Translations", "Videos", "Webpages"]
-                                }
-                            },
-                            freshness: {
-                                type: "string",
-                                description: "Optional. Filter results by age. Default: 'Day'",
-                                enum: ["Day", "Week", "Month"]
-                            }
-                        },
-                        required: ["query"]
-                    }
-                }]
+                tools: this.tools // Use instance tools configuration
             };
             console.log("Base config:", baseConfig);
             console.log("config:", config);
@@ -196,13 +237,14 @@ Note: The search will automatically include the current time context for more re
                 session: sessionConfig
             });
 
-            // 不再使用config.instructions
+            // No longer using config.instructions
             this.initialContext = prompt;
 
             // Add function call response handling
             this.functionHandlers = {
                 get_current_time: this.handleGetCurrentTime.bind(this),
-                search_bing: this.handleBingSearch.bind(this)
+                search_bing: this.handleBingSearch.bind(this),
+                analyze_webpage: this.handleWebpageAnalysis.bind(this)
             };
 
             await this.resetAudio(true);
@@ -269,6 +311,19 @@ Note: The search will automatically include the current time context for more re
         }
     }
 
+    // Web page analysis function 
+    async handleWebpageAnalysis(args) {
+        console.log("Analyzing webpage with args:", args);
+        const { url, question, language = this.clientLanguage || "en" } = args;
+        try {
+            const response = await getUrlSummary(url, language, question);
+            return response.summary; // Return summary content from API
+        } catch (error) {
+            console.error("Error in handleWebpageAnalysis:", error);
+            return `Error analyzing webpage: ${error.message}`;
+        }
+    }
+
     stop() {
         this.recordingActive = false;
         if (this.audioRecorder) {
@@ -296,7 +351,12 @@ Note: The search will automatically include the current time context for more re
 
                 // Handle function call
                 if (message.type === "response.function_call_arguments.done") {
-                    const handler = this.functionHandlers[message.name];
+                    const handler = {
+                        get_current_time: this.handleGetCurrentTime.bind(this),
+                        search_bing: this.handleBingSearch.bind(this),
+                        analyze_webpage: this.handleWebpageAnalysis.bind(this)
+                    }[message.name];
+
                     if (handler) {
                         try {
                             const args = JSON.parse(message.arguments);

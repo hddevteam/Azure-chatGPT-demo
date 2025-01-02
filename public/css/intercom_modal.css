@@ -622,6 +622,31 @@
   line-height: 1.4;
   min-width: fit-content;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  /* Add properties for handling long URLs and text wrapping */
+  word-break: break-word;      /* Allow breaks within words */
+  overflow-wrap: break-word;   /* Ensure long words/URLs can wrap */
+  hyphens: auto;              /* Add hyphenation support */
+}
+
+.im-message-content a {
+  color: inherit;             
+  text-decoration: underline; 
+  opacity: 0.9;              
+}
+
+.im-message-content a:hover {
+  opacity: 1;                
+}
+
+@media (max-width: 768px) {
+  .im-message-content {
+    max-width: 85%;          
+    font-size: 14px;         
+  }
+  
+  .im-message-content a {
+    word-break: break-all;   
+  }
 }
 
 .im-message-user .im-message-content {
