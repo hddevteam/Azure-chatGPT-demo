@@ -34,6 +34,12 @@
   /* Common border colors */
   --border-light: rgba(255, 255, 255, 0.1);
   --border-medium: rgba(255, 255, 255, 0.2);
+
+  /* 为移动设备添加文本大小变量 */
+  --mobile-font-size-xl: 18px;
+  --mobile-font-size-lg: 16px;
+  --mobile-font-size-md: 15px;
+  --mobile-font-size-sm: 14px;
 }
 
 /* Common style mixins */
@@ -577,6 +583,76 @@
     height: 44px;
     font-size: 16px;
   }
+
+  .im-text-container {
+    font-size: var(--mobile-font-size-lg);
+    line-height: 1.6;
+  }
+
+  .im-header h2 {
+    font-size: var(--mobile-font-size-xl);
+  }
+
+  .im-message-content {
+    font-size: var(--mobile-font-size-md);
+    padding: 14px 18px;
+    line-height: 1.5;
+  }
+
+  .im-message-meta {
+    font-size: var(--mobile-font-size-sm);
+    margin: 6px 10px;
+  }
+
+  .im-label {
+    font-size: var(--mobile-font-size-md);
+  }
+
+  .im-textarea, 
+  .im-input, 
+  .im-select {
+    font-size: var(--mobile-font-size-md);
+    padding: 14px;
+  }
+
+  .im-button {
+    font-size: var(--mobile-font-size-md);
+    padding: 12px 24px;
+  }
+
+  .welcome-message h3 {
+    font-size: var(--mobile-font-size-xl);
+  }
+
+  .welcome-message p {
+    font-size: var(--mobile-font-size-md);
+  }
+
+  .welcome-features p,
+  .welcome-ptt-info p {
+    font-size: var(--mobile-font-size-md);
+  }
+
+  .im-summary-content h4 {
+    font-size: var(--mobile-font-size-md);
+  }
+
+  .im-summary-content p,
+  .im-summary-content li {
+    font-size: var(--mobile-font-size-md);
+    line-height: 1.6;
+  }
+  
+  .im-textarea {
+    min-height: 100px;
+  }
+
+  .im-button,
+  .im-close-button,
+  .im-settings-toggle {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 
 /* Scrollbar styles */
@@ -1044,4 +1120,11 @@
 
 .welcome-features strong {
     color: #4CAF50;
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .im-text-container {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
