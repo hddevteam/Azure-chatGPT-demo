@@ -32,7 +32,7 @@ Keep the summary clear and easy to understand. Use simple language and short sen
 
 // Get and clean webpage content
 async function fetchAndCleanContent(url) {
-    console.log("[URL Controller] Fetching webpage content...");
+    console.log("[URL Controller] Fetching webpage content...", url);
     const response = await axios.get(url, {
         headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"

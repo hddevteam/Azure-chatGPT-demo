@@ -11,22 +11,22 @@ export class RealtimeClient {
         this.audioPlayer = null;
         this.recordingActive = false;
         this.buffer = new Uint8Array();
-        this.messageLimit = 10; // default message history limit
-        this.messageHistory = []; // message history
-        this.totalTokens = 0; // total token number
-        this.inputTokens = 0; // input token number
-        this.outputTokens = 0; // output token number
-        this.currentSummary = null; // Only save the current summary, replacing the previous summarizedMessages array
-        this.lastSummaryTime = null; // Last summary time
-        this.lastSummaryTokens = 0; // Number of tokens in the last summary
-        this.originalInstructions = null; // Save initial instructions
-        this.lastSummaryIndex = 0; // Record the position of the last summary
-        this.summaryRatio = 0.8; // Ratio to trigger summary (80%)
-        this.initialContext = null; // Add initial context storage
-        this.pttMode = false; // Add PTT mode flag 
-        this.aiSpeaking = false; // Add AI speaking status flag
-        this.audioBufferQueue = []; // Add audio buffer queue
-        this.originalPrompt = null;
+        this.messageLimit = 10; // Default message history limit
+        this.messageHistory = []; // Message history array
+        this.totalTokens = 0; // Total token count
+        this.inputTokens = 0; // Input token count
+        this.outputTokens = 0; // Output token count
+        this.currentSummary = null; // Current conversation summary
+        this.lastSummaryTime = null; // Timestamp of last summary
+        this.lastSummaryTokens = 0; // Token count of last summary
+        this.originalInstructions = null; // Initial instruction set
+        this.lastSummaryIndex = 0; // Index of last summary in history
+        this.summaryRatio = 0.8; // Summary trigger ratio (80%)
+        this.initialContext = null; // Initial context storage
+        this.pttMode = false; // Push-to-talk mode flag
+        this.aiSpeaking = false; // AI speaking status flag
+        this.audioBufferQueue = []; // Audio buffer queue
+        this.originalPrompt = null; // Original prompt storage
         this.tools = [
             {
                 type: "function",
@@ -339,50 +339,84 @@ Note: Use specific questions to get more focused analysis of the webpage content
 
     async *getMessages() {
         if (this.client) {
+            let toolCallsInProgress = [];
+            let maxConsecutiveToolCalls = 5;
+            let currentToolCallCount = 0;
+
             for await (const message of this.client.messages()) {
                 // Update AI speaking status
                 if (message.type === "response.audio.delta") {
                     this.aiSpeaking = true;
                 } else if (message.type === "response.audio.done") {
-                    // Don't set aiSpeaking = false directly here
-                    // Wait for actual playback completion
                     console.log("Response audio generation completed");
                 }
 
-                // Handle function call
+                // Handle function call with iteration limit
                 if (message.type === "response.function_call_arguments.done") {
-                    const handler = {
-                        get_current_time: this.handleGetCurrentTime.bind(this),
-                        search_bing: this.handleBingSearch.bind(this),
-                        analyze_webpage: this.handleWebpageAnalysis.bind(this)
-                    }[message.name];
+                    currentToolCallCount++;
+                    
+                    // Check for maximum consecutive tool calls
+                    if (currentToolCallCount > maxConsecutiveToolCalls) {
+                        console.warn(`Exceeded maximum tool calls (${maxConsecutiveToolCalls}), stopping tool call chain`);
+                        yield {
+                            type: "text",
+                            content: "Sorry, tool call limit exceeded. Please rephrase your question."
+                        };
+                        break;
+                    }
 
+                    const handler = this.functionHandlers[message.name];
                     if (handler) {
                         try {
                             const args = JSON.parse(message.arguments);
-                            const result = await handler(args);
-                            // Send function call result
-                            await this.client.send({
-                                type: "conversation.item.create",
-                                item: {
-                                    type: "function_call_output",
-                                    call_id: message.call_id,
-                                    output: result
-                                }
-                            });
+                            console.log(`Executing tool call ${currentToolCallCount}:`, message.name, args);
                             
-                            // Send response.create event to get AI's response
+                            const result = await handler(args);
+                            // Add to tool calls in progress
+                            toolCallsInProgress.push({
+                                call_id: message.call_id,
+                                result: result
+                            });
+
+                            // Send all accumulated tool call results
+                            for (const toolCall of toolCallsInProgress) {
+                                await this.client.send({
+                                    type: "conversation.item.create",
+                                    item: {
+                                        type: "function_call_output",
+                                        call_id: toolCall.call_id,
+                                        output: toolCall.result
+                                    }
+                                });
+                            }
+                            
+                            // Clear processed tool calls
+                            toolCallsInProgress = [];
+                            
+                            // Request next response
                             await this.client.send({
                                 type: "response.create"
                             });
                         } catch (error) {
-                            console.error("Function call error:", error);
+                            console.error(`Tool call ${currentToolCallCount} failed:`, error);
+                            yield {
+                                type: "error",
+                                content: `Tool ${message.name} execution failed: ${error.message}`
+                            };
                         }
                     }
+                } else if (message.type === "response.message.start") {
+                    // Reset tool call counter when new message starts
+                    currentToolCallCount = 0;
+                    toolCallsInProgress = [];
                 }
+
+                // Handle audio message
                 if (message.type === "audio") {
                     this.audioPlayer.play(message.audio.buffer);
                 }
+
+                // Yield the message for external processing
                 yield message;
             }
         }

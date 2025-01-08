@@ -51,7 +51,7 @@ const handleRequestError = (error, res) => {
     }
 };
 
-// 添加工具定义
+// Add tool definitions
 const tools = [
     {
         type: "function",
@@ -269,12 +269,12 @@ exports.generateResponse = async (req, res) => {
         currentApiUrl = o1MiniApiUrl;
         break;
     default:
-        currentApiKey = gpt4oApiKey;  // 默认使用 GPT-4O
+        currentApiKey = gpt4oApiKey;  // Default to GPT-4O
         currentApiUrl = gpt4oApiUrl;
         break;
     }
 
-    // 根据模型类型设置不同的参数
+    // Set different parameters based on model type
     let requestParams;
     if (model === "o1" || model === "o1-mini") {
         requestParams = {
@@ -284,65 +284,85 @@ exports.generateResponse = async (req, res) => {
         requestParams = params;
     }
 
-    console.log("Final request parameters:", requestParams); // 添加最终参数调试信息
+    console.log("Final request parameters:", requestParams); // Add final parameters debug info
 
     const requestData = {
         apiKey: currentApiKey,
         apiUrl: currentApiUrl,
         prompt,
         params: requestParams,
-        includeFunctionCalls: true // 在 generateResponse 中设置为 true
+        includeFunctionCalls: true // Set to true in generateResponse
     };
 
     try {
-        console.log("Making request with data:", JSON.stringify(requestData, null, 2)); // 添加请求数据调试信息
-        const response = await makeRequest(requestData);
+        console.log("Making request with data:", JSON.stringify(requestData, null, 2));
+        let response = await makeRequest(requestData);
         console.log("Response from GPT:", response.data);
 
-        const choices = response.data.choices || [];
-        const responseMessage = choices[0]?.message;
-        
-        // 处理函数调用
-        if (responseMessage?.tool_calls) {
-            for (const toolCall of responseMessage.tool_calls) {
-                const functionName = toolCall.function.name;
-                const args = JSON.parse(toolCall.function.arguments);
+        // Check if further tool call processing is needed
+        let needsFurtherProcessing = true;
+        let maxIterations = 5; // Set maximum iterations to prevent infinite loops
+        let currentIteration = 0;
 
-                let result;
-                if (functionName === "get_current_time") {
-                    result = handleGetCurrentTime(args);
-                } else if (functionName === "search_bing") {
-                    result = await handleBingSearch(args);
-                } else if (functionName === "analyze_webpage") {
-                    result = await handleWebpageAnalysis(args);
+        while (needsFurtherProcessing && currentIteration < maxIterations) {
+            currentIteration++;
+            console.log(`Processing iteration ${currentIteration}`);
+
+            const choices = response.data.choices || [];
+            const responseMessage = choices[0]?.message;
+            
+            // Check if there are tool calls
+            if (responseMessage?.tool_calls) {
+                for (const toolCall of responseMessage.tool_calls) {
+                    const functionName = toolCall.function.name;
+                    const args = JSON.parse(toolCall.function.arguments);
+
+                    let result;
+                    if (functionName === "get_current_time") {
+                        result = handleGetCurrentTime(args);
+                    } else if (functionName === "search_bing") {
+                        result = await handleBingSearch(args);
+                    } else if (functionName === "analyze_webpage") {
+                        result = await handleWebpageAnalysis(args);
+                    }
+
+                    // Add function call results to the conversation
+                    prompt.push({
+                        role: "assistant",
+                        content: null,
+                        tool_calls: [toolCall]
+                    });
+                    prompt.push({
+                        role: "tool",
+                        tool_call_id: toolCall.id,
+                        content: JSON.stringify(result)
+                    });
                 }
 
-                // 将函数调用结果添加到会话
-                prompt.push({
-                    role: "assistant",
-                    content: null,
-                    tool_calls: [toolCall]
-                });
-                prompt.push({
-                    role: "tool",
-                    tool_call_id: toolCall.id,
-                    content: JSON.stringify(result)
-                });
+                // Update request data and call API again
+                requestData.prompt = prompt;
+                console.log(`Making follow-up request (iteration ${currentIteration}):`);
+                response = await makeRequest(requestData);
+                
+                // Check if the new response still contains tool calls
+                const newChoices = response.data.choices || [];
+                const newResponseMessage = newChoices[0]?.message;
+                needsFurtherProcessing = newResponseMessage?.tool_calls?.length > 0;
+            } else {
+                // No tool calls, end processing
+                needsFurtherProcessing = false;
             }
-
-            // 再次调用 API 获取最终响应
-            requestData.prompt = prompt;
-            console.log("Making request with data:", JSON.stringify(requestData, null, 2)); 
-            const finalResponse = await makeRequest(requestData);
-            const message = finalResponse.data.choices[0].message.content;
-            const totalTokens = finalResponse.data.usage.total_tokens;
-            res.json({ message, totalTokens });
-        } else {
-            // 普通响应处理
-            const message = responseMessage?.content || "No response from GPT";
-            const totalTokens = response.data.usage?.total_tokens || 0;
-            res.json({ message, totalTokens });
         }
+
+        if (currentIteration >= maxIterations) {
+            console.warn("Reached maximum number of tool call iterations");
+        }
+
+        // Return final response
+        const finalMessage = response.data.choices[0].message.content;
+        const totalTokens = response.data.usage?.total_tokens || 0;
+        res.json({ message: finalMessage, totalTokens });
+
     } catch (error) {
         handleRequestError(error, res);
     }
@@ -751,14 +771,13 @@ exports.summarizeWebContent = async (prompt) => {
         params: {
             temperature: 0.3,
             max_tokens: 4000
-            // 移除 response_format 参数，不再要求JSON格式
         },
     };
 
     try {
         const response = await makeRequest(requestData);
         const { data } = response;
-        return data.choices[0].message.content; // 直接返回文本内容
+        return data.choices[0].message.content; // Return text content directly
     } catch (error) {
         throw new Error("Failed to summarize content: " + error.message);
     }
