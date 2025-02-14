@@ -483,7 +483,7 @@ export async function updateCloudMessage(messageData, chatId, messageId, token) 
     if (!token) {
         throw new Error("Token is not available. Please sign in.");
     }
-    const response = await axios.put(`·/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, messageData, {
+    const response = await axios.put(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, messageData, {
         headers: { Authorization: `Bearer ${token}` }
     });
     return response.data.data;
