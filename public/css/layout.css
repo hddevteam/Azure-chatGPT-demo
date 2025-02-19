@@ -143,16 +143,22 @@ html {
     resize: none;
     width: 100%;
     height: 100%;
-    padding: 5px 50px 0px 5px;
-    border: 2px solid #eee;
+    padding: 8px 8px 48px 8px;
+    border: none;
     border-radius: 5px;
-    background-color: #f5f5f5;
-    transition: border-color 0.2s ease-in-out;
+    background-color: transparent;
+    transition: all 0.2s ease-in-out;
     overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: #bbb transparent;
     line-height: 120%;
     font-size: 16px;
+    color: #333;
+}
+
+#message-input:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 .mini-toolbar-container {
@@ -178,6 +184,17 @@ html {
     width: 100%; /* Ensure it spans the full width */
     position: relative;
     flex: 1 1 auto; /* Take available space, but allow shrinking/growing */
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    margin: 0;
+    padding: 0;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
+}
+
+#input-container:focus-within {
+    background-color: rgba(255, 255, 255, 0.98);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .attachment-preview-container {
@@ -191,4 +208,16 @@ html {
     overflow-x: auto;
     flex: 0 1 auto; 
     font-size: 12px;
+}
+
+/* 基础按钮布局 - 非分屏模式 */
+.button-row {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    display: flex;
+    gap: 4px;
+    padding: 0;
+    border-radius: 4px;
+    z-index: 1;
 }

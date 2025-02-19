@@ -141,6 +141,8 @@
     #message-input {
         border-radius: 5px 5px 0 0;
         padding: 5px;
+        border: 2px solid #eee;
+        padding: 5px 10px 5px 5px;
     }
 
 
@@ -149,6 +151,7 @@
         margin: 0;
         flex-direction: column;
         width: 100%;
+        background-color: transparent;
     }
 
     .text-input-container {
@@ -169,22 +172,125 @@
         justify-content: space-between;
         flex-direction: row;
         width: 100%;
+        gap: 1px;
+        background: #333;
+        border-radius: 0 0 5px 5px;
+        padding: 1px;
+        position: static;
+    }
+
+    .button-row > * {
+        flex: 1;
+        height: 34px;
+    }
+
+    .button-row button,
+    .button-row #voice-input-container,
+    .button-row #new-chat-container {
+        width: 100%;
+        margin: 0;
+        border-radius: 0 !important;
+        background: linear-gradient(to bottom, #505050, #404040);
+        border: none;
+        border-right: 1px solid #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .button-row button:last-child,
+    .button-row #new-chat-container:last-child {
+        border-right: none;
+    }
+
+    .button-row button i,
+    .button-row #voice-input-container i,
+    .button-row #new-chat-container i {
+        font-size: 16px;
+    }
+
+    #voice-input-container,
+    #new-chat-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    #voice-input-button,
+    #new-chat-button {
+        width: 100%;
+        height: 100%;
+    }
+
+    #submitButton {
+        background: linear-gradient(to bottom, #4CAF50, #45a049) !important;
+    }
+
+    #submitButton:active {
+        background: linear-gradient(to bottom, #3d8b40, #357a38) !important;
+    }
+
+    #voice-input-button {
+        background: linear-gradient(to bottom, #E53935, #D32F2F) !important;
+    }
+
+    #voice-input-button:active {
+        background: linear-gradient(to bottom, #C62828, #B71C1C) !important;
+    }
+
+    #new-chat-button {
+        background: linear-gradient(to bottom, #6495ED, #5689E5) !important;
+    }
+
+    #new-chat-button:active {
+        background: linear-gradient(to bottom, #487CDD, #3A6FD5) !important;
+    }
+
+    .button-row button {
+        margin: 0;
+        border-radius: 0 !important;
+        background: linear-gradient(to bottom, #505050, #404040);
+        border: none;
+        border-right: 1px solid #333;
+    }
+
+    .button-row button:last-child {
+        border-right: none;
+    }
+
+    .button-row button:active {
+        background: linear-gradient(to bottom, #404040, #353535);
+        transform: none;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    #submitButton {
+        background: linear-gradient(to bottom, #4CAF50, #45a049);
+    }
+
+    #submitButton:active {
+        background: linear-gradient(to bottom, #3d8b40, #357a38);
     }
 
     #new-chat-container,
-    #voice-input-container {
+    #voice-input-container,
+    #attachments-container {
         width: 100%;
         display: flex;
         font-size: 20px;
         justify-content: center;
     }
 
+    #submitButton,
     #new-chat-button,
-    #voice-input-button {
+    #voice-input-button,
+    #attachments-container {
         width: 100% !important;
         position: static !important;
         font-size: 20px;
-        border-radius: 0px 0px 0px 0px;
+        border-radius: 0 !important;
         height: 34px;
     }
 
