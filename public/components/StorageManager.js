@@ -143,7 +143,7 @@ class StorageManager {
             message.searchResults = message.searchResults.map(result => ({
                 ...result,
                 date: result.date ? new Date(result.date).toISOString() : null,
-                type: result.type || 'webpage',
+                type: result.type || "webpage",
                 provider: result.provider || new URL(result.url).hostname
             }));
         }
@@ -167,11 +167,11 @@ class StorageManager {
         let processedSearchResults = null;
         if (message.searchResults) {
             processedSearchResults = message.searchResults.map(result => ({
-                title: result.title || '',
-                url: result.url || '',
-                snippet: result.snippet || '',
+                title: result.title || "",
+                url: result.url || "",
+                snippet: result.snippet || "",
                 date: result.date ? new Date(result.date).toISOString() : null,
-                type: result.type || 'webpage',
+                type: result.type || "webpage",
                 provider: result.provider || new URL(result.url).hostname
             }));
         }
@@ -204,7 +204,7 @@ class StorageManager {
     // 更新 getMessages 方法，在确保所有消息都有 createdAt 属性并完成排序后保存回LocalStorage
     getMessages(chatId) {
         const key = `messages_${chatId}`;
-        const messages = JSON.parse(localStorage.getItem(key) || '[]');
+        const messages = JSON.parse(localStorage.getItem(key) || "[]");
         
         // 确保所有消息都有必要的属性
         messages.forEach(message => {
@@ -219,7 +219,7 @@ class StorageManager {
                 message.searchResults = message.searchResults.map(result => ({
                     ...result,
                     date: result.date ? new Date(result.date).toISOString() : null,
-                    type: result.type || 'webpage',
+                    type: result.type || "webpage",
                     provider: result.provider || new URL(result.url).hostname
                 }));
             }

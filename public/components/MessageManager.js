@@ -73,7 +73,7 @@ class MessageManager {
                             <div class="source-item">
                                 <span class="source-number">[${index + 1}]</span>
                                 <a href="${result.url}" target="_blank" rel="noopener noreferrer">
-                                    ${result.title}${result.date ? ` (${new Date(result.date).toLocaleDateString()})` : ''}
+                                    ${result.title}${result.date ? ` (${new Date(result.date).toLocaleDateString()})` : ""}
                                 </a>
                             </div>
                         `).join("")}
@@ -776,7 +776,7 @@ class MessageManager {
             const result = this.searchResults[index];
             if (!result) return match;
             
-            const date = result.date ? ` (${new Date(result.date).toLocaleDateString()})` : '';
+            const date = result.date ? ` (${new Date(result.date).toLocaleDateString()})` : "";
             return `<span class="citation" data-url="${result.url}" data-title="${result.title}${date}">${match}</span>`;
         });
 

@@ -213,72 +213,72 @@ class SyncManager {
             const { action, chatId, data } = syncItem;
             
             switch (action) {
-                case 'create':
-                case 'update':
-                    if (data.messageId) {
-                        // 等待确保消息已经在本地创建
-                        const messageExists = await this.uiManager.storageManager.waitForMessage(chatId, data.messageId);
-                        if (!messageExists) {
-                            console.warn(`Message ${data.messageId} not found after waiting, creating it now`);
-                            // 如果消息不存在，先创建它，并保留搜索结果
-                            const savedMessage = this.uiManager.storageManager.saveMessage(chatId, {
-                                ...data,
-                                timestamp: data.timestamp || new Date().toISOString(),
-                                searchResults: data.searchResults || null
-                            });
-                            console.log('Created missing message with search results:', savedMessage);
-                        } else {
-                            // 消息存在，更新时间戳和搜索结果
-                            const messageToUpdate = this.uiManager.storageManager.getMessage(chatId, data.messageId);
-                            if (messageToUpdate) {
-                                messageToUpdate.timestamp = data.timestamp || new Date().toISOString();
-                                messageToUpdate.searchResults = data.searchResults || messageToUpdate.searchResults;
-                                this.uiManager.storageManager.saveMessage(chatId, messageToUpdate);
-                            }
-                        }
-
-                        // 如果是当前聊天，刷新显示
-                        if (chatId === this.uiManager.currentChatId) {
-                            const messageElement = document.querySelector(`[data-message-id="${data.messageId}"]`);
-                            if (messageElement) {
-                                // 移除并重新添加消息以刷新搜索结果
-                                messageElement.remove();
-                                this.uiManager.messageManager.addMessage(
-                                    data.role,
-                                    data.content,
-                                    data.messageId,
-                                    data.isActive,
-                                    "bottom",
-                                    false,
-                                    data.attachmentUrls || ""
-                                );
-                            }
-                        }
+            case "create":
+            case "update":
+                if (data.messageId) {
+                    // 等待确保消息已经在本地创建
+                    const messageExists = await this.uiManager.storageManager.waitForMessage(chatId, data.messageId);
+                    if (!messageExists) {
+                        console.warn(`Message ${data.messageId} not found after waiting, creating it now`);
+                        // 如果消息不存在，先创建它，并保留搜索结果
+                        const savedMessage = this.uiManager.storageManager.saveMessage(chatId, {
+                            ...data,
+                            timestamp: data.timestamp || new Date().toISOString(),
+                            searchResults: data.searchResults || null
+                        });
+                        console.log("Created missing message with search results:", savedMessage);
                     } else {
-                        // 处理聊天历史同步
-                        await this.uiManager.storageManager.updateChatHistoryTimestamp(
-                            chatId, 
-                            data.timestamp || new Date().toISOString()
-                        );
-                        this.uiManager.handleChatHistoryChange(action, data);
+                        // 消息存在，更新时间戳和搜索结果
+                        const messageToUpdate = this.uiManager.storageManager.getMessage(chatId, data.messageId);
+                        if (messageToUpdate) {
+                            messageToUpdate.timestamp = data.timestamp || new Date().toISOString();
+                            messageToUpdate.searchResults = data.searchResults || messageToUpdate.searchResults;
+                            this.uiManager.storageManager.saveMessage(chatId, messageToUpdate);
+                        }
                     }
-                    break;
 
-                case 'delete':
-                    if (data.messageId) {
-                        await this.uiManager.storageManager.deleteMessage(chatId, data.messageId);
-                    } else {
-                        await this.uiManager.storageManager.deleteChatHistory(chatId);
-                        this.uiManager.handleChatHistoryChange(action, { id: chatId });
+                    // 如果是当前聊天，刷新显示
+                    if (chatId === this.uiManager.currentChatId) {
+                        const messageElement = document.querySelector(`[data-message-id="${data.messageId}"]`);
+                        if (messageElement) {
+                            // 移除并重新添加消息以刷新搜索结果
+                            messageElement.remove();
+                            this.uiManager.messageManager.addMessage(
+                                data.role,
+                                data.content,
+                                data.messageId,
+                                data.isActive,
+                                "bottom",
+                                false,
+                                data.attachmentUrls || ""
+                            );
+                        }
                     }
-                    break;
+                } else {
+                    // 处理聊天历史同步
+                    await this.uiManager.storageManager.updateChatHistoryTimestamp(
+                        chatId, 
+                        data.timestamp || new Date().toISOString()
+                    );
+                    this.uiManager.handleChatHistoryChange(action, data);
+                }
+                break;
 
-                default:
-                    console.warn('Unknown sync action:', action);
+            case "delete":
+                if (data.messageId) {
+                    await this.uiManager.storageManager.deleteMessage(chatId, data.messageId);
+                } else {
+                    await this.uiManager.storageManager.deleteChatHistory(chatId);
+                    this.uiManager.handleChatHistoryChange(action, { id: chatId });
+                }
+                break;
+
+            default:
+                console.warn("Unknown sync action:", action);
             }
 
         } catch (error) {
-            console.error('Error handling synced item:', error);
+            console.error("Error handling synced item:", error);
         }
     }
 
@@ -287,7 +287,7 @@ class SyncManager {
         
         // 确保搜索结果被包含在同步数据中
         const syncItem = {
-            action: 'create',
+            action: "create",
             chatId,
             data: {
                 ...message,
@@ -307,7 +307,7 @@ class SyncManager {
         
         // 确保搜索结果被包含在同步数据中
         const syncItem = {
-            action: 'update',
+            action: "update",
             chatId,
             data: {
                 ...message,
@@ -326,7 +326,7 @@ class SyncManager {
         if (!this.webWorker) return;
         
         const syncItem = {
-            action: 'delete',
+            action: "delete",
             chatId,
             data: {
                 messageId,
