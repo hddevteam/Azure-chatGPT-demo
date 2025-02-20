@@ -1,5 +1,5 @@
 //components/ChatHistoryManager.js
-import { generateTitle } from "../utils/api.js";
+import { generateTitle } from "../utils/apiClient.js";
 import { generateExcerpt } from "../utils/textUtils.js";
 import { v4 as uuidv4 } from "uuid";
 

@@ -1,4 +1,4 @@
-import { generateChatOptions } from "../utils/api.js";
+import { generateChatOptions } from "../utils/apiClient.js";
 import swal from "sweetalert";
 
 export default class ChatOptionsModal {

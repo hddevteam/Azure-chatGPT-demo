@@ -1,4 +1,4 @@
-import { generateRealtimeSummary } from "./api.js";
+import { generateRealtimeSummary } from "./apiClient.js";
 
 export class ConversationSummaryHelper {
     static extractMessageContent(msg) {

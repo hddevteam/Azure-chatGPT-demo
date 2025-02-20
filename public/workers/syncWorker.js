@@ -5,7 +5,7 @@ import {
     createCloudMessage,
     updateCloudMessage,
     deleteCloudMessage
-} from "../utils/api.js";
+} from "../utils/apiClient.js";
 
 self.addEventListener("message", (event) => {
     const syncItem = event.data;

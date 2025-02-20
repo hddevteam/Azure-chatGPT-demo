@@ -1,5 +1,5 @@
 // MessageManager.js
-import { getGpt, getFollowUpQuestions, textToImage } from "../utils/api.js";
+import { getGpt, getFollowUpQuestions, textToImage } from "../utils/apiClient.js";
 import swal from "sweetalert";
 import { generateExcerpt } from "../utils/textUtils.js";
 import { marked } from "marked";

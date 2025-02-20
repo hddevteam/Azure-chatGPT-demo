@@ -1,5 +1,5 @@
 // /public/components/SyncManager.js
-import { fetchCloudChatHistories, fetchCloudMessages } from "../utils/api.js";
+import { fetchCloudChatHistories, fetchCloudMessages } from "../utils/apiClient.js";
 import { getToken } from "../utils/authRedirect.js";
   
 class SyncManager {

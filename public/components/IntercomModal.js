@@ -1,5 +1,5 @@
 import { RealtimeClient } from "../utils/realtime/realtimeClient.js";
-import { fetchRealtimeConfig, generateSystemPrompt } from "../utils/api.js";
+import { fetchRealtimeConfig, generateSystemPrompt } from "../utils/apiClient.js";
 import { ConversationSummaryHelper } from "../utils/ConversationSummaryHelper.js";
 
 const WELCOME_MESSAGE_TEMPLATE = `

@@ -1,5 +1,5 @@
-import { getPromptRepo } from "../utils/api.js";
-import { deleteProfile, createChatProfile, saveOrUpdateProfile } from "../utils/api.js";
+import { getPromptRepo } from "../utils/apiClient.js";
+import { deleteProfile, createChatProfile, saveOrUpdateProfile } from "../utils/apiClient.js";
 import swal from "sweetalert";
 
 // ProfileFormManager.js

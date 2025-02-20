@@ -4,11 +4,11 @@ import EventManager from "./EventManager.js";
 import MessageManager from "./MessageManager.js";
 import StorageManager from "./StorageManager.js";
 import ChatHistoryManager from "./ChatHistoryManager.js";
-import { getTts } from "../utils/api.js";
+import { getTts } from "../utils/apiClient.js";
 import swal from "sweetalert";
 import SyncManager from "./SyncManager.js";
 import ProfileFormManager from "./ProfileFormManager.js";
-import { getPromptRepo, uploadAttachment } from "../utils/api.js";
+import { getPromptRepo, uploadAttachment } from "../utils/apiClient.js";
 import fileUploader from "../utils/fileUploader.js";
 import IntercomModal from "./IntercomModal.js";
 

@@ -1,7 +1,7 @@
 import { Player } from "./player.js";
 import { Recorder } from "./recorder.js";
 import { LowLevelRTClient } from "rt-client";
-import { searchBing, getUrlSummary } from "../api.js";
+import { searchBing, getUrlSummary } from "../apiClient.js";
 import { ConversationSummaryHelper } from "../ConversationSummaryHelper.js";
 
 export class RealtimeClient {

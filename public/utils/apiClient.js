@@ -1,4 +1,4 @@
-// public/api.js
+// public/apiClient.js
 // purpose: client-side code to make requests to the server side api.
 
 import axios from "axios";

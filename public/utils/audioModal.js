@@ -1,5 +1,5 @@
 //public/utils/audioModal.js
-import { uploadAudiofile, fetchUploadedAudioFiles, fetchTranscriptionStatus, submitTranscriptionJob, fetchTranscriptText, deleteAudioFile } from "../utils/api.js";
+import { uploadAudiofile, fetchUploadedAudioFiles, fetchTranscriptionStatus, submitTranscriptionJob, fetchTranscriptText, deleteAudioFile } from "../utils/apiClient.js";
 import swal from "sweetalert";
 import ClipboardJS from "clipboard";
 

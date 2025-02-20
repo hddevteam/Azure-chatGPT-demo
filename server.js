@@ -12,7 +12,7 @@ const app = express();
 const TENANT_ID = process.env.TENANT_ID;
 const CLIENT_ID = process.env.CLIENT_ID;
 
-const apiRouter = require("./api");
+const apiRouter = require("./apiRoutes");
 console.log(`${process.env.CLOUD_INSTANCE}${TENANT_ID}/v2.0/.well-known/openid-configuration`);
 // 配置Bearer Strategy 
 const bearerStrategy = new BearerStrategy({

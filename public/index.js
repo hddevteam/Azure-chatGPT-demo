@@ -1,7 +1,7 @@
 // index.js
 // purpose: entry point of the application. It is responsible for creating the App object and passing it to the UIManager object. It also contains the event listeners for the message form and the modal form.
 import { signIn } from "./utils/authRedirect.js";
-import { getAppName, getPromptRepo } from "./utils/api.js";
+import { getAppName, getPromptRepo } from "./utils/apiClient.js";
 import swal from "sweetalert";
 import MarkdownManager from "./components/MarkdownManager.js";
 import ModelDropdownManager from "./utils/ModelDropdownManager.js";

@@ -1,5 +1,5 @@
 // public/components/CloudStorageManager.js
-import * as api from "../utils/api.js";
+import * as api from "../utils/apiClient.js";
 
 class CloudStorageManager {
     constructor() {
