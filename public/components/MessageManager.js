@@ -45,7 +45,7 @@ class MessageManager {
         this.uiManager.eventManager.attachMenuButtonEventListener(menuButtonElement);
         this.uiManager.eventManager.attachPopupMenuItemEventListener(popupMenuElement);
 
-        if (attachmentUrls!=="") {
+        if (attachmentUrls !== "") {
             const attachmentContainer = this.uiManager.domManager.createAttachmentThumbnails(attachmentUrls);
             messageElement.appendChild(attachmentContainer);
         }
@@ -54,15 +54,29 @@ class MessageManager {
         messageContentElement.classList.add("message-content");
         messageElement.appendChild(messageContentElement);
 
-        // Process citations if this is an assistant message
+        // 处理 assistant 消息的特殊情况
         if (sender === "assistant") {
-            // First check if there are stored search results for this message
+            // 创建一个临时消息对象
+            const tempMessage = {
+                messageId,
+                role: sender,
+                content: message,
+                attachmentUrls,
+                searchResults: this.searchResults,
+                timestamp: new Date().toISOString(),
+                isActive
+            };
+            
+            // 先保存消息
+            this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, tempMessage);
+
+            // 再尝试获取搜索结果
             const savedMessage = this.uiManager.storageManager.getMessage(this.uiManager.currentChatId, messageId);
             if (savedMessage?.searchResults) {
                 this.searchResults = savedMessage.searchResults;
             }
 
-            // Add search results if available
+            // 添加搜索结果（如果有）
             if (this.searchResults && Array.isArray(this.searchResults) && this.searchResults.length > 0) {
                 const sourcesElement = document.createElement("div");
                 sourcesElement.className = "search-sources";
@@ -82,7 +96,7 @@ class MessageManager {
                 messageElement.appendChild(sourcesElement);
             }
 
-            // Then process citations in the message
+            // 然后处理引用
             message = this.processCitationsInMessage(message);
         }
 

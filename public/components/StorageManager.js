@@ -134,7 +134,7 @@ class StorageManager {
         const savedMessages = this.getMessages(chatId);
         const message = savedMessages.find(m => m.messageId === messageId);
         if (!message) {
-            console.warn(`Message ${messageId} not found in chat ${chatId}`);
+            console.debug(`Message ${messageId} not found in chat ${chatId}`); // 改为 debug 级别，因为这是预期的情况
             return null;
         }
         
@@ -197,8 +197,7 @@ class StorageManager {
         messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
         this.saveMessages(chatId, messages);
         
-        // 返回保存的消息，以便确认
-        return messageToSave;
+        return messageToSave; // 返回保存的消息以便确认
     }
 
     // 更新 getMessages 方法，在确保所有消息都有 createdAt 属性并完成排序后保存回LocalStorage
@@ -288,35 +287,6 @@ class StorageManager {
             // It's safe to assume localStorage contains strings, so no isNaN check needed
             total += amount;
         });
-        // Convert the total size to MB outside the loop
-        total = total / 1024 / 1024;
-        return total.toFixed(2);
-    }
-
-    parseChatId(chatId) {
-        const parts = chatId.split("_");
-        if (parts.length !== 3) {
-            throw new Error("Invalid chatId format. Expected format: username_profileName_uuid, but got: " + chatId);
-        }
-        const [username, profileName, uuid] = parts;
-        if(!username.trim() || !profileName.trim() || !uuid.trim()) {
-            console.log("Invalid chatId format: ", chatId);
-            throw new Error("Invalid chatId format. All components must be non-empty.");
-        }
-        return { username, profileName, uuid };
-    }
-
-
-    cleanUpUserChatHistories(username) {
-        console.log("cleanUpUserChatHistories: ", username);
-        let localStorageUsage = parseFloat(this.getLocalStorageUsage());
-        console.log("localStorageUsage: ", localStorageUsage);
-        let chatHistories = this.getChatHistory(username);
-        // console.log("chatHistories: ", chatHistories);
-
-        if (!chatHistories.length) {
-            return;
-        }
         // Convert the total size to MB outside the loop
         total = total / 1024 / 1024;
         return total.toFixed(2);

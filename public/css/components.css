@@ -126,7 +126,6 @@
 
 .message .search-sources summary {
     cursor: pointer;
-    user-select: none;
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
@@ -171,6 +170,7 @@
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
@@ -469,11 +469,6 @@ textarea::-webkit-scrollbar-thumb:hover {
     margin-right: 5px;
 }
 
-
-#message-form button[type="submit"] {
-
-}
-
 #new-chat-button {
 
     color: #fff;
@@ -688,9 +683,10 @@ svg.processing rect {
 
 #chat-history-list {
     -ms-overflow-style: none;
-    /* for IE and Edge */
-    scrollbar-width: none;
-    /* for Firefox */
+}
+
+#chat-history-list::-webkit-scrollbar {
+    display: none;
 }
 
 
@@ -861,45 +857,28 @@ button.action-button.invisible {
 /* 更新ai-actor-container以适应列表滚动 */
 #ai-actor-container {
     max-height: calc(70vh - 50px);
-    /* 适应新容器高度 */
     overflow-y: auto;
-    /* 允许垂直方向滚动 */
     overflow-x: hidden;
-    /* 隐藏水平滚动条 */
-    -ms-overflow-style: none;
-    /* IE和Edge */
-    scrollbar-width: none;
-    /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
     margin-bottom: 8px;
     display: grid;
-    /* 设置为 Grid 容器 */
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    /* 自动填充列，每列最小宽度为250px，最大宽度为1fr */
     gap: 10px;
-    /* 设置网格间距 */
     padding: 10px;
 }
 
 #ai-actor-list {
     list-style: none;
-    /* 移除列表默认样式 */
     display: contents;
-    /* 让子元素直接参与 Grid 布局 */
 }
 
 #ai-actor-container li {
     margin: 0;
-    /* 不需要调整，保持不变 */
     padding: 10px;
-    /* 根据需要保持或调整 */
     border-bottom: none;
-    /* 在 Grid 布局中，可能不需要这条底部边框了 */
     border: 1px solid #1f2a36;
-    /* 可以考虑添加一个整体边框 */
     border-radius: 4px;
-    /* 增加圆角 */
     background-color: #17212b;
-    /* 深色背景色，可保留或根据设计调整 */
 }
 
 #ai-actor-container li i {
@@ -925,9 +904,7 @@ button.action-button.invisible {
 #ai-actor-container li:hover,
 #ai-actor-container li.active {
     background-color: cornflowerblue;
-    /* 活泼的高亮颜色 */
     color: #ffffff;
-    /* 高对比度的文字颜色确保可读性 */
     cursor: pointer;
 }
 
@@ -947,12 +924,10 @@ button.action-button.invisible {
     align-items: center;
     padding: 10px;
     border-bottom: 1px solid #3391FF;
-    /* Adds a subtle divider */
 }
 
 #ai-actor-header .new-button {
     background-color: cornflowerblue;
-    /* Matches the active state color */
     border: none;
     padding: 5px 10px;
     border-radius: 3px;
@@ -967,27 +942,19 @@ button.action-button.invisible {
 
 #ai-actor-header .new-button i {
     color: #ffffff;
-    /* Ensures icon is legible against the button background */
     font-size: 1.2em;
-    /* Slightly larger icon for prominence */
 }
 
 #ai-actor-header .new-button:focus {
     outline: none;
-    /* Removes outline for aesthetics; consider a custom focus style for accessibility */
 }
 
-/* Ensure text does not select on double click for better UX */
 #ai-actor-header span,
 #ai-actor-header .new-button {
     -webkit-user-select: none;
-    /* Chrome/Safari */
     -moz-user-select: none;
-    /* Firefox */
     -ms-user-select: none;
-    /* IE10+ */
     user-select: none;
-    /* Standard syntax */
 }
 
 #horizontal-resize-handle,
@@ -1047,7 +1014,6 @@ button.action-button.invisible {
     font-family: 'Arial', sans-serif;
     max-height: 100%;
     overflow-y: auto;
-    /* 超出内容区域时显示滚动条 */
 }
 
 #ai-actor-settings-header {
@@ -1448,7 +1414,6 @@ button.action-button.invisible {
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     margin: 20px;
-    backdrop-filter: blur(5px);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     animation: fadeIn 0.5s ease-in;
 }
