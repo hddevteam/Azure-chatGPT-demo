@@ -332,6 +332,86 @@
         /* 在更小的屏幕上进一步减小字体 */
     }
 
+    /* Search citation responsive styles */
+    .message .citation-tooltip {
+        max-width: calc(100vw - 32px);
+        left: 16px !important;  /* Override inline styles */
+        right: 16px;
+    }
+
+    .message .search-sources {
+        margin-top: 8px;
+        font-size: 0.9em;
+    }
+
+    .message .source-item {
+        gap: 4px;
+    }
+
+    .message .source-number {
+        min-width: 20px;
+    }
+
+    .message .source-item a {
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .message .search-sources {
+        margin: var(--spacing-sm) calc(-1 * var(--spacing-sm));
+        padding: var(--spacing-sm) var(--spacing-sm) 0;
+        font-size: var(--font-size-xs);
+    }
+
+    .message .sources-list {
+        max-height: 150px;
+        overflow-y: auto;
+    }
+
+    .message .source-item {
+        gap: var(--spacing-xs);
+    }
+
+    .message .source-number {
+        min-width: 20px;
+    }
+
+    .message .source-item a {
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        font-size: var(--font-size-xs);
+    }
+}
+
+@media (max-width: 480px) {
+    .message .citation {
+        display: inline-block;
+        margin: 2px 0;
+    }
+
+    .message .search-sources details summary {
+        font-size: 0.9em;
+    }
+
+    .message .sources-list {
+        font-size: 0.85em;
+    }
+
+    .message .search-sources summary {
+        font-size: var(--font-size-xs);
+    }
+
+    .message .sources-list {
+        max-height: 120px;
+    }
+
+    .message .source-item {
+        line-height: 1.3;
+    }
 }
 
 /* iPad Layout */
@@ -342,4 +422,15 @@
         bottom: 4em;
     }
 
+}
+
+@media print {
+    .message .search-sources {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .message .sources-list {
+        max-height: none;
+    }
 }

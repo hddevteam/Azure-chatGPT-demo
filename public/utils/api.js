@@ -287,11 +287,19 @@ export async function textToImage(caption) {
 //get gpt response
 export async function getGpt(prompt, model = "gpt-4o", params = {}) {
     try {
-        console.log("getGpt params:", { prompt, model, params });
+        // Add language detection
+        const lastUserMessage = Array.isArray(prompt) ? 
+            prompt[prompt.length - 1].content : 
+            prompt;
+            
+        const language = /[\u4e00-\u9fa5]/.test(lastUserMessage) ? "zh" : "en";
+        
+        console.log("getGpt params:", { prompt, model, params, language });
         
         const response = await axios.post("/gpt", {
             prompt,
             model,
+            language,
             ...params
         });
 

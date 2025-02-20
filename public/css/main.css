@@ -7,3 +7,36 @@
 @import url("layout_split_view.css");
 @import url("chat_options_modal.css");
 @import url('intercom_modal.css');
+
+.citation {
+    color: #0366d6;
+    cursor: pointer;
+    border-bottom: 1px dashed #0366d6;
+}
+
+.citation:hover {
+    text-decoration: none;
+    background-color: rgba(3, 102, 214, 0.1);
+}
+
+.citation-tooltip {
+    position: fixed;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px;
+    max-width: 300px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.citation-tooltip .tooltip-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.citation-tooltip .tooltip-url {
+    color: #666;
+    font-size: 12px;
+    word-break: break-all;
+}

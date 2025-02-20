@@ -75,6 +75,109 @@
     overflow-wrap: anywhere;
 }
 
+/* Search citations and sources styles */
+.message .citation {
+    color: var(--citation-link-color);
+    cursor: pointer;
+    border-bottom: 1px dashed var(--citation-link-color);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.message .citation:hover {
+    text-decoration: none;
+    background-color: var(--citation-hover-bg);
+}
+
+.message .citation-tooltip {
+    position: fixed;
+    z-index: 1000;
+    background: var(--tooltip-bg-color);
+    border: 1px solid var(--tooltip-border-color);
+    border-radius: 6px;
+    padding: 8px;
+    max-width: 300px;
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    box-shadow: var(--tooltip-shadow);
+}
+
+.message .citation-tooltip .tooltip-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.message .citation-tooltip .tooltip-url {
+    color: var(--secondary-text-color, #666);
+    font-size: 12px;
+    word-break: break-all;
+}
+
+.message .search-sources {
+    margin: var(--spacing-md) 0 0;
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--spacing-md);
+    font-size: var(--font-size-sm);
+}
+
+.message .search-sources details {
+    color: var(--secondary-text-color);
+}
+
+.message .search-sources summary {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.message .search-sources summary::after {
+    content: '▼';
+    font-size: 0.8em;
+    transition: transform 0.2s ease;
+}
+
+.message .search-sources details[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.message .sources-list {
+    margin-top: var(--spacing-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.message .source-item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-sm);
+    line-height: 1.4;
+}
+
+.message .source-number {
+    color: var(--secondary-text-color);
+    font-size: var(--font-size-xs);
+    min-width: 24px;
+    text-align: right;
+}
+
+.message .source-item a {
+    color: var(--citation-link-color);
+    text-decoration: none;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.message .source-item a:hover {
+    text-decoration: underline;
+}
+
 .user-message.active {
     background-color: #e0e0e0;
     color: #333333;

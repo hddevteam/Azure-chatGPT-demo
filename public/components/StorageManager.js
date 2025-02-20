@@ -132,7 +132,23 @@ class StorageManager {
 
     getMessage(chatId, messageId) {
         const savedMessages = this.getMessages(chatId);
-        return savedMessages.find(savedMessage => savedMessage.messageId === messageId);
+        const message = savedMessages.find(m => m.messageId === messageId);
+        if (!message) {
+            console.warn(`Message ${messageId} not found in chat ${chatId}`);
+            return null;
+        }
+        
+        // 确保搜索结果中的日期是正确的日期对象字符串
+        if (message.searchResults) {
+            message.searchResults = message.searchResults.map(result => ({
+                ...result,
+                date: result.date ? new Date(result.date).toISOString() : null,
+                type: result.type || 'webpage',
+                provider: result.provider || new URL(result.url).hostname
+            }));
+        }
+        
+        return message;
     }
 
     deleteMessage(chatId, messageId) {
@@ -145,58 +161,105 @@ class StorageManager {
     // create or update a message
     saveMessage(chatId, message) {
         let messages = this.getMessages(chatId);
-        const index = messages.findIndex(m => m.messageId === message.messageId);
-    
-
-        if (index > -1) {
-            // Merge existing message with new data
-            messages[index] = { ...messages[index], ...message };
-            messages[index].createdAt = messages[index].createdAt || new Date().toISOString();
-        } else {
-            // Add createdAt field
-            message.createdAt = message.createdAt || new Date().toISOString();
-            // Save new message
-            messages.push(message);
+        const existingMessage = messages.find(m => m.messageId === message.messageId);
+        
+        // 处理搜索结果，确保它们是可序列化的
+        let processedSearchResults = null;
+        if (message.searchResults) {
+            processedSearchResults = message.searchResults.map(result => ({
+                title: result.title || '',
+                url: result.url || '',
+                snippet: result.snippet || '',
+                date: result.date ? new Date(result.date).toISOString() : null,
+                type: result.type || 'webpage',
+                provider: result.provider || new URL(result.url).hostname
+            }));
         }
+
+        const now = new Date().toISOString();
+        const messageToSave = {
+            ...message,
+            createdAt: existingMessage?.createdAt || now,
+            timestamp: message.timestamp || existingMessage?.timestamp || now,
+            lastUpdated: now,
+            searchResults: processedSearchResults
+        };
+
+        if (existingMessage) {
+            messages = messages.map(m => 
+                m.messageId === message.messageId ? messageToSave : m
+            );
+        } else {
+            messages.push(messageToSave);
+        }
+
+        // 确保按时间戳排序
+        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
         this.saveMessages(chatId, messages);
+        
+        // 返回保存的消息，以便确认
+        return messageToSave;
     }
-    
 
     // 更新 getMessages 方法，在确保所有消息都有 createdAt 属性并完成排序后保存回LocalStorage
     getMessages(chatId) {
-        let messages = JSON.parse(localStorage.getItem(chatId) || "[]");
-
-        // 确保每条消息都有 createdAt 属性
-        let updated = false; // 标识是否更新了消息数组
-        messages = messages.map(message => {
+        const key = `messages_${chatId}`;
+        const messages = JSON.parse(localStorage.getItem(key) || '[]');
+        
+        // 确保所有消息都有必要的属性
+        messages.forEach(message => {
             if (!message.createdAt) {
-                updated = true;
-                return { ...message, createdAt: new Date().toISOString() };
+                message.createdAt = new Date().toISOString();
             }
-            return message;
+            if (!message.timestamp) {
+                message.timestamp = message.createdAt;
+            }
+            // 恢复搜索结果的完整性
+            if (message.searchResults) {
+                message.searchResults = message.searchResults.map(result => ({
+                    ...result,
+                    date: result.date ? new Date(result.date).toISOString() : null,
+                    type: result.type || 'webpage',
+                    provider: result.provider || new URL(result.url).hostname
+                }));
+            }
         });
 
-        if (updated) {
-            // 如果有更新, 再次保存回LocalStorage
-            this.saveMessages(chatId, messages);
-        }
-
-        // 根据 createdAt 排序，确保消息顺序
-        messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-
+        // 按时间戳排序
+        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        
+        // 保存回 localStorage 以确保数据一致性
+        localStorage.setItem(key, JSON.stringify(messages));
+        
         return messages;
     }
 
-    updateMessageTimestamp(chatId, messageId, timestamp) {
-        console.log("updateMessageTimestamp: ", messageId, timestamp);
-        let messages = this.getMessages(chatId);
+    async updateMessageTimestamp(chatId, messageId, timestamp) {
+        console.log("updateMessageTimestamp:", { chatId, messageId, timestamp });
+        
+        // 首先检查消息是否存在
+        if (!this.messageExists(chatId, messageId)) {
+            // 等待消息出现
+            const messageAppeared = await this.waitForMessage(chatId, messageId);
+            if (!messageAppeared) {
+                console.warn(`Gave up waiting for message ${messageId} in chat ${chatId}`);
+                return;
+            }
+        }
 
+        let messages = this.getMessages(chatId);
         const messageIndex = messages.findIndex(m => m.messageId === messageId);
+        
         if (messageIndex >= 0) {
-            messages[messageIndex].timestamp = timestamp;
+            messages[messageIndex] = {
+                ...messages[messageIndex],
+                timestamp: timestamp,
+                lastUpdated: new Date().toISOString()
+            };
             this.saveMessages(chatId, messages);
+            console.log(`Successfully updated timestamp for message ${messageId}`);
         } else {
-            console.error(`Message with messageId: ${messageId} not found in chatId: ${chatId}`);
+            console.error(`Failed to update timestamp for message ${messageId} - not found after waiting`);
         }
     }
 
@@ -205,9 +268,15 @@ class StorageManager {
     }
 
     saveMessages(chatId, messages) {
-        localStorage.setItem(chatId, JSON.stringify(messages));
+        const key = `messages_${chatId}`;
+        // 在保存之前确保所有消息都有必要的时间属性
+        const processedMessages = messages.map(message => ({
+            ...message,
+            createdAt: message.createdAt || new Date().toISOString(),
+            timestamp: message.timestamp || message.createdAt || new Date().toISOString()
+        }));
+        localStorage.setItem(key, JSON.stringify(processedMessages));
     }
-
 
     // StorageManager.js
 
@@ -248,35 +317,35 @@ class StorageManager {
         if (!chatHistories.length) {
             return;
         }
+        // Convert the total size to MB outside the loop
+        total = total / 1024 / 1024;
+        return total.toFixed(2);
+    }
 
-        // 准备一个容器存放要被删除的聊天记录ID
-        let chatIdsToDelete = [];
-
-        // 筛选出有效的聊天记录，并记录下来无效记录的ID
-        chatHistories = chatHistories.filter(history => {
-            try {
-                const { profileName } = this.parseChatId(history.id);
-                if (profileName.trim() === "") {
-                    chatIdsToDelete.push(history.id); // 记录下来需要删除的聊天ID
-                    return false; // 对于profileName为空的聊天记录进行过滤
-                }
-                return true;
-            } catch (error) {
-                console.error("Error parsing chatId: ", error.message);
-                chatIdsToDelete.push(history.id);   
-                return false; // 解析出错的记录也标记为无效
-            }
-        });
-
-        // 遍历需要删除的聊天记录ID并从localStorage中移除
-        chatIdsToDelete.forEach(chatId => {
-            console.log(`Removing chat history and messages for chatId: ${chatId}`);
-            this.deleteChatHistory(chatId); // 删除整个聊天历史记录
-            this.removeMessagesByChatId(chatId); // 删除相关的消息记录
-        });
+    parseChatId(chatId) {
+        const parts = chatId.split("_");
+        if (parts.length !== 3) {
+            throw new Error("Invalid chatId format. Expected format: username_profileName_uuid, but got: " + chatId);
+        }
+        const [username, profileName, uuid] = parts;
+        if(!username.trim() || !profileName.trim() || !uuid.trim()) {
+            console.log("Invalid chatId format: ", chatId);
+            throw new Error("Invalid chatId format. All components must be non-empty.");
+        }
+        return { username, profileName, uuid };
+    }
 
 
-        chatHistories = chatHistories.filter(history => history.timestamp);
+    cleanUpUserChatHistories(username) {
+        console.log("cleanUpUserChatHistories: ", username);
+        let localStorageUsage = parseFloat(this.getLocalStorageUsage());
+        console.log("localStorageUsage: ", localStorageUsage);
+        let chatHistories = this.getChatHistory(username);
+        // console.log("chatHistories: ", chatHistories);
+
+        if (!chatHistories.length) {
+            return;
+        }
         // Sort by timestamp, assumed to be a number for efficiency
         chatHistories.sort((a, b) => a.timestamp - b.timestamp);
 
@@ -313,6 +382,35 @@ class StorageManager {
             console.log("cleanUpUserChatHistories: LocalStorage usage is below 4.5MB, cleanup done.");
         }
         
+    }
+
+    messageExists(chatId, messageId) {
+        const messages = this.getMessages(chatId);
+        return messages.some(m => m.messageId === messageId);
+    }
+
+    waitForMessage(chatId, messageId, maxAttempts = 10, interval = 100) {
+        return new Promise((resolve, reject) => {
+            let attempts = 0;
+            
+            const checkMessage = () => {
+                if (this.messageExists(chatId, messageId)) {
+                    resolve(true);
+                    return;
+                }
+                
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    console.warn(`Message ${messageId} not found in chat ${chatId} after ${maxAttempts} attempts`);
+                    resolve(false);
+                    return;
+                }
+                
+                setTimeout(checkMessage, interval);
+            };
+            
+            checkMessage();
+        });
     }
 }
 

@@ -10,7 +10,6 @@ body {
     background-color: #f8f8f8;
 }
 
-
 code {
     font-family: Consolas, Monaco, Menlo, 'Courier New', monospace;
     background-color: #000;
@@ -22,5 +21,50 @@ code {
 
 h1, h2, h3, h4, h5, h6 {
     line-height: 120%;
+}
+
+:root {
+    /* Global colors */
+    --primary-color: #0366d6;
+    --primary-hover-bg: rgba(3, 102, 214, 0.1);
+    --border-color: #ddd;
+    --text-color: #333;
+    --secondary-text-color: #666;
+    --bg-color: #fff;
+    --shadow-color: rgba(0, 0, 0, 0.15);
+
+    /* Component-specific colors */
+    --citation-link-color: var(--primary-color);
+    --citation-hover-bg: var(--primary-hover-bg);
+    --tooltip-bg-color: var(--bg-color);
+    --tooltip-border-color: var(--border-color);
+    --tooltip-shadow: 0 2px 8px var(--shadow-color);
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
+
+    /* Typography */
+    --font-size-xs: 0.85em;
+    --font-size-sm: 0.9em;
+    --font-size-md: 1em;
+    --font-size-lg: 1.2em;
+    --font-size-xl: 1.5em;
+}
+
+/* Dark theme */
+.theme-dark {
+    --primary-color: #58a6ff;
+    --primary-hover-bg: rgba(88, 166, 255, 0.1);
+    --border-color: #444;
+    --text-color: #e1e1e1;
+    --secondary-text-color: #999;
+    --bg-color: #1e1e1e;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+
+    /* Component colors will automatically update based on global colors */
 }
 

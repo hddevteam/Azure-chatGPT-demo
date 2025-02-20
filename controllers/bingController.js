@@ -32,6 +32,7 @@ const bingController = {
 
     // 新增: 高级搜索功能
     advancedSearch: async (query, options = {}) => {
+        console.log("Performing advanced search for:", query, options);
         try {
             // 获取当前时间上下文
             const now = new Date();
@@ -46,101 +47,102 @@ const bingController = {
                 timeZoneName: "short"
             });
 
-            const { mkt, responseFilter, freshness, count = 5 } = options;  // 设置默认值为5
+            const { responseFilter, freshness, count = 10 } = options;
 
-            // 构建搜索参数
+            // 分离不同类型的搜索目标
+            const newsParams = {
+                q: query,
+                count: Math.ceil(count * 0.6), // 60% 的配额给新闻结果
+                textDecorations: false,
+                textFormat: "HTML",
+                freshness: freshness || "Month",
+                responseFilter: "News"
+            };
+
+            const webParams = {
+                q: query,
+                count: Math.ceil(count * 0.4), // 40% 的配额给网页结果
+                textDecorations: false,
+                textFormat: "HTML",
+                freshness: freshness || "Month",
+                responseFilter: "Webpages"
+            };
+
             const headers = {
                 "Ocp-Apim-Subscription-Key": process.env.BING_SEARCH_API_KEY
             };
-            
-            const params = {
-                q: `${query} (as of ${timeContext})`,
-                count: count,  // 使用传入的 count 参数
-                textDecorations: false,
-                textFormat: "HTML",
-                freshness: freshness || "Day",
-                responseFilter: ["Webpages", "News", "Entities", ...(responseFilter || [])].join(","),
-                mkt: mkt && isValidMarket(mkt) ? mkt : process.env.BING_SEARCH_API_LOCALE || "en-US"
-            };
 
-            console.log("Bing search params:", params);
-            
-            const response = await axios.get(
-                `${process.env.BING_SEARCH_API_URL}v7.0/search`,
-                { headers, params }
-            );
+            // 并行请求新闻和网页结果
+            const [newsResponse, webResponse] = await Promise.all([
+                axios.get(`${process.env.BING_SEARCH_API_URL}v7.0/search`, { headers, params: newsParams }),
+                axios.get(`${process.env.BING_SEARCH_API_URL}v7.0/search`, { headers, params: webParams })
+            ]);
 
-            // 处理搜索结果
             let results = [];
-            
-            // 处理网页结果
-            if (response.data.webPages?.value) {
-                results.push(...response.data.webPages.value.map(result => ({
-                    type: "webpage",
-                    title: result.name,
-                    snippet: result.snippet,
-                    date: result.datePublished,
-                    url: result.url
-                })));
-            }
 
             // 处理新闻结果
-            if (response.data.news?.value) {
-                results.push(...response.data.news.value.map(result => ({
+            if (newsResponse.data.news?.value) {
+                results.push(...newsResponse.data.news.value.map(result => ({
                     type: "news",
-                    title: result.name,
-                    snippet: result.description,
-                    date: result.datePublished,
-                    url: result.url
+                    title: result.name || "",
+                    snippet: result.description || "",
+                    date: result.datePublished || "",
+                    url: result.url || "",
+                    provider: result.provider?.[0]?.name || "",
+                    category: result.category || "general"
                 })));
             }
 
-            // 处理实体结果
-            if (response.data.entities?.value) {
-                results.push(...response.data.entities.value.map(result => ({
-                    type: "entity",
-                    title: result.name,
-                    snippet: result.description,
-                    url: result.url
+            // 处理网页结果
+            if (webResponse.data.webPages?.value) {
+                results.push(...webResponse.data.webPages.value.map(result => ({
+                    type: "webpage",
+                    title: result.name || "",
+                    snippet: result.snippet || "",
+                    date: result.dateLastCrawled || "",
+                    url: result.url || "",
+                    provider: new URL(result.url).hostname,
+                    language: result.language || "zh-CN"
                 })));
             }
 
-            // 安全检查：确保不会因为结果数量不足而出错
-            const availableResults = results.length;
-            const actualCount = Math.min(count, availableResults);
+            // 结果去重和排序
+            results = results.reduce((unique, item) => {
+                // 检查是否已经存在相同来源和相似标题的内容
+                const exists = unique.find(x => 
+                    x.provider === item.provider && 
+                    (x.title.includes(item.title) || item.title.includes(x.title))
+                );
+                
+                if (!exists) {
+                    unique.push(item);
+                } else if (new Date(item.date) > new Date(exists.date)) {
+                    // 如果新内容更新，替换旧内容
+                    const index = unique.indexOf(exists);
+                    unique[index] = item;
+                }
+                return unique;
+            }, []);
 
-            // 格式化结果
-            const formattedResults = results
-                .slice(0, actualCount)
-                .map((r, i) => {
-                    let resultText = `${i + 1}. [${r.type.toUpperCase()}] ${r.title}\n   ${r.snippet}\n   URL: ${r.url}`;
-                    if (r.date) {
-                        resultText += `\n   Published: ${new Date(r.date).toLocaleString()}`;
-                    }
-                    return resultText;
-                })
-                .join("\n\n");
+            // 按日期排序
+            results.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // 添加结果数量信息到返回值
+            // 限制结果数量
+            results = results.slice(0, count);
+
             return {
-                query: params.q,
-                market: params.mkt,
-                filters: params.responseFilter,
-                freshness: params.freshness,
-                results: formattedResults,
+                query,
+                results,
                 resultCount: {
                     requested: count,
-                    available: availableResults,
-                    returned: actualCount
+                    available: results.length,
+                    returned: results.length
                 }
             };
 
         } catch (error) {
             console.error("Bing search error:", error);
-            return {
-                error: "Failed to perform search",
-                details: error.message
-            };
+            throw error;
         }
     }
 };

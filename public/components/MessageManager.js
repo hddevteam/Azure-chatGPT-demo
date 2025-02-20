@@ -19,6 +19,7 @@ class MessageManager {
     constructor(uiManager) {
         this.uiManager = uiManager;
         this.linkHandler = new LinkHandler(uiManager);
+        this.searchResults = null;
     }
 
     // Add message to DOM
@@ -52,6 +53,40 @@ class MessageManager {
         const messageContentElement = sender === "user" ? document.createElement("pre") : document.createElement("div");
         messageContentElement.classList.add("message-content");
         messageElement.appendChild(messageContentElement);
+
+        // Process citations if this is an assistant message
+        if (sender === "assistant") {
+            // First check if there are stored search results for this message
+            const savedMessage = this.uiManager.storageManager.getMessage(this.uiManager.currentChatId, messageId);
+            if (savedMessage?.searchResults) {
+                this.searchResults = savedMessage.searchResults;
+            }
+
+            // Add search results if available
+            if (this.searchResults && Array.isArray(this.searchResults) && this.searchResults.length > 0) {
+                const sourcesElement = document.createElement("div");
+                sourcesElement.className = "search-sources";
+                sourcesElement.innerHTML = `<details>
+                    <summary>Search Sources (${this.searchResults.length})</summary>
+                    <div class="sources-list">
+                        ${this.searchResults.map((result, index) => `
+                            <div class="source-item">
+                                <span class="source-number">[${index + 1}]</span>
+                                <a href="${result.url}" target="_blank" rel="noopener noreferrer">
+                                    ${result.title}${result.date ? ` (${new Date(result.date).toLocaleDateString()})` : ''}
+                                </a>
+                            </div>
+                        `).join("")}
+                    </div>
+                </details>`;
+                messageElement.appendChild(sourcesElement);
+            }
+
+            // Then process citations in the message
+            message = this.processCitationsInMessage(message);
+        }
+
+        // Set the message content with citations
         const codeBlocksWithCopyElements = this.setMessageContent(sender, messageElement, message, isActive);
 
         if (!isActive) {
@@ -102,6 +137,48 @@ class MessageManager {
 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         // this.uiManager.updateSlider();
+
+        // Add event listeners for citations
+        const citations = messageElement.querySelectorAll(".citation");
+        citations.forEach(citation => {
+            citation.addEventListener("mouseover", () => {
+                const tooltip = document.createElement("div");
+                tooltip.className = "citation-tooltip";
+                tooltip.innerHTML = `
+                    <div class="tooltip-title">${citation.dataset.title}</div>
+                    <div class="tooltip-url">${citation.dataset.url}</div>
+                `;
+                document.body.appendChild(tooltip);
+
+                const rect = citation.getBoundingClientRect();
+                const isSplitView = document.body.classList.contains("split-view");
+                
+                // Adjust tooltip position for split view
+                if (isSplitView) {
+                    const messageContainer = document.querySelector("#messages");
+                    const containerRect = messageContainer.getBoundingClientRect();
+                    tooltip.style.left = `${Math.min(rect.left, containerRect.right - tooltip.offsetWidth - 20)}px`;
+                } else {
+                    tooltip.style.left = `${rect.left}px`;
+                }
+                
+                tooltip.style.top = `${rect.bottom + 5}px`;
+
+                // Remove tooltip on mouseout
+                const handleMouseOut = () => {
+                    tooltip.remove();
+                    citation.removeEventListener("mouseout", handleMouseOut);
+                };
+                citation.addEventListener("mouseout", handleMouseOut);
+            });
+
+            citation.addEventListener("click", (event) => {
+                event.preventDefault();
+                window.open(citation.dataset.url, "_blank", "noopener,noreferrer");
+            });
+        });
+
+        return messageElement;
     }
 
     async sendTextMessage() {
@@ -192,6 +269,7 @@ class MessageManager {
         }
 
         const { message, isSkipped } = validationResult;
+        const timestamp = new Date().toISOString();
 
         let executeFunction; // 定义一个变量来存储根据条件选择的函数
 
@@ -206,9 +284,14 @@ class MessageManager {
             executeFunction = () => this.sendTextMessage();
         } 
 
-        const data = await this.wrapWithGetGptErrorHandler(executeFunction); // 直接传递函数
+        const data = await this.wrapWithGetGptErrorHandler(executeFunction, timestamp);
+        if (data && data.searchResults) {
+            this.searchResults = data.searchResults;
+        } else {
+            this.searchResults = null;
+        }
+        
         this.uiManager.finishSubmitProcessing();
-
         await this.sendFollowUpQuestions();
 
     }
@@ -222,7 +305,7 @@ class MessageManager {
         }
     }
 
-    async wrapWithGetGptErrorHandler(dataPromise) {
+    async wrapWithGetGptErrorHandler(dataPromise, timestamp) {
         try {
             const data = await dataPromise();
             if (!data) {
@@ -230,8 +313,42 @@ class MessageManager {
                 swal(errorMessage, { icon: "error" });
             } else {
                 let messageId = this.uiManager.generateId();
-                const newMessage = { role: "assistant", content: data.message, messageId: messageId, isActive: true, attachmentUrls: data.attachmentUrls||""};
-                this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive, "bottom", false, newMessage.attachmentUrls);
+                // Store search results before adding message
+                if (data.searchResults && Array.isArray(data.searchResults)) {
+                    // Sort search results by date and ensure they are unique
+                    this.searchResults = data.searchResults
+                        .filter((result, index, self) => 
+                            index === self.findIndex(r => r.url === result.url))
+                        .sort((a, b) => {
+                            if (a.type === "news" && b.type !== "news") return -1;
+                            if (b.type === "news" && a.type !== "news") return 1;
+                            return new Date(b.date || "") - new Date(a.date || "");
+                        });
+                } else {
+                    this.searchResults = null;
+                }
+
+                const newMessage = { 
+                    role: "assistant", 
+                    content: data.message, 
+                    messageId: messageId, 
+                    isActive: true, 
+                    attachmentUrls: data.attachmentUrls || "",
+                    searchResults: this.searchResults,
+                    timestamp: timestamp || new Date().toISOString(),
+                    createdAt: timestamp || new Date().toISOString()
+                };
+
+                this.addMessage(
+                    newMessage.role, 
+                    newMessage.content, 
+                    newMessage.messageId, 
+                    newMessage.isActive, 
+                    "bottom", 
+                    false, 
+                    newMessage.attachmentUrls
+                );
+
                 this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
                 this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
                 this.uiManager.app.prompts.addPrompt(newMessage);
@@ -239,13 +356,13 @@ class MessageManager {
             return data;
         } catch (error) {
             // Parse and display the thrown error message
-            let errorMessage = error.message; // Use specific error message from API
+            let errorMessage = error.message;
             if (!navigator.onLine) {
-                errorMessage = "You are currently offline, please check your network connection."; // Special handling for offline error
+                errorMessage = "You are currently offline, please check your network connection.";
             }
             swal("Request Error", errorMessage, { icon: "error" });
             this.uiManager.finishSubmitProcessing();
-            return null; // Return null or appropriate error indicator when an error occurs
+            return null;
         }
     }
 
@@ -261,12 +378,7 @@ class MessageManager {
             if (attachmentUrls === "") {
                 this.uiManager.finishSubmitProcessing();
                 return false;
-            } else {
-                validationResult.attachmentUrls = attachmentUrls;
             }
-        } else if (isRetry) {
-            attachmentUrls = attachments.map(a => a.fileName).join(";");
-            validationResult.attachmentUrls = attachmentUrls;
         }
 
         if (reEdit) {
@@ -276,8 +388,18 @@ class MessageManager {
             return false;
         }
 
+        const timestamp = new Date().toISOString();
         let messageId = this.uiManager.generateId();
-        const newMessage = { role: "user", content: message, messageId: messageId, isActive: true, attachmentUrls: attachmentUrls};
+        const newMessage = { 
+            role: "user", 
+            content: message, 
+            messageId: messageId, 
+            isActive: true, 
+            attachmentUrls: attachmentUrls,
+            timestamp: timestamp,
+            createdAt: timestamp
+        };
+
         this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive, "bottom", false, attachmentUrls);
         this.uiManager.app.prompts.addPrompt(newMessage);
         this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
@@ -503,7 +625,7 @@ class MessageManager {
         // Get the current list of message IDs
         const currentMessageIds = Array.from(messagesContainer.children).map(message => message.dataset.messageId);
 
-        savedMessages.slice(startingIndex, savedMessages.length - currentMessagesCount).reverse().forEach((message, index) => {
+        savedMessages.slice(startingIndex, savedMessages.length - currentMessagesCount).reverse().forEach(message => {
             // Check if the message is already in the list
             if (!currentMessageIds.includes(message.messageId)) {
                 let isActive = message.isActive || false;
@@ -627,6 +749,43 @@ class MessageManager {
         const followUpResponsesData = await getFollowUpQuestions(questionPromptText);
         console.log(followUpResponsesData.suggestedUserResponses);
         this.addFollowUpQuestions(followUpResponsesData.suggestedUserResponses);
+    }
+
+    // Add this method to process citations in messages
+    processCitationsInMessage(message) {
+        if (!this.searchResults || !Array.isArray(this.searchResults)) {
+            return message;
+        }
+
+        // First handle markdown links to avoid interference with citations
+        const linkMap = new Map();
+        let linkCounter = 0;
+        message = message.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match) => {
+            const placeholder = `__LINK_${linkCounter}__`;
+            linkMap.set(placeholder, match);
+            linkCounter++;
+            return placeholder;
+        });
+
+        // Process citations
+        message = message.replace(/\[citation:(\d+)\]/g, (match, citationNum) => {
+            const index = parseInt(citationNum) - 1;
+            if (index < 0 || index >= this.searchResults.length) {
+                return match; // Keep original if citation number is out of range
+            }
+            const result = this.searchResults[index];
+            if (!result) return match;
+            
+            const date = result.date ? ` (${new Date(result.date).toLocaleDateString()})` : '';
+            return `<span class="citation" data-url="${result.url}" data-title="${result.title}${date}">${match}</span>`;
+        });
+
+        // Restore markdown links
+        linkMap.forEach((value, key) => {
+            message = message.replace(key, value);
+        });
+
+        return message;
     }
 }
     

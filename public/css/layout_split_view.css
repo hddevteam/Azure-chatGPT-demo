@@ -294,3 +294,49 @@
     background-color: #585858;
     color: #E6E6E6;
 }
+
+/* Split view specific styles for search results */
+.split-view .message .search-sources {
+    background: rgba(0, 0, 0, 0.5);;
+    border-top: 1px solid var(--border-color);
+}
+
+.split-view .message .sources-list {
+    margin-top: var(--spacing-xs);
+    gap: var(--spacing-xs);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.split-view .message .source-item {
+    font-size: var(--font-size-xs);
+    gap: var(--spacing-xs);
+}
+
+.split-view .message .source-number {
+    min-width: 20px;
+}
+
+.split-view .message .source-item a {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+}
+
+/* Split view specific styles for search results */
+.split-view .message .search-sources {
+    margin: 8px;
+    padding: 8px;
+}
+
+.split-view .message .source-item {
+    margin: 2px 0;
+    font-size: 0.9em;
+}
+
+.split-view .message .citation-tooltip {
+    max-width: 250px;
+    font-size: 0.9em;
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    backdrop-filter: blur(10px) saturate(180%);
+}
+
