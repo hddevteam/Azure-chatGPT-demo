@@ -20,6 +20,18 @@ class MessageManager {
         this.uiManager = uiManager;
         this.linkHandler = new LinkHandler(uiManager);
         this.searchResults = null;
+        this.webSearchEnabled = false; // Add this line to track web search state
+    }
+
+    // Add a method to toggle web search
+    toggleWebSearch() {
+        this.webSearchEnabled = !this.webSearchEnabled;
+        const button = document.getElementById("web-search-toggle");
+        if (this.webSearchEnabled) {
+            button.classList.add("active");
+        } else {
+            button.classList.remove("active");
+        }
     }
 
     // Add message to DOM
@@ -206,7 +218,8 @@ class MessageManager {
             top_p: parseFloat(currentProfile.top_p) || 0.95,
             frequency_penalty: parseFloat(currentProfile.frequency_penalty) || 0,
             presence_penalty: parseFloat(currentProfile.presence_penalty) || 0,
-            max_tokens: parseInt(currentProfile.max_tokens) || 2000
+            max_tokens: parseInt(currentProfile.max_tokens) || 2000,
+            webSearchEnabled: this.webSearchEnabled // Add this line to pass web search state
         };
         
         console.log("Sending request with params:", params); // Add debug info

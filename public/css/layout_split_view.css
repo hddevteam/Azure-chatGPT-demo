@@ -192,7 +192,7 @@
     box-shadow: 
         0 1px 3px rgba(0, 0, 0, 0.2),
         inset 0 1px 1px rgba(255, 255, 255, 0.1);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s ease, transform 0.1s ease, filter 0.1s ease; 
     position: relative;
     overflow: hidden;
     display: flex;
@@ -251,7 +251,43 @@
     background: transparent;
 }
 
+/* Web search toggle button styles for split view */
+#message-input-container.split-view .button-row #web-search-toggle {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 
+        0 1px 3px rgba(0, 0, 0, 0.2),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    color: #4A90E2;
+    will-change: transform; /* 优化transform性能 */
+    transform: translateY(0); /* 设置初始transform状态 */
+}
 
+#message-input-container.split-view .button-row #web-search-toggle.active {
+    color: #2E7D32;
+    border-color: rgba(46, 125, 50, 0.3);
+    background: rgba(46, 125, 50, 0.1); /* 添加淡绿色背景 */
+}
+
+#message-input-container.split-view .button-row #web-search-toggle:hover {
+    filter: brightness(110%);
+    background: rgba(74, 144, 226, 0.1); /* 添加淡蓝色背景 */
+    border-color: rgba(74, 144, 226, 0.3); /* 加深边框颜色 */
+    transform: translateY(1px); /* 添加轻微下移效果 */
+}
+
+#message-input-container.split-view .button-row #web-search-toggle.active:hover {
+    filter: brightness(120%);
+    background: rgba(46, 125, 50, 0.15); /* 加深淡绿色背景 */
+    border-color: rgba(46, 125, 50, 0.4); /* 加深边框颜色 */
+}
+
+#message-input-container.split-view .button-row #web-search-toggle:active {
+    transform: translateY(2px); /* 增加按下时的下移距离 */
+    filter: brightness(90%); /* 按下时稍微变暗 */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加内阴影 */
+    transition: all 0.1s ease; /* 加快过渡效果 */
+}
 
 #message-input-container.split-view .mini-toolbar {
     margin-bottom: 5px;

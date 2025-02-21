@@ -287,37 +287,20 @@ export async function textToImage(caption) {
 //get gpt response
 export async function getGpt(prompt, model = "gpt-4o", params = {}) {
     try {
-        // Add language detection
-        const lastUserMessage = Array.isArray(prompt) ? 
-            prompt[prompt.length - 1].content : 
-            prompt;
-            
-        const language = /[\u4e00-\u9fa5]/.test(lastUserMessage) ? "zh" : "en";
-        
-        console.log("getGpt params:", { prompt, model, params, language });
-        
         const response = await axios.post("/gpt", {
             prompt,
             model,
-            language,
-            ...params
+            params: {
+                ...params,
+                // Ensure webSearchEnabled is included in the request
+                webSearchEnabled: params.webSearchEnabled || false
+            }
         });
 
-        console.log("GPT API response:", response.data);
         return response.data;
     } catch (error) {
-        console.error("Error in getGpt:", error);
-        
-        if (error.response) {
-            console.error("GPT API error:", error.response.data);
-            throw new Error(error.response.data);
-        } else if (error.request) {
-            console.error("No response received:", error.request);
-            throw new Error("No response received from server");
-        } else {
-            console.error("Request error:", error.message);
-            throw error;
-        }
+        console.error(error);
+        throw error;
     }
 }
 

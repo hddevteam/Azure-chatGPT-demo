@@ -1562,3 +1562,45 @@ button.action-button.invisible {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
+/* Web search toggle button styles */
+#web-search-toggle {
+    color: #fff;
+    background-color: #4A90E2;
+    cursor: pointer;
+    transition: all 0.2s ease, transform 0.1s ease, background-color 0.15s ease;
+    position: relative;
+    transform: translateY(0);
+    will-change: transform;
+}
+
+#web-search-toggle:hover {
+    background-color: #357ABD;
+}
+
+#web-search-toggle.active {
+    background-color: #2E7D32;
+}
+
+#web-search-toggle.active:hover {
+    background-color: #1B5E20;
+}
+
+#web-search-toggle i {
+    transition: transform 0.2s ease;
+}
+
+#web-search-toggle.active i {
+    transform: scale(1.1);
+}
+
+#web-search-toggle:active {
+    transform: translateY(2px);
+    filter: brightness(95%);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+#web-search-toggle.active:active {
+    background-color: #1B5E20;
+    transform: translateY(2px);
+}
+

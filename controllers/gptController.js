@@ -328,8 +328,9 @@ exports.generateResponse = async (req, res) => {
         top_p = defaultParams.top_p,
         frequency_penalty = defaultParams.frequency_penalty,
         presence_penalty = defaultParams.presence_penalty,
-        max_tokens = defaultParams.max_tokens
-    } = req.body;
+        max_tokens = defaultParams.max_tokens,
+        webSearchEnabled = false
+    } = req.body.params || {};
     
     // Ensure all parameters are of correct type
     const params = {
@@ -396,7 +397,7 @@ exports.generateResponse = async (req, res) => {
         apiUrl: currentApiUrl,
         prompt,
         params: requestParams,
-        includeFunctionCalls: true // Set to true in generateResponse
+        includeFunctionCalls: webSearchEnabled // Only include function calls if web search is enabled
     };
 
     try {
@@ -405,7 +406,7 @@ exports.generateResponse = async (req, res) => {
         console.log("Response from GPT:", response.data);
 
         // Check if further tool call processing is needed
-        let needsFurtherProcessing = true;
+        let needsFurtherProcessing = webSearchEnabled; // Only process tool calls if web search is enabled
         let maxIterations = 5; // Set maximum iterations to prevent infinite loops
         let currentIteration = 0;
         let searchResults = null;
@@ -572,7 +573,7 @@ You will highlight pronunciation, sentence structure, fluency, and cultural nuan
   - “I noticed you said 'busying,' which isn’t correct here. Let’s fix it.”
   - “You should say, ‘I am very busy today.’”
   - “Can you try saying, ‘I’m very busy today’?”
-  - “Great! Now tell me why you were busy.”
+  - “Great! Now tell me why you were busy。”
 
 **Example 2 (Pronunciation practice):**
 - User: “I really like flied rice.”

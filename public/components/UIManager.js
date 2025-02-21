@@ -39,6 +39,7 @@ class UIManager {
         this.syncManager = new SyncManager(this);
         this.chatHistoryManager = new ChatHistoryManager(this);
         this.chatHistoryManager.subscribe(this.handleChatHistoryChange.bind(this));
+        this.setupWebSearchToggle();
         this.setupChatHistoryListClickHandler();
         this.setupUploadFunctionality();
         this.boundHideAIActorOnOutsideClick = this.hideAIActorOnOutsideClick.bind(this);
@@ -1023,6 +1024,13 @@ class UIManager {
             this.showToast("Failed to delete message: " + error.message);
             return false;
         }
+    }
+
+    setupWebSearchToggle() {
+        const webSearchToggle = document.getElementById("web-search-toggle");
+        webSearchToggle.addEventListener("click", () => {
+            this.messageManager.toggleWebSearch();
+        });
     }
 }
 
