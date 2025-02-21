@@ -77,13 +77,12 @@ exports.deleteAttachment = async (req, res) => {
 
 exports.getCloudMessages = async (req, res) => {
     const chatId = req.params.chatId;
-    const lastTimestamp = req.query.lastTimestamp; // Obtained from query parameter if it exists
+    const lastTimestamp = req.query.lastTimestamp;
 
     try {
         const tableClient = getTableClient("Messages");
         let queryOptions = { filter: `PartitionKey eq '${chatId}'` };
 
-        // If lastTimestamp is specified, modify the query to include a time filter.
         if (lastTimestamp) {
             const timeStampFilter = `Timestamp gt datetime'${lastTimestamp}'`;
             queryOptions.filter = `(${queryOptions.filter}) and (${timeStampFilter})`;
@@ -95,22 +94,36 @@ exports.getCloudMessages = async (req, res) => {
         
         const messages = [];
         for await (const entity of iterator) {
-            messages.push(entity);
-        }
-      
-        // Fetch content from Blob Storage if necessary
-        for (const message of messages) {
-            if (message.isContentInBlob) {
+            // 处理从Blob存储中获取内容
+            if (entity.isContentInBlob) {
                 try {
-                    message.content = await getTextFromBlob(message.content);
+                    entity.content = await getTextFromBlob(entity.content);
                 } catch (blobError) {
-                    console.warn(`Blob for message ${message.RowKey} not found`);
-                    // Handle the missing blob as needed:
-                    // e.g., set the message content to null or a placeholder text
-                    message.content = null; // Or a placeholder value like 'Content not available'
-                    
+                    console.warn(`Blob for message ${entity.rowKey} not found:`, blobError);
+                    entity.content = null;
                 }
             }
+
+            // 反序列化JSON数据
+            if (entity.searchResults) {
+                try {
+                    entity.searchResults = JSON.parse(entity.searchResults);
+                } catch (e) {
+                    console.warn(`Failed to parse searchResults for message ${entity.rowKey}:`, e);
+                    entity.searchResults = null;
+                }
+            }
+
+            if (entity.metadata) {
+                try {
+                    entity.metadata = JSON.parse(entity.metadata);
+                } catch (e) {
+                    console.warn(`Failed to parse metadata for message ${entity.rowKey}:`, e);
+                    entity.metadata = null;
+                }
+            }
+
+            messages.push(entity);
         }
 
         res.json({ data: messages });
@@ -121,35 +134,63 @@ exports.getCloudMessages = async (req, res) => {
 };
 
 exports.createCloudMessage = async (req, res) => {
-    const chatId = req.params.chatId; // You may need to update this line based on your front-end implementation
+    const chatId = req.params.chatId;
     const message = req.body;
-    console.log(message);
+    console.log("Creating message:", message);
     try {
         const tableClient = getTableClient("Messages");
 
-        // Check message content size and handle blob storage if necessary
-        if (Buffer.byteLength(message.content, "utf16le") > 32 * 1024) {
+        // 预处理消息数据，确保所有字段都是Azure Table Storage支持的类型
+        const processedMessage = {
+            ...message,
+            // 确保searchResults被序列化为字符串
+            searchResults: message.searchResults ? JSON.stringify(message.searchResults) : null,
+            // 确保其他可能的对象类型也被序列化
+            metadata: message.metadata ? JSON.stringify(message.metadata) : null
+        };
+
+        // 检查消息内容大小并处理blob存储
+        if (Buffer.byteLength(processedMessage.content, "utf16le") > 32 * 1024) {
             const blobName = `${chatId}_${message.messageId}`;
-            const blobUrl = await uploadTextToBlob("messagecontents", blobName, message.content);
-            message.content = blobUrl; // Save Blob URL to Table Storage
-            message.isContentInBlob = true; // Mark that content is stored in Blob
+            const blobUrl = await uploadTextToBlob("messagecontents", blobName, processedMessage.content);
+            processedMessage.content = blobUrl;
+            processedMessage.isContentInBlob = true;
         } else {
-            message.isContentInBlob = false;
+            processedMessage.isContentInBlob = false;
         }
 
         const entity = {
             partitionKey: chatId,
             rowKey: message.messageId,
-            ...message
+            ...processedMessage
         };
 
         await tableClient.createEntity(entity);
-        console.log(entity);
-        console.log("message created");
-        // Assume the structure of chatHistory is correct and includes PartitionKey and RowKey
-        const createdEntity = await tableClient.getEntity(chatId, message.messageId);
-        res.status(201).json({ data: createdEntity });
+        console.log("Message created successfully:", entity);
 
+        // 获取创建的实体并在返回之前处理数据
+        const createdEntity = await tableClient.getEntity(chatId, message.messageId);
+        
+        // 反序列化存储的JSON数据
+        if (createdEntity.searchResults) {
+            try {
+                createdEntity.searchResults = JSON.parse(createdEntity.searchResults);
+            } catch (e) {
+                console.warn("Failed to parse searchResults:", e);
+                createdEntity.searchResults = null;
+            }
+        }
+        
+        if (createdEntity.metadata) {
+            try {
+                createdEntity.metadata = JSON.parse(createdEntity.metadata);
+            } catch (e) {
+                console.warn("Failed to parse metadata:", e);
+                createdEntity.metadata = null;
+            }
+        }
+
+        res.status(201).json({ data: createdEntity });
     } catch (error) {
         console.error(`Failed to create message: ${error.message}`);
         res.status(500).send(error.message);
@@ -159,38 +200,80 @@ exports.createCloudMessage = async (req, res) => {
 exports.updateCloudMessage = async (req, res) => {
     const chatId = req.params.chatId;
     const message = req.body;
-    const messageId = message.messageId; // Extract messageId from the messageContent
-    console.log("updateCloudMessage", chatId, messageId, message);
+    const messageId = message.messageId;
+    console.log("Updating message:", { chatId, messageId });
+    
     try {
         const tableClient = getTableClient("Messages");
-        // Retrieve the current entity from the table
+        // 获取当前实体
         const entity = await tableClient.getEntity(chatId, messageId);
 
-        // if message.content is not empty, check if the content is in Blob Storage and delete it
+        // 如果消息内容在Blob中且有新内容，则删除旧的Blob
         if (message.content && entity.isContentInBlob) {
-            // Assume that we have stored the blob URL in the entity.content and the container name is 'messagecontents'
-            // We need to extract the blob name from the URL
             const blobUrl = new URL(entity.content);
             const blobName = blobUrl.pathname.substring(blobUrl.pathname.lastIndexOf("/") + 1);
             await deleteBlob("messagecontents", blobName);
         }
 
-        // Check if large content needs to be moved to Blob Storage
+        // 处理新的消息数据
+        const processedMessage = {
+            ...message,
+            // 序列化复杂数据类型
+            searchResults: message.searchResults ? JSON.stringify(message.searchResults) : entity.searchResults,
+            metadata: message.metadata ? JSON.stringify(message.metadata) : entity.metadata
+        };
+
+        // 检查新内容是否需要存储到Blob
         let blobUrl;
-        if (Buffer.byteLength(message.content, "utf16le") > 32 * 1024) {
+        if (message.content && Buffer.byteLength(message.content, "utf16le") > 32 * 1024) {
             const blobName = `${chatId}_${messageId}`;
-            // Update Blob Storage with new content
             blobUrl = await uploadTextToBlob("messagecontents", blobName, message.content);
+            processedMessage.content = blobUrl;
+            processedMessage.isContentInBlob = true;
+        } else if (message.content) {
+            processedMessage.content = message.content;
+            processedMessage.isContentInBlob = false;
         }
 
-        // Update with new Blob URL or the actual text content
-        entity.content = blobUrl || message.content;
-        entity.isContentInBlob = !!blobUrl;
-        entity.attachmentUrls = message.attachmentUrls;
+        // 更新实体
+        await tableClient.updateEntity({
+            partitionKey: chatId,
+            rowKey: messageId,
+            ...processedMessage
+        }, "Merge");
 
-        await tableClient.updateEntity({ partitionKey: chatId, rowKey: messageId, ...entity }, "Merge");
-        console.log("message updated");
-        const updatedEntity = await tableClient.getEntity(chatId, message.messageId);
+        // 获取更新后的实体并处理返回数据
+        const updatedEntity = await tableClient.getEntity(chatId, messageId);
+        
+        // 反序列化数据以返回
+        if (updatedEntity.searchResults) {
+            try {
+                updatedEntity.searchResults = JSON.parse(updatedEntity.searchResults);
+            } catch (e) {
+                console.warn("Failed to parse searchResults:", e);
+                updatedEntity.searchResults = null;
+            }
+        }
+        
+        if (updatedEntity.metadata) {
+            try {
+                updatedEntity.metadata = JSON.parse(updatedEntity.metadata);
+            } catch (e) {
+                console.warn("Failed to parse metadata:", e);
+                updatedEntity.metadata = null;
+            }
+        }
+
+        // 如果内容在Blob中，获取实际内容
+        if (updatedEntity.isContentInBlob) {
+            try {
+                updatedEntity.content = await getTextFromBlob(updatedEntity.content);
+            } catch (e) {
+                console.warn("Failed to get content from blob:", e);
+                updatedEntity.content = null;
+            }
+        }
+
         res.status(200).json({ data: updatedEntity });
     } catch (error) {
         console.error(`Failed to update message: ${error.message}`);
@@ -209,40 +292,39 @@ exports.deleteCloudMessage = async (req, res) => {
         // 检索消息实体
         const entity = await tableClient.getEntity(chatId, messageId);
     
+        // 1. 如果消息内容在Blob中，删除Blob
         if (entity.isContentInBlob) {
-            console.log("blob in blob");
-
+            console.log("删除Blob存储的消息内容");
             const blobName = entity.content.substring(entity.content.lastIndexOf("/") + 1);
             try {
                 await deleteBlob("messagecontents", blobName);
                 console.log("blob deleted");
             } catch (error) {
-                console.log(`Fail to delete blob ('messagecontents', ${blobName}): ${error.message}`);
+                console.warn(`Failed to delete blob ('messagecontents', ${blobName}): ${error.message}`);
             }
         }
 
-        // 删除附件（将来放到单独的功能中处理）
-        // if (entity.attachmentUrls) {
-        //     const attachments = entity.attachmentUrls.split(";");
-        //     for (const url of attachments) {
-        //         const blobName = url.split("/").pop(); // 假设URL格式允许这样简单地提取
-        //         try {
-        //             await deleteBlob("messageattachments", blobName);
-        //         } catch (error) {
-        //             console.log(`Fail to delete attachment (${blobName}): ${error.message}`);
-        //         }
-        //     }
-        // }
+        // 2. 删除相关的附件
+        if (entity.attachmentUrls) {
+            console.log("删除消息相关的附件");
+            const attachments = entity.attachmentUrls.split(";");
+            for (const url of attachments) {
+                if (!url) continue; // 跳过空URL
+                const blobName = url.split("/").pop();
+                try {
+                    await deleteBlob("messageattachments", blobName);
+                    console.log(`Attachment ${blobName} deleted`);
+                } catch (error) {
+                    console.warn(`Failed to delete attachment (${blobName}): ${error.message}`);
+                }
+            }
+        }
 
-        // 标记消息为已删除
-        await tableClient.updateEntity({
-            partitionKey: entity.partitionKey,
-            rowKey: entity.rowKey,
-            isDeleted: true,
-        }, "Merge");
-        console.log("message marked as deleted");
-        const deletedEntity = await tableClient.getEntity(chatId, messageId);
-        res.status(204).json({ data: deletedEntity });
+        // 3. 从Table Storage中删除消息实体
+        await tableClient.deleteEntity(chatId, messageId);
+        console.log("Message entity deleted");
+        
+        res.status(204).send();
     } catch (error) {
         console.error(`Failed to delete message: ${error.message}`);
         res.status(500).send(error.message);

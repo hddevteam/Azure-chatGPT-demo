@@ -504,6 +504,8 @@ export async function deleteCloudMessage(chatId, messageId, token) {
     await axios.delete(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, {
         headers: { Authorization: `Bearer ${token}` }
     });
+    // 删除成功后不需要返回数据，因为实体已经被删除
+    return true;
 }
 
 export async function generateChatOptions(message, language) {

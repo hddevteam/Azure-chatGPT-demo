@@ -152,10 +152,25 @@ class StorageManager {
     }
 
     deleteMessage(chatId, messageId) {
-        const savedMessages = this.getMessages(chatId);
-        const updatedMessages = savedMessages.filter(savedMessage => savedMessage.messageId !== messageId);
-
-        this.saveMessages(chatId, updatedMessages);
+        try {
+            console.log(`Deleting message ${messageId} from chat ${chatId}`);
+            const savedMessages = this.getMessages(chatId);
+            const updatedMessages = savedMessages.filter(savedMessage => savedMessage.messageId !== messageId);
+            
+            // 保存更新后的消息列表
+            this.saveMessages(chatId, updatedMessages);
+            
+            // 如果删除后没有消息了，可以考虑清理其他相关数据
+            if (updatedMessages.length === 0) {
+                this.cleanupChatData(chatId);
+            }
+            
+            console.log(`Message ${messageId} deleted successfully`);
+            return true;
+        } catch (error) {
+            console.error(`Failed to delete message ${messageId}:`, error);
+            return false;
+        }
     }
 
     // create or update a message
@@ -381,6 +396,29 @@ class StorageManager {
             
             checkMessage();
         });
+    }
+
+    cleanupChatData(chatId) {
+        try {
+            console.log(`Cleaning up data for chat ${chatId}`);
+            // 清除此聊天相关的其他数据，比如搜索结果缓存等
+            const cleanupKeys = [
+                `messages_${chatId}`,
+                `searchResults_${chatId}`,
+                `metadata_${chatId}`
+            ];
+            
+            cleanupKeys.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                    console.log(`Cleaned up ${key}`);
+                }
+            });
+            
+            console.log(`Cleanup completed for chat ${chatId}`);
+        } catch (error) {
+            console.error(`Failed to cleanup chat data for ${chatId}:`, error);
+        }
     }
 }
 

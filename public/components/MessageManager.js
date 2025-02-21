@@ -514,22 +514,33 @@ class MessageManager {
         }
     }
 
-    deleteMessageInStorage(messageId) {
-        this.uiManager.isDeleting = true;
-        // Remove message from DOM and also from prompt array by message id
-        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-        messageElement.remove();
-        this.uiManager.app.prompts.removePrompt(messageId);
-        this.uiManager.storageManager.deleteMessage(this.uiManager.currentChatId, messageId);
-        this.uiManager.syncManager.syncMessageDelete(this.uiManager.currentChatId, messageId);
-        
-        // Check if all messages are deleted
-        const remainingMessages = document.querySelectorAll(".message");
-        if (remainingMessages.length === 0) {
-            this.uiManager.showWelcomeMessage();
+    async deleteMessageInStorage(messageId) {
+        try {
+            this.uiManager.isDeleting = true;
+            // Remove message from DOM
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageElement) {
+                messageElement.remove();
+            }
+            
+            // Remove from prompts array
+            this.uiManager.app.prompts.removePrompt(messageId);
+            
+            // Sync deletion with cloud and then delete from local storage
+            await this.uiManager.syncManager.syncMessageDelete(this.uiManager.currentChatId, messageId);
+            
+            // Check if all messages are deleted
+            const remainingMessages = document.querySelectorAll(".message");
+            if (remainingMessages.length === 0) {
+                this.uiManager.showWelcomeMessage();
+            }
+        } catch (error) {
+            console.error("Failed to delete message:", error);
+            // If deletion fails, show error and restore message in UI if needed
+            swal("Failed to delete message", error.message, "error");
+        } finally {
+            this.uiManager.isDeleting = false;
         }
-        
-        this.uiManager.isDeleting = false;
     }
 
     setMessageContent(sender, messageElem, message, isActive) {

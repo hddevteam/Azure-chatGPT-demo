@@ -319,19 +319,46 @@ class SyncManager {
         }, 100);
     }
 
-    syncMessageDelete(chatId, messageId) {
+    async syncMessageDelete(chatId, messageId) {
         if (!this.webWorker) return;
         
         const syncItem = {
+            type: "message",
             action: "delete",
-            chatId,
             data: {
-                messageId,
-                timestamp: new Date().toISOString()
+                chatId,
+                messageId
             }
         };
-        
-        this.webWorker.postMessage(syncItem);
+
+        try {
+            // 先将删除操作加入同步队列，等待云端删除完成
+            await new Promise((resolve, reject) => {
+                const handleWorkerMessage = (event) => {
+                    const { action, payload } = event.data;
+                    if (payload.data.messageId === messageId) {
+                        if (action === "synced") {
+                            this.webWorker.removeEventListener("message", handleWorkerMessage);
+                            resolve();
+                        } else if (action === "failed") {
+                            this.webWorker.removeEventListener("message", handleWorkerMessage);
+                            reject(new Error("Failed to delete message in cloud"));
+                        }
+                    }
+                };
+                
+                this.webWorker.addEventListener("message", handleWorkerMessage);
+                this.enqueueSyncItem(syncItem);
+            });
+            
+            // 云端删除成功后，再从本地存储中删除消息
+            console.log("Cloud deletion successful, removing from local storage");
+            this.uiManager.storageManager.deleteMessage(chatId, messageId);
+            
+        } catch (error) {
+            console.error("Error during message deletion:", error);
+            throw error;
+        }
     }
   
    

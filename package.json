@@ -40,16 +40,19 @@
     "fs-extra": "^11.1.1",
     "html-to-text": "^9.0.5",
     "katex": "^0.16.11",
+    "mammoth": "^1.9.0",
     "marked-katex-extension": "^5.0.2",
     "microsoft-cognitiveservices-speech-sdk": "^1.27.0",
     "multer": "^1.4.5-lts.1",
     "passport": "^0.7.0",
     "passport-azure-ad": "^4.3.5",
+    "pdf-parse": "^1.1.1",
     "remove-markdown": "^0.5.0",
     "request": "^2.88.2",
     "rt-client": "https://github.com/Azure-Samples/aoai-realtime-audio-sdk/releases/download/js/v0.5.0/rt-client-0.5.0.tgz",
     "sweetalert": "^2.1.2",
-    "wss": "^3.3.4"
+    "wss": "^3.3.4",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.23.3",

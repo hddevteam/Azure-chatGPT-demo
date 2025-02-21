@@ -995,6 +995,35 @@ class UIManager {
             }
         }
     }
+
+    async deleteMessage(messageId) {
+        try {
+            // 从DOM中删除消息
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageElement) {
+                messageElement.remove();
+            }
+
+            // 从本地存储和云端删除消息
+            await this.storageManager.deleteMessage(this.currentChatId, messageId);
+            await this.syncManager.syncMessageDelete(this.currentChatId, messageId);
+
+            // 从提示数组中删除
+            this.app.prompts.removePrompt(messageId);
+
+            // 检查是否所有消息都已删除，如果是则显示欢迎消息
+            const remainingMessages = document.querySelectorAll(".message");
+            if (remainingMessages.length === 0) {
+                this.showWelcomeMessage();
+            }
+
+            return true;
+        } catch (error) {
+            console.error("Failed to delete message:", error);
+            this.showToast("Failed to delete message: " + error.message);
+            return false;
+        }
+    }
 }
 
 export default UIManager;
