@@ -1,0 +1,140 @@
+/* Gradient background animation */
+.gradient-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  background-color: var(--bg-overlay-dark);
+  opacity: 0;
+  transition: opacity var(--transition-speed) ease;
+}
+
+.recording-active .gradient-bg {
+  opacity: 1;
+}
+
+.gradient-bg svg {
+  display: none;
+}
+
+.gradients-container {
+  filter: blur(40px);
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+  visibility: hidden;
+}
+
+.recording-active .gradients-container {
+  visibility: visible;
+}
+
+.gradient-circle {
+  position: absolute;
+  mix-blend-mode: var(--blending);
+  width: var(--circle-size);
+  height: var(--circle-size);
+  opacity: 0.8;
+  transition: transform 0.5s ease-out;
+}
+
+/* Gradient animations */
+@keyframes moveInCircle {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(180deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes moveVertical {
+  0% { transform: translateY(-50%); }
+  50% { transform: translateY(50%); }
+  100% { transform: translateY(-50%); }
+}
+
+@keyframes moveHorizontal {
+  0% { transform: translateX(-50%) translateY(-10%); }
+  50% { transform: translateX(50%) translateY(10%); }
+  100% { transform: translateX(-50%) translateY(-10%); }
+}
+
+/* Gradient circles */
+.g1 {
+  background: radial-gradient(circle at center, rgba(var(--color1), 0.8) 0, rgba(var(--color1), 0) 50%) no-repeat;
+  animation: moveVertical 30s ease infinite;
+}
+
+.g2 {
+  background: radial-gradient(circle at center, rgba(var(--color2), 0.8) 0, rgba(var(--color2), 0) 50%) no-repeat;
+  animation: moveInCircle 20s reverse infinite;
+}
+
+.g3 {
+  background: radial-gradient(circle at center, rgba(var(--color3), 0.8) 0, rgba(var(--color3), 0) 50%) no-repeat;
+  animation: moveInCircle 40s linear infinite;
+}
+
+.g4 {
+  background: radial-gradient(circle at center, rgba(var(--color4), 0.8) 0, rgba(var(--color4), 0) 50%) no-repeat;
+  animation: moveHorizontal 40s ease infinite;
+}
+
+.g5 {
+  background: radial-gradient(circle at center, rgba(var(--color5), 0.8) 0, rgba(var(--color5), 0) 50%) no-repeat;
+  animation: moveInCircle 20s ease infinite;
+}
+
+.interactive {
+  background: radial-gradient(circle at center, rgba(var(--color-interactive), 0.8) 0, rgba(var(--color-interactive), 0) 50%) no-repeat;
+  opacity: 0.7;
+}
+
+/* Chat area recording animation */
+@keyframes recordingPulse {
+  0% { background: rgba(255, 255, 255, 0.05); }
+  50% { background: rgba(255, 82, 82, 0.1); }
+  100% { background: rgba(255, 255, 255, 0.05); }
+}
+
+.recording-active .im-text-container {
+  animation: recordingPulse 2s ease-in-out infinite;
+}
+
+/* Speaking animation */
+@keyframes speechDotPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.speech-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.speech-dot {
+  width: 4px;
+  height: 4px;
+  background-color: #fff;
+  border-radius: 50%;
+  opacity: 0.4;
+}
+
+.speech-dot:nth-child(1) { animation: speechDotPulse 1s infinite 0s; }
+.speech-dot:nth-child(2) { animation: speechDotPulse 1s infinite 0.2s; }
+.speech-dot:nth-child(3) { animation: speechDotPulse 1s infinite 0.4s; }
+
+/* Record button animation */
+@keyframes spin { 
+  from { transform: rotate(0deg); } 
+  to { transform: rotate(360deg); }
+}
+
+/* Welcome icon animation */
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}

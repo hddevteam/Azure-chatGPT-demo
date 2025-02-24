@@ -1,0 +1,240 @@
+/* Chat messages */
+.im-message {
+  margin: var(--spacing-sm) 0;
+  max-width: 85%;
+  clear: both;
+}
+
+.im-message-user {
+  float: right;
+}
+
+.im-message-assistant {
+  float: left;
+}
+
+.im-message-content {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  position: relative;
+  word-wrap: break-word;
+  line-height: 1.4;
+  min-width: fit-content;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  background: rgba(255, 255, 255, 0.1); /* 默认背景色 */
+  color: white; /* 默认文本颜色 */
+}
+
+.im-message-content a {
+  color: inherit;             
+  text-decoration: underline; 
+  opacity: 0.9;              
+}
+
+.im-message-content a:hover {
+  opacity: 1;                
+}
+
+.im-message-user .im-message-content {
+  background: #4CAF50;
+  color: white;
+  border-bottom-right-radius: 4px;
+  margin-left: auto;
+}
+
+.im-message-assistant .im-message-content {
+  background: rgba(255, 255, 255, 0.1); /* 明确设置助手消息的背景色 */
+  color: white;
+  border-bottom-left-radius: 4px;
+  margin-right: auto;
+}
+
+.im-message-meta {
+  font-size: 11px;
+  margin: 4px 8px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: right;
+}
+
+.im-message-user .im-message-meta {
+  text-align: right;
+}
+
+.im-message-assistant .im-message-meta {
+  text-align: left;
+}
+
+/* Welcome message */
+.welcome-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #fefefe;
+  font-size: 16px;
+  padding: 20px;
+}
+
+.welcome-message .welcome-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  animation: wave 1s infinite;
+}
+
+.welcome-message h3 {
+  margin: 0;
+  margin-bottom: 12px;
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.9); /* 调整标题颜色为更浅的白色 */
+  font-weight: 500;
+}
+
+.welcome-message p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.welcome-message .welcome-ptt-info {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--bg-overlay);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.welcome-message .welcome-ptt-info p {
+  margin: 5px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.welcome-message .welcome-ptt-info strong {
+  color: #4CAF50;
+}
+
+.welcome-features {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--bg-overlay);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.welcome-features p {
+  margin: 5px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.welcome-features strong {
+  color: #4CAF50;
+}
+
+/* Summary section */
+.im-summary-section {
+  margin-top: 20px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 16px;
+}
+
+.im-summary-header {
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.im-summary-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.im-summary-container {
+  max-height: none;
+}
+
+.im-summary-item {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--bg-overlay);
+  border-radius: 8px;
+}
+
+.im-summary-content h4 {
+  margin: 8px 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.im-summary-content p {
+  margin: 4px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.im-summary-content ul {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.im-summary-content li {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.im-summary-timestamp {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .im-message-content {
+    max-width: 85%;          
+    font-size: 14px;         
+  }
+  
+  .im-message-content a {
+    word-break: break-all;   
+  }
+
+  .im-message-content {
+    font-size: var(--mobile-font-size-md);
+    padding: 14px 18px;
+    line-height: 1.5;
+  }
+
+  .im-message-meta {
+    font-size: var(--mobile-font-size-sm);
+    margin: 6px 10px;
+  }
+
+  .welcome-message h3 {
+    font-size: var(--mobile-font-size-xl);
+  }
+
+  .welcome-message p {
+    font-size: var(--mobile-font-size-md);
+  }
+
+  .welcome-features p,
+  .welcome-ptt-info p {
+    font-size: var(--mobile-font-size-md);
+  }
+
+  .im-summary-content h4 {
+    font-size: var(--mobile-font-size-md);
+  }
+
+  .im-summary-content p,
+  .im-summary-content li {
+    font-size: var(--mobile-font-size-md);
+    line-height: 1.6;
+  }
+}

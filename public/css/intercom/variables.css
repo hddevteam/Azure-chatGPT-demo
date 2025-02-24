@@ -1,0 +1,58 @@
+:root {
+  /* Color variables */
+  --color-bg1: #1d2b52;
+  --color-bg2: #000428;
+  --color1: 41, 128, 185;   /* Blue */
+  --color2: 142, 68, 173;   /* Purple */
+  --color3: 39, 174, 96;    /* Green */
+  --color4: 230, 126, 34;   /* Orange */
+  --color5: 52, 152, 219;   /* Sky blue */
+  --color-interactive: 155, 89, 182; /* Light purple */
+  
+  /* Layout variables */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  
+  /* Border variables */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 18px;
+  
+  /* Other variables */
+  --circle-size: 200%;
+  --blending: screen;
+  --transition-speed: 0.3s;
+  
+  /* Common background colors */
+  --bg-overlay: rgba(0, 0, 0, 0.1);
+  --bg-overlay-dark: rgba(0, 0, 0, 0.3);
+  --bg-gradient: linear-gradient(135deg, var(--color-bg1), var(--color-bg2));
+  
+  /* Common border colors */
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-medium: rgba(255, 255, 255, 0.2);
+
+  /* Font sizes for mobile */
+  --mobile-font-size-xl: 18px;
+  --mobile-font-size-lg: 16px;
+  --mobile-font-size-md: 15px;
+  --mobile-font-size-sm: 14px;
+}
+
+/* Common style mixins */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backdrop-blur {
+  backdrop-filter: blur(10px);
+}
+
+.transparent-bg {
+  background-color: transparent;
+}

@@ -1,0 +1,351 @@
+/* Button group */
+.im-button-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  position: relative;
+  padding: 0 8px;
+}
+
+/* Base button styles */
+.im-button {
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--border-radius-md);
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  transition: all var(--transition-speed);
+}
+
+/* Button variants */
+.im-button-primary {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.im-button-primary:hover {
+  background-color: #43A047;
+}
+
+.im-button-primary:disabled {
+  background-color: rgba(76, 175, 80, 0.5);
+  cursor: not-allowed;
+}
+
+.im-button-secondary {
+  background-color: var(--bg-overlay);
+  color: white;
+}
+
+.im-button-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.im-button-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.im-button-warning {
+  position: absolute;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+
+.im-button-warning:hover {
+  background: var(--bg-overlay);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Recording button */
+.im-record-button {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  background: #ffffff;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.4s ease-in-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  min-width: 64px; /* 添加最小宽度确保按钮保持圆形 */
+  min-height: 64px; /* 添加最小高度确保按钮保持圆形 */
+  padding: 0; /* 移除内边距防止变形 */
+  flex: 0 0 64px !important; /* 强制固定大小，防止 flex 布局影响形状 */
+}
+
+.im-record-button::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  border: 4px solid rgba(46, 116, 143, 0.8);
+  border-top-color: transparent;
+  animation: spin 4s linear infinite;
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.im-record-button.recording {
+  background: #ED6A5F;
+  color: #ffffff;
+}
+
+.im-record-button.recording::before {
+  opacity: 1;
+}
+
+/* PTT Toggle Button */
+.ptt-toggle {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-medium);
+}
+
+.ptt-toggle .checkbox {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.ptt-toggle .knob {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  transition: 0.3s ease all;
+}
+
+.ptt-toggle .knob:before {
+  content: "PTT";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.ptt-toggle .checkbox:checked + .knob:before {
+  content: "ON";
+  color: #4CAF50;
+}
+
+.ptt-toggle .btn-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  transition: 0.3s ease all;
+  z-index: 1;
+}
+
+.ptt-toggle .checkbox:checked ~ .btn-bg {
+  background: rgba(76, 175, 80, 0.2);
+}
+
+/* Form controls */
+.im-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.im-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+  padding-top: 5px;
+}
+
+.im-textarea {
+  background-color: var(--bg-overlay);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  padding: 12px;
+  color: #fff;
+  resize: vertical;
+  font-size: 14px;
+  transition: border-color 0.3s;
+  width: 100%;
+}
+
+.im-textarea:focus {
+  border-color: rgba(255, 255, 255, 0.5);
+  outline: none;
+}
+
+.im-input {
+  background-color: var(--bg-overlay);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  padding: 12px;
+  color: #fff;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.im-input:focus {
+  border-color: rgba(255, 255, 255, 0.5);
+  outline: none;
+}
+
+.im-select {
+  background-color: var(--bg-overlay);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  padding: 12px;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white'%3E%3Cpath d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* Close button */
+.im-close-button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  padding: 8px;
+  font-size: 20px;
+  transition: color 0.3s;
+}
+
+.im-close-button:hover {
+  color: #fff;
+}
+
+/* Settings toggle */
+.im-settings-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  padding: 8px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .im-button {
+    justify-content: center;
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  .im-button-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 8px;
+    gap: 8px;
+  }
+
+  .ptt-toggle {
+    flex: 0 0 40px;
+  }
+
+  .im-record-button {
+    flex: 0 0 64px;
+    width: 72px;
+    height: 72px;
+    font-size: 28px;
+    min-width: 72px; /* 添加最小宽度 */
+    min-height: 72px; /* 添加最小高度 */
+    flex: 0 0 72px !important; /* 强制固定大小 */
+  }
+
+  .im-button-warning {
+    flex: 0 0 40px;
+    position: relative;
+    right: auto;
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .im-button i {
+    font-size: 18px;
+  }
+
+  .im-settings-toggle {
+    display: block !important;
+  }
+
+  .im-header-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .im-settings-toggle,
+  .im-close-button {
+    display: block !important;
+    font-size: 20px;
+    padding: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .im-settings-section .im-close-button {
+    display: none !important;
+  }
+
+  .im-textarea, 
+  .im-input, 
+  .im-select {
+    font-size: var(--mobile-font-size-md);
+    padding: 14px;
+  }
+
+  .im-textarea {
+    min-height: 100px;
+  }
+
+  .im-label {
+    font-size: var(--mobile-font-size-md);
+  }
+}
