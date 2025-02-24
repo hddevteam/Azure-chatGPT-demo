@@ -12,6 +12,7 @@
 @import url("components/welcome.css");
 @import url("components/header.css");
 @import url("components/utilities.css");
+@import url("components/sweetalert.css");
 @import url("modal.css");
 @import url("responsive.css");
 @import url("layout_split_view.css");

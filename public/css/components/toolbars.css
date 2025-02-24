@@ -21,6 +21,7 @@
     align-items: center;
     gap: 5px;
     flex-wrap: wrap;
+    position: relative; 
 }
 
 .btns {
@@ -39,6 +40,13 @@
     border: 1px solid #fff;
     border-radius: 5px;
     transition: all 0.3s ease;
+    position: relative; /* Add relative positioning */
+}
+
+.btn i {
+    width: 16px;
+    text-align: center;
+    margin-right: 4px;
 }
 
 .btn:hover {
@@ -55,6 +63,92 @@
 
 .btn.gpt-3 {
     background-color: #999;
+}
+
+/* Model dropdown menu */
+.model-dropdown {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    min-width: 120px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    top: 100%;
+    left: 0;
+    margin-top: 5px;
+    z-index: 1050; /* Increase z-index */
+    overflow-y: auto;
+    max-height: 180px; /* Reduce max height */
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.model-dropdown.visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.model-dropdown .dropdown-item {
+    color: #333;
+    font-size: 13px; /* Reduce font size */
+    padding: 6px 12px; /* Reduce padding */
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Reduce gap */
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.model-dropdown .dropdown-item i {
+    width: 14px; /* Reduce icon width */
+    font-size: 13px; /* Reduce icon size */
+    text-align: center;
+    color: #666;
+}
+
+.model-dropdown .dropdown-item:hover {
+    background-color: #f5f5f5;
+}
+
+.model-dropdown .dropdown-item:hover i {
+    color: #333;
+}
+
+/* Dark theme styles */
+.split-view .model-dropdown {
+    background-color: #2d333b;
+    border-color: #444c56;
+}
+
+.split-view .model-dropdown .dropdown-item {
+    color: #c9d1d9;
+}
+
+.split-view .model-dropdown .dropdown-item i {
+    color: #8b949e;
+}
+
+.split-view .model-dropdown .dropdown-item:hover {
+    background-color: #444c56;
+}
+
+.split-view .model-dropdown .dropdown-item:hover i {
+    color: #c9d1d9;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Information display */
@@ -91,4 +185,21 @@
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     color: #fff;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile responsive styles */
+@media screen and (max-width: 768px) {
+    .model-dropdown {
+        min-width: 160px; /* 增加移动端下拉菜单宽度 */
+        max-height: 240px; /* 增加移动端最大高度 */
+    }
+
+    .model-dropdown .dropdown-item {
+        padding: 10px 14px; /* Adjust mobile padding */
+        font-size: 14px; /* Slightly larger for mobile */
+    }
+
+    .model-dropdown .dropdown-item i {
+        font-size: 14px;
+    }
 }

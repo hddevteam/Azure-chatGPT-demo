@@ -1,0 +1,260 @@
+/* SweetAlert custom styles */
+.swal-modal {
+    border-radius: 8px;
+    padding: 20px;
+    width: 90%;
+    max-width: 600px; /* Increase max-width */
+    box-sizing: border-box; /* 确保padding包含在宽度内 */
+    max-height: 90vh; /* 限制最大高度 */
+    overflow-y: auto; /* 允许内容滚动 */
+    display: flex;
+    flex-direction: column;
+    margin: 20px auto;
+}
+
+/* Content wrapper - 确保内容区域与模态框同宽 */
+.swal-content__content-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Form groups - 为表单元素添加合适的间距 */
+.swal-content .form-group {
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+/* Override default sweetalert styles */
+.swal-title:first-child {
+    margin-top: 0 !important; /* Override original style */
+}
+
+/* Ensure consistent spacing */
+.swal-title {
+    font-size: 18px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    color: #333;
+    margin: 0 0 20px 0;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.swal-text {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+    margin: 0 0 20px 0;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+    max-height: calc(90vh - 200px); /* 预留标题和按钮空间 */
+    overflow-y: auto;
+}
+
+/* 修复内容区域的宽度问题 */
+.swal-content {
+    margin: 0;
+    padding: 0 2px; /* 添加小边距防止内容贴边 */
+    width: 100%; /* Ensure full width */
+    box-sizing: border-box;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.swal-content > * {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.swal-content__input,
+.swal-content textarea,
+.swal-content input[type="text"],
+.swal-content input[type="number"],
+.swal-content input[type="email"],
+.swal-content input[type="password"],
+.swal-content select {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 8px 0 16px; /* 统一上下间距 */
+    font-family: inherit;
+    min-height: 36px; /* Minimum height for inputs */
+    background-color: #fff;
+    color: #333;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.swal-content textarea {
+    min-height: 100px; /* Larger minimum height for textareas */
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.swal-content__input:focus,
+.swal-content textarea:focus,
+.swal-content input[type="text"]:focus,
+.swal-content input[type="number"]:focus,
+.swal-content input[type="email"]:focus,
+.swal-content input[type="password"]:focus,
+.swal-content select:focus {
+    border-color: #3391FF;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(51, 145, 255, 0.2);
+}
+
+.swal-content label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.swal-footer {
+    margin: 20px 0 0;
+    padding: 0;
+    text-align: right;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.swal-button {
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    margin: 0 0 0 8px;
+    border-radius: 4px;
+}
+
+.swal-button--confirm {
+    background-color: #4CAF50;
+}
+
+.swal-button--confirm:hover {
+    background-color: #43A047 !important;
+}
+
+.swal-button--cancel {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.swal-button--cancel:hover {
+    background-color: #e9e9e9 !important;
+}
+
+/* Dark theme support */
+.split-view .swal-modal {
+    background-color: #2d333b;
+    border: 1px solid #444c56;
+}
+
+.split-view .swal-title {
+    color: #c9d1d9;
+}
+
+.split-view .swal-text {
+    color: #8b949e;
+}
+
+.split-view .swal-content__input,
+.split-view .swal-content textarea,
+.split-view .swal-content input[type="text"],
+.split-view .swal-content input[type="number"],
+.split-view .swal-content input[type="email"],
+.split-view .swal-content input[type="password"],
+.split-view .swal-content select {
+    background-color: #22272e;
+    border-color: #444c56;
+    color: #c9d1d9;
+}
+
+.split-view .swal-content__input:focus {
+    border-color: #3391FF;
+    box-shadow: 0 0 0 2px rgba(51, 145, 255, 0.2);
+}
+
+.split-view .swal-content label {
+    color: #c9d1d9;
+}
+
+.split-view .swal-footer {
+    border-top-color: #444c56;
+}
+
+.split-view .swal-button--cancel {
+    background-color: #373e47;
+    color: #c9d1d9;
+}
+
+.split-view .swal-button--cancel:hover {
+    background-color: #444c56 !important;
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 768px) {
+    .swal-modal {
+        width: 95%;
+        max-width: 95%; /* Full width on mobile with small margins */
+        margin: 10px auto; /* Center modal and add margin */
+        padding: 15px;
+    }
+    
+    .swal-title {
+        font-size: 16px;
+    }
+    
+    .swal-button {
+        font-size: 13px;
+        padding: 7px 14px;
+    }
+
+    .swal-content__input,
+    .swal-content textarea {
+        font-size: 16px; /* 防止iOS自动缩放 */
+    }
+
+    .swal-footer {
+        margin-top: 15px;
+        padding-top: 15px;
+    }
+}
+
+/* 修复滚动时的内容显示问题 */
+.swal-modal::-webkit-scrollbar {
+    width: 6px;
+    background-color: transparent;
+}
+
+.swal-modal::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.swal-modal::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* 弹窗出现时的过渡动画 */
+@keyframes swalModalAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.swal-modal {
+    animation: swalModalAppear 0.3s ease;
+}
