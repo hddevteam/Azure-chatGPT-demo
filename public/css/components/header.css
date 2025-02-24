@@ -1,0 +1,17 @@
+/* Header elements */
+#app-name {
+    margin-left: 10px;
+    font-size: 24px;
+    font-family: 'Roboto';
+    font-weight: 500;
+    color: #e6f2ff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#manage-profile {
+    position: absolute;
+    right: 0px;
+    top: 5px;
+}

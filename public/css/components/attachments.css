@@ -1,0 +1,161 @@
+/* Attachment preview list */
+.attachment-preview-list {
+    display: flex;
+}
+
+.attachment-preview-item {
+    margin-right: 10px;
+    position: relative;
+}
+
+.attachment-thumbnail {
+    width: 100px;
+    height: 100px;
+    border-radius: 5px;
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+}
+
+.attachment-delete-btn {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #ff4d4d;
+    border-radius: 50%;
+    padding: 5px;
+    cursor: pointer;
+    color: white;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+}
+
+/* Message attachments */
+.message-attachment-thumbnail {
+    max-width: 50%;
+    max-height: 200px;
+    cursor: pointer;
+    object-fit: contain;
+}
+
+/* Audio processing modal */
+#audio-processing-modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+}
+
+#audio-processing-modal .modal-content {
+    position: relative;
+    margin: auto;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 90%;
+    min-width: 80vw;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#audio-processing-modal #close-audio-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #333;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+/* Upload section */
+.upload-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.upload-section button {
+    padding: 10px 20px;
+    font-size: 16px;
+    line-height: 1;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+/* Options section */
+.options-section {
+    padding: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.options-section .language-select,
+.options-section .speaker-identification {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.options-section label {
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.options-section select,
+.options-section input[type="number"] {
+    flex-grow: 1;
+}
+
+/* Files list */
+.files-list h3 {
+    margin-bottom: 15px;
+    font-family: 'Roboto';
+}
+
+.files-list,
+#uploaded-audio-files-list {
+    margin-top: 20px;
+    padding: 0;
+}
+
+.files-list .uploaded-file-item,
+#uploaded-audio-files-list .uploaded-file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    position: relative;
+    list-style-type: none;
+    padding-right: 160px;
+}
+
+.files-list .uploaded-file-item .button-container,
+#uploaded-audio-files-list .uploaded-file-item .button-container {
+    position: absolute;
+    right: 10px;
+}
+
+.button-container button {
+    margin-left: 10px;
+}
+
+.view-result-btn:hover {
+    background-color: #0056b3;
+}
