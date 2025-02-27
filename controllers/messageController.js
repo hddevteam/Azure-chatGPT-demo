@@ -1,24 +1,35 @@
 // controllers/messageController.js
 const { getTableClient } = require("../services/azureTableStorage");
-const { uploadTextToBlob, getTextFromBlob, deleteBlob } = require("../services/azureBlobStorage");
-
-const { uploadFileToBlob } = require("../services/azureBlobStorage");
+const { uploadTextToBlob, getTextFromBlob, deleteBlob, checkBlobExists, uploadFileToBlob } = require("../services/azureBlobStorage");
+const multer = require("multer");
+const { processDocument, SUPPORTED_EXTENSIONS } = require("../services/documentProcessor");
+const path = require("path");
 
 exports.uploadAttachment = async (req, res) => {
-    const fileContent = req.file.buffer; // 文件的二进制内容
-    // 尝试从req.body中获取客户端提供的文件名，如果不存在，则使用原始文件名
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file provided' });
+    }
+
+    const fileContent = req.file.buffer;
     const originalFileName = req.body.originalFileName || req.file.originalname;
-    const username = req.body.username; // 从请求中获取username
-    const containerName = "messageattachments"; // 附件存储在这个容器中
+    const username = req.body.username;
+    const containerName = "messageattachments";
 
     try {
-        const attachment = await uploadFileToBlob(containerName, originalFileName, fileContent, username);
-        console.log("attachment", attachment);
+        // 使用时间戳创建唯一的文件名以避免冲突
+        const timestamp = Date.now();
+        const extension = path.extname(originalFileName);
+        const timestampedFileName = `${timestamp}-${originalFileName}`;
 
-        res.status(201).json(attachment.url);
+        const blobResponse = await uploadFileToBlob(containerName, timestampedFileName, fileContent, username);
+        console.log("Attachment uploaded successfully:", blobResponse);
+        res.status(201).json(blobResponse.url);
     } catch (error) {
         console.error(`Failed to upload attachment: ${error.message}`);
-        res.status(500).send(error.message);
+        res.status(500).json({
+            error: 'Failed to upload attachment',
+            message: error.message
+        });
     }
 };
 
@@ -328,5 +339,117 @@ exports.deleteCloudMessage = async (req, res) => {
     } catch (error) {
         console.error(`Failed to delete message: ${error.message}`);
         res.status(500).send(error.message);
+    }
+};
+
+exports.uploadDocument = async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file provided' });
+    }
+
+    const fileContent = req.file.buffer;
+    const originalFileName = req.body.originalFileName || req.file.originalname;
+    const username = req.body.username;
+    const containerName = "documents";
+    const extension = path.extname(originalFileName);
+    const baseName = path.basename(originalFileName, extension);
+
+    try {
+        // 创建带时间戳的文件名
+        const timestampedFileName = `${Date.now()}-${originalFileName}`;
+        // 上传原始文件
+        const blobOriginal = await uploadFileToBlob(containerName, timestampedFileName, fileContent, username);
+        
+        // 处理文档并生成处理后的版本
+        try {
+            const processedContent = await processDocument(fileContent, originalFileName);
+            // 使用相同的时间戳创建处理后的文件名
+            const processedFileName = `${Date.now()}-${baseName}_processed.md`;
+            const processedBlob = await uploadFileToBlob(
+                containerName, 
+                processedFileName, 
+                Buffer.from(processedContent), 
+                username
+            );
+
+            res.status(201).json({
+                originalUrl: blobOriginal.url,
+                processedUrl: processedBlob.url,
+                originalFileName: timestampedFileName,
+                processedFileName: processedFileName
+            });
+        } catch (processingError) {
+            // 如果处理失败，仍然返回原始文件信息，但带有错误信息
+            res.status(422).json({
+                originalUrl: blobOriginal.url,
+                originalFileName: timestampedFileName,
+                error: {
+                    message: processingError.message,
+                    type: 'ProcessingError'
+                }
+            });
+        }
+    } catch (error) {
+        console.error(`Failed to upload document: ${error.message}`);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: error.message
+        });
+    }
+};
+
+exports.getDocumentStatus = async (req, res) => {
+    const { id } = req.params;
+    const containerName = "documents";
+
+    try {
+        const processedBlobName = `processed_${id}`;
+        const exists = await checkBlobExists(containerName, processedBlobName);
+        
+        if (exists) {
+            const processedContent = await getTextFromBlob(`${containerName}/${processedBlobName}`);
+            res.json({
+                status: 'completed',
+                processedContent
+            });
+        } else {
+            res.json({
+                status: 'processing'
+            });
+        }
+    } catch (error) {
+        console.error(`Failed to get document status: ${error.message}`);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: error.message
+        });
+    }
+};
+
+exports.getDocumentContent = async (req, res) => {
+    const fileName = req.params.fileName;
+    const containerName = "documents";
+
+    try {
+        const content = await getTextFromBlob(`${containerName}/${fileName}`);
+        if (!content) {
+            return res.status(404).json({
+                error: 'Document not found',
+                message: `Could not find document: ${fileName}`
+            });
+        }
+        res.json(content);
+    } catch (error) {
+        console.error(`Failed to get document content: ${error.message}`);
+        if (error.message.includes('Blob not found')) {
+            return res.status(404).json({
+                error: 'Document not found',
+                message: `Could not find document: ${fileName}`
+            });
+        }
+        res.status(500).json({
+            error: 'Failed to retrieve document content',
+            message: error.message
+        });
     }
 };

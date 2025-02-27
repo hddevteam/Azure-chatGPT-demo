@@ -61,6 +61,12 @@ router.delete("/messages/:chatId/:messageId", requireAuth, messageController.del
 // Message Attachment routes
 router.post("/attachments/upload", requireAuth, upload.single("fileContent"), messageController.uploadAttachment);
 
+// Document routes
+router.post("/documents/upload", requireAuth, upload.single("fileContent"), messageController.uploadDocument);
+router.get("/documents/status/:id", requireAuth, messageController.getDocumentStatus);
+router.get("/documents/:fileName", requireAuth, messageController.getDocumentContent);
+router.post("/gpt/document-query", requireAuth, gptController.processDocumentQuery);
+
 // Audio file routes
 router.post("/audiofiles/upload", requireAuth, upload.single("fileContent"), audioFileController.uploadAudiofile);
 router.get("/audiofiles/list", requireAuth, audioFileController.listAudioFiles);

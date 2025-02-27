@@ -32,14 +32,12 @@ h1, h2, h3, h4, h5, h6 {
     --secondary-text-color: #666;
     --bg-color: #fff;
     --shadow-color: rgba(0, 0, 0, 0.15);
+    --accent-color: #1a73e8;
+    --accent-color-hover: #1557b0;
+    --error-color: #dc3545;
+    --warning-color: #ffc107;
+    --success-color: #28a745;
 
-    /* Component-specific colors */
-    --citation-link-color: var(--primary-color);
-    --citation-hover-bg: var(--primary-hover-bg);
-    --tooltip-bg-color: var(--bg-color);
-    --tooltip-border-color: var(--border-color);
-    --tooltip-shadow: 0 2px 8px var(--shadow-color);
-    
     /* Spacing */
     --spacing-xs: 4px;
     --spacing-sm: 8px;
@@ -53,6 +51,11 @@ h1, h2, h3, h4, h5, h6 {
     --font-size-md: 1em;
     --font-size-lg: 1.2em;
     --font-size-xl: 1.5em;
+
+    /* Backgrounds */
+    --background-primary: #ffffff;
+    --background-secondary: #f8f9fa;
+    --background-tertiary: #e9ecef;
 }
 
 /* Dark theme */
@@ -64,7 +67,8 @@ h1, h2, h3, h4, h5, h6 {
     --secondary-text-color: #999;
     --bg-color: #1e1e1e;
     --shadow-color: rgba(0, 0, 0, 0.3);
-
-    /* Component colors will automatically update based on global colors */
+    --background-primary: #1e1e1e;
+    --background-secondary: #2d333b;
+    --background-tertiary: #444c56;
 }
 

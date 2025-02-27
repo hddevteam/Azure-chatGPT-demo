@@ -129,21 +129,36 @@ export async function saveOrUpdateProfile(profile, username, isNewProfile, oldNa
 export async function uploadAttachment(fileContent, fileName) {
     try {
         const formData = new FormData();
-        formData.append("fileContent", fileContent);
+        // 如果 fileContent 已经是 Blob 或 File 对象，直接使用
+        if (fileContent instanceof Blob || fileContent instanceof File) {
+            formData.append("fileContent", fileContent, fileName);
+        } else {
+            // 如果是 base64 字符串，需要先转换为 Blob
+            const base64Data = fileContent.split(',')[1];
+            const mimeType = fileContent.split(',')[0].split(':')[1].split(';')[0];
+            const binaryStr = window.atob(base64Data);
+            const len = binaryStr.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryStr.charCodeAt(i);
+            }
+            const blob = new Blob([bytes], { type: mimeType });
+            formData.append("fileContent", blob, fileName);
+        }
+
         formData.append("originalFileName", fileName);
 
-        // Get current username
+        // 获取当前用户名
         const username = getUserName();
-        formData.append("username", username);  // Add username to formData
+        formData.append("username", username);
 
-        // Note: Remove axios default Content-Type header to let browser handle boundary correctly
         const response = await axios.post("/attachments/upload", formData, {
             headers: {
-                "Content-Type": undefined
+                "Content-Type": "multipart/form-data"
             }
         });
-        console.log(response.data);
-        return response.data; // Return attachment info from backend response
+
+        return response.data;
     } catch (error) {
         console.error("Failed to upload attachment:", error);
         throw error;
@@ -555,5 +570,71 @@ export async function getUrlSummary(url, language, prompt = "") {
     } catch (error) {
         console.error("[API] Error in URL summarization:", error);
         throw new Error(`Failed to summarize URL content: ${error.message}`);
+    }
+}
+
+// Add this to your existing apiClient.js
+export async function uploadDocument(fileContent, fileName) {
+    try {
+        const formData = new FormData();
+        formData.append("fileContent", fileContent);
+        formData.append("originalFileName", fileName);
+        
+        const username = getUserName();
+        formData.append("username", username);
+
+        const response = await axios.post("/documents/upload", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            }
+        });
+        
+        return response.data;
+    } catch (error) {
+        console.error("Failed to upload document:", error);
+        throw error;
+    }
+}
+
+export async function getDocumentContent(fileName) {
+    try {
+        const response = await axios.get(`/documents/${encodeURIComponent(fileName)}`);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to get document content:", error);
+        throw error;
+    }
+}
+
+export async function generateDocumentQuery(processedFileNames, question) {
+    try {
+        // 首先获取所有文档的内容
+        const contentsPromises = processedFileNames.map(fileName => {
+            // 文件名已经是完整的处理后文件名，直接使用
+            return getDocumentContent(fileName);
+        });
+        
+        const contents = await Promise.all(contentsPromises);
+        
+        // 将所有文档内容和问题一起发送到服务器
+        const response = await axios.post("/gpt/document-query", {
+            documents: contents,
+            question: question
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("Failed to generate document query:", error);
+        throw error;
+    }
+}
+
+export async function processDocumentContent(documentId) {
+    try {
+        const response = await axios.get(`/documents/content/${documentId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error getting document content:', error);
+        throw error;
     }
 }

@@ -1,10 +1,12 @@
 // MessageManager.js
-import { getGpt, getFollowUpQuestions, textToImage } from "../utils/apiClient.js";
+import { getGpt, getFollowUpQuestions, textToImage, uploadDocument, generateDocumentQuery } from "../utils/apiClient.js";
 import swal from "sweetalert";
 import { generateExcerpt } from "../utils/textUtils.js";
 import { marked } from "marked";
 import markedKatex from "marked-katex-extension";
 import LinkHandler from "../utils/linkHandler.js";
+import DocumentManager from "./DocumentManager.js";  // Updated path
+import DocumentMessageBuilder from "../utils/DocumentMessageBuilder.js";
 
 const options = {
     throwOnError: false
@@ -21,6 +23,8 @@ class MessageManager {
         this.linkHandler = new LinkHandler(uiManager);
         this.searchResults = null;
         this.webSearchEnabled = false; // Add this line to track web search state
+        this.documentManager = new DocumentManager(uiManager);
+        this.documentMessageBuilder = new DocumentMessageBuilder(uiManager);
     }
 
     // Add a method to toggle web search
@@ -36,6 +40,12 @@ class MessageManager {
 
     // Add message to DOM
     addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false, attachmentUrls = "") {
+        // 清除欢迎消息
+        const welcomeMessage = document.querySelector("#welcome-message");
+        if (welcomeMessage) {
+            welcomeMessage.remove();
+        }
+
         const messageElement = this.uiManager.domManager.createMessageElement(sender, messageId, isActive, isError);
         messageElement.dataset.message = message;
         messageElement.dataset.attachmentUrls = attachmentUrls;
@@ -279,48 +289,72 @@ class MessageManager {
             attachmentsCount: attachments.length, 
             isRetry 
         });
-
-        // Only clear welcome message on first message
-        const messagesContainer = document.querySelector("#messages");
-        if (messagesContainer.children.length === 1 && 
-            messagesContainer.children[0].id === "welcome-message") {
-            messagesContainer.innerHTML = "";
-        }
-
+        
         this.clearFollowUpQuestions();
         this.uiManager.initSubmitButtonProcessing();
-        const validationResult = await this.validateInput(inputMessage, attachments, isRetry);
 
-        if (!validationResult) {
-            return;
+        try {
+            // 验证输入并显示用户消息（仅对非文档消息）
+            if (!attachments.some(att => !att.content.startsWith("data:image/"))) {
+                const validationResult = await this.validateInput(inputMessage, attachments, isRetry);
+                if (!validationResult) {
+                    return;
+                }
+            }
+
+            // Set up message processing variables
+            let executeFunction;
+
+            if (attachments.length > 0) {
+                // 检查附件类型
+                const hasNonImageAttachments = attachments.some(
+                    att => !att.content.startsWith("data:image/")
+                );
+                
+                if (hasNonImageAttachments) {
+                    // 处理文档类型的附件
+                    executeFunction = () => this.processDocumentCommand(inputMessage, attachments);
+                } else {
+                    // 处理图片附件
+                    executeFunction = async () => {
+                        const attachmentUrls = await this.uiManager.uploadAttachments(attachments);
+                        if (!attachmentUrls) {
+                            throw new Error("Failed to upload attachments");
+                        }
+                        return await this.sendTextMessage(inputMessage, attachmentUrls);
+                    };
+                }
+            } else if (inputMessage.startsWith("/image")) {
+                executeFunction = () => this.processImageCommand(inputMessage);
+            } else if (inputMessage.startsWith("@")) {
+                executeFunction = () => this.processProfileMessage(inputMessage);
+            } else {
+                executeFunction = () => this.sendTextMessage(inputMessage);
+            }
+
+            // 执行消息处理并获取响应
+            const timestamp = new Date().toISOString();
+            const data = await this.wrapWithGetGptErrorHandler(executeFunction, timestamp);
+            
+            // 处理搜索结果
+            if (data && data.searchResults) {
+                this.searchResults = data.searchResults;
+            } else {
+                this.searchResults = null;
+            }
+            
+            // 完成处理
+            this.uiManager.finishSubmitProcessing();
+            await this.sendFollowUpQuestions();
+        } catch (error) {
+            console.error("Error in sendMessage:", error);
+            this.uiManager.finishSubmitProcessing();
+            if (!isRetry && error.message === "Failed to fetch") {
+                await this.retryMessage(inputMessage, attachments);
+            } else {
+                throw error;
+            }
         }
-
-        const { message, isSkipped } = validationResult;
-        const timestamp = new Date().toISOString();
-
-        let executeFunction; // 定义一个变量来存储根据条件选择的函数
-
-        if (message.startsWith("/image")) {
-            console.log("[MessageManager] Detected image generation request");
-            executeFunction = () => this.sendImageMessage(message);
-        } else if (message.startsWith("@") && !isSkipped) {
-            console.log("[MessageManager] Detected profile-specific message");
-            executeFunction = () => this.sendProfileMessage(message);
-        } else {
-            console.log("[MessageManager] Processing as regular message");
-            executeFunction = () => this.sendTextMessage();
-        } 
-
-        const data = await this.wrapWithGetGptErrorHandler(executeFunction, timestamp);
-        if (data && data.searchResults) {
-            this.searchResults = data.searchResults;
-        } else {
-            this.searchResults = null;
-        }
-        
-        this.uiManager.finishSubmitProcessing();
-        await this.sendFollowUpQuestions();
-
     }
 
     isValidUrl(string) {
@@ -427,7 +461,18 @@ class MessageManager {
             createdAt: timestamp
         };
 
-        this.addMessage(newMessage.role, newMessage.content, newMessage.messageId, newMessage.isActive, "bottom", false, attachmentUrls);
+        // 先添加用户消息到界面
+        this.addMessage(
+            newMessage.role,
+            newMessage.content,
+            newMessage.messageId,
+            newMessage.isActive,
+            "bottom",
+            false,
+            newMessage.attachmentUrls
+        );
+
+        // 保存到存储并同步
         this.uiManager.app.prompts.addPrompt(newMessage);
         this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
         this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
@@ -440,24 +485,89 @@ class MessageManager {
     // Modify this method to handle retrying a message
     async retryMessage(messageId) {
         const messageElem = document.querySelector(`[data-message-id="${messageId}"]`);
-        if (messageElem) {
-            const messageContent = messageElem.dataset.message;
-    
-            // Extract existing attachment URLs
-            const attachmentUrls = messageElem.dataset.attachmentUrls;
-            const attachments = attachmentUrls ? attachmentUrls.split(";").map(url => ({
-                fileName: url  // Directly use URL
-            })) : [];
-    
+        if (!messageElem) {
+            console.error("Message element not found:", messageId);
+            return;
+        }
+
+        try {
+            // 提取原始消息数据
+            const originalMessage = this.extractMessageData(messageElem);
+            console.log("Retrying message:", originalMessage);
+
+            // 判断是否为最后一条消息并处理
             const lastMessageId = this.getLastMessageId();
             if (messageId === lastMessageId) {
-                this.deleteMessageInStorage(messageId);
+                await this.deleteMessageInStorage(messageId);
             } else {
                 this.inactiveMessage(messageId);
             }
-    
-            // Resend message with original attachments and mark as retry
-            await this.sendMessage(messageContent, attachments, true);
+
+            // 构建新的消息对象
+            const timestamp = new Date().toISOString();
+            const newMessageId = this.uiManager.generateId();
+            const newMessage = this.createMessageCopy({
+                ...originalMessage,
+                messageId: newMessageId,
+                timestamp,
+                createdAt: timestamp
+            });
+
+            // 准备附件数据（如果有）
+            let attachments = [];
+            if (originalMessage.attachmentUrls) {
+                attachments = originalMessage.attachmentUrls.split(";")
+                    .filter(url => url.trim())
+                    .map(url => ({
+                        fileName: url,
+                        isExistingAttachment: true
+                    }));
+            }
+
+            // 根据消息类型执行不同的重发逻辑
+            let executeFunction;
+            if (originalMessage.content.startsWith("/image")) {
+                // 图片生成命令 - 需要重新生成
+                executeFunction = () => this.processImageCommand(originalMessage.content);
+            } else if (originalMessage.content.startsWith("@")) {
+                // 角色消息 - 重新处理配置文本
+                executeFunction = () => this.processProfileMessage(originalMessage.content);
+            } else if (attachments.length > 0) {
+                // 带附件的消息 - 复用已有附件URL
+                executeFunction = () => this.sendTextMessage(originalMessage.content);
+            } else {
+                // 普通文本消息
+                executeFunction = () => this.sendTextMessage(originalMessage.content);
+            }
+
+            // 先添加用户消息到界面
+            this.addMessage(
+                newMessage.role,
+                newMessage.content,
+                newMessage.messageId,
+                true,
+                "bottom",
+                false,
+                newMessage.attachmentUrls
+            );
+
+            // 保存并同步新消息
+            this.uiManager.app.prompts.addPrompt(newMessage);
+            await this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
+            await this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
+
+            // 执行服务器请求并处理响应
+            const data = await this.wrapWithGetGptErrorHandler(executeFunction, timestamp);
+            if (data) {
+                // 服务器响应处理在 wrapWithGetGptErrorHandler 中完成
+                this.uiManager.finishSubmitProcessing();
+                await this.sendFollowUpQuestions();
+            }
+
+        } catch (error) {
+            console.error("Error retrying message:", error);
+            this.uiManager.finishSubmitProcessing();
+            swal("Error", "Failed to retry message: " + error.message, "error");
         }
     }
 
@@ -557,20 +667,18 @@ class MessageManager {
     }
 
     setMessageContent(sender, messageElem, message, isActive) {
-        // console.log("before replaceText", message);
         const replaceText = (input) => {
+            if (!input) return "";
+            
             // Replace single-line math expressions \( ... \) with $ ... $
             let outputText = input.replace(/\\\((.*?)\\\)/g, " $$$1$$ ");
-    
             // Replace multi-line math expressions \[ ... \] with $$ ... $$
-            outputText = input.replace(/\\\[(.*?)\\\]/gs, "$$$$$1$$$$");
-    
+            outputText = outputText.replace(/\\\[(.*?)\\\)/gs, "$$$$$1$$$$");
             return outputText;
         };
           
         // Replace inline formulas
         message = replaceText(message);
-        // console.log("after replaceText", message);
     
         let element;
         if (sender === "user") {
@@ -578,10 +686,8 @@ class MessageManager {
             element.innerText = isActive ? message : this.getMessagePreview(message);
         } else {
             element = messageElem.querySelector("div.message-content");
-            // console.log(message);
-            const messageHtml = marked.parse(message);
-            // console.log("after marked parse", messageHtml);
-            element.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message));
+            const messageHtml = marked.parse(message || "");
+            element.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message || ""));
         }
     
         const codeBlocks = element.querySelectorAll("pre > code, pre code");
@@ -824,6 +930,87 @@ class MessageManager {
         });
 
         return message;
+    }
+
+    async processDocuments(attachments, question) {
+        // Upload all documents first
+        const uploadPromises = attachments.map(attachment => {
+            const blob = this.uiManager.base64ToBlob(attachment.content);
+            return uploadDocument(blob, attachment.fileName);
+        });
+
+        try {
+            const uploadResults = await Promise.all(uploadPromises);
+            const processedUrls = uploadResults.map(result => result.processedUrl);
+            
+            // Generate response using the template format
+            const response = await generateDocumentQuery(processedUrls, question);
+            return response;
+        } catch (error) {
+            console.error("Error processing documents:", error);
+            throw error;
+        }
+    }
+
+    async processImageCommand(message) {
+        const imageCaption = message.replace("/image", "").trim();
+        const data = await textToImage(imageCaption);
+        return {
+            message: data.revised_prompt || imageCaption,
+            attachmentUrls: data.url
+        };
+    }
+
+    async processDocumentCommand(message, attachments) {
+        // 处理文档并创建包含文档内容的消息
+        const documentMessage = await this.documentManager.processDocuments(attachments, message);
+        
+        // 将文档消息添加到对话中
+        this.addMessage(
+            documentMessage.role,
+            documentMessage.content,
+            documentMessage.messageId,
+            documentMessage.isActive,
+            "bottom",
+            false,
+            ""
+        );
+
+        // 保存并同步文档消息
+        this.uiManager.app.prompts.addPrompt(documentMessage);
+        this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, documentMessage);
+        this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, documentMessage);
+
+        // 生成文档查询响应
+        // 注意：此时 documentMessage.documents 已经是字符串，需要解析回对象
+        const documents = JSON.parse(documentMessage.documents);
+        const response = await this.documentManager.generateQuery(documents, message);
+        
+        return response;
+    }
+
+    // 创建消息副本时保留必要的属性但生成新ID
+    createMessageCopy(originalMessage) {
+        return {
+            role: originalMessage.role,
+            content: originalMessage.content,
+            messageId: this.uiManager.generateId(),
+            isActive: true,
+            attachmentUrls: originalMessage.attachmentUrls || "",
+            timestamp: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            searchResults: originalMessage.searchResults
+        };
+    }
+
+    // 从DOM元素中提取消息数据
+    extractMessageData(messageElem) {
+        return {
+            role: messageElem.dataset.sender,
+            content: messageElem.dataset.message,
+            attachmentUrls: messageElem.dataset.attachmentUrls || "",
+            searchResults: this.searchResults
+        };
     }
 }
     

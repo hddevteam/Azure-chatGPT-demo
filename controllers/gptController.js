@@ -938,3 +938,84 @@ exports.summarizeWebContent = async (prompt) => {
     }
 };
 
+async function processDocumentQuery(req, res) {
+    try {
+        const { documents, question } = req.body;
+
+        if (!documents || !Array.isArray(documents) || documents.length === 0) {
+            return res.status(400).json({ error: 'No documents provided' });
+        }
+
+        if (!question) {
+            return res.status(400).json({ error: 'No question provided' });
+        }
+
+        // 将所有文档内容合并并添加到系统提示中
+        const combinedContent = documents.join('\n\n---\n\n');
+        const systemPrompt = `You are an AI assistant analyzing the following documents. Please answer questions about their content:\n\n${combinedContent}`;
+
+        const messages = [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: question }
+        ];
+
+        const response = await getChatCompletion(messages);
+        res.json(response);
+    } catch (error) {
+        console.error('Error in document query:', error);
+        res.status(500).json({
+            error: 'Failed to process document query',
+            message: error.message
+        });
+    }
+}
+
+exports.processDocumentQuery = async (req, res) => {
+    try {
+        const { documents, question } = req.body;
+
+        if (!documents || !Array.isArray(documents) || documents.length === 0) {
+            return res.status(400).json({ error: 'No documents provided' });
+        }
+
+        if (!question) {
+            return res.status(400).json({ error: 'No question provided' });
+        }
+
+        // 将所有文档内容合并并添加到系统提示中
+        const combinedContent = documents.join('\n\n---\n\n');
+        const systemPrompt = `You are an AI assistant analyzing the following documents. Please answer questions about their content:\n\n${combinedContent}`;
+
+        const messages = [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: question }
+        ];
+
+        const requestData = {
+            apiKey: gpt4oApiKey,
+            apiUrl: gpt4oApiUrl,
+            prompt: messages,
+            params: {
+                temperature: 0.7,
+                max_tokens: 2000,
+                frequency_penalty: 0,
+                presence_penalty: 0
+            }
+        };
+
+        const response = await makeRequest(requestData);
+        const message = response.data.choices[0].message.content;
+        
+        res.json({
+            message: message,
+            totalTokens: response.data.usage?.total_tokens || 0
+        });
+    } catch (error) {
+        console.error('Error in document query:', error);
+        res.status(500).json({
+            error: 'Failed to process document query',
+            message: error.message
+        });
+    }
+};
+

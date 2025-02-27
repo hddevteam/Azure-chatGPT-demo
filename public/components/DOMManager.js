@@ -60,19 +60,50 @@ class DOMManager {
     }
 
     createAttachmentThumbnails(attachmentUrls) {
+        if (!attachmentUrls) return null;
+        
         // split the attachmentUrls string into an array of urls by ;
-        const urlArray = attachmentUrls.split(";");
-        if(urlArray.length > 0) {
-            const attachmentsContainer = document.createElement("div");
-            attachmentsContainer.classList.add("attachments-container");
-            urlArray.forEach(url => {
+        const urlArray = attachmentUrls.split(";").filter(url => url.trim());
+        if (urlArray.length === 0) return null;
+
+        const attachmentsContainer = document.createElement("div");
+        attachmentsContainer.classList.add("attachments-container");
+        
+        urlArray.forEach(url => {
+            // 检查是否为图片URL（通过文件扩展名）
+            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+            
+            if (isImage) {
                 const imgElement = document.createElement("img");
                 imgElement.src = url;
                 imgElement.classList.add("message-attachment-thumbnail");
+                
+                // 添加点击监听器以在模态框中显示大图
+                imgElement.addEventListener('click', () => {
+                    const modal = document.getElementById("image-modal");
+                    const modalImg = document.getElementById("img-modal-content");
+                    modal.style.display = "block";
+                    modalImg.src = url;
+                });
+                
                 attachmentsContainer.appendChild(imgElement);
-            });
-            return attachmentsContainer;
-        }
+            } else {
+                // 如果不是图片，创建一个文件链接
+                const fileLink = document.createElement("a");
+                fileLink.href = url;
+                fileLink.target = "_blank";
+                fileLink.classList.add("file-attachment-link");
+                
+                const fileName = url.split('/').pop();
+                fileLink.innerHTML = `
+                    <i class="fas fa-file"></i>
+                    <span>${fileName}</span>`;
+                
+                attachmentsContainer.appendChild(fileLink);
+            }
+        });
+
+        return attachmentsContainer;
     }
 
 

@@ -389,7 +389,8 @@ function initializeApp(username) {  // 接收传入的 username 参数
     attachButton.addEventListener("click", () => {
         const fileInput = document.createElement("input");
         fileInput.type = "file";
-        fileInput.accept = "image/*";
+        fileInput.multiple = true; // 允许多文件选择
+        fileInput.accept = ".txt,.md,.pdf,.docx,.xlsx,.pptx,image/*"; // 更新支持的文件类型
         fileInput.onchange = handleFiles;
         fileInput.click();
     });

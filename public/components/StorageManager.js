@@ -194,7 +194,9 @@ class StorageManager {
         const now = new Date().toISOString();
         const messageToSave = {
             ...message,
-            createdAt: existingMessage?.createdAt || now,
+            // 如果是新消息，使用当前时间作为创建时间；如果是更新，保留原有创建时间
+            createdAt: existingMessage?.createdAt || message.createdAt || now,
+            // 如果有服务器时间戳就用服务器的，否则使用现有的或当前时间
             timestamp: message.timestamp || existingMessage?.timestamp || now,
             lastUpdated: now,
             searchResults: processedSearchResults
@@ -208,11 +210,20 @@ class StorageManager {
             messages.push(messageToSave);
         }
 
-        // 确保按时间戳排序
-        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        this.saveMessages(chatId, messages);
+        // 确保按创建时间排序，如果创建时间相同则按服务器时间排序
+        messages.sort((a, b) => {
+            const aTime = new Date(a.createdAt);
+            const bTime = new Date(b.createdAt);
+            
+            if (aTime.getTime() === bTime.getTime()) {
+                return new Date(a.timestamp) - new Date(b.timestamp);
+            }
+            
+            return aTime - bTime;
+        });
         
-        return messageToSave; // 返回保存的消息以便确认
+        this.saveMessages(chatId, messages);
+        return messageToSave;
     }
 
     // 更新 getMessages 方法，在确保所有消息都有 createdAt 属性并完成排序后保存回LocalStorage
@@ -223,7 +234,7 @@ class StorageManager {
         // 确保所有消息都有必要的属性
         messages.forEach(message => {
             if (!message.createdAt) {
-                message.createdAt = new Date().toISOString();
+                message.createdAt = message.timestamp || new Date().toISOString();
             }
             if (!message.timestamp) {
                 message.timestamp = message.createdAt;
@@ -239,8 +250,17 @@ class StorageManager {
             }
         });
 
-        // 按时间戳排序
-        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        // 优先按创建时间排序，如果创建时间相同则按服务器时间戳排序
+        messages.sort((a, b) => {
+            const aTime = new Date(a.createdAt);
+            const bTime = new Date(b.createdAt);
+            
+            if (aTime.getTime() === bTime.getTime()) {
+                return new Date(a.timestamp) - new Date(b.timestamp);
+            }
+            
+            return aTime - bTime;
+        });
         
         // 保存回 localStorage 以确保数据一致性
         localStorage.setItem(key, JSON.stringify(messages));

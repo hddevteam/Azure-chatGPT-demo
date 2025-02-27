@@ -20,19 +20,18 @@ function getContentTypeByFileName(fileName) {
     return mimeTypes[extension] || "application/octet-stream";
 }
   
-async function uploadFileToBlob(containerName, originalFileName, fileContent, username) { 
+async function uploadFileToBlob(containerName, blobName, fileContent, username) { 
     try {
         const containerClient = blobServiceClient.getContainerClient(containerName);
         await containerClient.createIfNotExists({ access: "blob" });
 
-        const blobName = `${Date.now()}-${originalFileName}`;
+        // 不再添加时间戳，直接使用传入的 blobName
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-
-        const contentType = getContentTypeByFileName(originalFileName);
+        const contentType = getContentTypeByFileName(blobName);
 
         await blockBlobClient.upload(fileContent, Buffer.byteLength(fileContent), {
             blobHTTPHeaders: { blobContentType: contentType },
-            metadata: { username }  // 在这里设置metadata
+            metadata: { username }
         });
 
         return {
@@ -172,5 +171,49 @@ async function checkBlobExists(containerName, blobName) {
     }
 }
 
+async function getTextFromBlob(blobPath) {
+    try {
+        console.log(`Getting text from blob: ${blobPath}`);
+        const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
+        
+        // 正确解析容器名和 blob 名称
+        let [containerName, ...blobNameParts] = blobPath.split('/');
+        const blobName = decodeURIComponent(blobNameParts.join('/')); // 确保 URL 编码的文件名被正确解码
+        
+        console.log(`Container: ${containerName}, Blob: ${blobName}`);
+        
+        const containerClient = blobServiceClient.getContainerClient(containerName);
+        const blobClient = containerClient.getBlobClient(blobName);
+        
+        // 检查 blob 是否存在
+        const exists = await blobClient.exists();
+        if (!exists) {
+            throw new Error(`Blob not found: ${blobName}`);
+        }
+        
+        // 下载 blob 内容
+        const downloadResponse = await blobClient.download();
+        const content = await streamToBuffer(downloadResponse.readableStreamBody);
+        
+        return content.toString('utf-8');
+    } catch (error) {
+        console.error(`Error getting text from blob: ${error.message}`);
+        throw error;
+    }
+}
+
+// 辅助函数：将流转换为buffer
+async function streamToBuffer(readableStream) {
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        readableStream.on("data", (data) => {
+            chunks.push(data instanceof Buffer ? data : Buffer.from(data));
+        });
+        readableStream.on("end", () => {
+            resolve(Buffer.concat(chunks));
+        });
+        readableStream.on("error", reject);
+    });
+}
 
 module.exports = { uploadTextToBlob, getTextFromBlob, deleteBlob, uploadFileToBlob, listBlobsByUser, updateBlobMetadata, getTextContentFromBlob, checkBlobExists };

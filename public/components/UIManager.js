@@ -272,15 +272,16 @@ class UIManager {
         // 对于每个附件，转换内容并上传，然后收集URL
         for (const attachment of attachments) {
             try {
-                // 将Base64编码转换为Blob对象
-                const binaryContent = this.base64ToBlob(attachment.content);
-                // 假设uploadAttachment函数已经能够处理Blob类型的content
-                const attachmentUrl = await uploadAttachment(binaryContent, attachment.fileName);
-                urlArray.push(attachmentUrl);
+                // 从 base64 内容创建 Blob 对象
+                const blob = this.base64ToBlob(attachment.content);
+                const response = await uploadAttachment(blob, attachment.fileName);
+                if (response) {
+                    urlArray.push(response);
+                }
             } catch (error) {
                 console.error("Attachment upload failed:", error);
                 swal("Failed to upload attachment. Please try again.", { icon: "error" });
-                return false;
+                return "";
             }
         }
         if (urlArray.length > 0) {
@@ -291,31 +292,31 @@ class UIManager {
     
     // 辅助函数：将Base64编码的数据转换为Blob对象
     base64ToBlob(base64Data) {
-        const contentTypeMatch = base64Data.match(/^data:(.*);base64,/);
-        let contentType = "";
-        if (contentTypeMatch && contentTypeMatch.length > 1) {
-            contentType = contentTypeMatch[1];
-        }
-        const sliceSize = 512;
-        const byteCharacters = atob(base64Data.split(",")[1]);
-        const byteArrays = [];
-    
-        for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-            const slice = byteCharacters.slice(offset, offset + sliceSize);
-            const byteNumbers = new Array(slice.length);
-    
-            for (let i = 0; i < slice.length; i++) {
-                byteNumbers[i] = slice.charCodeAt(i);
+        try {
+            // 处理 Data URL 格式
+            if (base64Data.startsWith("data:")) {
+                const [header, data] = base64Data.split(",");
+                const mimeType = header.split(":")[1].split(";")[0];
+                const binary = atob(data);
+                const array = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    array[i] = binary.charCodeAt(i);
+                }
+                return new Blob([array], { type: mimeType });
+            } else {
+                // 处理纯 base64 数据
+                const binary = atob(base64Data);
+                const array = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    array[i] = binary.charCodeAt(i);
+                }
+                return new Blob([array]);
             }
-    
-            const byteArray = new Uint8Array(byteNumbers);
-            byteArrays.push(byteArray);
+        } catch (error) {
+            console.error("Error converting base64 to blob:", error);
+            throw new Error("Invalid base64 data");
         }
-    
-        const blob = new Blob(byteArrays, {type: contentType});
-        return blob;
     }
-    
 
     async validateMessage(message) {
         if (message.startsWith("@") && !message.substring(0, 50).includes(":")) {
@@ -541,7 +542,7 @@ class UIManager {
             return;
         }
         const startingIndex = savedMessages.length > this.messageLimit ? savedMessages.length - this.messageLimit : 0;
-        savedMessages.slice(startingIndex).forEach((message, index, arr) => {
+        savedMessages.slice(startingIndex).forEach((message) => {
             let isActive = message.isActive || false;
             if (isActive) {
                 this.app.prompts.addPrompt(message);
@@ -629,10 +630,16 @@ class UIManager {
         const attachmentPreviewList = document.getElementById("attachment-preview-list");
         const attachmentItems = attachmentPreviewList.querySelectorAll(".attachment-preview-item");
 
+        // 在发送新消息前清除之前的follow-up questions
+        this.messageManager.clearFollowUpQuestions();
+
         attachmentItems.forEach(item => {
-            const fileName = item.querySelector(".attachment-file-name").textContent;
-            const content = item.querySelector(".attachment-thumbnail").style.backgroundImage.slice(5, -2); // Extract file content (remove 'url(' and ')')
-            attachments.push({ fileName, content });
+            // 使用 dataset 属性来获取文件名和内容
+            const fileName = item.dataset.fileName;
+            const content = item.dataset.content;
+            if (fileName && content) {
+                attachments.push({ fileName, content });
+            }
         });
 
         // Clean up the UI
@@ -645,8 +652,6 @@ class UIManager {
     
         // Call sendMessage, passing in message and attachments
         await this.messageManager.sendMessage(message, attachments);
-    
-
     }
 
     handleProfileListMenuClick(event) {
