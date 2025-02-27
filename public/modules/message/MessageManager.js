@@ -1,12 +1,10 @@
-// components/MessageManager.js - 更新为使用模块化架构
+// MessageManager.js - 重构后的消息管理器
 import swal from "sweetalert";
 import LinkHandler from "../utils/linkHandler.js";
-import DocumentManager from "./DocumentManager.js";
-// 从新的模块导入
-import MessageUIHandler from "../modules/message/MessageUIHandler.js";
-import FollowUpQuestionHandler from "../modules/message/FollowUpQuestionHandler.js";
-import MessageProcessorFactory from "../modules/message/MessageProcessorFactory.js";
-import { getFollowUpQuestions } from "../utils/apiClient.js";
+import DocumentManager from "../components/DocumentManager.js";
+import MessageProcessorFactory from "./message/MessageProcessorFactory.js";
+import MessageUIHandler from "./message/MessageUIHandler.js";
+import FollowUpQuestionHandler from "./message/FollowUpQuestionHandler.js";
 
 class MessageManager {
     constructor(uiManager) {
@@ -321,11 +319,6 @@ class MessageManager {
     // 切换消息折叠状态
     toggleCollapseMessage(messageElement, forceCollapse) {
         this.uiHandler.toggleCollapseMessage(messageElement, forceCollapse);
-    }
-
-    // 添加代理方法，将调用转发到 followUpHandler
-    clearFollowUpQuestions() {
-        this.followUpHandler.clearFollowUpQuestions();
     }
 }
 
