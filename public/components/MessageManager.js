@@ -413,6 +413,9 @@ class MessageManager {
                 this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
                 this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
                 this.uiManager.app.prompts.addPrompt(newMessage);
+                
+                // 更新聊天历史并可能生成标题
+                this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
             }
             return data;
         } catch (error) {
@@ -555,6 +558,9 @@ class MessageManager {
             this.uiManager.app.prompts.addPrompt(newMessage);
             await this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
             await this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
+            
+            // 更新聊天历史并可能生成标题
+            this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
             // 执行服务器请求并处理响应
             const data = await this.wrapWithGetGptErrorHandler(executeFunction, timestamp);
@@ -980,6 +986,9 @@ class MessageManager {
         this.uiManager.app.prompts.addPrompt(documentMessage);
         this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, documentMessage);
         this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, documentMessage);
+        
+        // 更新聊天历史并可能生成标题
+        this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
         // 生成文档查询响应
         // 注意：此时 documentMessage.documents 已经是字符串，需要解析回对象
