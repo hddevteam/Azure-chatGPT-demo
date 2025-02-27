@@ -70,8 +70,12 @@ class DOMManager {
         attachmentsContainer.classList.add("attachments-container");
         
         urlArray.forEach(url => {
-            // 检查是否为图片URL（通过文件扩展名）
-            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+            // 检查是否为图片URL（通过文件扩展名或DALL-E返回的URL模式）
+            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url) || 
+                           // DALL-E URL通常包含这些特征
+                           url.includes("dalleprodsec.blob.core.windows.net") ||
+                           // 捕获不带扩展名但可能是图片的URL
+                           (/\.(blob\.core\.windows\.net)|(openai\.com)/i.test(url) && !url.endsWith(".json"));
             
             if (isImage) {
                 const imgElement = document.createElement("img");
@@ -79,7 +83,7 @@ class DOMManager {
                 imgElement.classList.add("message-attachment-thumbnail");
                 
                 // 添加点击监听器以在模态框中显示大图
-                imgElement.addEventListener('click', () => {
+                imgElement.addEventListener("click", () => {
                     const modal = document.getElementById("image-modal");
                     const modalImg = document.getElementById("img-modal-content");
                     modal.style.display = "block";
@@ -94,7 +98,7 @@ class DOMManager {
                 fileLink.target = "_blank";
                 fileLink.classList.add("file-attachment-link");
                 
-                const fileName = url.split('/').pop();
+                const fileName = url.split("/").pop();
                 fileLink.innerHTML = `
                     <i class="fas fa-file"></i>
                     <span>${fileName}</span>`;

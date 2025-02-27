@@ -306,6 +306,30 @@
     background-color: rgba(0, 0, 0, 0.9);
 }
 
+/* 修复关闭按钮样式 */
+#image-modal .close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #fff;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1010;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+#image-modal .close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
 #img-modal-content {
     margin: auto;
     display: block;
@@ -314,6 +338,29 @@
     position: relative;
     top: 50%;
     transform: translateY(-50%);
+}
+
+/* Download button styles */
+#download-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#download-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#download-btn i {
+    margin-right: 5px;
 }
 
 /* Mobile responsive styles */
@@ -340,5 +387,19 @@
     .message-attachment-thumbnail {
         max-width: 150px;
         max-height: 150px;
+    }
+    
+    #image-modal .close {
+        top: 10px;
+        right: 10px;
+        font-size: 24px;
+        width: 35px;
+        height: 35px;
+    }
+    
+    #download-btn {
+        bottom: 15px;
+        padding: 6px 12px;
+        font-size: 14px;
     }
 }
