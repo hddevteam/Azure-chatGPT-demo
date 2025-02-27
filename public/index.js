@@ -390,7 +390,7 @@ function initializeApp(username) {  // 接收传入的 username 参数
         const fileInput = document.createElement("input");
         fileInput.type = "file";
         fileInput.multiple = true; // 允许多文件选择
-        fileInput.accept = ".txt,.md,.pdf,.docx,.xlsx,.pptx,image/*"; // 更新支持的文件类型
+        // 移除文件类型限制，允许上传所有类型的文件
         fileInput.onchange = handleFiles;
         fileInput.click();
     });

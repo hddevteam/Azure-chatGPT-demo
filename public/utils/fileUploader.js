@@ -6,14 +6,7 @@ class FileUploader {
         this.attachmentPreviewContainer = document.getElementById("attachment-preview-container");
         this.attachmentPreviewList = document.getElementById("attachment-preview-list");
         
-        this.allowedTypes = [
-            "image/png", "image/jpeg", "image/webp", "image/gif",
-            "text/plain", "text/markdown",
-            "application/pdf",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        ];
+        // 移除文件类型限制，接受所有类型
         this.maxSize = 20 * 1024 * 1024; // 20MB
         
         this.removePreviewItem = this.removePreviewItem.bind(this);
@@ -23,22 +16,17 @@ class FileUploader {
     }
 
     getFileIcon(fileType) {
-        if (fileType.startsWith('image/')) return 'fa-image';
-        if (fileType.includes('pdf')) return 'fa-file-pdf';
-        if (fileType.includes('word')) return 'fa-file-word';
-        if (fileType.includes('sheet')) return 'fa-file-excel';
-        if (fileType.includes('presentation')) return 'fa-file-powerpoint';
-        if (fileType.includes('text')) return 'fa-file-text';
-        return 'fa-file';
+        if (fileType.startsWith("image/")) return "fa-image";
+        if (fileType.includes("pdf")) return "fa-file-pdf";
+        if (fileType.includes("word")) return "fa-file-word";
+        if (fileType.includes("sheet")) return "fa-file-excel";
+        if (fileType.includes("presentation")) return "fa-file-powerpoint";
+        if (fileType.includes("text")) return "fa-file-text";
+        return "fa-file"; // 默认文件图标
     }
 
     async handleFileUpload(files) {
         for (const file of files) {
-            if (!this.allowedTypes.includes(file.type)) {
-                swal("Invalid file type", `File type ${file.type} is not supported. Supported types are documents and images.`, "error");
-                continue;
-            }
-
             if (file.size > this.maxSize) {
                 swal("File too large", "Please upload files smaller than 20MB.", "error");
                 continue;
@@ -46,7 +34,7 @@ class FileUploader {
 
             try {
                 const reader = new FileReader();
-                if (file.type.startsWith('image/')) {
+                if (file.type.startsWith("image/")) {
                     reader.onload = (e) => {
                         const previewItem = document.createElement("div");
                         previewItem.classList.add("attachment-preview-item");
@@ -79,7 +67,7 @@ class FileUploader {
                                 <i class="fas ${icon} fa-2x"></i>
                                 <div class="attachment-file-name">${file.name}</div>
                             </div>`;
-
+                        
                         const deleteBtn = previewItem.querySelector(".attachment-delete-btn");
                         deleteBtn.addEventListener("click", (event) => this.removePreviewItem(event));
 
@@ -92,7 +80,7 @@ class FileUploader {
                     this.attachmentPreviewContainer.classList.remove("hidden");
                 }
             } catch (error) {
-                console.error('Error processing file:', error);
+                console.error("Error processing file:", error);
                 swal("Error", "Failed to process file: " + file.name, "error");
             }
         }
@@ -114,8 +102,8 @@ class FileUploader {
     }
 
     addPreviewButtonListeners() {
-        document.addEventListener('click', (e) => {
-            const previewButton = e.target.closest('.preview-document-btn');
+        document.addEventListener("click", (e) => {
+            const previewButton = e.target.closest(".preview-document-btn");
             if (previewButton) {
                 const fileName = previewButton.dataset.processedFileName || previewButton.dataset.fileName;
                 const originalFileName = previewButton.dataset.fileName;

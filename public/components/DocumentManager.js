@@ -24,11 +24,6 @@ class DocumentManager {
             for (const attachment of attachments) {
                 this.progressTracker.updateProgress(attachment.fileName, "processing");
                 try {
-                    // 检查文件类型是否支持
-                    if (!DocumentUtils.isDocumentFile(attachment.fileName)) {
-                        throw new Error(`Unsupported file type: ${DocumentUtils.getFileExtension(attachment.fileName)}`);
-                    }
-
                     // 从 base64 内容创建 blob
                     const blob = this.uiManager.base64ToBlob(attachment.content);
                     
@@ -40,6 +35,7 @@ class DocumentManager {
                         `Size: ${fileSizeFormatted}`
                     );
 
+                    // 上传文件并获取结果
                     const uploadResult = await uploadDocument(blob, attachment.fileName);
                     
                     // 获取文档内容

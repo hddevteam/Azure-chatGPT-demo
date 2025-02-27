@@ -7,41 +7,37 @@ class DocumentUtils {
     static getFileType(fileName) {
         const extension = this.getFileExtension(fileName);
         const mimeTypes = {
-            'txt': 'text/plain',
-            'md': 'text/markdown',
-            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'pdf': 'application/pdf',
-            'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'xls': 'application/vnd.ms-excel',
-            'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'ppt': 'application/vnd.ms-powerpoint'
+            "txt": "text/plain",
+            "md": "text/markdown",
+            "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "pdf": "application/pdf",
+            "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "xls": "application/vnd.ms-excel",
+            "pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "ppt": "application/vnd.ms-powerpoint"
         };
-        return mimeTypes[extension] || 'application/octet-stream';
+        return mimeTypes[extension] || "application/octet-stream";
     }
 
     static formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
+        if (bytes === 0) return "0 Bytes";
         const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const sizes = ["Bytes", "KB", "MB", "GB"];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
     }
 
     static truncateFileName(fileName, maxLength = 20) {
         if (fileName.length <= maxLength) return fileName;
         const extension = this.getFileExtension(fileName);
-        const nameWithoutExt = fileName.slice(0, fileName.lastIndexOf('.'));
-        const truncatedName = nameWithoutExt.slice(0, maxLength - extension.length - 3) + '...';
+        const nameWithoutExt = fileName.slice(0, fileName.lastIndexOf("."));
+        const truncatedName = nameWithoutExt.slice(0, maxLength - extension.length - 3) + "...";
         return `${truncatedName}.${extension}`;
     }
 
     static isDocumentFile(fileName) {
-        const supportedExtensions = [
-            '.txt', '.md', '.doc', '.docx', '.pdf', 
-            '.xls', '.xlsx', '.ppt', '.pptx'
-        ];
-        const extension = this.getFileExtension(fileName).toLowerCase();
-        return supportedExtensions.includes(`.${extension}`);
+        // 所有文件都当作文档处理
+        return true;
     }
 }
 
