@@ -355,6 +355,37 @@ function initializeApp(username) {  // 接收传入的 username 参数
         } 
     }
 
+    // Function to handle responsive layout based on screen width
+    function handleResponsiveLayout() {
+        const isSplitView = mainContainer.classList.contains("split-view");
+        if (window.innerWidth < 768 && isSplitView) {
+            // If screen width is less than 768px and currently in split-view, switch to mobile layout
+            const actorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
+            const chatHistoryContainer = document.getElementById("chat-history-container");
+            const inputContainter = document.querySelector("#input-container");
+            const appContainer = document.querySelector("#app-container");
+            
+            // 更新 splitView 状态为 false (关闭分屏)
+            uiManager.storageManager.getCurrentUserData().uiState.splitView = false;
+            uiManager.storageManager.saveCurrentUserData();
+            
+            // 重置高度
+            inputContainter.style = "";
+            messageInputContainer.style = "";
+            appContainer.style = "";
+            
+            // 移除分屏相关的类
+            mainContainer.classList.remove("split-view");
+            appBar.classList.remove("split-view");
+            messageContainer.classList.remove("split-view");
+            messageInputContainer.classList.remove("split-view");
+            
+            // 隐藏演员设置和聊天历史
+            uiManager.hiddenElement(actorSettingsWrapper);
+            uiManager.hiddenElement(chatHistoryContainer);
+        }
+    }
+
     async function handleFiles(event) {
         const files = event.target.files;
         if (files.length === 0) {
@@ -444,6 +475,7 @@ function initializeApp(username) {  // 接收传入的 username 参数
       
         if (widthChanged || heightDifference > 150) {
             setInitialVisibility();
+            handleResponsiveLayout(); // 添加对响应式布局的处理
       
             initialWindowSize = {
                 width: currentWindowSize.width,
@@ -453,6 +485,9 @@ function initializeApp(username) {  // 接收传入的 username 参数
     }
       
     window.addEventListener("resize", handleWindowResize);
+    
+    // 初始调用确保正确的布局
+    handleResponsiveLayout();
 }
 
 
