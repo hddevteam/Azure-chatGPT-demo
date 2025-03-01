@@ -19,6 +19,7 @@
 @import url("components/utilities.css");
 @import url("components/sweetalert.css");
 @import url("components/document-analysis-progress.css");
+@import url("components/progress-bar.css");
 
 /* Feature styles */
 @import url("chat_options_modal.css");

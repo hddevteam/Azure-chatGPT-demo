@@ -1,0 +1,119 @@
+/* Progress Bar Container */
+.progress-bar-container {
+    position: relative;
+    width: 100%;
+    height: 3px;
+    margin: 0;
+    background: var(--bg-overlay-quaternary);
+    overflow: visible;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        var(--primary-color, #4A90E2) 0%, 
+        var(--primary-light-color, #67A6E8) 50%, 
+        var(--primary-color, #4A90E2) 100%
+    );
+    background-size: 200% 100%;
+    transform-origin: left;
+    opacity: 0;
+    transform: scaleX(0);
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+/* Active state with enhanced effects */
+.progress-bar.active {
+    opacity: 1;
+    animation: 
+        progressBarAnimation 2s ease-in-out infinite,
+        progressBarGlow 1.5s ease-in-out infinite;
+    /* 添加一个持续的阴影效果 */
+    box-shadow: 0 0 4px rgba(74, 144, 226, 0.4);
+}
+
+/* Progress Bar Animation */
+@keyframes progressBarAnimation {
+    0% {
+        background-position: 100% 0;
+        transform: scaleX(0);
+    }
+    50% {
+        transform: scaleX(0.7);
+    }
+    100% {
+        background-position: -100% 0;
+        transform: scaleX(0.95);
+    }
+}
+
+/* Enhanced Glow Effect - 使用 filter 代替高度变化 */
+@keyframes progressBarGlow {
+    0% {
+        filter: brightness(1) drop-shadow(0 0 1px rgba(74, 144, 226, 0.4));
+    }
+    50% {
+        filter: brightness(1.3) drop-shadow(0 0 2px rgba(74, 144, 226, 0.6));
+    }
+    100% {
+        filter: brightness(1) drop-shadow(0 0 1px rgba(74, 144, 226, 0.4));
+    }
+}
+
+/* Complete state with enhanced animation */
+.progress-bar.complete {
+    opacity: 1;
+    transform: scaleX(1);
+    background: var(--success-color, #2ECC71);
+    transition: all 0.3s ease-out;
+    animation: progressBarComplete 0.6s ease-out;
+}
+
+@keyframes progressBarComplete {
+    0% {
+        filter: brightness(1);
+        transform: scaleX(0.95);
+    }
+    50% {
+        filter: brightness(1.4);
+        transform: scaleX(1.02);
+    }
+    100% {
+        filter: brightness(1);
+        transform: scaleX(1);
+    }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+    .progress-bar-container {
+        background: var(--bg-overlay-quaternary-dark, rgba(255, 255, 255, 0.05));
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, 
+            var(--primary-color-dark, #5FA4E6) 0%, 
+            var(--primary-light-color-dark, #7AB5ED) 50%, 
+            var(--primary-color-dark, #5FA4E6) 100%
+        );
+    }
+    
+    /* 调整暗色主题下的阴影效果 */
+    .progress-bar.active {
+        box-shadow: 0 0 4px rgba(95, 164, 230, 0.5);
+    }
+    
+    @keyframes progressBarGlow {
+        0% {
+            filter: brightness(1) drop-shadow(0 0 1px rgba(95, 164, 230, 0.5));
+        }
+        50% {
+            filter: brightness(1.3) drop-shadow(0 0 2px rgba(95, 164, 230, 0.7));
+        }
+        100% {
+            filter: brightness(1) drop-shadow(0 0 1px rgba(95, 164, 230, 0.5));
+        }
+    }
+}

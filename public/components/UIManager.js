@@ -418,21 +418,39 @@ class UIManager {
     }
 
     initSubmitButtonProcessing() {
+        const progressBar = document.querySelector(".progress-bar");
         const submitButton = document.getElementById("submitButton");
         const buttonIcon = document.getElementById("submit-button-icon");
         const loader = document.getElementById("submit-loader");
+        
+        // 激活进度条
+        progressBar.classList.add("active");
+        
+        // 禁用提交按钮
         submitButton.disabled = true;
         buttonIcon.classList.add("hidden");
         loader.classList.remove("hidden");
     }
 
     finishSubmitProcessing() {
+        const progressBar = document.querySelector(".progress-bar");
         const submitButton = document.getElementById("submitButton");
         const buttonIcon = document.getElementById("submit-button-icon");
         const loader = document.getElementById("submit-loader");
+        
+        // 完成进度条动画
+        progressBar.classList.remove("active");
+        progressBar.classList.add("complete");
+        
+        // 重置按钮状态
         submitButton.disabled = false;
         buttonIcon.classList.remove("hidden");
         loader.classList.add("hidden");
+        
+        // 短暂延迟后移除完成状态
+        setTimeout(() => {
+            progressBar.classList.remove("complete");
+        }, 500);
     }
 
     // Audio Management Methods - delegated to AudioManager
