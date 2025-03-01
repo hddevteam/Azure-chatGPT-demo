@@ -26,8 +26,7 @@ class MessageProcessor {
             messageId: messageId, 
             isActive: true, 
             attachmentUrls: attachmentUrls,
-            timestamp: timestamp,
-            createdAt: timestamp
+            createdAt: timestamp  // 只设置createdAt，不设置timestamp
         };
 
         // 添加用户消息到界面
@@ -54,26 +53,16 @@ class MessageProcessor {
 
     // 处理 AI 响应并显示
     async handleAIResponse(data, timestamp) {
-        if (!data) {
-            return null;
-        }
-
-        const messageId = this.uiManager.generateId();
-        
-        // 处理搜索结果
-        const searchResults = data.searchResults && Array.isArray(data.searchResults) 
-            ? this.processSearchResults(data.searchResults)
-            : null;
-        
-        const newMessage = { 
-            role: "assistant", 
-            content: data.message, 
-            messageId: messageId, 
-            isActive: true, 
+        const responseTimestamp = new Date().toISOString(); // 新的时间戳，表示实际响应时间
+        const newMessage = {
+            role: "assistant",
+            content: data.message || data.content,
+            messageId: data.messageId || this.uiManager.generateId(),
+            isActive: true,
+            searchResults: data.searchResults,
+            metadata: data.metadata,
             attachmentUrls: data.attachmentUrls || "",
-            searchResults: searchResults,
-            timestamp: timestamp || new Date().toISOString(),
-            createdAt: timestamp || new Date().toISOString()
+            createdAt: responseTimestamp  // 使用新的响应时间作为创建时间
         };
 
         this.messageManager.addMessage(

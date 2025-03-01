@@ -134,8 +134,8 @@ export async function uploadAttachment(fileContent, fileName) {
             formData.append("fileContent", fileContent, fileName);
         } else {
             // 如果是 base64 字符串，需要先转换为 Blob
-            const base64Data = fileContent.split(',')[1];
-            const mimeType = fileContent.split(',')[0].split(':')[1].split(';')[0];
+            const base64Data = fileContent.split(",")[1];
+            const mimeType = fileContent.split(",")[0].split(":")[1].split(";")[0];
             const binaryStr = window.atob(base64Data);
             const len = binaryStr.length;
             const bytes = new Uint8Array(len);
@@ -634,7 +634,7 @@ export async function processDocumentContent(documentId) {
         const response = await axios.get(`/documents/content/${documentId}`);
         return response.data;
     } catch (error) {
-        console.error('Error getting document content:', error);
+        console.error("Error getting document content:", error);
         throw error;
     }
 }
