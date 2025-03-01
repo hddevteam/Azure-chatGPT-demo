@@ -115,5 +115,6 @@ tree-sitter-javascript/
 extract-code-for-chat.ipynb
 build/my-languages.so
 public/dist/
+.VSCodeCounter/
 
 .DS_Store
