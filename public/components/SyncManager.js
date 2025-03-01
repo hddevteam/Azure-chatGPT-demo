@@ -331,17 +331,23 @@ class SyncManager {
             }
         };
 
+        // 无论结果如何，先删除本地消息以保持一致性
+        console.log(`Deleting message ${messageId} from local storage`);
+        this.uiManager.storageManager.deleteMessage(chatId, messageId);
+        
         try {
-            // 先将删除操作加入同步队列，等待云端删除完成
+            // 尝试在云端删除消息
             await new Promise((resolve, reject) => {
                 const handleWorkerMessage = (event) => {
                     const { action, payload } = event.data;
-                    if (payload.data.messageId === messageId) {
+                    if (payload && payload.data && payload.data.messageId === messageId) {
                         if (action === "synced") {
                             this.webWorker.removeEventListener("message", handleWorkerMessage);
+                            console.log(`Message ${messageId} successfully deleted from cloud`);
                             resolve();
                         } else if (action === "failed") {
                             this.webWorker.removeEventListener("message", handleWorkerMessage);
+                            console.warn(`Failed to delete message ${messageId} from cloud`);
                             reject(new Error("Failed to delete message in cloud"));
                         }
                     }
@@ -351,13 +357,11 @@ class SyncManager {
                 this.enqueueSyncItem(syncItem);
             });
             
-            // 云端删除成功后，再从本地存储中删除消息
-            console.log("Cloud deletion successful, removing from local storage");
-            this.uiManager.storageManager.deleteMessage(chatId, messageId);
-            
+            return true; // 成功删除
         } catch (error) {
-            console.error("Error during message deletion:", error);
-            throw error;
+            console.error(`Error during cloud message deletion (${messageId}):`, error);
+            // 即使云端删除失败，本地删除已经完成，所以不抛出异常
+            return false;
         }
     }
   

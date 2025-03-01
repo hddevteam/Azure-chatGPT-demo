@@ -263,17 +263,37 @@ class MessageManager {
             // 从上下文中移除
             this.uiManager.messageContextManager.removeMessageFromContext(messageId);
             
-            // 与云存储同步删除并从本地存储中删除
-            await this.uiManager.syncManager.syncMessageDelete(this.uiManager.currentChatId, messageId);
+            // 先删除本地数据，确保即使云端同步失败也能保持本地的一致性
+            const chatId = this.uiManager.currentChatId;
+            const result = this.uiManager.storageManager.deleteMessage(chatId, messageId);
+            if (!result) {
+                console.warn(`Message ${messageId} not found in local storage or deletion failed`);
+            }
+            
+            try {
+                // 尝试与云端同步删除
+                const cloudDeleteResult = await this.uiManager.syncManager.syncMessageDelete(chatId, messageId);
+                if (!cloudDeleteResult) {
+                    console.warn(`Cloud deletion failed for message ${messageId}, but local deletion completed successfully`);
+                }
+            } catch (cloudError) {
+                // 云端删除失败，但不会影响用户体验，因为本地数据已经删除
+                console.error("Error during cloud message deletion:", cloudError);
+                // 不显示错误提示，因为对用户体验影响较小
+            }
             
             // 检查是否删除了所有消息
             const remainingMessages = document.querySelectorAll(".message");
             if (remainingMessages.length === 0) {
                 this.uiManager.showWelcomeMessage();
             }
+            
+            return true; // 本地删除成功
+            
         } catch (error) {
             console.error("Failed to delete message:", error);
-            swal("删除消息失败", error.message, "error");
+            swal("删除消息失败", "无法完成消息删除操作，请刷新后重试", "error");
+            return false;
         } finally {
             this.isDeleting = false;
         }
