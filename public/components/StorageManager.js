@@ -348,48 +348,50 @@ class StorageManager {
         console.log("cleanUpUserChatHistories: ", username);
         let localStorageUsage = parseFloat(this.getLocalStorageUsage());
         console.log("localStorageUsage: ", localStorageUsage);
-        let chatHistories = this.getChatHistory(username);
-        // console.log("chatHistories: ", chatHistories);
+        
+        // 如果存储空间小于阈值，不需要清理
+        if (localStorageUsage <= 4.5) {
+            console.log("cleanUpUserChatHistories: LocalStorage usage is below 4.5MB, no cleanup needed.");
+            return;
+        }
 
+        let chatHistories = this.getChatHistory(username);
         if (!chatHistories.length) {
             return;
         }
-        // Sort by timestamp, assumed to be a number for efficiency
-        chatHistories.sort((a, b) => a.timestamp - b.timestamp);
+
+        // 按时间戳排序，优先清理旧的聊天记录
+        chatHistories.sort((a, b) => {
+            const aTime = new Date(a.timestamp || a.updatedAt || 0);
+            const bTime = new Date(b.timestamp || b.updatedAt || 0);
+            return aTime - bTime;
+        });
 
         for (let i = 0; i < chatHistories.length && localStorageUsage > 4.5; i++) {
             const historyId = chatHistories[i].id;
-            // Check if the history exists in localStorage
-            if(localStorage.getItem(historyId)) {
-                let historySize = localStorage[historyId].length * 2 / 1024 / 1024;
+            const messagesKey = `messages_${historyId}`;
+            
+            // 只处理确实存在的聊天记录
+            if (localStorage.getItem(messagesKey)) {
+                const historySize = localStorage[messagesKey].length * 2 / 1024 / 1024;
+                // 只保留没有时间戳的消息（未同步的消息）
                 let messages = this.getMessages(historyId).filter(message => !message.timestamp);
+                
+                // 保存过滤后的消息
                 this.saveMessages(historyId, messages);
-        
-                // It's prudent to recheck here if the item still exists after saveMessages operation
-                if(localStorage.getItem(historyId)) {
-                    const remainedSize = localStorage[historyId].length * 2 / 1024 / 1024;
-                    const removedSize = historySize - remainedSize;
-                    localStorageUsage -= removedSize; 
-                } else {
-                    // The item doesn't exist anymore, so assume its size is now 0
+                
+                // 更新存储使用量
+                if (messages.length === 0) {
+                    localStorage.removeItem(messagesKey);
                     localStorageUsage -= historySize;
+                } else {
+                    const newSize = localStorage[messagesKey].length * 2 / 1024 / 1024;
+                    localStorageUsage -= (historySize - newSize);
                 }
-        
-                if (!messages.length) {
-                    // Now we are certain that historyId exists before trying to remove it
-                    localStorage.removeItem(historyId);
-                }
-        
-                console.log(`localStorageUsage after cleanup of ${historyId}: `, localStorageUsage);
-            } else {
-                console.warn(`History with id ${historyId} does not exist in localStorage.`);
+                
+                console.log(`Cleaned up chat history ${historyId}, new storage usage: ${localStorageUsage.toFixed(2)}MB`);
             }
         }
-        
-        if (localStorageUsage < 4.5) {
-            console.log("cleanUpUserChatHistories: LocalStorage usage is below 4.5MB, cleanup done.");
-        }
-        
     }
 
     messageExists(chatId, messageId) {
