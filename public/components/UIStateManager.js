@@ -3,6 +3,8 @@
 class UIStateManager {
     constructor(uiManager) {
         this.uiManager = uiManager;
+        this.searchQuery = "";
+        this.setupSearch();
     }
 
     toggleVisibility(element) {
@@ -66,39 +68,21 @@ class UIStateManager {
 
     showAIActorList() {
         const aiActorWrapper = document.getElementById("ai-actor-wrapper");
-        const aiActorList = document.getElementById("ai-actor-list"); // 正确获取列表元素
         const overlay = document.querySelector(".modal-overlay");
         
         this.visibleElement(aiActorWrapper);
         aiActorWrapper.setAttribute("data-visible", "true");
         this.visibleElement(overlay);
         
-        // 确保列表内容是最新的
-        aiActorList.innerHTML = "";
-        
-        // 从 uiManager 获取配置文件，并填充列表
-        const profiles = this.uiManager.profiles;
-        const currentProfile = this.uiManager.storageManager.getCurrentProfile();
-
-        if (profiles && profiles.length > 0) {
-            profiles.forEach(profile => {
-                let li = document.createElement("li");
-                li.dataset.profile = profile.name;
-                if (currentProfile && profile.name === currentProfile.name) {
-                    li.classList.add("active");
-                }
-
-                let icon = document.createElement("i");
-                icon.className = profile.icon;
-                
-                let span = document.createElement("span");
-                span.textContent = profile.displayName;
-                
-                li.appendChild(icon);
-                li.appendChild(span);
-                aiActorList.appendChild(li);
-            });
+        // 清空搜索输入框
+        const searchInput = document.getElementById("ai-actor-search");
+        if (searchInput) {
+            searchInput.value = "";
+            this.searchQuery = "";
         }
+        
+        // 更新列表显示
+        this.updateActorList();
         
         setTimeout(() => {
             document.addEventListener("click", this.uiManager.eventHandler.boundHideAIActorOnOutsideClick);
@@ -108,11 +92,18 @@ class UIStateManager {
     hideAIActorList() {
         const aiActorWrapper = document.getElementById("ai-actor-wrapper");
         const overlay = document.querySelector(".modal-overlay");
+        const searchInput = document.getElementById("ai-actor-search");
     
         if (aiActorWrapper.getAttribute("data-visible") === "true") {
             this.hiddenElement(aiActorWrapper);
             aiActorWrapper.setAttribute("data-visible", "false");
             this.hiddenElement(overlay);
+    
+            // 清空搜索状态
+            if (searchInput) {
+                searchInput.value = "";
+                this.searchQuery = "";
+            }
     
             const event = new Event("aiActorListHidden");
             document.dispatchEvent(event);
@@ -164,6 +155,58 @@ class UIStateManager {
             <p class="tip">💡 Tip: When searching with keywords, it will use Bing to find the latest information online.</p>
             </div>
         `;
+    }
+
+    setupSearch() {
+        const searchInput = document.getElementById("ai-actor-search");
+        if (searchInput) {
+            searchInput.addEventListener("input", (e) => {
+                this.searchQuery = e.target.value.toLowerCase();
+                this.updateActorList();
+            });
+        }
+    }
+
+    updateActorList() {
+        const aiActorList = document.getElementById("ai-actor-list");
+        const profiles = this.uiManager.profiles;
+        const currentProfile = this.uiManager.storageManager.getCurrentProfile();
+        
+        if (!aiActorList || !profiles) return;
+        
+        aiActorList.innerHTML = "";
+        
+        const filteredProfiles = this.searchQuery
+            ? profiles.filter(profile => 
+                profile.displayName.toLowerCase().includes(this.searchQuery) ||
+                profile.name.toLowerCase().includes(this.searchQuery))
+            : profiles;
+
+        if (filteredProfiles.length === 0) {
+            const noResults = document.createElement("li");
+            noResults.className = "no-results";
+            noResults.textContent = "No matching AI Actors found";
+            aiActorList.appendChild(noResults);
+            return;
+        }
+
+        filteredProfiles.forEach(profile => {
+            let li = document.createElement("li");
+            li.dataset.profile = profile.name;
+            if (currentProfile && profile.name === currentProfile.name) {
+                li.classList.add("active");
+            }
+
+            let icon = document.createElement("i");
+            icon.className = profile.icon;
+            
+            let span = document.createElement("span");
+            span.textContent = profile.displayName;
+            
+            li.appendChild(icon);
+            li.appendChild(span);
+            aiActorList.appendChild(li);
+        });
     }
 }
 

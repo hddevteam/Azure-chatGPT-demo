@@ -59,9 +59,41 @@
     user-select: none;
 }
 
+/* Search box styles */
+.ai-actor-search {
+    padding: 10px;
+    position: relative;
+    background-color: #17212b;
+    border-bottom: 1px solid #1f2a36;
+}
+
+.ai-actor-search input {
+    width: 100%;
+    padding: 8px 32px 8px 12px;
+    border: 1px solid #1f2a36;
+    border-radius: 4px;
+    background-color: #253341;
+    color: #8899A6;
+    font-size: 14px;
+}
+
+.ai-actor-search input:focus {
+    outline: none;
+    border-color: #3391FF;
+}
+
+.ai-actor-search .search-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8899A6;
+    pointer-events: none;
+}
+
 /* Container styles */
 #ai-actor-container {
-    max-height: calc(70vh - 50px);
+    max-height: calc(60vh - 50px);
     overflow-y: auto;
     overflow-x: hidden;
     -ms-overflow-style: none;
@@ -110,6 +142,22 @@
     background-color: cornflowerblue;
     color: #ffffff;
     cursor: pointer;
+}
+
+#ai-actor-list .no-results {
+    text-align: center;
+    padding: 20px;
+    color: #8899A6;
+    font-style: italic;
+    grid-column: 1 / -1;
+    background: none;
+    border: none;
+}
+
+#ai-actor-list .no-results:hover {
+    background: none;
+    cursor: default;
+    color: #8899A6;
 }
 
 /* Settings wrapper styles */
