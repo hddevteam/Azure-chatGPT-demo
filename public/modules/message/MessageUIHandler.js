@@ -23,7 +23,19 @@ class MessageUIHandler {
         // 创建消息元素
         const messageElement = this.domManager.createMessageElement(sender, messageId, isActive, isError);
         messageElement.dataset.message = message;
+        messageElement.dataset.sender = sender;
         messageElement.dataset.attachmentUrls = attachmentUrls;
+        
+        // 从存储中获取完整的消息数据，包括搜索结果
+        const storedMessage = this.uiManager.storageManager.getMessage(
+            this.uiManager.currentChatId,
+            messageId
+        );
+
+        if (storedMessage && storedMessage.searchResults) {
+            // 更新消息管理器的搜索结果状态
+            this.messageManager.searchResults = storedMessage.searchResults;
+        }
 
         // 添加会话元素
         const conversationElement = this.domManager.createConversationElement();
@@ -61,9 +73,10 @@ class MessageUIHandler {
             // 处理引用
             message = this.processCitationsInMessage(message);
             
-            // 添加搜索结果（如果有）
-            if (this.messageManager.searchResults && Array.isArray(this.messageManager.searchResults) && this.messageManager.searchResults.length > 0) {
-                messageElement.appendChild(this.createSearchSourcesElement());
+            // 添加搜索结果（如果有）- 使用存储的搜索结果
+            const currentSearchResults = storedMessage?.searchResults || this.messageManager.searchResults;
+            if (currentSearchResults && Array.isArray(currentSearchResults) && currentSearchResults.length > 0) {
+                messageElement.appendChild(this.createSearchSourcesElement(currentSearchResults));
             }
         }
 
@@ -101,7 +114,7 @@ class MessageUIHandler {
         // 将消息元素添加到消息容器
         const messagesContainer = document.querySelector("#messages");
         if (position === "top") {
-            messagesContainer.insertBefore(messageElement, messagesContainer.firstChild.nextSibling);
+            messagesContainer.insertBefore(messageElement, messagesContainer.firstChild);
         } else {
             messagesContainer.appendChild(messageElement);
         }
@@ -110,7 +123,9 @@ class MessageUIHandler {
         this.attachEventListeners(messageElement, codeBlocksWithCopyElements);
 
         // 自动滚动到底部
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        if (position === "bottom") {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
 
         return messageElement;
     }
@@ -201,8 +216,12 @@ class MessageUIHandler {
     }
 
     // 创建搜索结果元素
-    createSearchSourcesElement() {
-        const sources = this.messageManager.searchResults;
+    createSearchSourcesElement(searchResults = null) {
+        const sources = searchResults || this.messageManager.searchResults;
+        if (!sources || !Array.isArray(sources) || sources.length === 0) {
+            return null;
+        }
+
         const sourcesElement = document.createElement("div");
         sourcesElement.className = "search-sources";
         sourcesElement.innerHTML = `<details>

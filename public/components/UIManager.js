@@ -11,6 +11,7 @@ import UIEventHandler from "./UIEventHandler.js";
 import AudioManager from "./AudioManager.js";
 import UIStateManager from "./UIStateManager.js";
 import AIProfileManager from "./AIProfileManager.js";
+import MessageContextManager from "../modules/chat/MessageContextManager.js";
 import { getPromptRepo } from "../utils/apiClient.js";
 import fileUploader from "../utils/fileUploader.js";
 import swal from "sweetalert";
@@ -54,6 +55,7 @@ class UIManager {
         this.audioManager = new AudioManager(this);
         this.uiStateManager = new UIStateManager(this);
         this.aiProfileManager = new AIProfileManager(this);
+        this.messageContextManager = new MessageContextManager(this);
     }
 
     setupComponents() {
@@ -493,6 +495,9 @@ class UIManager {
         // Update current chat ID
         this.currentChatId = chatId;
 
+        // 获取当前聊天的配置文件
+        let currentProfile = this.storageManager.getCurrentProfile();
+
         // 如果不是新话题，根据现有的聊天历史更新当前的 Profile
         if (!isNewTopic) {
             const chatHistory = this.chatHistoryManager.getChatHistory();
@@ -500,15 +505,15 @@ class UIManager {
             if (currentChat) {
                 const profile = this.profiles.find(p => p.name === currentChat.profileName);
                 // 只有当找到了profile且与当前profile不同时，才切换
-                if (profile && profile.name !== this.storageManager.getCurrentProfile()?.name) {
+                if (profile && profile.name !== currentProfile?.name) {
                     await this.aiProfileManager.switchToProfile(profile, false);
+                    currentProfile = profile;
                 }
             }
         }
 
         // If it's a new topic, create new chat history
         if (isNewTopic) {
-            const currentProfile = this.storageManager.getCurrentProfile();
             const newChatHistory = {
                 id: chatId,
                 title: "untitled",
@@ -521,6 +526,12 @@ class UIManager {
             // 对于新话题，确保更新表单数据
             this.profileFormManager.bindProfileData(currentProfile);
         }
+
+        // 获取此聊天的所有消息
+        const messages = this.storageManager.getMessages(chatId);
+        
+        // 初始化上下文（设置系统提示和恢复活跃消息）
+        this.messageContextManager.initializeContext(currentProfile, messages);
 
         // Load messages for this chat
         await this.messageManager.loadMessages(chatId);

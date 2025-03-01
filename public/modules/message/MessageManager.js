@@ -5,6 +5,7 @@ import DocumentManager from "../components/DocumentManager.js";
 import MessageProcessorFactory from "./message/MessageProcessorFactory.js";
 import MessageUIHandler from "./message/MessageUIHandler.js";
 import FollowUpQuestionHandler from "./message/FollowUpQuestionHandler.js";
+import { ConversationSummaryHelper } from "../../utils/ConversationSummaryHelper.js";
 
 class MessageManager {
     constructor(uiManager) {
@@ -17,6 +18,7 @@ class MessageManager {
         this.searchResults = null;
         this.webSearchEnabled = false;
         this.isDeleting = false;
+        this.currentSummary = null;
         
         // 初始化关联的处理器
         this.uiHandler = new MessageUIHandler(this);
@@ -127,7 +129,7 @@ class MessageManager {
         );
 
         // 保存到存储并同步
-        this.uiManager.app.prompts.addPrompt(newMessage);
+        this.uiManager.messageContextManager.addMessageToContext(newMessage);
         this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
         this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
         this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
@@ -196,6 +198,28 @@ class MessageManager {
     // 将消息标记为非激活
     inactiveMessage(messageId) {
         this.uiHandler.inactiveMessage(messageId);
+        
+        // 从上下文中移除
+        this.uiManager.messageContextManager.removeMessageFromContext(messageId);
+
+        // 更新存储
+        this.uiManager.storageManager.saveMessageActiveStatus(
+            this.uiManager.currentChatId,
+            messageId,
+            false
+        );
+
+        // 同步到服务器
+        const updatedMessage = this.uiManager.storageManager.getMessage(
+            this.uiManager.currentChatId,
+            messageId
+        );
+        if (updatedMessage) {
+            this.uiManager.syncManager.syncMessageUpdate(
+                this.uiManager.currentChatId,
+                updatedMessage
+            );
+        }
     }
 
     // 编辑消息
@@ -236,8 +260,8 @@ class MessageManager {
                 messageElement.remove();
             }
             
-            // 从提示数组中移除
-            this.uiManager.app.prompts.removePrompt(messageId);
+            // 从上下文中移除
+            this.uiManager.messageContextManager.removeMessageFromContext(messageId);
             
             // 与云存储同步删除并从本地存储中删除
             await this.uiManager.syncManager.syncMessageDelete(this.uiManager.currentChatId, messageId);
@@ -305,10 +329,15 @@ class MessageManager {
         savedMessages.slice(startingIndex, savedMessages.length - currentMessagesCount)
             .reverse()
             .forEach(message => {
-            // 检查消息是否已存在
+                // 检查消息是否已存在
                 if (!currentMessageIds.includes(message.messageId)) {
                     let isActive = message.isActive || false;
                     this.addMessage(message.role, message.content, message.messageId, isActive, "top", false, message.attachmentUrls);
+                    
+                    // 保存搜索结果（如果有）
+                    if (message.searchResults && message.role === "assistant") {
+                        this.searchResults = message.searchResults;
+                    }
                 }
             });
 
@@ -326,27 +355,51 @@ class MessageManager {
 
         // Load the most recent messages up to the limit
         const startIndex = Math.max(0, savedMessages.length - this.uiManager.messageLimit);
-        savedMessages.slice(startIndex)
-            .forEach(message => {
-                let isActive = message.isActive || false;
-                this.addMessage(
-                    message.role,
-                    message.content,
-                    message.messageId,
-                    isActive,
-                    "bottom",
-                    false,
-                    message.attachmentUrls
-                );
-            });
+        savedMessages.slice(startIndex).forEach(message => {
+            const isActive = message.isActive || false;
+            
+            // 添加消息到UI
+            this.addMessage(
+                message.role,
+                message.content,
+                message.messageId,
+                isActive,
+                "bottom",
+                false,
+                message.attachmentUrls
+            );
+            
+            // 保存搜索结果（如果有）
+            if (message.searchResults && message.role === "assistant") {
+                this.searchResults = message.searchResults;
+            }
+        });
+
+        // 记录一些消息加载的统计信息
+        console.log(`Loaded ${savedMessages.length} messages for chat ${chatId}`);
+        console.log("Active messages in context:", 
+            this.uiManager.messageContextManager.getActiveMessagesCount());
 
         // Scroll to bottom
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
+    // 获取最新的摘要
+    async getLatestSummary(messages) {
+        const activeMessages = messages.filter(msg => msg.isActive);
+        if (activeMessages.length === 0) return null;
+
+        return await ConversationSummaryHelper.generateSummary(activeMessages, this.currentSummary);
+    }
+
     // 切换消息折叠状态
     toggleCollapseMessage(messageElement, forceCollapse) {
         this.uiHandler.toggleCollapseMessage(messageElement, forceCollapse);
+    }
+    
+    // 清除后续问题
+    clearFollowUpQuestions() {
+        this.followUpHandler.clearFollowUpQuestions();
     }
 }
 

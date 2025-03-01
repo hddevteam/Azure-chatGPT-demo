@@ -193,25 +193,29 @@ class StorageManager {
         // 处理搜索结果，确保它们是可序列化的
         let processedSearchResults = null;
         if (message.searchResults) {
-            processedSearchResults = message.searchResults.map(result => ({
-                title: result.title || "",
-                url: result.url || "",
-                snippet: result.snippet || "",
-                date: result.date ? new Date(result.date).toISOString() : null,
-                type: result.type || "webpage",
-                provider: result.provider || new URL(result.url).hostname
-            }));
+            try {
+                processedSearchResults = message.searchResults.map(result => ({
+                    title: result.title || "",
+                    url: result.url || "",
+                    snippet: result.snippet || "",
+                    date: result.date ? new Date(result.date).toISOString() : null,
+                    type: result.type || "webpage",
+                    provider: result.provider || (result.url ? new URL(result.url).hostname : "unknown")
+                }));
+            } catch (e) {
+                console.warn("Failed to process search results while saving:", e);
+                processedSearchResults = [];
+            }
         }
 
         const now = new Date().toISOString();
         const messageToSave = {
             ...message,
-            // 如果是新消息，使用当前时间作为创建时间；如果是更新，保留原有创建时间
             createdAt: existingMessage?.createdAt || message.createdAt || now,
-            // timestamp只保留已有的值，从不在本地设置新值
-            timestamp: existingMessage?.timestamp || message.timestamp,
+            timestamp: existingMessage?.timestamp || message.timestamp || null,
             lastUpdated: now,
-            searchResults: processedSearchResults
+            searchResults: processedSearchResults || message.searchResults || null,
+            isActive: message.isActive ?? existingMessage?.isActive ?? true
         };
 
         if (existingMessage) {
@@ -222,13 +226,6 @@ class StorageManager {
             messages.push(messageToSave);
         }
 
-        // 按创建时间排序
-        messages.sort((a, b) => {
-            const aTime = new Date(a.createdAt);
-            const bTime = new Date(b.createdAt);
-            return aTime - bTime;
-        });
-        
         this.saveMessages(chatId, messages);
         return messageToSave;
     }
@@ -238,20 +235,26 @@ class StorageManager {
         const key = `messages_${chatId}`;
         const messages = JSON.parse(localStorage.getItem(key) || "[]");
         
-        // 确保所有消息都有必要的属性
+        // 确保所有消息都有必要的属性并且搜索结果格式正确
         messages.forEach(message => {
             if (!message.createdAt) {
                 message.createdAt = message.timestamp || new Date().toISOString();
             }
 
-            // 恢复搜索结果的完整性
+            // 确保搜索结果的完整性和一致性
             if (message.searchResults) {
-                message.searchResults = message.searchResults.map(result => ({
-                    ...result,
-                    date: result.date ? new Date(result.date).toISOString() : null,
-                    type: result.type || "webpage",
-                    provider: result.provider || new URL(result.url).hostname
-                }));
+                try {
+                    message.searchResults = Array.isArray(message.searchResults) ? 
+                        message.searchResults.map(result => ({
+                            ...result,
+                            date: result.date ? new Date(result.date).toISOString() : null,
+                            type: result.type || "webpage",
+                            provider: result.provider ? result.provider : (result.url ? new URL(result.url).hostname : "unknown")
+                        })) : [];
+                } catch (e) {
+                    console.warn("Failed to process search results for message:", message.messageId, e);
+                    message.searchResults = [];
+                }
             }
         });
 
@@ -259,16 +262,12 @@ class StorageManager {
         messages.sort((a, b) => {
             const aTime = new Date(a.createdAt);
             const bTime = new Date(b.createdAt);
-            
             if (aTime.getTime() === bTime.getTime()) {
-                return new Date(a.timestamp) - new Date(b.timestamp);
+                return new Date(a.timestamp || a.createdAt) - new Date(b.timestamp || b.createdAt);
             }
-            
             return aTime - bTime;
         });
         
-        localStorage.setItem(key, JSON.stringify(messages));
-        console.log("getMessages: ", messages);
         return messages;
     }
 

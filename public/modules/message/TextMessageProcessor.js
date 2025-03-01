@@ -38,6 +38,7 @@ class TextMessageProcessor extends MessageProcessor {
     async sendTextMessage() {
         this.uiManager.showToast("AI is thinking...");
         const promptText = this.uiManager.app.prompts.getPromptText();
+        console.log("Prompt text:", promptText);
         const currentProfile = this.uiManager.storageManager.getCurrentProfile();
         
         // 提取配置参数并确保正确类型
