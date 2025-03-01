@@ -24,12 +24,14 @@ exports.getCloudChatHistories = async (req, res) => {
     const chatHistories = [];
     try {
         const tableClient = getTableClient("ChatHistories");
-
         let query = { queryOptions: { filter: `PartitionKey eq '${username}'` } };
 
         if (lastTimestamp) {
-            // 增加时间戳筛选条件
-            query.queryOptions.filter += ` and Timestamp gt datetime'${lastTimestamp}'`;
+            // 将Unix时间戳转换为ISO 8601格式
+            const date = new Date(parseInt(lastTimestamp));
+            const isoTimestamp = date.toISOString();
+            // 使用正确的datetime格式
+            query.queryOptions.filter += ` and Timestamp gt datetime'${isoTimestamp}'`;
         }
 
         // 使用筛选条件查询
@@ -194,4 +196,4 @@ exports.deleteCloudChatHistory = async (req, res) => {
         console.error(`Failed to delete chat history: ${error.message}`);
         res.status(500).send(error.message);
     }
-}; 
+};
