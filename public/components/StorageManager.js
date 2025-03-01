@@ -68,9 +68,21 @@ class StorageManager {
     }
     
     setCurrentProfile(profile) {
+        if (!profile) return;
+        
+        // 检查是否与当前 profile 相同，避免重复设置
+        const currentProfile = this.getCurrentProfile();
+        if (currentProfile && 
+            currentProfile.name === profile.name && 
+            currentProfile.prompt === profile.prompt) {
+            return;
+        }
+
         console.log("setCurrentProfile: ", profile);
         this.currentUserData.currentProfile = profile;
-        this.uiManager.setCurrentSystemPrompt(profile.prompt);
+        if (profile.prompt && this.uiManager.app.prompts) {
+            this.uiManager.app.prompts.setSystemPrompt(profile.prompt);
+        }
         this.saveCurrentUserData();
     }
     
@@ -264,7 +276,7 @@ class StorageManager {
         
         // 保存回 localStorage 以确保数据一致性
         localStorage.setItem(key, JSON.stringify(messages));
-        
+        console.log("getMessages: ", messages);
         return messages;
     }
 

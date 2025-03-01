@@ -316,6 +316,34 @@ class MessageManager {
         messagesContainer.scrollTop = messagesContainer.scrollHeight - currentScrollPosition;
     }
 
+    // Load messages for a specific chat
+    async loadMessages(chatId) {
+        const savedMessages = this.uiManager.storageManager.getMessages(chatId);
+        const messagesContainer = document.querySelector("#messages");
+        
+        // Clear existing messages
+        messagesContainer.innerHTML = "";
+
+        // Load the most recent messages up to the limit
+        const startIndex = Math.max(0, savedMessages.length - this.uiManager.messageLimit);
+        savedMessages.slice(startIndex)
+            .forEach(message => {
+                let isActive = message.isActive || false;
+                this.addMessage(
+                    message.role,
+                    message.content,
+                    message.messageId,
+                    isActive,
+                    "bottom",
+                    false,
+                    message.attachmentUrls
+                );
+            });
+
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
     // 切换消息折叠状态
     toggleCollapseMessage(messageElement, forceCollapse) {
         this.uiHandler.toggleCollapseMessage(messageElement, forceCollapse);

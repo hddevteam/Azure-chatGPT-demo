@@ -1,6 +1,7 @@
 // DOMManager.js
 import { marked } from "marked";
 import { formatTime } from "../utils/timeUtils.js";
+import swal from "sweetalert";
 
 
 class DOMManager {
@@ -194,23 +195,42 @@ class DOMManager {
 
         const createdAtElement = document.createElement("small");
         createdAtElement.textContent = formatTime(history.updatedAt);
-
         listItemElement.appendChild(createdAtElement);
 
         const actionGroup = document.createElement("div");
         actionGroup.classList.add("action-button-group");
 
+        // Create edit button first
+        const editButton = this.createChatHistoryActionButton("fa fa-edit", () => {
+            swal({
+                title: "Edit Chat Title",
+                content: {
+                    element: "input",
+                    attributes: {
+                        placeholder: "Enter new title",
+                        type: "text",
+                        value: history.title
+                    }
+                },
+                buttons: {
+                    cancel: true,
+                    confirm: true
+                }
+            }).then(newTitle => {
+                if (newTitle) {
+                    this.editChatHistoryHandler(history.id, newTitle);
+                }
+            });
+        });
+
+        // Create delete button
         const deleteButton = this.createChatHistoryActionButton("fa fa-trash", () => {
             this.deleteChatHistoryHandler(history.id);
         });
 
-        const editButton = this.createChatHistoryActionButton("fa fa-edit", () => {
-            this.editChatHistoryHandler(history.id);
-        });
-
-        actionGroup.appendChild(deleteButton);
+        // Add buttons in correct order
         actionGroup.appendChild(editButton);
-
+        actionGroup.appendChild(deleteButton);
         listItemElement.appendChild(actionGroup);
 
         return listItemElement;

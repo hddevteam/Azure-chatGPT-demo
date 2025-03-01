@@ -13,6 +13,7 @@ class DocumentMessageProcessor extends MessageProcessor {
         try {
             // 对于文档处理，我们不使用标准验证流程
             // 文档处理需要特殊处理，不需要立即显示用户消息
+            console.log("Processing document message:", message, attachments);
             
             // 处理文档和创建包含文档内容的消息
             const documentMessage = await this.documentManager.processDocuments(attachments, message);

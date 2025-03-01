@@ -157,7 +157,7 @@ function initializeApp(username) {  // 接收传入的 username 参数
 
     // Send message on form submit
     messageForm.addEventListener("submit", (event) => {
-    //uiManager.js中已经写过这个方法，直接调用
+        event.preventDefault(); // 防止表单默认提交行为
         uiManager.handleMessageFormSubmit(messageInput);
     });
 
@@ -202,7 +202,17 @@ function initializeApp(username) {  // 接收传入的 username 参数
 
     function handleAIActor(event) {
         event.stopPropagation();
-        uiManager.toggleAIActorList();
+        
+        // 切换 AI Actor 列表的显示状态
+        const aiActorWrapper = document.getElementById("ai-actor-wrapper");
+        const isVisible = aiActorWrapper.classList.contains("visible");
+        
+        if (isVisible) {
+            uiManager.hideAIActorList();
+        } else {
+            // 确保在显示列表前，列表内容已更新
+            uiManager.showAIActorList();
+        }
     }
 
     document.getElementById("new-chat-button").addEventListener("click", handleAIActor);

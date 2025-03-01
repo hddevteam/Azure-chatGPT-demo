@@ -327,6 +327,34 @@ class MessageManager {
     clearFollowUpQuestions() {
         this.followUpHandler.clearFollowUpQuestions();
     }
+
+    // Load messages for a specific chat
+    async loadMessages(chatId) {
+        const messagesContainer = document.querySelector("#messages");
+        const savedMessages = this.uiManager.storageManager.getMessages(chatId);
+        
+        // Clear existing messages
+        messagesContainer.innerHTML = "";
+
+        // Load the most recent messages up to the limit
+        const startIndex = Math.max(0, savedMessages.length - this.uiManager.messageLimit);
+        savedMessages.slice(startIndex)
+            .forEach(message => {
+                let isActive = message.isActive || false;
+                this.addMessage(
+                    message.role,
+                    message.content,
+                    message.messageId,
+                    isActive,
+                    "bottom",
+                    false,
+                    message.attachmentUrls
+                );
+            });
+
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
 }
 
 export default MessageManager;

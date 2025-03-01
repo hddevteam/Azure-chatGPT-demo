@@ -45,7 +45,9 @@ class MessageProcessor {
         this.uiManager.app.prompts.addPrompt(newMessage);
         this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
         this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
-        this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
+        
+        // 强制生成标题
+        await this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId, true);
 
         return { message: newMessage, messageId };
     }
@@ -88,8 +90,8 @@ class MessageProcessor {
         this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
         this.uiManager.app.prompts.addPrompt(newMessage);
         
-        // 更新聊天历史并可能生成标题
-        this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
+        // 强制生成标题
+        await this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId, true);
         
         return data;
     }
