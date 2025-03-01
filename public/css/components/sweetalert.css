@@ -3,13 +3,50 @@
     border-radius: 8px;
     padding: 20px;
     width: 90%;
-    max-width: 600px; /* Increase max-width */
-    box-sizing: border-box; /* 确保padding包含在宽度内 */
-    max-height: 90vh; /* 限制最大高度 */
-    overflow-y: auto; /* 允许内容滚动 */
+    max-width: 600px;
+    box-sizing: border-box;
+    max-height: 90vh;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    margin: 20px auto;
+    position: relative;
+    margin: 0;
+    background-color: #fff;
+    z-index: 1001;
+    opacity: 0;
+    transform: scale(1);
+    transition: opacity 0.3s ease;
+}
+
+.swal-overlay {
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    will-change: background-color;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.swal-overlay.swal-overlay--show-modal {
+    opacity: 1;
+}
+
+.swal-overlay--show-modal .swal-modal {
+    opacity: 1;
+}
+
+body.swal-shown {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
 }
 
 /* Content wrapper - 确保内容区域与模态框同宽 */
