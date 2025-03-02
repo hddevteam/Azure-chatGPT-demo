@@ -108,9 +108,28 @@ class SyncManager {
         this.enqueueSyncItem({ type: "chatHistory", action: "upsert", data: chatHistory });
     }
 
-    syncChatHistoryDelete(chatHistoryId) {
-        // 将删除操作添加到同步队列
-        this.enqueueSyncItem({ type: "chatHistory", action: "delete", data: { id: chatHistoryId } });
+    async syncChatHistoryDelete(chatHistoryId) {
+        try {
+            // First, check if this chat history exists in the cloud by checking for a timestamp
+            const localChatHistory = this.uiManager.storageManager.readChatHistory(chatHistoryId);
+            
+            // If the chat is new (no timestamp) or doesn't exist, just delete locally without trying to delete from cloud
+            if (!localChatHistory || !localChatHistory.timestamp) {
+                console.log(`Chat history ${chatHistoryId} is new or not found, deleting only locally`);
+                this.uiManager.storageManager.deleteChatHistory(chatHistoryId);
+                // Still notify UI components about the deletion
+                this.uiManager.handleChatHistoryChange("delete", { id: chatHistoryId });
+                return;
+            }
+            
+            // Otherwise, if the chat has a timestamp (has been synced to cloud), delete it from cloud
+            console.log(`Chat history ${chatHistoryId} has timestamp, deleting from cloud`);
+            this.enqueueSyncItem({ type: "chatHistory", action: "delete", data: { id: chatHistoryId } });
+        } catch (error) {
+            console.error(`Error checking chat history before delete: ${error}`);
+            // In case of error, still attempt to delete locally
+            this.uiManager.storageManager.deleteChatHistory(chatHistoryId);
+        }
     }
 
 
@@ -221,7 +240,6 @@ class SyncManager {
                 return;
             }
         } 
-
         this.syncQueue.push(syncItem);
         // console.log("enqueueSyncItem syncQueue: ", this.syncQueue.length);
         this.processNextSyncItem();
