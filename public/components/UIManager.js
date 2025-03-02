@@ -525,6 +525,16 @@ class UIManager {
             
             // 对于新话题，确保更新表单数据
             this.profileFormManager.bindProfileData(currentProfile);
+        } else {
+            // 如果不是新话题，先从Azure Storage同步消息
+            try {
+                await this.syncManager.updateToken(); // 确保token有效
+                await this.syncManager.syncMessages(chatId);
+                console.log(`Synced messages from Azure Storage for chat ${chatId}`);
+            } catch (error) {
+                console.error(`Error syncing messages from Azure Storage: ${error.message}`);
+                // 继续加载本地消息，即使同步失败
+            }
         }
 
         // 获取此聊天的所有消息
@@ -587,6 +597,15 @@ class UIManager {
         } catch (error) {
             console.error("Error converting base64 to blob:", error);
             throw new Error("Failed to convert file data");
+        }
+    }
+
+    // Message UI Management
+    async refreshMessagesUI(chatId) {
+        // Only refresh if this is the current chat
+        if (chatId === this.currentChatId) {
+            await this.messageManager.loadMessages(chatId);
+            console.log(`Refreshed messages UI for chat ${chatId}`);
         }
     }
 }

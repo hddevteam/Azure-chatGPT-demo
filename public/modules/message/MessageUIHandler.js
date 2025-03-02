@@ -393,11 +393,13 @@ class MessageUIHandler {
 
     // 删除消息
     deleteMessage(messageId, isMute = false) {
+        // 静默模式直接删除
         if (isMute) {
             this.messageManager.deleteMessageInStorage(messageId);
             return;
         }
 
+        // 获取消息元素
         const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
         if (!messageElement) {
             console.error(`Message element with ID ${messageId} not found in DOM`);
@@ -407,7 +409,13 @@ class MessageUIHandler {
         // 获取消息预览文本
         const message = messageElement.dataset.message;
         const previewText = this.getMessagePreview(message, 500);
+        
+        // 显示确认对话框
+        this._showDeleteConfirmDialog(messageId, previewText);
+    }
 
+    // 显示删除确认对话框
+    _showDeleteConfirmDialog(messageId, previewText) {
         swal({
             title: "是否确定要删除此消息？",
             text: previewText,
@@ -421,28 +429,51 @@ class MessageUIHandler {
                 }
             },
             dangerMode: true
-        }).then(async (value) => {
+        }).then(value => {
             if (value === "delete") {
-                // 显示删除中的加载状态
-                swal({
-                    text: "正在删除消息...",
-                    icon: "info",
-                    buttons: false,
-                    closeOnClickOutside: false,
-                    closeOnEsc: false
-                });
-
-                try {
-                    const result = await this.messageManager.deleteMessageInStorage(messageId);
-                    if (result) {
-                        swal("消息已删除", { icon: "success", buttons: false, timer: 1000 });
-                    }
-                } catch (error) {
-                    console.error("Error during message deletion:", error);
-                    swal("删除失败", "消息已在本地删除，但可能未能同步到云端", "warning");
-                }
+                this._startMessageDeletion(messageId);
             }
         });
+    }
+
+    // 开始删除消息流程
+    _startMessageDeletion(messageId) {
+        // 显示删除中的加载状态
+        const loadingDialog = swal({
+            text: "正在删除消息...",
+            icon: "info",
+            buttons: false,
+            closeOnClickOutside: false,
+            closeOnEsc: false
+        });
+
+        // 执行删除操作
+        this.messageManager.deleteMessageInStorage(messageId)
+            .then(result => {
+                // 确保先关闭加载框
+                swal.close();
+                
+                // 然后显示成功消息
+                if (result) {
+                    setTimeout(() => {
+                        swal("消息已删除", { 
+                            icon: "success", 
+                            buttons: false, 
+                            timer: 1000 
+                        });
+                    }, 100);
+                }
+            })
+            .catch(error => {
+                // 确保先关闭加载框
+                swal.close();
+                
+                // 然后显示错误消息
+                console.error("Error during message deletion:", error);
+                setTimeout(() => {
+                    swal("删除失败", "消息已在本地删除，但可能未能同步到云端", "warning");
+                }, 100);
+            });
     }
 
     // 取消激活消息

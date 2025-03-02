@@ -117,51 +117,100 @@ class SyncManager {
     // /public/components/SyncManager.js
 
     async syncMessages(chatId) {
-        // console.log("syncMessages: ", chatId);
-        const localMessages = this.uiManager.storageManager.getMessages(chatId);
-        const lastTimestamp = localMessages.reduce((maxStr, message) => {
-            const currentTimestamp = new Date(message.timestamp);
-            const maxTimestamp = new Date(maxStr);
+        console.log(`Starting message sync for chat: ${chatId}`);
+        
+        try {
+            // Get local messages
+            const localMessages = this.uiManager.storageManager.getMessages(chatId);
             
-            return currentTimestamp > maxTimestamp ? message.timestamp : maxStr;
-        }, "1970-01-01T00:00:00.000Z"); // ISO string representation for new Date(0)
-        // console.log("lastTimestamp: ", lastTimestamp);
-
-        const cloudMessages = await fetchCloudMessages(chatId, lastTimestamp, this.cachedToken).catch(e => console.error(e));
-        // console.log("syncMessages: ", {localMessages}, {cloudMessages});
-
-        cloudMessages.forEach(cloudMessage => {
-            const localMessage = localMessages.find(lm => lm.messageId === cloudMessage.messageId);
-            if (cloudMessage.isDeleted) {
-                // 如果云端消息标记为删除，删除本地消息
-                if (localMessage) {
-                    this.uiManager.storageManager.deleteMessage(chatId, cloudMessage.messageId);
+            // Calculate last timestamp for incremental sync
+            const lastTimestamp = localMessages.reduce((maxStr, message) => {
+                if (!message.timestamp) return maxStr;
+                
+                const currentTimestamp = new Date(message.timestamp);
+                const maxTimestamp = new Date(maxStr);
+                
+                return currentTimestamp > maxTimestamp ? message.timestamp : maxStr;
+            }, "1970-01-01T00:00:00.000Z"); // ISO string representation for new Date(0)
+            
+            console.log(`Fetching cloud messages since: ${lastTimestamp}`);
+            
+            // Ensure we have a valid token
+            if (!this.cachedToken) {
+                await this.updateToken();
+            }
+            
+            // Fetch cloud messages
+            const cloudMessages = await fetchCloudMessages(chatId, lastTimestamp, this.cachedToken);
+            console.log(`Received ${cloudMessages.length} messages from cloud for ${chatId}`);
+            
+            // Process cloud messages - handle deletions and updates
+            if (cloudMessages && cloudMessages.length > 0) {
+                cloudMessages.forEach(cloudMessage => {
+                    const localMessage = localMessages.find(lm => lm.messageId === cloudMessage.messageId);
+                    
+                    if (cloudMessage.isDeleted) {
+                        // Handle deleted messages
+                        if (localMessage) {
+                            console.log(`Removing locally deleted message: ${cloudMessage.messageId}`);
+                            this.uiManager.storageManager.deleteMessage(chatId, cloudMessage.messageId);
+                        }
+                    } else if (localMessage) {
+                        // Handle existing messages - compare timestamps
+                        const localMessageTimestamp = localMessage.timestamp ? new Date(localMessage.timestamp) : new Date(0);
+                        const cloudMessageTimestamp = new Date(cloudMessage.timestamp);
+                        
+                        if (!localMessage.timestamp || localMessageTimestamp < cloudMessageTimestamp) {
+                            // Cloud message is newer - update local
+                            console.log(`Updating local message: ${cloudMessage.messageId}`);
+                            this.uiManager.storageManager.saveMessage(chatId, cloudMessage);
+                        } else if (localMessageTimestamp > cloudMessageTimestamp) {
+                            // Local message is newer - update cloud
+                            console.log(`Local message is newer, queueing for upload: ${localMessage.messageId}`);
+                            this.enqueueSyncItem({ 
+                                type: "message", 
+                                action: "update", 
+                                data: { chatId, message: localMessage } 
+                            });
+                        }
+                    } else {
+                        // New message from cloud - add to local storage
+                        console.log(`Adding new message from cloud: ${cloudMessage.messageId}`);
+                        this.uiManager.storageManager.saveMessage(chatId, cloudMessage);
+                    }
+                });
+            }
+            
+            // Upload any local messages that don't have timestamps (never synced)
+            localMessages.forEach(localMessage => {
+                if (!localMessage.timestamp) {
+                    console.log(`Queueing unsynced message for upload: ${localMessage.messageId}`);
+                    this.enqueueSyncItem({ 
+                        type: "message", 
+                        action: "create", 
+                        data: { 
+                            chatId, 
+                            message: {
+                                ...localMessage,
+                                timestamp: new Date().toISOString()
+                            }
+                        } 
+                    });
                 }
-            } else if (localMessage) {
-            // 比较时间戳，以确定是否需要更新本地消息
-                const localMessageTimestamp = new Date(localMessage.timestamp);
-                const cloudMessageTimestamp = new Date(cloudMessage.timestamp);
-
-                if (!localMessage.timestamp || localMessageTimestamp < cloudMessageTimestamp) {
-                // 如果本地消息较旧或不存在时间戳，使用云端消息更新本地存储
-                    this.uiManager.storageManager.saveMessage(chatId, cloudMessage);
-                } else if (localMessageTimestamp > cloudMessageTimestamp) {
-                // 如果本地消息较新，上传更新到云端
-                    this.enqueueSyncItem({ type: "message", action: "update", data: { chatId, message: localMessage } });
-                }
+            });
+            
+            // Refresh UI with updated message data
+            if (this.uiManager && typeof this.uiManager.refreshMessagesUI === "function") {
+                await this.uiManager.refreshMessagesUI(chatId);
             } else {
-                this.uiManager.storageManager.saveMessage(chatId, cloudMessage);
+                console.warn("refreshMessagesUI function not available in UIManager");
             }
-        });
-
-        // 遍历本地消息，如果在云端不存在，则上传
-        localMessages.forEach(localMessage => {
-            if (!localMessage.timestamp) {
-                this.enqueueSyncItem({ type: "message", action: "create", data: { chatId, message: localMessage } });
-            }
-        });
-
-        this.uiManager.refreshMessagesUI(chatId);
+            
+            console.log(`Message synchronization completed for chat ${chatId}`);
+        } catch (error) {
+            console.error(`Error syncing messages for chat ${chatId}:`, error);
+            throw error; // Re-throw to allow caller to handle
+        }
     }
   
     enqueueSyncItem(syncItem, retry = false) {
