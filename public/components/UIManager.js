@@ -135,17 +135,24 @@ class UIManager {
         await this.syncManager.syncChatHistories();
         const chatHistory = await this.chatHistoryManager.getChatHistory();
         
+        // Get the cached profile and ensure it's valid
         let savedCurrentProfile = this.storageManager.getCurrentProfile();
-        const profileNames = new Set(this.profiles.map(profile => profile.name));
+        let validProfile = this.ensureValidProfile(savedCurrentProfile);
         
-        if (!savedCurrentProfile || !profileNames.has(savedCurrentProfile.name)) {
-            savedCurrentProfile = this.profiles[0];
-            this.storageManager.setCurrentProfile(savedCurrentProfile);
+        // If we have no valid profile but some profiles exist, use the first one
+        if (!validProfile && this.profiles.length > 0) {
+            validProfile = this.profiles[0];
         }
         
-        // 初始化 AIProfileManager
-        this.aiProfileManager.initialize(savedCurrentProfile, this.profiles);
+        // Update the storage with the valid profile
+        if (validProfile) {
+            this.storageManager.setCurrentProfile(validProfile);
+        }
         
+        // 初始化 AIProfileManager with the validated profile
+        this.aiProfileManager.initialize(validProfile, this.profiles);
+        
+        // Get the current valid profile
         const currentProfile = this.storageManager.getCurrentProfile();
         const latestChat = chatHistory.find(history => history.profileName === currentProfile.name);
         const chatId = latestChat ? 
@@ -160,8 +167,12 @@ class UIManager {
         const username = this.storageManager.getCurrentUsername();
         let chatHistory = this.chatHistoryManager.getChatHistory();
         
-        if (!this.showAllChatHistories) {
-            const currentProfile = this.storageManager.getCurrentProfile();
+        // Ensure we have a valid current profile before filtering
+        let currentProfile = this.storageManager.getCurrentProfile();
+        currentProfile = this.ensureValidProfile(currentProfile);
+        
+        // Only filter if showAllChatHistories is false and we have a valid profile
+        if (!this.showAllChatHistories && currentProfile) {
             chatHistory = chatHistory.filter(history => 
                 history.profileName === currentProfile.name);
         }
@@ -504,10 +515,18 @@ class UIManager {
             const currentChat = chatHistory.find(history => history.id === chatId);
             if (currentChat) {
                 const profile = this.profiles.find(p => p.name === currentChat.profileName);
-                // 只有当找到了profile且与当前profile不同时，才切换
-                if (profile && profile.name !== currentProfile?.name) {
-                    await this.aiProfileManager.switchToProfile(profile, false);
-                    currentProfile = profile;
+                
+                if (profile) {
+                    // 找到了对应的profile，正常切换
+                    if (profile.name !== currentProfile?.name) {
+                        await this.aiProfileManager.switchToProfile(profile, false);
+                        currentProfile = profile;
+                    }
+                } else if (this.profiles.length > 0) {
+                    // 如果没有找到对应的profile，但有其他profiles可用，切换到第一个profile
+                    console.log(`Profile ${currentChat.profileName} not found, switching to first available profile: ${this.profiles[0].name}`);
+                    await this.aiProfileManager.switchToProfile(this.profiles[0], false);
+                    currentProfile = this.profiles[0];
                 }
             }
         }
@@ -574,7 +593,7 @@ class UIManager {
             
             // Get mime type from header or default to application/octet-stream
             let mimeType = "application/octet-stream";
-            if (header.includes("data:") && content) {
+            if (header && header.includes("data:") && content) {
                 mimeType = header.split(":")[1].split(";")[0];
             }
 
@@ -606,6 +625,31 @@ class UIManager {
         if (chatId === this.currentChatId) {
             await this.messageManager.loadMessages(chatId);
             console.log(`Refreshed messages UI for chat ${chatId}`);
+        }
+    }
+
+    /**
+     * Ensures that a valid profile is selected
+     * If the provided profile doesn't exist, it falls back to the first available profile
+     * @param {Object} profile - The profile to validate
+     * @returns {Object} A valid profile object
+     */
+    ensureValidProfile(profile) {
+        // If no profile is provided or profiles list is empty, return null
+        if (!profile || this.profiles.length === 0) {
+            console.log("No profile provided or no profiles available");
+            return null;
+        }
+        
+        // Check if the profile exists in the current profiles list
+        const profileExists = this.profiles.some(p => p.name === profile.name);
+        
+        // If profile exists, return it; otherwise return the first available profile
+        if (profileExists) {
+            return profile;
+        } else {
+            console.log(`Profile ${profile.name} not found, switching to first available profile: ${this.profiles[0].name}`);
+            return this.profiles[0];
         }
     }
 }

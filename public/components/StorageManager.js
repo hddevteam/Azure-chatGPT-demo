@@ -91,7 +91,11 @@ class StorageManager {
     }
     
     getCurrentProfile() {
-        return this.currentUserData.currentProfile;
+        const cachedProfile = this.currentUserData.currentProfile;
+        
+        // We don't do the full validation here since this method can be called before profiles are loaded
+        // Instead, we just return the cached profile, and validation will be done by UIManager's ensureValidProfile method
+        return cachedProfile;
     }
     
     saveCurrentUserData() {

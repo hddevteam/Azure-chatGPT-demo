@@ -55,7 +55,16 @@ class AIProfileManager {
 
     // 根据点击切换到新的 Profile
     async switchToProfile(profile, isNewTopic = false) {
-        if (!profile) return;
+        if (!profile) {
+            // 如果没有提供 profile 或 profile 不存在，切换到第一个可用的 profile
+            if (this.profiles && this.profiles.length > 0) {
+                profile = this.profiles[0];
+                console.log("No valid profile provided, switching to the first available profile:", profile.name);
+            } else {
+                console.error("No profiles available to switch to");
+                return;
+            }
+        }
 
         // 检查是否切换到相同的 profile
         if (this.currentProfile && this.currentProfile.name === profile.name && !isNewTopic) {
