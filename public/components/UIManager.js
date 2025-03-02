@@ -225,10 +225,24 @@ class UIManager {
                 const chatToDelete = chatHistory.find(history => history.id === chatId);
                 
                 if (chatToDelete) {
-                    this.chatHistoryManager.deleteChatHistory(chatId);  // Pass chatId instead of chatToDelete
+                    this.chatHistoryManager.deleteChatHistory(chatId);
+                    
+                    // If we're deleting the current chat, enter the most recent remaining chat
                     if (chatId === this.currentChatId) {
-                        this.showWelcomeMessage();
+                        const remainingHistory = this.chatHistoryManager.getChatHistory();
+                        if (remainingHistory.length > 0) {
+                            // Since getChatHistory returns chats sorted by updatedAt, first one is most recent
+                            const mostRecentChat = remainingHistory[0];
+                            const profile = this.aiProfileManager.getProfileByName(mostRecentChat.profileName);
+                            if (profile) {
+                                await this.aiProfileManager.switchToProfile(profile, false);
+                                await this.changeChatTopic(mostRecentChat.id, false);
+                            }
+                        } else {
+                            this.showWelcomeMessage();
+                        }
                     }
+                    
                     swal("Chat history has been deleted!", {
                         icon: "success",
                         button: false,

@@ -132,7 +132,7 @@ function initializeApp(username) {  // 接收传入的 username 参数
             console.error("Error:", error);
         });
 
-    // 功能：检查并进入第一个历史话题
+    // 功能：检查并进入最近的历史话题
     function checkAndEnterFirstTopic(uiManager) {
         // 获取当前聊天ID和聊天历史
         const currentChatId = uiManager.currentChatId;
@@ -140,20 +140,20 @@ function initializeApp(username) {  // 接收传入的 username 参数
         
         // 如果没有当前话题，或者缓存的话题在历史记录中不存在
         if (!currentChatId || (chatHistory.length > 0 && !chatHistory.find(history => history.id === currentChatId))) {
-            console.log("No valid current topic, entering first historical topic");
+            console.log("No valid current topic, entering most recent historical topic");
             
             if (chatHistory && chatHistory.length > 0) {
-                // 找到第一个历史话题
-                const firstTopic = chatHistory[0];
-                console.log("Entering first history topic:", firstTopic.id);
+                // 由于 getChatHistory 已经按 updatedAt 降序排序，第一个就是最近的话题
+                const mostRecentTopic = chatHistory[0];
+                console.log("Entering most recent topic:", mostRecentTopic.id);
                 
                 // 获取该话题对应的配置文件
-                const profile = uiManager.aiProfileManager.getProfileByName(firstTopic.profileName);
+                const profile = uiManager.aiProfileManager.getProfileByName(mostRecentTopic.profileName);
                 
                 if (profile) {
                     // 切换到对应的配置文件并加载话题
                     uiManager.aiProfileManager.switchToProfile(profile, false);
-                    uiManager.changeChatTopic(firstTopic.id, false);
+                    uiManager.changeChatTopic(mostRecentTopic.id, false);
                 }
             }
         }
