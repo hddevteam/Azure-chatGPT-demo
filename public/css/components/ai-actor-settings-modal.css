@@ -1,0 +1,111 @@
+/* AI Actor Settings Modal */
+.modal-wrapper {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* 覆盖通用的 .visible 类样式，确保正确的显示方式 */
+.modal-wrapper.visible {
+    display: flex !important; /* 使用 !important 来覆盖通用样式 */
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+}
+
+.modal-inner {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-wrapper.visible .modal-inner {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Header styles */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header span {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.modal-header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Form controls */
+.setting-item {
+    margin-bottom: 20px;
+}
+
+.setting-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.textarea-container {
+    position: relative;
+}
+
+#prompt {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Bottom buttons */
+.bottom-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* Mobile styles */
+@media screen and (max-width: 768px) {
+    .modal-inner {
+        width: 95%;
+        margin: 10px;
+        max-height: calc(100vh - 20px);
+    }
+
+    .modal-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .modal-header-buttons {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

@@ -5,6 +5,7 @@ class UIEventHandler {
         // 绑定事件处理函数到实例，以便可以作为回调函数使用
         this.boundHideAIActorOnOutsideClick = this.hideAIActorOnOutsideClick.bind(this);
         this.handleClickOutsideCreateAIActorModal = this.clickOutsideCreateAIActorModal.bind(this);
+        this.handleResize = this.handleResize.bind(this);
     }
 
     setupEventListeners() {
@@ -14,6 +15,30 @@ class UIEventHandler {
         this.setupUploadFunctionality();
         this.setupNewAIActorButton();
         this.setupModalCloseHandlers();
+        this.setupResizeHandler();
+    }
+
+    // 设置窗口 resize 事件处理程序
+    setupResizeHandler() {
+        let resizeTimeout;
+        window.addEventListener("resize", () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(this.handleResize, 250);
+        });
+    }
+
+    // 处理窗口 resize 事件
+    handleResize() {
+        // 检查模态框是否可见，如果不可见，不做任何操作
+        const aiActorSettingsModal = document.getElementById("ai-actor-settings-wrapper");
+        if (!aiActorSettingsModal) return;
+        
+        // 添加移动设备适配类
+        if (window.innerWidth <= 768) {
+            aiActorSettingsModal.classList.add("mobile-view");
+        } else {
+            aiActorSettingsModal.classList.remove("mobile-view");
+        }
     }
 
     // 设置模态框关闭处理程序

@@ -1,9 +1,11 @@
 // UIStateManager.js
+import AIActorSettingsModal from "./AIActorSettingsModal.js";
 
 class UIStateManager {
     constructor(uiManager) {
         this.uiManager = uiManager;
         this.searchQuery = "";
+        this.actorSettingsModal = new AIActorSettingsModal(uiManager);
         this.setupSearch();
     }
 
@@ -39,20 +41,16 @@ class UIStateManager {
     }
 
     updateButtonActiveState(elementId, isVisible) {
-        let button;
-        switch(elementId) {
-        case "chat-history-container":
-            button = document.getElementById("toggle-chat-topic");
-            break;
-        case "ai-actor-settings-wrapper":
-            button = document.getElementById("ai-profile");
-            break;
-        }
-        if(button) {
-            if(isVisible) {
-                button.classList.add("active");
-            } else {
-                button.classList.remove("active");
+        // Only manage chat-history-container button state
+        // Removed all ai-actor-settings-wrapper button state management
+        if (elementId === "chat-history-container") {
+            const button = document.getElementById("toggle-chat-topic");
+            if (button) {
+                if (isVisible) {
+                    button.classList.add("active");
+                } else {
+                    button.classList.remove("active");
+                }
             }
         }
     }
@@ -116,26 +114,11 @@ class UIStateManager {
         this.hideAIActorList();
         this.uiManager.profileFormManager.resetForm();
         this.uiManager.profileFormManager.oldName = "";
-        const modalOverlay = document.querySelector(".modal-overlay");
-        const aiActorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
-        this.visibleElement(aiActorSettingsWrapper);
-        this.visibleElement(modalOverlay);
-        if (!aiActorSettingsWrapper.classList.contains("modal-mode")) {
-            aiActorSettingsWrapper.classList.add("modal-mode");
-        }
-    
-        setTimeout(() => {
-            document.addEventListener("click", this.uiManager.eventHandler.handleClickOutsideCreateAIActorModal);
-        }, 0);
+        this.actorSettingsModal.show();
     }
 
     hideNewAIActorModal() {
-        const modalOverlay = document.querySelector(".modal-overlay");
-        const aiActorSettingsInnerFormWrapper = document.getElementById("ai-actor-settings-wrapper");
-        this.hiddenElement(modalOverlay);
-        if (aiActorSettingsInnerFormWrapper.classList.contains("modal-mode")) {
-            aiActorSettingsInnerFormWrapper.classList.remove("modal-mode");
-        }
+        this.actorSettingsModal.hide();
     }
 
     showWelcomeMessage() {
@@ -207,6 +190,18 @@ class UIStateManager {
             li.appendChild(span);
             aiActorList.appendChild(li);
         });
+    }
+
+    // Method to temporarily activate a button (for visual feedback)
+    temporaryButtonActivation(buttonId, duration = 300) {
+        const button = document.getElementById(buttonId);
+        if (!button) return;
+        
+        button.classList.add("active");
+        
+        setTimeout(() => {
+            button.classList.remove("active");
+        }, duration);
     }
 }
 

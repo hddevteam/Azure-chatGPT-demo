@@ -29,13 +29,10 @@ class AIProfileManager {
         this.currentProfile = currentProfile;
         this.updateUIState();
         
-        // 在初始化时绑定当前 profile 到表单
-        if (currentProfile) {
-            this.uiManager.profileFormManager.bindProfileData(currentProfile);
-        }
+        // 不再自动绑定到表单
     }
 
-    // 更新 UI 状态
+    // 更新 UI 状态 - 移除表单绑定逻辑
     updateUIState() {
         if (!this.currentProfile) return;
         
@@ -54,17 +51,6 @@ class AIProfileManager {
                 item.classList.toggle("active", isActive);
             });
         }
-
-        // 更新配置表单
-        this.updateProfileForm();
-    }
-
-    // 更新配置表单显示
-    updateProfileForm() {
-        if (!this.currentProfile) return;
-
-        // 确保我们绑定当前 profile 的数据到表单
-        this.uiManager.profileFormManager.bindProfileData(this.currentProfile);
     }
 
     // 根据点击切换到新的 Profile

@@ -230,17 +230,26 @@ function initializeApp(username) {  // 接收传入的 username 参数
 
     });
 
-    const aiProfile = document.getElementById("ai-profile");
-    aiProfile.addEventListener("click", function (event) {
+    // Add new click handler for ai-profile button
+    const aiProfileButton = document.getElementById("ai-profile");
+    aiProfileButton.addEventListener("click", function(event) {
         event.stopPropagation();
-        const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
-        const isAiActorSettingsVisible = aiActorSettings.classList.contains("visible");
-        // 更新 aiActorSettingsVisible 状态
-        uiManager.storageManager.getCurrentUserData().uiState.aiActorSettingsVisible = !isAiActorSettingsVisible;
-        uiManager.storageManager.saveCurrentUserData();
-
-        uiManager.toggleVisibility(aiActorSettings);
-
+        // Simply show the ai-actor-settings-modal
+        const aiActorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
+        
+        // Get the current profile to bind to form
+        const currentProfile = uiManager.storageManager.getCurrentProfile();
+        if (currentProfile) {
+            // Bind current profile data to form before showing it
+            uiManager.profileFormManager.bindProfileData(currentProfile);
+            
+            // Show the modal
+            if (aiActorSettingsWrapper.classList.contains("visible")) {
+                uiManager.uiStateManager.hiddenElement(aiActorSettingsWrapper);
+            } else {
+                uiManager.uiStateManager.visibleElement(aiActorSettingsWrapper);
+            }
+        }
     });
 
     const refreshTopic = document.getElementById("refresh-topic");
@@ -282,7 +291,6 @@ function initializeApp(username) {  // 接收传入的 username 参数
 
     // Function to toggle the CSS class for the split layout
     function toggleLayout() {
-        const actorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
         const chatHistoryContainer = document.getElementById("chat-history-container");
         const inputContainter = document.querySelector("#input-container");
         const appContainer = document.querySelector("#app-container");
@@ -304,10 +312,7 @@ function initializeApp(username) {  // 接收传入的 username 参数
         if (mainContainer.classList.contains("split-view")) {
             mainContainer.style.height = "";
             messageInput.style.maxHeight = "";
-            uiManager.hiddenElement(actorSettingsWrapper);
-            uiManager.hiddenElement(chatHistoryContainer);
         } else {
-            uiManager.visibleElement(actorSettingsWrapper);
             uiManager.visibleElement(chatHistoryContainer);
         }
     }
@@ -318,7 +323,6 @@ function initializeApp(username) {  // 接收传入的 username 参数
     // Call this function to set initial display status based on the device type
     // 在页面加载时设置初始可见性状态
     function setInitialVisibility() {
-        const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
         const chatHistoryContainer = document.getElementById("chat-history-container");
         const inputContainter = document.querySelector("#input-container");
         const messageInputContainer = document.querySelector("#message-input-container");
@@ -332,7 +336,7 @@ function initializeApp(username) {  // 接收传入的 username 参数
             currentUserData.uiState = {
                 splitView: false,
                 chatHistoryVisible: true,
-                aiActorSettingsVisible: true
+                aiActorSettingsVisible: false  // 初始隐藏 AI Actor 设置对话框
             };
             uiManager.storageManager.saveCurrentUserData();
         }
@@ -354,13 +358,12 @@ function initializeApp(username) {  // 接收传入的 username 参数
         }
 
         // 根据保存的状态设置可见性
-        uiManager.setElementVisibility(aiActorSettings, uiState.aiActorSettingsVisible);
+        // 这里修改：不要以 uiState 中保存的状态来控制 ai-actor-settings-wrapper 的可见性
+        // 该元素现在由 AIActorSettingsModal 组件控制
         uiManager.setElementVisibility(chatHistoryContainer, uiState.chatHistoryVisible);
 
-
         if (window.innerWidth <= 768) {
-        // 如果是移动设备，则默认隐藏菜单和聊天历史记录
-            uiManager.hiddenElement(aiActorSettings);
+            // 如果是移动设备，则隐藏聊天历史记录
             uiManager.hiddenElement(chatHistoryContainer);
         } 
     }
@@ -370,7 +373,6 @@ function initializeApp(username) {  // 接收传入的 username 参数
         const isSplitView = mainContainer.classList.contains("split-view");
         if (window.innerWidth < 768 && isSplitView) {
             // If screen width is less than 768px and currently in split-view, switch to mobile layout
-            const actorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
             const chatHistoryContainer = document.getElementById("chat-history-container");
             const inputContainter = document.querySelector("#input-container");
             const appContainer = document.querySelector("#app-container");
@@ -390,8 +392,7 @@ function initializeApp(username) {  // 接收传入的 username 参数
             messageContainer.classList.remove("split-view");
             messageInputContainer.classList.remove("split-view");
             
-            // 隐藏演员设置和聊天历史
-            uiManager.hiddenElement(actorSettingsWrapper);
+            // 隐藏聊天历史
             uiManager.hiddenElement(chatHistoryContainer);
         }
     }
@@ -407,11 +408,10 @@ function initializeApp(username) {  // 接收传入的 username 参数
 
     console.log("initVisibilityAfterDataLoaded");
     const chatHistoryContainer = document.getElementById("chat-history-container");
-    const aiActorSettings = document.getElementById("ai-actor-settings-wrapper");
 
     // 根据元素初始的显示状态来初始化按钮状态
     uiManager.updateButtonActiveState(chatHistoryContainer.id, chatHistoryContainer.classList.contains("visible"));
-    uiManager.updateButtonActiveState(aiActorSettings.id, aiActorSettings.classList.contains("visible"));
+    // 不再需要控制 ai-actor-settings-wrapper 的按钮状态，由 AIActorSettingsModal 负责
 
     const generateImg = document.getElementById("generate-img");
     generateImg.addEventListener("click", () => {

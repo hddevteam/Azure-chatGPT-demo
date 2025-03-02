@@ -26,8 +26,7 @@ html {
     padding-bottom: env(safe-area-inset-bottom);
 }
 
-#chat-history-container,
-#ai-actor-settings-wrapper {
+#chat-history-container{
     flex: 15;
     min-width: 200px;
     max-height: calc(100vh - 40px);
@@ -67,10 +66,7 @@ html {
 }
 
 
-#ai-actor-settings-wrapper {
-    background-color: #f1f1f1;
-    border-left: 1px solid #ccc;
-}
+
 
 #header #header-buttons {
     display: flex;

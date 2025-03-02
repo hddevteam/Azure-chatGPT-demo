@@ -1,24 +1,7 @@
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
     #main-container {
-        background-color: #7F8C8D; 
-    }
-
-    #ai-actor-settings-wrapper.modal-mode {
-        position: fixed;
-        z-index: unset;
-        left: unset;
-        top: unset;
-        width: unset;
-        transform: unset;
-        box-shadow: unset;
-        z-index: 9999;
-        background-color: white;
-        box-shadow: unset;
-        display: block;
-        max-width: unset;
-        max-height: calc(100vh - 40px);
-        overflow-y: auto;
+        background-color: #7F8C8D;
     }
 
     #app-outer-wrapper {
@@ -30,37 +13,6 @@
     #ai-actor-wrapper {
         width: 80%;
     }
-
-    #ai-actor-settings-wrapper {
-        position: fixed;
-        min-width: 100%;
-        transition: all 0.3s ease;
-        overflow-y: auto;
-        z-index: 9999;
-        background-color: white;
-        padding-bottom:100px;
-    }
-
-    .bottom-buttons {
-        display: flex;
-        justify-content: center;
-        margin-top: 10px;
-        margin-bottom: 30px;
-    }
-
-    #ai-actor-settings-inner-form-wrapper {
-        /* max-width: 600px; */
-        margin: 0 auto;
-        padding: 10px;
-        font-family: 'Arial', sans-serif;
-        overflow-y: unset;
-        max-height: unset;
-        max-width: unset;
-        
-        /* max-height: 100%; */
-        /* overflow-y: auto; */
-    }
-    
 
     #chat-history-container {
         position: fixed;
@@ -145,7 +97,6 @@
         padding: 5px 10px 5px 5px;
     }
 
-
     #input-container {
         display: flex;
         margin: 0;
@@ -184,28 +135,20 @@
         height: 34px;
     }
 
-    .button-row button,
-    .button-row #voice-input-container,
-    .button-row #new-chat-container {
+    .button-row button {
         width: 100%;
         margin: 0;
         border-radius: 0 !important;
         background: linear-gradient(to bottom, #505050, #404040);
         border: none;
         border-right: 1px solid #333;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
-    .button-row button:last-child,
-    .button-row #new-chat-container:last-child {
+    .button-row button:last-child {
         border-right: none;
     }
 
-    .button-row button i,
-    .button-row #voice-input-container i,
-    .button-row #new-chat-container i {
+    .button-row button i {
         font-size: 16px;
     }
 
@@ -248,32 +191,6 @@
         background: linear-gradient(to bottom, #487CDD, #3A6FD5) !important;
     }
 
-    .button-row button {
-        margin: 0;
-        border-radius: 0 !important;
-        background: linear-gradient(to bottom, #505050, #404040);
-        border: none;
-        border-right: 1px solid #333;
-    }
-
-    .button-row button:last-child {
-        border-right: none;
-    }
-
-    .button-row button:active {
-        background: linear-gradient(to bottom, #404040, #353535);
-        transform: none;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    #submitButton {
-        background: linear-gradient(to bottom, #4CAF50, #45a049);
-    }
-
-    #submitButton:active {
-        background: linear-gradient(to bottom, #3d8b40, #357a38);
-    }
-
     #new-chat-container,
     #voice-input-container,
     #attachments-container {
@@ -299,43 +216,10 @@
         width: 100%;
     }
 
-    #image-modal .modal-content {
-        margin: auto;
-        display: block;
-        max-width: 95%;
-        max-height: 95vh;
-        object-fit: contain;
-    }
-
-    .modal-content {
-        margin: 15% auto;
-        padding: 5px;
-        border-radius: 0px;
-    }
-
-    #image-modal .close {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        color: #fff;
-        font-size: 40px;
-        cursor: pointer;
-        }
-
-    #ai-actor-settings-inner-form-wrapper {
-        margin: 10px;
-        padding: 10px;
-    }
-
-    .setting-item label {
-        font-size: 12px;
-        /* 在更小的屏幕上进一步减小字体 */
-    }
-
     /* Search citation responsive styles */
     .message .citation-tooltip {
         max-width: calc(100vw - 32px);
-        left: 16px !important;  /* Override inline styles */
+        left: 16px !important;
         right: 16px;
     }
 
@@ -398,7 +282,7 @@
 
     #web-search-toggle:active {
         background: linear-gradient(to bottom, #357ABD, #2E6DA4) !important;
-        transform: scale(0.98); // 添加轻微的缩放效果
+        transform: scale(0.98);
         filter: brightness(90%);
         box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.2);
     }
@@ -410,45 +294,6 @@
     #web-search-toggle.active:active {
         background: linear-gradient(to bottom, #1B5E20, #0D3F10) !important;
         box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.3);
-    }
-
-    /* 代码块复制按钮样式 */
-    .code-block-copy {
-        top: 0.5em;
-        right: 0.5em;
-        padding: 0.5em;
-        opacity: 1;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        min-width: 32px;
-        min-height: 32px;
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-    }
-
-    .code-block-copy i {
-        font-size: 16px;
-    }
-
-    .code-block-wrapper {
-        padding-right: 0;
-    }
-
-    .code-block-wrapper pre {
-        padding: 12px;
-        font-size: 14px;
-        line-height: 1.4;
-    }
-
-    .code-block-wrapper .code-block-header {
-        padding: 8px;
-    }
-
-    .code-block-wrapper .code-block-header .language {
-        font-size: 12px;
     }
 }
 
@@ -481,12 +326,10 @@
 
 /* iPad Layout */
 @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 1) {
-
     .message-input-container {
         position: absolute;
         bottom: 4em;
     }
-
 }
 
 @media print {

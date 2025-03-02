@@ -18,6 +18,7 @@
     border-radius: 5px;
     max-width: 500px;
     text-align: center;
+    position: relative;
 }
 
 .modal-content form {
@@ -45,8 +46,67 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 .modal-content button:hover {
-    background-color: #3e8e41;
+    background-color: #45a049;
+}
+
+.modal-content .close {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* 新增样式，用于所有模态框的通用样式 */
+.modal-wrapper {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-wrapper.visible {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+}
+
+.modal-inner {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.modal-wrapper.visible .modal-inner {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+@media screen and (max-width: 768px) {
+    .modal-inner {
+        width: 95%;
+        margin: 10px;
+        max-height: calc(100vh - 20px);
+    }
 }

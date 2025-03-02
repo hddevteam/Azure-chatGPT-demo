@@ -4,15 +4,15 @@ import swal from "sweetalert";
 
 // ProfileFormManager.js
 export default class ProfileFormManager {
-    constructor(uiManager,saveProfileCallback, deleteProfileCallback, hideElementCallback) {
-        this.uiManager = uiManager; // Instance of UIManager
-        this.storageManager = uiManager.storageManager; // Instance of StorageManager
-        this.saveProfileCallback = saveProfileCallback; // Callback function to save profile data
-        this.deleteProfileCallback = deleteProfileCallback;
-        this.hideElementCallback = hideElementCallback;
-        this.initForm();
+    constructor(uiManager, onSaveCallback, onDeleteCallback, onFormCloseCallback) {
+        this.uiManager = uiManager;
+        this.onSaveCallback = onSaveCallback;
+        this.onDeleteCallback = onDeleteCallback;
+        this.onFormCloseCallback = onFormCloseCallback;
+        this.oldName = "";
+        this.storageManager = this.uiManager.storageManager; // 初始化 storageManager 属性
+        this.initForm(); // 确保在构造函数中初始化表单元素
         this.bindEvents();
-        this.oldName = ""; // Initialize without an old name
     }
 
     showMessage(message, messageType, closeSetting = false) {
@@ -20,11 +20,10 @@ export default class ProfileFormManager {
             .then(() => {
                 if (closeSetting) {
                     if (window.innerWidth < 768)
-                        this.hideElementCallback();
+                        this.onFormCloseCallback();
                 }
             });
     }
-
 
     initForm() {
         // Initialize form elements
@@ -44,29 +43,60 @@ export default class ProfileFormManager {
     }
 
     bindEvents() {
-        // Bind the save action
-        document.getElementById("save-profile").addEventListener("click", () => this.saveProfile());
-        // 修改此处：为"generate-prompt"按钮添加点击事件监听器
-        document.getElementById("generate-prompt").addEventListener("click", () => {
-        // 从prompt字段获取当前内容
-            const promptContent = this.formElements.prompt.value;
-            // 将prompt字段的内容作为参数传递给generateProfile方法
-            this.generateProfile(promptContent);
-        });
-        this.formElements.icon.addEventListener("change", () => {
-            // 获取icon输入框的值
-            const iconClass = this.formElements.icon.value;
-            // 将icon-preview的class设置为icon输入框的值
-            document.getElementById("icon-preview").className = iconClass;
-        });
+        const saveProfileBtn = document.getElementById("save-profile");
+        const deleteProfileBtn = document.getElementById("delete-profile");
+        const exportProfileBtn = document.getElementById("export-profile");
+        const importProfileBtn = document.getElementById("import-profile");
+        const generatePromptBtn = document.getElementById("generate-prompt");
 
-        document.getElementById("export-profile").addEventListener("click", () => this.exportProfile());
-        document.getElementById("import-profile").addEventListener("click", () => this.importProfile());
+        if (saveProfileBtn) {
+            saveProfileBtn.addEventListener("click", async (event) => {
+                event.preventDefault();
+                await this.handleSave();
+            });
+        }
 
-        document.getElementById("delete-profile").addEventListener("click", () => this.deleteCurrentProfile());
+        if (deleteProfileBtn) {
+            deleteProfileBtn.addEventListener("click", async () => {
+                await this.handleDelete();
+            });
+        }
+
+        if (exportProfileBtn) {
+            exportProfileBtn.addEventListener("click", () => {
+                this.handleExport();
+            });
+        }
+
+        if (importProfileBtn) {
+            importProfileBtn.addEventListener("click", () => {
+                this.handleImport();
+            });
+        }
+
+        if (generatePromptBtn) {
+            generatePromptBtn.addEventListener("click", async () => {
+                await this.handleGeneratePrompt();
+            });
+        }
+
+        // 监听图标预览
+        const iconInput = document.getElementById("icon");
+        if (iconInput) {
+            iconInput.addEventListener("input", () => {
+                this.updateIconPreview();
+            });
+        }
     }
 
-    exportProfile() {
+    updateIconPreview() {
+        const iconPreview = document.getElementById("icon-preview");
+        if (iconPreview) {
+            iconPreview.className = this.formElements.icon.value;
+        }
+    }
+
+    handleExport() {
         const profileData = {
             name: this.formElements.name.value,
             icon: this.formElements.icon.value,
@@ -112,7 +142,7 @@ export default class ProfileFormManager {
         profile.displayName = newDisplayName;
     }
 
-    importProfile() {
+    handleImport() {
         const fileInput = document.createElement("input");
         fileInput.type = "file";
         fileInput.accept = "application/json";
@@ -123,80 +153,107 @@ export default class ProfileFormManager {
                 const obj = JSON.parse(event.target.result);
                 this.bindProfileData(obj);
                 this.oldName = ""; // 确保视为新的Profile
-                this.saveProfile(); 
+                this.handleSave(); 
             };
             reader.readAsText(file);
         };
         fileInput.click();
     }
     
-    // ProfileFormManager.js 中新增方法
-    deleteCurrentProfile() {
+    async handleDelete() {
         const currentProfileName = this.storageManager.getCurrentProfile().name;
         const username = this.storageManager.getCurrentUsername();
-        deleteProfile(currentProfileName, username)
-            .then(() => {
-                console.log("Profile deleted successfully.");
-                getPromptRepo(username).then(data => {
-                    this.deleteProfileCallback(data);
-                });
-            })
-            .catch(error => {
-                console.error("Error during profile deletion:", error);
-                this.showMessage("Failed to delete profile.", "error");
-            });
+        try {
+            await deleteProfile(currentProfileName, username);
+            console.log("Profile deleted successfully.");
+            const data = await getPromptRepo(username);
+            this.onDeleteCallback(data);
+        } catch (error) {
+            console.error("Error during profile deletion:", error);
+            this.showMessage("Failed to delete profile.", "error");
+        }
     }
 
-
-    /**
-     * 生成AI角色的配置文件
-     * @param {*} profession 
-     * @returns 
-     */
-    generateProfile(profession) {
+    async handleGeneratePrompt() {
+        const profession = this.formElements.prompt.value;
         swal({
             text: "Generating profile...",
             button: false,
             closeOnClickOutside: false,
             closeOnEsc: false,
         });
-        return createChatProfile({ profession })
-            .then(data => {
-                swal.close();
-                // 将获取到的数据动态填充到表单中
-                this.formElements.prompt.value = data.prompt;
-                if (this.formElements.name.value === "") {
-                    this.formElements.name.value = data.name;
-                }
-                this.formElements.icon.value = data.icon;
-                this.formElements.displayName.value = data.displayName;
-                // 更新icon-preview的类
-                document.getElementById("icon-preview").className = data.icon;
-                this.showMessage("Profile generated successfully.", "success");
-            })
-            .catch(error => {
-                swal.close();
-                console.error("Error generating profile:", error);
-                this.showMessage("Error generating profile. Please try again.", "error");
-            });
+        try {
+            const data = await createChatProfile({ profession });
+            swal.close();
+            // 将获取到的数据动态填充到表单中
+            this.formElements.prompt.value = data.prompt;
+            if (this.formElements.name.value === "") {
+                this.formElements.name.value = data.name;
+            }
+            this.formElements.icon.value = data.icon;
+            this.formElements.displayName.value = data.displayName;
+            // 更新icon-preview的类
+            document.getElementById("icon-preview").className = data.icon;
+            this.showMessage("Profile generated successfully.", "success");
+        } catch (error) {
+            swal.close();
+            console.error("Error generating profile:", error);
+            this.showMessage("Error generating profile. Please try again.", "error");
+        }
     }
-
 
     bindProfileData(profileData) {
-        // Directly bind provided profile data to form inputs
-        Object.keys(this.formElements).forEach(key => {
-            if (this.formElements[key].type === "checkbox") {
-                this.formElements[key].checked = profileData[key] || false;
-            } else {
-                this.formElements[key].value = profileData[key] || "";
-                if (key === "icon") {
-                    document.getElementById("icon-preview").className = profileData[key] || "";
+        // 增加防御性编程：检查 profileData 是否为空
+        if (!profileData) {
+            console.log("No profile data to bind.");
+            return;
+        }
+        
+        // 检查并初始化表单元素（如果尚未初始化）
+        if (!this.formElements) {
+            this.initForm();
+        }
+        // 检查表单元素是否存在
+        if (!this.formElements.prompt) {
+            console.error("Form elements not properly initialized.");
+            return;
+        }
+
+        // Store the original name to identify this as an existing profile
+        this.oldName = profileData.name || "";
+        console.log("Set oldName to:", this.oldName);
+        
+        // 安全地设置表单值
+        try {
+            // 遍历 formElements 对象的属性而不是 profileData
+            Object.keys(this.formElements).forEach(key => {
+                const element = this.formElements[key];
+                if (!element) {
+                    console.warn(`Form element for ${key} not found.`);
+                    return; // 跳过当前迭代
                 }
-            }
-        });
+                
+                if (element.type === "checkbox") {
+                    element.checked = !!profileData[key]; // 转换为布尔值
+                } else {
+                    // 为输入框设置值时确保有默认值
+                    element.value = profileData[key] || "";
+                    
+                    // 特殊处理图标预览
+                    if (key === "icon") {
+                        const iconPreview = document.getElementById("icon-preview");
+                        if (iconPreview) {
+                            iconPreview.className = profileData[key] || "";
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Error binding profile data:", error);
+        }
     }
 
-    saveProfile() {
+    async handleSave() {
         const randomName = `AI${Math.floor(Math.random() * 1000)}`;
         const profile = {
             name: document.getElementById("name").value || randomName,
@@ -211,25 +268,36 @@ export default class ProfileFormManager {
             presence_penalty: document.getElementById("presence_penalty").value,
             max_tokens: document.getElementById("max_tokens").value,
         };
+        
         console.log("Saving profile:", profile);
+        console.log("Current oldName:", this.oldName);
+        
         const username = this.storageManager.getCurrentUsername();
-        const isNewProfile = !this.oldName;
-
+        const isNewProfile = !this.oldName || this.oldName === "";
+        
         if (isNewProfile) {
             this.checkAndAdjustName(profile);
+        } else {
+            // If we're updating and the name has been changed, make sure the new name is unique
+            if (profile.name !== this.oldName) {
+                this.checkAndAdjustName(profile);
+            }
         }
-
-        saveOrUpdateProfile(profile, username, isNewProfile, this.oldName)
-            .then(() => {
-                this.storageManager.setCurrentProfile(profile); // 设置新保存的Profile为当前Profile
-                console.log("Profile saved successfully.");                
-                this.saveProfileCallback(profile, isNewProfile); 
-                this.showMessage(isNewProfile ? "Profile created successfully!" : "Profile updated successfully!", "success", true); 
-            })
-            .catch(error => {
-                console.error("Error saving profile:", error);
-                this.showMessage("Failed to save profile. Please try again.", "error");
-            });
+        
+        try {
+            await saveOrUpdateProfile(profile, username, isNewProfile, this.oldName);
+            this.storageManager.setCurrentProfile(profile); // 设置新保存的Profile为当前Profile
+            console.log("Profile saved successfully.");                
+            this.onSaveCallback(profile, isNewProfile); 
+            
+            // Update oldName after saving to reflect the current name for future operations
+            this.oldName = profile.name;
+            
+            this.showMessage(isNewProfile ? "Profile created successfully!" : "Profile updated successfully!", "success", true); 
+        } catch (error) {
+            console.error("Error saving profile:", error);
+            this.showMessage("Failed to save profile. Please try again.", "error");
+        }
     }
     
     resetForm() {
