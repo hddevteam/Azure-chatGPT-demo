@@ -43,21 +43,20 @@
 /* Header styles */
 .modal-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column; /* 改为列式布局 */
+    align-items: stretch;
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
-    flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
 }
 
 .modal-title-container {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
-    flex: 1;
+    gap: 16px;
+    min-width: 0; /* 让容器可以正确收缩 */
+    width: 100%; /* 确保标题容器占满宽度 */
 }
 
 .modal-title-container span {
@@ -66,13 +65,15 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: calc(100% - 40px); /* Leave space for close button */
+    flex: 1;
 }
 
 .modal-header-buttons {
     display: flex;
+    align-items: center;
     gap: 8px;
-    justify-content: flex-end;
+    justify-content: flex-end; /* 按钮靠右对齐 */
+    width: 100%; /* 确保按钮容器占满宽度 */
 }
 
 /* Close button */
@@ -80,13 +81,14 @@
     background-color: transparent;
     border: none;
     cursor: pointer;
-    padding: 5px;
+    padding: 8px;
     font-size: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 4px;
     transition: background-color 0.2s;
+    margin-left: auto; /* 确保关闭按钮靠右对齐 */
 }
 
 #close-settings:hover {
@@ -95,6 +97,7 @@
 
 #close-settings i {
     color: #666;
+    font-size: 16px;
 }
 
 /* Action buttons styling */
@@ -105,11 +108,17 @@
 #new-ai-actor-btn {
     border: 1px solid #ddd;
     border-radius: 4px;
-    padding: 5px 10px;
+    padding: 6px 12px;
     background-color: #fff;
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 32px;
+    min-width: 60px;
+    justify-content: center;
 }
 
 /* Set explicit text color for export and import buttons */
@@ -252,19 +261,12 @@ input:disabled {
         max-height: calc(100vh - 20px);
     }
 
+    /* 移除移动端特定的 modal-header 样式，因为现在桌面端和移动端使用相同的布局 */
     .modal-header {
-        flex-direction: column;
-        align-items: flex-start;
+        padding-bottom: 16px;
     }
 
-    .modal-title-container {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .modal-header-buttons {
-        width: 100%;
-        justify-content: flex-end;
-        flex-wrap: wrap;
+    #close-settings {
+        padding: 6px;
     }
 }
