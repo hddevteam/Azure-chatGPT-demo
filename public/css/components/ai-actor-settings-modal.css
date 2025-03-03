@@ -23,16 +23,18 @@
 .modal-inner {
     background-color: #fff;
     border-radius: 8px;
-    padding: 20px;
+    padding: 0; /* 移除内边距，由内部元素控制 */
     position: relative;
     width: 90%;
     max-width: 600px;
     max-height: 90vh;
-    overflow-y: auto;
+    display: flex; /* 添加flex布局 */
+    flex-direction: column; /* 垂直方向布局 */
     transform: translateY(20px);
     opacity: 0;
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* 防止内容溢出 */
 }
 
 .modal-wrapper.visible .modal-inner {
@@ -40,16 +42,25 @@
     opacity: 1;
 }
 
-/* Header styles */
 .modal-header {
     display: flex;
     flex-direction: column; /* 改为列式布局 */
     align-items: stretch;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
+    padding: 20px 20px 10px;
     border-bottom: 1px solid #eee;
     gap: 12px;
+    background: #fff; /* 确保背景色 */
+    flex-shrink: 0; /* 防止header被压缩 */
 }
+
+.modal-content-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    min-height: 0; /* 确保内容可以正确滚动 */
+}
+
+
 
 .modal-title-container {
     display: flex;
