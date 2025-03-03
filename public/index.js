@@ -264,21 +264,12 @@ function initializeApp(username) {  // 接收传入的 username 参数
     const aiProfileButton = document.getElementById("ai-profile");
     aiProfileButton.addEventListener("click", function(event) {
         event.stopPropagation();
-        // Simply show the ai-actor-settings-modal
-        const aiActorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
         
-        // Get the current profile to bind to form
+        // Get the current profile to edit
         const currentProfile = uiManager.storageManager.getCurrentProfile();
         if (currentProfile) {
-            // Bind current profile data to form before showing it
-            uiManager.profileFormManager.bindProfileData(currentProfile);
-            
-            // Show the modal
-            if (aiActorSettingsWrapper.classList.contains("visible")) {
-                uiManager.uiStateManager.hiddenElement(aiActorSettingsWrapper);
-            } else {
-                uiManager.uiStateManager.visibleElement(aiActorSettingsWrapper);
-            }
+            // Show the edit modal with the current profile data
+            uiManager.uiStateManager.showEditAIActorModal(currentProfile);
         }
     });
 

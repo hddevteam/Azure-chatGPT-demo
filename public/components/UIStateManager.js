@@ -114,7 +114,16 @@ class UIStateManager {
         this.hideAIActorList();
         this.uiManager.profileFormManager.resetForm();
         this.uiManager.profileFormManager.oldName = "";
-        this.actorSettingsModal.show();
+        // 在新建模式下显示模态框，没有配置文件数据
+        this.actorSettingsModal.show(null);
+    }
+
+    showEditAIActorModal(profileData) {
+        this.hideAIActorList();
+        this.uiManager.profileFormManager.bindProfileData(profileData);
+        this.uiManager.profileFormManager.oldName = profileData.name;
+        // 在编辑模式下显示模态框，传入配置文件数据
+        this.actorSettingsModal.show(profileData);
     }
 
     hideNewAIActorModal() {
@@ -179,7 +188,7 @@ class UIStateManager {
             if (currentProfile && profile.name === currentProfile.name) {
                 li.classList.add("active");
             }
-
+            
             let icon = document.createElement("i");
             icon.className = profile.icon;
             
@@ -195,13 +204,12 @@ class UIStateManager {
     // Method to temporarily activate a button (for visual feedback)
     temporaryButtonActivation(buttonId, duration = 300) {
         const button = document.getElementById(buttonId);
-        if (!button) return;
-        
-        button.classList.add("active");
-        
-        setTimeout(() => {
-            button.classList.remove("active");
-        }, duration);
+        if (button) {
+            button.classList.add("temp-active");
+            setTimeout(() => {
+                button.classList.remove("temp-active");
+            }, duration);
+        }
     }
 }
 

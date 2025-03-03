@@ -48,16 +48,125 @@
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.modal-header span {
+.modal-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    flex: 1;
+}
+
+.modal-title-container span {
     font-size: 18px;
     font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 40px); /* Leave space for close button */
 }
 
 .modal-header-buttons {
     display: flex;
-    gap: 10px;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Close button */
+#close-settings {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+#close-settings:hover {
+    background-color: #f0f0f0;
+}
+
+#close-settings i {
+    color: #666;
+}
+
+/* Action buttons styling */
+#export-profile,
+#import-profile,
+#save-profile,
+#delete-profile,
+#new-ai-actor-btn {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px 10px;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+/* Set explicit text color for export and import buttons */
+#export-profile,
+#import-profile,
+#new-ai-actor-btn {
+    color: #333;
+}
+
+#export-profile:hover,
+#import-profile:hover,
+#new-ai-actor-btn:hover,
+#save-profile:hover {
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
+
+/* Highlight the New button with a distinctive style */
+#new-ai-actor-btn {
+    background-color: #f8f9fa;
+    border-color: #ddd;
+    /* Add a subtle plus icon before the text */
+    position: relative;
+    padding-left: 22px;
+}
+
+#new-ai-actor-btn::before {
+    content: "+";
+    position: absolute;
+    left: 8px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#new-ai-actor-btn:hover {
+    background-color: #e9ecef;
+}
+
+#save-profile {
+    background-color: #3391ff;
+    color: white;
+    border-color: #3391ff;
+}
+
+#save-profile:hover {
+    background-color: #2a7ad4;
+    border-color: #2a7ad4;
+}
+
+#delete-profile {
+    color: #d32f2f;
+    border-color: #ffcdd2;
+}
+
+#delete-profile:hover {
+    background-color: #ffebee;
+    border-color: #ef9a9a;
 }
 
 /* Form controls */
@@ -84,11 +193,55 @@
     min-height: 120px;
 }
 
+/* Disabled input styling */
+input.disabled, 
+input:disabled {
+    background-color: #f5f5f5;
+    color: #888;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
 /* Bottom buttons */
 .bottom-buttons {
     display: flex;
     justify-content: flex-end;
     margin-top: 20px;
+}
+
+/* Generate prompt button styling */
+#profile-buttons {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+#generate-prompt {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    color: #333;
+}
+
+#generate-prompt i {
+    color: #3391ff;
+    font-size: 16px;
+}
+
+#generate-prompt:hover {
+    background-color: #e9ecef;
+    border-color: #ccc;
+}
+
+#generate-prompt span {
+    font-weight: 500;
 }
 
 /* Mobile styles */
@@ -101,11 +254,17 @@
 
     .modal-header {
         flex-direction: column;
-        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .modal-title-container {
+        width: 100%;
+        justify-content: space-between;
     }
 
     .modal-header-buttons {
         width: 100%;
         justify-content: flex-end;
+        flex-wrap: wrap;
     }
 }

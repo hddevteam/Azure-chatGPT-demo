@@ -1,8 +1,12 @@
 // AIActorSettingsModal.js
+import swal from "sweetalert";
+
 export default class AIActorSettingsModal {
     constructor(uiManager) {
         this.uiManager = uiManager;
         this.modal = null;
+        this.editMode = false;
+        this.currentProfileData = null;
         this.init();
     }
 
@@ -16,10 +20,17 @@ export default class AIActorSettingsModal {
             <div id="ai-actor-settings-wrapper" class="modal-wrapper">
                 <div id="ai-actor-settings-inner-form-wrapper" class="modal-inner">
                     <div class="modal-header">
-                        <span>AI Actor Settings</span>
+                        <div class="modal-title-container">
+                            <span id="modal-title">AI Actor Settings</span>
+                            <button type="button" id="close-settings" title="Close">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                         <div class="modal-header-buttons">
-                            <button type="button" id="export-profile" title="Export ai profile">Export</button>
-                            <button type="button" id="import-profile" title="Import ai profile">Import</button>
+                            <button type="button" id="new-ai-actor-btn" title="Create New AI Actor">New</button>
+                            <button type="button" id="export-profile" title="Export AI profile">Export</button>
+                            <button type="button" id="import-profile" title="Import AI profile">Import</button>
+                            <button type="button" id="delete-profile" class="danger" title="Delete Profile">Delete</button>
                             <button type="button" id="save-profile">Save</button>
                         </div>
                     </div>
@@ -28,8 +39,9 @@ export default class AIActorSettingsModal {
                         <div class="textarea-container">
                             <textarea id="prompt" rows="12" required></textarea>
                             <div id="profile-buttons">
-                                <button id="generate-prompt" title="Automatic generate prompt based on your content">
+                                <button id="generate-prompt" title="Automatically generate prompt based on your content">
                                     <i class="fas fa-magic"></i>
+                                    <span>Generate Prompt</span>
                                 </button>
                             </div>
                         </div>
@@ -78,11 +90,6 @@ export default class AIActorSettingsModal {
                         <label for="sortedIndex">Sorted Index</label>
                         <input type="number" id="sortedIndex" min="0" required>
                     </div>
-                    <div class="bottom-buttons">
-                        <button type="button" id="delete-profile" class="danger" title="Delete Profile">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
                 </div>
             </div>`;
 
@@ -106,6 +113,17 @@ export default class AIActorSettingsModal {
             }
         });
 
+        // "New" button - create a new AI Actor
+        const newButton = this.modal.querySelector("#new-ai-actor-btn");
+        if (newButton) {
+            newButton.addEventListener("click", () => {
+                // Reset the form and switch to new actor mode
+                this.uiManager.profileFormManager.resetForm();
+                this.uiManager.profileFormManager.oldName = "";
+                this.show(null); // Show modal in create mode
+            });
+        }
+
         // 保存按钮
         const saveButton = this.modal.querySelector("#save-profile");
         if (saveButton) {
@@ -114,9 +132,120 @@ export default class AIActorSettingsModal {
                 this.hide();
             });
         }
+
+        // 关闭按钮
+        const closeButton = this.modal.querySelector("#close-settings");
+        if (closeButton) {
+            closeButton.addEventListener("click", () => {
+                this.hide();
+            });
+        }
+
+        // Delete button - add an extra check to prevent errors in create mode
+        const deleteButton = this.modal.querySelector("#delete-profile");
+        if (deleteButton) {
+            deleteButton.addEventListener("click", (event) => {
+                // If in create mode, show warning and prevent default action
+                if (!this.editMode) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this.showWarningMessage("Cannot delete a profile that hasn't been created yet.");
+                    return false;
+                }
+                // Otherwise let the ProfileFormManager handle it
+            });
+        }
+
+        // 监听 Display Name 变化，实时更新标题
+        const displayNameInput = this.modal.querySelector("#displayName");
+        if (displayNameInput) {
+            displayNameInput.addEventListener("input", (e) => {
+                const modalTitle = this.modal.querySelector("#modal-title");
+                if (modalTitle && e.target.value) {
+                    modalTitle.textContent = e.target.value;
+                } else {
+                    modalTitle.textContent = "New AI Actor";
+                }
+            });
+        }
     }
 
-    show() {
+    // Add a helper method to show warning messages
+    showWarningMessage(message) {
+        // Use sweetalert if available, otherwise use native alert
+        if (typeof swal === "function") {
+            swal({
+                title: "Warning",
+                text: message,
+                icon: "warning",
+                button: "OK",
+            });
+        } else {
+            alert(message);
+        }
+    }
+    
+    // Update UI based on edit mode
+    updateUIForEditMode() {
+        const deleteButton = this.modal.querySelector("#delete-profile");
+        if (deleteButton) {
+            if (this.editMode) {
+                // In edit mode, show delete button normally
+                deleteButton.style.display = "inline-block";
+                deleteButton.disabled = false;
+            } else {
+                // In create mode, disable delete button
+                deleteButton.style.display = "none";
+            }
+        }
+    }
+
+    show(profileData = null) {
+        this.editMode = !!profileData;
+        this.currentProfileData = profileData;
+
+        // When we switch to create mode from edit mode, ensure form is properly reset
+        if (!this.editMode && this.modal.classList.contains("visible")) {
+            // Clear all form fields to prepare for a new AI Actor
+            const formElements = this.modal.querySelectorAll("input, textarea, select");
+            formElements.forEach(element => {
+                if (element.type === "checkbox" || element.type === "radio") {
+                    element.checked = false;
+                } else {
+                    element.value = "";
+                }
+            });
+            
+            // Set default values for certain fields
+            const sortedIndexField = this.modal.querySelector("#sortedIndex");
+            if (sortedIndexField) {
+                sortedIndexField.value = "0";
+            }
+        }
+
+        // 更新标题
+        const modalTitle = this.modal.querySelector("#modal-title");
+        const nameField = this.modal.querySelector("#name");
+
+        if (this.editMode && profileData) {
+            // 编辑模式：设置标题为 Display Name 并禁用 Name 字段
+            modalTitle.textContent = profileData.displayName || profileData.name;
+            if (nameField) {
+                nameField.disabled = true;
+                nameField.classList.add("disabled");
+            }
+        } else {
+            // 新建模式：重置标题并启用 Name 字段
+            modalTitle.textContent = "New AI Actor";
+            if (nameField) {
+                nameField.disabled = false;
+                nameField.classList.remove("disabled");
+            }
+        }
+
+        // Update UI elements based on edit mode
+        this.updateUIForEditMode();
+
         this.modal.classList.add("visible");
         // 添加一个短暂延迟以确保过渡动画正确触发
         requestAnimationFrame(() => {
