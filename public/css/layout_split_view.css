@@ -13,18 +13,32 @@
 }
 
 #app-outer-wrapper.split-view #horizontal-resize-handle {
-    background: #999;
     width: 5px;
+    background: #999;
     cursor: ew-resize;
     flex-shrink: 0;
+    transition: background-color 0.2s ease;
 }
 
 #app-outer-wrapper.split-view #horizontal-resize-handle {
     display: block;
 }
 
-#app-outer-wrapper.split-view #horizontal-resize-handle:hover {
+#app-outer-wrapper.split-view #horizontal-resize-handle:hover,
+#app-outer-wrapper.split-view #horizontal-resize-handle.resizing {
     background-color: #0056b3; 
+}
+
+#main-container.split-view #chat-history-resize-handle {
+    display: block;
+    background: #999;
+    width: 5px;
+    cursor: ew-resize;
+    flex-shrink: 0;
+}
+
+#main-container.split-view #chat-history-resize-handle:hover {
+    background-color: #0056b3;
 }
 
 /* left view */
@@ -531,5 +545,13 @@
     background: #2E7D32;
     color: #E6E6E6;
     border-color: #2E7D32;
+}
+
+/* 调整聊天历史容器在分屏模式下的样式 */
+#chat-history-container.split-view {
+    flex: none;
+    width: 200px;
+    min-width: 100px;
+    max-width: 40vw;
 }
 

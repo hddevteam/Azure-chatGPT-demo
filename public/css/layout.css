@@ -27,9 +27,26 @@ html {
 }
 
 #chat-history-container{
-    flex: 15;
-    min-width: 200px;
+    flex: none; /* 改为 none 以允许宽度调整 */
+    width: 200px; /* 设置默认宽度 */
+    min-width: 100px; /* 最小宽度 */
     max-height: calc(100vh - 40px);
+}
+
+#chat-history-resize-handle {
+    width: 5px;
+    background: #ccc;
+    cursor: ew-resize;
+    flex-shrink: 0;
+    display: none; /* 默认隐藏 */
+}
+
+#chat-history-container.visible + #chat-history-resize-handle {
+    display: block; /* 当 chat-history-container 可见时显示 */
+}
+
+#chat-history-resize-handle:hover {
+    background-color: #0056b3;
 }
 
 #app-outer-wrapper {
@@ -203,4 +220,17 @@ html {
     padding: 0;
     border-radius: 4px;
     z-index: 1;
+}
+
+#horizontal-resize-handle {
+    background: #999;
+    width: 5px;
+    cursor: ew-resize;
+    flex-shrink: 0;
+    transition: background-color 0.2s ease;
+}
+
+#horizontal-resize-handle:hover,
+#horizontal-resize-handle.resizing {
+    background-color: #0056b3;
 }

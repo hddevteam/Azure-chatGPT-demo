@@ -11,6 +11,7 @@ import fileUploader from "./utils/fileUploader.js";
 import setup from "./setup.js";
 import audioModal from "./utils/audioModal.js";
 import ChatOptionsModal from "./components/ChatOptionsModal.js";
+import { addChatHistoryResizeHandleListeners } from "./utils/chat-history-resize.js";
 
 (async () => {
     try {
@@ -449,6 +450,7 @@ async function initializeApp(username) {  // 接收传入的 username 参数
     setInitialVisibility();
     addHorizontalResizeHandleListeners(); // Add horizontal resize functionality
     addVerticalResizeHandleListeners(); // Add vertical resize functionality
+    addChatHistoryResizeHandleListeners(); // Add chat history resize functionality
 
     let initialWindowSize = {
         width: window.innerWidth,
