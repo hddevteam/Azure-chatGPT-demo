@@ -30,6 +30,7 @@ export default class AIActorSettingsModal {
                             <button type="button" id="new-ai-actor-btn" title="Create New AI Actor">New</button>
                             <button type="button" id="export-profile" title="Export AI profile">Export</button>
                             <button type="button" id="import-profile" title="Import AI profile">Import</button>
+                            <button type="button" id="save-profile" class="primary" title="Save Profile">Save</button>
                             <button type="button" id="delete-profile" class="danger" title="Delete Profile">Delete</button>
                         </div>
                     </div>
