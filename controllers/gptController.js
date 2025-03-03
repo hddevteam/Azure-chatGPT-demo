@@ -676,12 +676,17 @@ exports.generateTitle = async (req, res) => {
         {
             role: "user",
             content: `
+            Output:
+            { "title": "" }
+
             Input:
-            1. Please generate a short title in less than 10 words for the following content. 
+            Please generate a short title in less than 10 words for the following content. 
+            Return the result in JSON format with a single "title" field.
             ===
             ${conversation}
             ===
-            Please note that the language you are using must consider the context of the content. 
+            Please note that the language you are using must consider the context of the content.
+            
             Output:`,
         },
     ];
@@ -696,14 +701,16 @@ exports.generateTitle = async (req, res) => {
             frequency_penalty: defaultParams.frequency_penalty,
             presence_penalty: defaultParams.presence_penalty,
             max_tokens: 30,
+            response_format: { "type": "json_object" }
         },
     };
 
     try {
         const response = await makeRequest(requestData);
         const { data } = response;
-        const message = data.choices[0].message.content || "untitled";
-        res.send(message);
+        const message = data.choices[0].message.content;
+        const result = JSON.parse(message);
+        res.send(result.title || "untitled");
     } catch (error) {
         handleRequestError(error, res);
     }
@@ -938,52 +945,20 @@ exports.summarizeWebContent = async (prompt) => {
     }
 };
 
-async function processDocumentQuery(req, res) {
-    try {
-        const { documents, question } = req.body;
-
-        if (!documents || !Array.isArray(documents) || documents.length === 0) {
-            return res.status(400).json({ error: 'No documents provided' });
-        }
-
-        if (!question) {
-            return res.status(400).json({ error: 'No question provided' });
-        }
-
-        // 将所有文档内容合并并添加到系统提示中
-        const combinedContent = documents.join('\n\n---\n\n');
-        const systemPrompt = `You are an AI assistant analyzing the following documents. Please answer questions about their content:\n\n${combinedContent}`;
-
-        const messages = [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: question }
-        ];
-
-        const response = await getChatCompletion(messages);
-        res.json(response);
-    } catch (error) {
-        console.error('Error in document query:', error);
-        res.status(500).json({
-            error: 'Failed to process document query',
-            message: error.message
-        });
-    }
-}
-
 exports.processDocumentQuery = async (req, res) => {
     try {
         const { documents, question } = req.body;
 
         if (!documents || !Array.isArray(documents) || documents.length === 0) {
-            return res.status(400).json({ error: 'No documents provided' });
+            return res.status(400).json({ error: "No documents provided" });
         }
 
         if (!question) {
-            return res.status(400).json({ error: 'No question provided' });
+            return res.status(400).json({ error: "No question provided" });
         }
 
         // 将所有文档内容合并并添加到系统提示中
-        const combinedContent = documents.join('\n\n---\n\n');
+        const combinedContent = documents.join("\n\n---\n\n");
         const systemPrompt = `You are an AI assistant analyzing the following documents. Please answer questions about their content:\n\n${combinedContent}`;
 
         const messages = [
@@ -1011,9 +986,9 @@ exports.processDocumentQuery = async (req, res) => {
             totalTokens: response.data.usage?.total_tokens || 0
         });
     } catch (error) {
-        console.error('Error in document query:', error);
+        console.error("Error in document query:", error);
         res.status(500).json({
-            error: 'Failed to process document query',
+            error: "Failed to process document query",
             message: error.message
         });
     }
