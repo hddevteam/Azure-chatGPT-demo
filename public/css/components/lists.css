@@ -11,7 +11,31 @@
 #topic-button-container {
     position: absolute;
     top: 0; 
-    right: 0; 
+    right: 0;
+    display: flex;
+    gap: 8px;
+}
+
+#topic-button-container button {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#topic-button-container button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#topic-button-container button:active {
+    transform: scale(0.95);
+}
+
+#topic-button-container button i {
+    font-size: 14px;
 }
 
 #chat-history-list {

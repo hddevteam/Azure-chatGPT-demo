@@ -47,6 +47,8 @@
     border-radius: 5px;
     cursor: pointer;
     margin-top: 10px;
+    white-space: nowrap;
+    text-transform: capitalize;
 }
 
 .modal-content button:hover {
@@ -109,4 +111,9 @@
         margin: 10px;
         max-height: calc(100vh - 20px);
     }
+}
+
+.modal-buttons button {
+    white-space: nowrap;
+    text-transform: capitalize;
 }

@@ -199,6 +199,8 @@ class UIStateManager {
             li.appendChild(span);
             aiActorList.appendChild(li);
         });
+
+        this.updateFilterButtonState();
     }
 
     // Method to temporarily activate a button (for visual feedback)
@@ -209,6 +211,15 @@ class UIStateManager {
             setTimeout(() => {
                 button.classList.remove("temp-active");
             }, duration);
+        }
+    }
+
+    updateFilterButtonState() {
+        const filterButton = document.getElementById("topic-filter");
+        if (!this.uiManager.showAllChatHistories) {
+            filterButton.classList.add("filtered");
+        } else {
+            filterButton.classList.remove("filtered");
         }
     }
 }

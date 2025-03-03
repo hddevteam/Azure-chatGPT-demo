@@ -147,18 +147,21 @@ input[type="range"] {
 .modal-footer button {
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
-    text-transform: uppercase;
+    text-transform: capitalize;
     min-width: 88px;
     padding: 8px 16px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s;
+    white-space: nowrap;
 }
 
 #apply-options {
     background-color: #1976d2;
     color: white;
+    white-space: nowrap;
+    text-transform: capitalize;
 }
 
 #apply-options:hover {
@@ -168,6 +171,8 @@ input[type="range"] {
 #cancel-options {
     background-color: transparent;
     color: #666;
+    white-space: nowrap;
+    text-transform: capitalize;
 }
 
 #cancel-options:hover {

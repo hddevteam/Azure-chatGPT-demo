@@ -20,12 +20,16 @@
   align-items: center;
   gap: var(--spacing-sm);
   transition: all var(--transition-speed);
+  white-space: nowrap;
+  text-transform: capitalize;
 }
 
 /* Button variants */
 .im-button-primary {
   background-color: #4CAF50;
   color: white;
+  white-space: nowrap;
+  text-transform: capitalize;
 }
 
 .im-button-primary:hover {
@@ -40,6 +44,8 @@
 .im-button-secondary {
   background-color: var(--bg-overlay);
   color: white;
+  white-space: nowrap;
+  text-transform: capitalize;
 }
 
 .im-button-secondary:hover {
@@ -65,6 +71,8 @@
   border: 1px solid var(--border-medium);
   color: rgba(255, 255, 255, 0.7);
   font-size: 14px;
+  white-space: nowrap;
+  text-transform: capitalize;
 }
 
 .im-button-warning:hover {

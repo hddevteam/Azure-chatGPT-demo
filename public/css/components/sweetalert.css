@@ -169,10 +169,14 @@ body.swal-shown {
     padding: 8px 16px;
     margin: 0 0 0 8px;
     border-radius: 4px;
+    white-space: nowrap;
+    text-transform: capitalize;
 }
 
 .swal-button--confirm {
     background-color: #4CAF50;
+    white-space: nowrap;
+    text-transform: capitalize;
 }
 
 .swal-button--confirm:hover {
@@ -182,6 +186,8 @@ body.swal-shown {
 .swal-button--cancel {
     background-color: #f5f5f5;
     color: #333;
+    white-space: nowrap;
+    text-transform: capitalize;
 }
 
 .swal-button--cancel:hover {

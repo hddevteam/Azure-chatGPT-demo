@@ -25,7 +25,7 @@ import ChatOptionsModal from "./components/ChatOptionsModal.js";
     }
 })();
 
-function initializeApp(username) {  // 接收传入的 username 参数
+async function initializeApp(username) {  // 接收传入的 username 参数
     console.log("initializeApp");
     const uiManager = setup();  // 设置UI管理器
     uiManager.storageManager.updateCurrentUserInfo(username);  // 使用传入的 username 更新用户名信息
@@ -282,25 +282,8 @@ function initializeApp(username) {  // 接收传入的 username 参数
     const topicFilter = document.getElementById("topic-filter");
     topicFilter.addEventListener("click", function (event) {
         event.stopPropagation();
-        // 切换显示所有聊天历史的状态
-        uiManager.showAllChatHistories = !uiManager.showAllChatHistories;
-
-        // 基于新的状态更新UI显示
-        uiManager.showChatHistory().then(() => {
-            console.log("Chat histories updated successfully.");
-        }).catch(err => {
-            console.error("An error occurred while updating chat histories:", err);
-        });
-
-        // 根据filter状态切换按钮的active类
-        if (uiManager.showAllChatHistories) {
-            topicFilter.classList.remove("active");
-        } else {
-            topicFilter.classList.add("active");
-        }
+        uiManager.showActorFilterModal();
     });
-
-
 
     // split layout
     // Selecting elements that will be changed by layout toggling
@@ -519,6 +502,9 @@ function initializeApp(username) {  // 接收传入的 username 参数
     
     // 初始调用确保正确的布局
     handleResponsiveLayout();
+
+    // 初始化 AI Actor Filter Modal
+    await uiManager.initializeActorFilterModal();
 }
 
 

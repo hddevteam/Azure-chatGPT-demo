@@ -12,7 +12,7 @@ import AudioManager from "./AudioManager.js";
 import UIStateManager from "./UIStateManager.js";
 import AIProfileManager from "./AIProfileManager.js";
 import MessageContextManager from "../modules/chat/MessageContextManager.js";
-import { getPromptRepo } from "../utils/apiClient.js";
+import { getPromptRepo, uploadAttachment } from "../utils/apiClient.js";
 import fileUploader from "../utils/fileUploader.js";
 import swal from "sweetalert";
 
@@ -24,6 +24,8 @@ class UIManager {
         this.profiles = [];
         this.clientLanguage = "en-US";
         this.showAllChatHistories = true;
+        this.aiActorFilterModal = null;
+        this.filteredActors = null;
 
         // Initialize message input and container
         const messagesContainer = document.querySelector("#messages");
@@ -167,21 +169,28 @@ class UIManager {
         const username = this.storageManager.getCurrentUsername();
         let chatHistory = this.chatHistoryManager.getChatHistory();
         
-        // Ensure we have a valid current profile before filtering
-        let currentProfile = this.storageManager.getCurrentProfile();
-        currentProfile = this.ensureValidProfile(currentProfile);
-        
-        // Only filter if showAllChatHistories is false and we have a valid profile
-        if (!this.showAllChatHistories && currentProfile) {
-            chatHistory = chatHistory.filter(history => 
-                history.profileName === currentProfile.name);
+        // 根据过滤条件筛选聊天历史
+        if (!this.showAllChatHistories) {
+            if (this.filteredActors && this.filteredActors.length > 0) {
+                // 如果有选择的 AI Actors，显示这些 actors 的聊天记录
+                chatHistory = chatHistory.filter(history => 
+                    this.filteredActors.includes(history.profileName));
+            } else {
+                // 如果没有选择任何 actor，但不是显示全部，则只显示当前 profile 的聊天记录
+                const currentProfile = this.storageManager.getCurrentProfile();
+                if (currentProfile) {
+                    chatHistory = chatHistory.filter(history => 
+                        history.profileName === currentProfile.name);
+                }
+            }
         }
         
         if (!localStorage.getItem(this.chatHistoryManager.chatHistoryKeyPrefix + username)) {
-            this.chatHistoryManager.generateChatHistory();
-        } else {
-            this.domManager.renderChatHistoryList(chatHistory, this.profiles);
+            await this.chatHistoryManager.generateChatHistory();
         }
+        
+        // 更新聊天历史列表显示
+        this.domManager.renderChatHistoryList(chatHistory, this.profiles);
     }
 
     handleChatHistoryChange(action, chatHistoryItem) {
@@ -664,6 +673,44 @@ class UIManager {
         } else {
             console.log(`Profile ${profile.name} not found, switching to first available profile: ${this.profiles[0].name}`);
             return this.profiles[0];
+        }
+    }
+
+    async initializeActorFilterModal() {
+        const { AIActorFilterModal } = await import("./AIActorFilterModal.js");
+        this.aiActorFilterModal = new AIActorFilterModal(this);
+    }
+
+    showActorFilterModal() {
+        if (this.aiActorFilterModal) {
+            this.aiActorFilterModal.show();
+        }
+    }
+
+    async uploadAttachments(attachments) {
+        if (!attachments || attachments.length === 0) return "";
+        
+        const uploadedUrls = [];
+        
+        try {
+            for (const attachment of attachments) {
+                try {
+                    const response = await uploadAttachment(attachment.content, attachment.fileName);
+                    if (response) {
+                        uploadedUrls.push(response);
+                    }
+                } catch (error) {
+                    console.error(`Failed to upload attachment ${attachment.fileName}:`, error);
+                    swal("Upload Failed", `Failed to upload ${attachment.fileName}: ${error.message}`, "error");
+                    return "";
+                }
+            }
+            
+            return uploadedUrls.join(";");
+        } catch (error) {
+            console.error("Error uploading attachments:", error);
+            swal("Upload Failed", "Failed to upload attachments", "error");
+            return "";
         }
     }
 }
