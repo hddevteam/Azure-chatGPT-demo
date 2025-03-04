@@ -14,7 +14,7 @@
 
 #app-outer-wrapper.split-view #horizontal-resize-handle {
     width: 5px;
-    background: #999;
+    background: #333;
     cursor: ew-resize;
     flex-shrink: 0;
     transition: background-color 0.2s ease;
@@ -26,6 +26,7 @@
 
 #app-outer-wrapper.split-view #horizontal-resize-handle:hover,
 #app-outer-wrapper.split-view #horizontal-resize-handle.resizing {
+    width: 5px;
     background-color: #0056b3; 
 }
 

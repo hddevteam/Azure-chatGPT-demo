@@ -436,6 +436,7 @@
         transform: translateX(-50%);
         width: 90%;
         max-width: 300px;
+        max-height: fit-content;
         bottom: 20px;
     }
 

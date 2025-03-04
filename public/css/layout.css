@@ -34,8 +34,8 @@ html {
 }
 
 #chat-history-resize-handle {
-    width: 5px;
-    background: #ccc;
+    width: 2px;
+    background: #333;
     cursor: ew-resize;
     flex-shrink: 0;
     display: none; /* 默认隐藏 */
@@ -46,6 +46,7 @@ html {
 }
 
 #chat-history-resize-handle:hover {
+    width: 5px;
     background-color: #0056b3;
 }
 
@@ -146,8 +147,8 @@ html {
 }
 
 #resize-handle {
-    height: 5px; /* 给把手设定一个高度 */
-    background: #ccc; /* 把手的背景颜色 */
+    height: 2px; /* 给把手设定一个高度 */
+    background: #333; /* 把手的背景颜色 */
     cursor: ns-resize; /* 光标变为南北调整的形状，表示可垂直调整 */
 }
 
@@ -222,15 +223,9 @@ html {
     z-index: 1;
 }
 
-#horizontal-resize-handle {
-    background: #999;
-    width: 5px;
-    cursor: ew-resize;
-    flex-shrink: 0;
-    transition: background-color 0.2s ease;
-}
 
-#horizontal-resize-handle:hover,
-#horizontal-resize-handle.resizing {
+#resize-handle:hover,
+#resize-handle.resizing {
+    height: 5px;
     background-color: #0056b3;
 }
