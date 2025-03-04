@@ -23,6 +23,20 @@
         padding-bottom:100px;
     }
 
+    /* 调整移动端上的toggle-chat-topic按钮位置和样式 */
+    #toggle-chat-topic {
+        top: 5px;
+        left: 5px;
+        width: 32px;
+        height: 32px;
+        background-color: rgba(51, 51, 51, 0.8);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    
+    #toggle-chat-topic i {
+        font-size: 14px;
+    }
+
     .action-button-group {
         display: block;
     }

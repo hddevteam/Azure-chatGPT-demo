@@ -14,6 +14,7 @@
     right: 0;
     display: flex;
     gap: 8px;
+    align-items: center;
 }
 
 #topic-button-container button {
@@ -36,6 +37,39 @@
 
 #topic-button-container button i {
     font-size: 14px;
+}
+
+/* 移动端关闭按钮样式 */
+#close-chat-history {
+    display: none !important; /* 默认隐藏 */
+}
+
+@media screen and (max-width: 768px) {
+    #close-chat-history.mobile-only {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        width: 28px;
+        height: 28px;
+        padding: 0 !important;
+    }
+
+    #close-chat-history i {
+        font-size: 16px !important;
+    }
+
+    #close-chat-history:hover {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    #close-chat-history:active {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    #topic-button-container {
+        gap: 4px; /* 移动端按钮间距收紧一些 */
+    }
 }
 
 #chat-history-list {

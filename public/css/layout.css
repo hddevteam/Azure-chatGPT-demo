@@ -62,6 +62,7 @@ html {
     display: flex;
     flex-direction: column;
     transition: height 0.2s ease-out;
+    position: relative; /* 保留相对定位，为toggle-chat-topic按钮做准备 */
 }
 
 #profile-content {
@@ -81,10 +82,19 @@ html {
     margin: 0px auto 0px;
     overflow: hidden;
     height: calc(100vh - 40px);
+    transition: transform 0.3s;
+    display: none;
 }
 
+#chat-history-container.visible {
+    display: block;
+}
 
+#horizontal-resize-handle {
+    display: none;
+}
 
+/* 移除旧的toggle-chat-topic样式，现在使用drawer-toggle.css中的样式 */
 
 #header #header-buttons {
     display: flex;

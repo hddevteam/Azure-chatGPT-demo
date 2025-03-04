@@ -556,3 +556,29 @@
     max-width: 40vw;
 }
 
+/* 在split view模式下调整toggle-chat-topic按钮的样式 */
+#main-container.split-view #toggle-chat-topic {
+    top: 10px;
+    left: 10px;
+    background-color: rgba(64, 64, 64, 0.85);
+    color: #e6e6e6;
+    z-index: 100;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#main-container.split-view #toggle-chat-topic:hover {
+    background-color: #4A90E2;
+    transform: scale(1.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+#main-container.split-view #toggle-chat-topic:active {
+    transform: scale(0.95);
+    background-color: #357ABD;
+}
+
+#main-container.split-view.visible #toggle-chat-topic {
+    left: calc(200px + 10px); /* 当聊天历史显示时，按钮位置移动到聊天历史右侧 */
+    transition: left 0.3s ease;
+}
+

@@ -74,7 +74,6 @@
   <div id="header">
     <h1 id="app-name"></h1>
     <div id="header-buttons">
-      <button id="toggle-chat-topic" title="Show/Hide history topic"><i class="fas fa-history"></i></button>
       <button id="ai-profile"><i class="fas fa-robot"></i>
         <span>AI</span>
       </button>
@@ -87,6 +86,7 @@
       <h2>Chat History<div id="topic-button-container">
           <button id="topic-filter"><i class="fas fa-filter"></i></button>
           <button id="refresh-topic"><i class="fas fa-sync-alt"></i></button>
+          <button id="close-chat-history" class="mobile-only" title="Close chat history"><i class="fas fa-times"></i></button>
         </div>
       </h2>
       <ul id="chat-history-list"></ul>
@@ -94,6 +94,7 @@
     <div id="chat-history-resize-handle"></div>
     <div id="app-outer-wrapper">
       <div id="app-container">
+        <button id="toggle-chat-topic" title="Show/Hide history topic"><i class="fas fa-bars"></i></button>
         <div id="messages">
         </div>
         <div class="information">

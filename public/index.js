@@ -447,6 +447,13 @@ async function initializeApp(username) {  // 接收传入的 username 参数
         audioModal.showModal();
     });
 
+    // Add close button handler for mobile
+    const closeChatHistoryBtn = document.getElementById("close-chat-history");
+    closeChatHistoryBtn.addEventListener("click", function(event) {
+        event.stopPropagation();
+        uiManager.hiddenElement(chatHistoryContainer);
+    });
+
     setInitialVisibility();
     addHorizontalResizeHandleListeners(); // Add horizontal resize functionality
     addVerticalResizeHandleListeners(); // Add vertical resize functionality

@@ -1,0 +1,64 @@
+/* -----------------------------
+ * 抽屉式切换按钮基础样式
+ * ----------------------------- */
+#toggle-chat-topic {
+    position: absolute;
+    top: 12px;     /* 距离上边缘保持适当距离 */
+    left: 0;
+    width: 24px;
+    height: 36px;
+    background-color: #3391FF;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 101;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    padding: 0;
+}
+
+/* -----------------------------
+ * 抽屉按钮图标样式
+ * ----------------------------- */
+#toggle-chat-topic i {
+    font-size: 14px;
+}
+
+/* -----------------------------
+ * 抽屉按钮悬停和激活状态
+ * ----------------------------- */
+#toggle-chat-topic:hover {
+    background-color: #2a7bcc;
+    transform: translateX(2px);
+}
+
+#toggle-chat-topic:active {
+    background-color: #1e68b3;
+    transform: translateX(0);
+}
+
+/* -----------------------------
+ * 分屏模式下的抽屉按钮样式
+ * ----------------------------- */
+#main-container.split-view #toggle-chat-topic {
+    background-color: rgba(64, 64, 64, 0.85);
+}
+
+#main-container.split-view #toggle-chat-topic:hover {
+    background-color: rgba(74, 144, 226, 0.85);
+}
+
+/* -----------------------------
+ * 移动设备响应式调整
+ * ----------------------------- */
+@media screen and (max-width: 768px) {
+    #toggle-chat-topic {
+        width: 20px;
+        height: 32px;
+        top: 8px;    /* 移动端稍微靠上一点 */
+    }
+}
