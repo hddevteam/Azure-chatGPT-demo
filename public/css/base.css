@@ -56,6 +56,20 @@ h1, h2, h3, h4, h5, h6 {
     --background-primary: #ffffff;
     --background-secondary: #f8f9fa;
     --background-tertiary: #e9ecef;
+
+    /* 引用样式变量 */
+    --theme-border-quote: #10a37f;
+    --theme-border-quote-fade: rgba(16, 163, 127, 0.2);
+    --theme-text-quote: #374151;
+    --theme-bg-quote: #f8faf9;
+    --theme-bg-code-in-quote: #e5e7eb;
+
+    /* 深色主题引用样式变量 */
+    --theme-border-quote-dark: #10a37f;
+    --theme-border-quote-dark-fade: rgba(16, 163, 127, 0.2);
+    --theme-text-quote-dark: #e5e7eb;
+    --theme-bg-quote-dark: #1a2634;
+    --theme-bg-code-in-quote-dark: #374151;
 }
 
 /* Dark theme */

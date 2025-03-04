@@ -1,6 +1,7 @@
 import { RealtimeClient } from "../utils/realtime/realtimeClient.js";
 import { fetchRealtimeConfig, generateSystemPrompt } from "../utils/apiClient.js";
 import { ConversationSummaryHelper } from "../utils/ConversationSummaryHelper.js";
+import MarkdownRenderer from "../utils/MarkdownRenderer.js";
 
 const WELCOME_MESSAGE_TEMPLATE = `
     <div class="welcome-message">
@@ -751,7 +752,18 @@ export default class IntercomModal {
         
         const contentDiv = document.createElement("div");
         contentDiv.className = "im-message-content";
-        contentDiv.innerHTML = text;
+        
+        // Use MarkdownRenderer for assistant messages, plain text for user messages
+        if (type === "assistant" && text) {
+            try {
+                contentDiv.innerHTML = MarkdownRenderer.render(text);
+            } catch (error) {
+                console.error("Error rendering markdown in IntercomModal:", error);
+                contentDiv.innerHTML = text;
+            }
+        } else {
+            contentDiv.innerHTML = text;
+        }
         
         const metaDiv = document.createElement("div");
         metaDiv.className = "im-message-meta";

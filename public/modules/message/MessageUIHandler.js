@@ -1,12 +1,20 @@
 // MessageUIHandler.js - 处理消息UI相关功能
 import { marked } from "marked";
 import { generateExcerpt } from "../../utils/textUtils.js";
+import MarkdownRenderer from "../../utils/MarkdownRenderer.js";
 import swal from "sweetalert";
 
 class MessageUIHandler {
     constructor(messageManager) {
         this.messageManager = messageManager;
         this.uiManager = messageManager.uiManager;
+        
+        // Make sure we have access to the uiManager before trying to access its properties
+        if (!this.uiManager) {
+            console.error("UIManager is undefined in MessageUIHandler constructor");
+            throw new Error("UIManager is undefined in MessageUIHandler constructor");
+        }
+        
         this.domManager = this.uiManager.domManager;
         this.eventManager = this.uiManager.eventManager;
         this.linkHandler = messageManager.linkHandler;
@@ -181,8 +189,19 @@ class MessageUIHandler {
             element.innerText = isActive ? message : this.getMessagePreview(message);
         } else {
             element = messageElem.querySelector("div.message-content");
-            const messageHtml = marked.parse(message || "");
-            element.innerHTML = isActive ? messageHtml : marked.parse(this.getMessagePreview(message || ""));
+            
+            try {
+                // 使用新的 MarkdownRenderer 处理消息内容
+                const messageToRender = isActive ? message : this.getMessagePreview(message || "");
+                element.innerHTML = MarkdownRenderer.render(messageToRender);
+            } catch (error) {
+                console.error("Error rendering markdown:", error);
+                // 降级为原始 marked 作为后备
+                const messageHtml = isActive 
+                    ? marked.parse(message || "")
+                    : marked.parse(this.getMessagePreview(message || ""));
+                element.innerHTML = messageHtml;
+            }
         }
     
         // 处理代码块

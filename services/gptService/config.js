@@ -14,6 +14,7 @@ const apiKeys = {
     o1: process.env.O1_API_KEY,
     o1Mini: process.env.O1_MINI_API_KEY,
     o3Mini: process.env.O3_API_KEY, // 添加 o3-mini 模型的 API Key
+    deepseek: process.env.DEEPSEEK_API_KEY, // 添加DeepSeek的API密钥
     // Default key based on environment
     default: devMode ? process.env.API_KEY_DEV : process.env.GPT_4O_MINI_API_KEY
 };
@@ -24,7 +25,8 @@ const apiUrls = {
     gpt4oMini: process.env.GPT_4O_MINI_API_URL,
     o1: process.env.O1_API_URL,
     o1Mini: process.env.O1_MINI_API_URL,
-    o3Mini: process.env.O3_API_URL, // 添加 o3-mini 模型的 API URL
+    o3Mini: process.env.O3_API_URL,
+    deepseek: `${process.env.DEEPSEEK_API_URL}/chat/completions`, // 添加正确的端点路径
     // Default URL based on environment
     default: devMode ? process.env.API_URL_DEV : process.env.GPT_4O_MINI_API_URL
 };
@@ -47,7 +49,8 @@ const modelFeatures = {
     "gpt-4o-mini": { supportsFunctionCalls: true, supportsSystemMessages: true },
     "o1": { supportsFunctionCalls: false, supportsSystemMessages: false },
     "o1-mini": { supportsFunctionCalls: false, supportsSystemMessages: false },
-    "o3-mini": { supportsFunctionCalls: true, supportsSystemMessages: true } // 添加 o3-mini 的功能支持配置
+    "o3-mini": { supportsFunctionCalls: true, supportsSystemMessages: true }, // 添加 o3-mini 的功能支持配置
+    "deepseek-r1": { supportsFunctionCalls: true, supportsSystemMessages: true } // 添加DeepSeek-R1的功能支持
 };
 
 /**
@@ -75,9 +78,13 @@ const getApiConfig = (model) => {
         apiKey = apiKeys.o1Mini;
         apiUrl = apiUrls.o1Mini;
         break;
-    case "o3-mini":  // 添加 o3-mini 的 case
+    case "o3-mini":
         apiKey = apiKeys.o3Mini;
         apiUrl = apiUrls.o3Mini;
+        break;
+    case "deepseek-r1":  // 添加 deepseek-r1 的配置
+        apiKey = apiKeys.deepseek;
+        apiUrl = apiUrls.deepseek;
         break;
     default:
         // Default to GPT-4O if model not specified

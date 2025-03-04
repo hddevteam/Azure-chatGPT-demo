@@ -1,30 +1,44 @@
-/* Model button styles */
-
-/* 每个模型对应的颜色 */
-.btn.gpt-4o {
-    background-color: #10a37f;
-    color: white;
+/* 使用CSS变量定义模型颜色 */
+:root {
+    --model-gpt4o: #10a37f;
+    --model-gpt4o-mini: #2a9d8f;
+    --model-o1: #3a86ff;
+    --model-o1-mini: #4cc9f0;
+    --model-o3-mini: #7209b7;
+    --model-deepseek: #d81b60; /* 改为玫红色，与紫色明显区分 */
 }
 
-.btn.gpt-4o-mini {
-    background-color: #2a9d8f;
+/* Model button & indicator styles */
+.btn[class*="gpt-4o"], 
+.btn[class*="o1"], 
+.btn[class*="o3"], 
+.btn.deepseek-r1,
+.message-header .model-indicator {
     color: white;
+    min-width: 80px;
+    text-align: center;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
-.btn.o1 {
-    background-color: #3a86ff;
-    color: white;
+/* Button hover effect */
+.btn[class*="gpt-4o"]:hover,
+.btn[class*="o1"]:hover,
+.btn[class*="o3"]:hover,
+.btn.deepseek-r1:hover {
+    opacity: 0.9;
 }
 
-.btn.o1-mini {
-    background-color: #4cc9f0;
-    color: white;
-}
-
-.btn.o3-mini {
-    background-color: #7209b7; /* 新模型使用紫色调 */
-    color: white;
-}
+/* Model specific colors */
+.btn.gpt-4o, .message-header .model-indicator.gpt-4o { background-color: var(--model-gpt4o); }
+.btn.gpt-4o-mini, .message-header .model-indicator.gpt-4o-mini { background-color: var(--model-gpt4o-mini); }
+.btn.o1, .message-header .model-indicator.o1 { background-color: var(--model-o1); }
+.btn.o1-mini, .message-header .model-indicator.o1-mini { background-color: var(--model-o1-mini); }
+.btn.o3-mini, .message-header .model-indicator.o3-mini { background-color: var(--model-o3-mini); }
+.btn.deepseek-r1, .message-header .model-indicator.deepseek-r1 { background-color: var(--model-deepseek); }
 
 /* 模型选择器的微调 */
 #model-switch {
@@ -34,6 +48,7 @@
     padding: 5px 10px;
     border-radius: 5px;
     transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 #model-switch:hover {
@@ -43,31 +58,38 @@
 /* 模型下拉菜单中的选项 */
 .model-dropdown .dropdown-item[data-model="gpt-4o"]::before {
     content: "●";
-    color: #10a37f;
+    color: var(--model-gpt4o);
     margin-right: 5px;
 }
 
 .model-dropdown .dropdown-item[data-model="gpt-4o-mini"]::before {
     content: "●";
-    color: #2a9d8f;
+    color: var(--model-gpt4o-mini);
     margin-right: 5px;
 }
 
 .model-dropdown .dropdown-item[data-model="o1"]::before {
     content: "●";
-    color: #3a86ff;
+    color: var(--model-o1);
     margin-right: 5px;
 }
 
 .model-dropdown .dropdown-item[data-model="o1-mini"]::before {
     content: "●";
-    color: #4cc9f0;
+    color: var(--model-o1-mini);
     margin-right: 5px;
 }
 
 .model-dropdown .dropdown-item[data-model="o3-mini"]::before {
     content: "●";
-    color: #7209b7;
+    color: var(--model-o3-mini);
+    margin-right: 5px;
+}
+
+/* 在模型下拉菜单样式中添加DeepSeek模型的指示器 */
+.model-dropdown .dropdown-item[data-model="deepseek-r1"]::before {
+    content: "●";
+    color: var(--model-deepseek);
     margin-right: 5px;
 }
 
@@ -79,27 +101,154 @@
     margin-left: 8px;
 }
 
-.message-header .model-indicator.gpt-4o {
-    background-color: #10a37f;
-    color: white;
+/* 模型选择模态框样式 */
+#model-select-modal {
+    z-index: 1000;
 }
 
-.message-header .model-indicator.gpt-4o-mini {
-    background-color: #2a9d8f;
-    color: white;
+#model-select-modal .modal-inner {
+    width: 90%;
+    max-width: 400px;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
-.message-header .model-indicator.o1 {
-    background-color: #3a86ff;
-    color: white;
+#model-select-modal .modal-header {
+    padding: 16px;
+    border-bottom: 1px solid #eee;
 }
 
-.message-header .model-indicator.o1-mini {
-    background-color: #4cc9f0;
-    color: white;
+#model-select-modal .modal-title-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.message-header .model-indicator.o3-mini {
-    background-color: #7209b7;
-    color: white;
+#model-select-modal .modal-title {
+    font-size: 18px;
+    font-weight: 500;
 }
+
+#model-select-modal .modal-close {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+#model-select-modal .modal-close:hover {
+    background-color: #f0f0f0;
+}
+
+#model-select-modal .modal-content {
+    padding: 16px;
+    overflow-y: auto;
+    margin: 0;
+    border: none;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: auto;
+}
+
+#model-select-modal .modal-content * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Model options in modal */
+#model-select-modal .model-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#model-select-modal .model-option {
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+#model-select-modal .model-option:hover {
+    background-color: #f5f5f5;
+}
+
+#model-select-modal .model-option.selected {
+    background-color: #e3f2fd;
+}
+
+#model-select-modal .model-option::before {
+    content: "●";
+    margin-right: 8px;
+}
+
+/* Model option indicators */
+#model-select-modal .model-option[data-model="gpt-4o"]::before { color: var(--model-gpt4o); }
+#model-select-modal .model-option[data-model="gpt-4o-mini"]::before { color: var(--model-gpt4o-mini); }
+#model-select-modal .model-option[data-model="o1"]::before { color: var(--model-o1); }
+#model-select-modal .model-option[data-model="o1-mini"]::before { color: var(--model-o1-mini); }
+#model-select-modal .model-option[data-model="o3-mini"]::before { color: var(--model-o3-mini); }
+#model-select-modal .model-option[data-model="deepseek-r1"]::before { color: var(--model-deepseek); }
+
+/* 暗色主题适配 */
+.split-view #model-select-modal .modal-inner {
+    background-color: #22272e;
+    border: 1px solid #444c56;
+}
+
+.split-view #model-select-modal .modal-header {
+    border-color: #444c56;
+}
+
+.split-view #model-select-modal .modal-title {
+    color: #adbac7;
+}
+
+.split-view #model-select-modal .modal-close {
+    color: #768390;
+}
+
+.split-view #model-select-modal .modal-close:hover {
+    background-color: #2d333b;
+}
+
+.split-view #model-select-modal .model-option {
+    color: #adbac7;
+}
+
+.split-view #model-select-modal .model-option:hover {
+    background-color: #2d333b;
+}
+
+.split-view #model-select-modal .model-option.selected {
+    background-color: rgba(51, 145, 255, 0.1);
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 768px) {
+    #model-select-modal .modal-inner {
+        width: 95%;
+        margin: 10px;
+        max-height: calc(100vh - 20px);
+    }
+}
+
+/* 思维链中的代码块样式 - Moved to messages.css */
+/* Code block styles in blockquotes have been moved to messages.css */

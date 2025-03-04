@@ -7,6 +7,7 @@
 const axios = require("axios");
 const { toolDefinitions } = require("./tools");
 const config = require("./config");
+const AdapterFactory = require("./modelAdapters/AdapterFactory");
 
 /**
  * Make a request to an LLM API endpoint
@@ -23,27 +24,32 @@ const config = require("./config");
 const makeRequest = async ({ apiKey, apiUrl, model, prompt, params, includeFunctionCalls = false }) => {
     console.log("Making API request to:", apiUrl, "with model:", model);
     
-    const requestData = {
-        messages: prompt,
-        ...params
-    };
-
-    // 只有当模型支持函数调用且启用了函数调用时添加工具
-    if (includeFunctionCalls && config.supportsFeature(model, "supportsFunctionCalls")) {
-        requestData.tools = toolDefinitions;
-    }
-
-    const options = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "api-key": apiKey,
-        },
-        data: requestData,
-    };
-
     try {
+        // 获取模型对应的适配器
+        const adapter = AdapterFactory.getAdapter(model, config);
+        
+        // 使用适配器处理请求数据
+        const requestData = adapter.processRequestBody(prompt, params);
+
+        // 只有当模型支持函数调用且启用了函数调用时添加工具
+        if (includeFunctionCalls && config.supportsFeature(model, "supportsFunctionCalls")) {
+            requestData.tools = toolDefinitions;
+        }
+
+        console.log("Request data:", JSON.stringify(requestData, null, 2));
+
+        const options = {
+            method: "POST",
+            headers: adapter.getHeaders(apiKey),
+            data: requestData,
+        };
+
         const response = await axios(apiUrl, options);
+        
+        if (response.status === 404) {
+            throw new Error(`API endpoint not found: ${apiUrl}`);
+        }
+
         return response;
     } catch (error) {
         console.error("API request failed:", error.message);
@@ -92,6 +98,14 @@ const processModelParameters = (model, params) => {
             max_completion_tokens: parseInt(params.max_tokens)
         };
     } 
+    // DeepSeek-R1模型的参数处理
+    else if (model === "deepseek-r1") {
+        return {
+            temperature: parseFloat(params.temperature),
+            top_p: parseFloat(params.top_p),
+            max_tokens: parseInt(params.max_tokens)
+        };
+    }
     else {
         // Standard parameters for OpenAI-compatible models
         return {

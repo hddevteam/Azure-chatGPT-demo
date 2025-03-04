@@ -33,8 +33,8 @@ class MessageManager {
         button.classList.toggle("active", this.webSearchEnabled);
     }
 
-    // 添加消息到DOM - 代理到UIHandler
-    addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false, attachmentUrls = "") {
+    // 修改 addMessage 方法，移除思维链处理
+    async addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false, attachmentUrls = "") {
         return this.uiHandler.addMessage(sender, message, messageId, isActive, position, isError, attachmentUrls);
     }
 

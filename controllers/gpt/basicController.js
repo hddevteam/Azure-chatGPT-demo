@@ -145,6 +145,8 @@ exports.generateResponse = async (req, res) => {
         // 获取请求的模型的API配置
         const { apiKey, apiUrl } = gptService.getApiConfig(model);
 
+        console.log("API config:", { apiKey, apiUrl });
+
         // 初始请求数据
         let requestData = {
             apiKey,

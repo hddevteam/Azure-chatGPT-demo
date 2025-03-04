@@ -35,7 +35,11 @@ async function initializeApp(username) {  // 接收传入的 username 参数
     // 初始化显示欢迎信息
     uiManager.showWelcomeMessage();
     
-    new ModelDropdownManager(app, "#model-switch", "#model-dropdown");
+    // Initialize ModelDropdownManager
+    const modelDropdownManager = new ModelDropdownManager(
+        app, 
+        "#model-switch"  // 移除 "#model-dropdown" 参数
+    );
 
     //get client language
     const clientLanguage = navigator.language;
