@@ -1,0 +1,105 @@
+/* Model button styles */
+
+/* 每个模型对应的颜色 */
+.btn.gpt-4o {
+    background-color: #10a37f;
+    color: white;
+}
+
+.btn.gpt-4o-mini {
+    background-color: #2a9d8f;
+    color: white;
+}
+
+.btn.o1 {
+    background-color: #3a86ff;
+    color: white;
+}
+
+.btn.o1-mini {
+    background-color: #4cc9f0;
+    color: white;
+}
+
+.btn.o3-mini {
+    background-color: #7209b7; /* 新模型使用紫色调 */
+    color: white;
+}
+
+/* 模型选择器的微调 */
+#model-switch {
+    min-width: 80px;
+    text-align: center;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+
+#model-switch:hover {
+    opacity: 0.9;
+}
+
+/* 模型下拉菜单中的选项 */
+.model-dropdown .dropdown-item[data-model="gpt-4o"]::before {
+    content: "●";
+    color: #10a37f;
+    margin-right: 5px;
+}
+
+.model-dropdown .dropdown-item[data-model="gpt-4o-mini"]::before {
+    content: "●";
+    color: #2a9d8f;
+    margin-right: 5px;
+}
+
+.model-dropdown .dropdown-item[data-model="o1"]::before {
+    content: "●";
+    color: #3a86ff;
+    margin-right: 5px;
+}
+
+.model-dropdown .dropdown-item[data-model="o1-mini"]::before {
+    content: "●";
+    color: #4cc9f0;
+    margin-right: 5px;
+}
+
+.model-dropdown .dropdown-item[data-model="o3-mini"]::before {
+    content: "●";
+    color: #7209b7;
+    margin-right: 5px;
+}
+
+/* 在消息中显示使用的模型 */
+.message-header .model-indicator {
+    font-size: 0.8em;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 8px;
+}
+
+.message-header .model-indicator.gpt-4o {
+    background-color: #10a37f;
+    color: white;
+}
+
+.message-header .model-indicator.gpt-4o-mini {
+    background-color: #2a9d8f;
+    color: white;
+}
+
+.message-header .model-indicator.o1 {
+    background-color: #3a86ff;
+    color: white;
+}
+
+.message-header .model-indicator.o1-mini {
+    background-color: #4cc9f0;
+    color: white;
+}
+
+.message-header .model-indicator.o3-mini {
+    background-color: #7209b7;
+    color: white;
+}

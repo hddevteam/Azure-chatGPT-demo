@@ -22,6 +22,7 @@
 @import url("components/sweetalert.css");
 @import url("components/document-analysis-progress.css");
 @import url("components/progress-bar.css");
+@import url("components/model-styles.css"); /* 引入新的模型样式文件 */
 
 /* Feature styles */
 @import url("chat_options_modal.css");
