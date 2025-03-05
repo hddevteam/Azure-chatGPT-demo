@@ -72,8 +72,8 @@ jobs:
           
           # 从发布配置文件中提取凭据
           publish_profile="${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_57B881AC264A443E873FD5B027994B9B }}"
-          username=$(echo "$publish_profile" | grep -oP '(?<=userName=")[^"]*')
-          password=$(echo "$publish_profile" | grep -oP '(?<=userPWD=")[^"]*')
+          username=$(echo "$publish_profile" | sed -n 's/.*userName="\([^"]*\)".*/\1/p')
+          password=$(echo "$publish_profile" | sed -n 's/.*userPWD="\([^"]*\)".*/\1/p')
           
           # 使用Kudu API创建备份
           echo "执行远程备份命令..."
@@ -110,8 +110,8 @@ jobs:
           if [ -n "$latest_backup" ] && [ -f "$latest_backup" ]; then
             # 从发布配置文件中提取凭据
             publish_profile="${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_57B881AC264A443E873FD5B027994B9B }}"
-            username=$(echo "$publish_profile" | grep -oP '(?<=userName=")[^"]*')
-            password=$(echo "$publish_profile" | grep -oP '(?<=userPWD=")[^"]*')
+            username=$(echo "$publish_profile" | sed -n 's/.*userName="\([^"]*\)".*/\1/p')
+            password=$(echo "$publish_profile" | sed -n 's/.*userPWD="\([^"]*\)".*/\1/p')
             
             # 上传备份文件
             echo "上传备份文件..."
