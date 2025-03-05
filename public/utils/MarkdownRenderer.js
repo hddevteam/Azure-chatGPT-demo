@@ -72,6 +72,11 @@ class MarkdownRenderer {
         const thinkRegex = /<think>([\s\S]*?)<\/think>/g;
         
         return text.replace(thinkRegex, (match, thinkContent) => {
+            // 检查 think 内容是否为空或只包含空白字符
+            if (!thinkContent || thinkContent.trim() === "") {
+                return ""; // 如果内容为空，则替换为空字符串
+            }
+            
             // 1. 分割成行并处理每一行
             const processedLines = thinkContent
                 .split("\n")

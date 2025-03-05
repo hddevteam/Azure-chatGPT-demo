@@ -288,6 +288,13 @@ export default class ProfileFormManager {
         try {
             await saveOrUpdateProfile(profile, username, isNewProfile, this.oldName);
             this.storageManager.setCurrentProfile(profile); // 设置新保存的Profile为当前Profile
+            
+            // Update AIProfileManager's current profile and UI state
+            if (this.uiManager.aiProfileManager) {
+                this.uiManager.aiProfileManager.currentProfile = profile;
+                this.uiManager.aiProfileManager.updateUIState();
+            }
+            
             console.log("Profile saved successfully.");                
             this.onSaveCallback(profile, isNewProfile); 
             
