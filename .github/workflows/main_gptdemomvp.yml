@@ -35,6 +35,8 @@ jobs:
         run: |
           npm install
           npm run build
+          # npm run build --if-present
+          # npm run test --if-present
 
       - name: Archive build artifacts
         run: zip release.zip ./* -r
@@ -63,36 +65,7 @@ jobs:
 
       - name: Remove the archive file
         run: rm release.zip
-          
-      - name: Backup .data directory
-        run: |
-          echo "创建.data目录备份..."
-          timestamp=$(date +%Y%m%d_%H%M%S)
-          mkdir -p backup
-          
-          # 从发布配置文件中提取凭据
-          publish_profile="${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_57B881AC264A443E873FD5B027994B9B }}"
-          username=$(echo "$publish_profile" | sed -n 's/.*userName="\([^"]*\)".*/\1/p')
-          password=$(echo "$publish_profile" | sed -n 's/.*userPWD="\([^"]*\)".*/\1/p')
-          
-          # 使用Kudu API创建备份
-          echo "执行远程备份命令..."
-          curl -s -u "$username:$password" https://gptdemomvp.scm.azurewebsites.net/api/command \
-               -d "{'command': 'bash -c \"cd /home/site/wwwroot && if [ -d \\\".data\\\" ]; then tar czf /home/site/data_backup.tar.gz .data; echo \\\"备份已创建\\\"; else echo \\\"没有找到.data目录\\\"; exit 0; fi\"'}" \
-               -H "Content-Type: application/json"
-          
-          # 下载备份文件
-          echo "下载备份文件..."
-          curl -s -u "$username:$password" https://gptdemomvp.scm.azurewebsites.net/api/vfs/site/data_backup.tar.gz \
-               -o "backup/data_backup_${timestamp}.tar.gz"
-          
-          if [ -s "backup/data_backup_${timestamp}.tar.gz" ]; then
-            echo "备份成功完成"
-          else
-            echo "备份过程中没有找到.data目录或备份失败"
-            rm -f "backup/data_backup_${timestamp}.tar.gz"
-          fi
-          
+        
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
@@ -101,31 +74,3 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_57B881AC264A443E873FD5B027994B9B }}
           package: .
-          
-      - name: Restore .data directory
-        run: |
-          echo "恢复.data目录..."
-          latest_backup=$(ls -t backup/data_backup_*.tar.gz 2>/dev/null | head -n1 || echo "")
-          
-          if [ -n "$latest_backup" ] && [ -f "$latest_backup" ]; then
-            # 从发布配置文件中提取凭据
-            publish_profile="${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_57B881AC264A443E873FD5B027994B9B }}"
-            username=$(echo "$publish_profile" | sed -n 's/.*userName="\([^"]*\)".*/\1/p')
-            password=$(echo "$publish_profile" | sed -n 's/.*userPWD="\([^"]*\)".*/\1/p')
-            
-            # 上传备份文件
-            echo "上传备份文件..."
-            curl -X PUT -s -u "$username:$password" \
-                 --data-binary @"$latest_backup" \
-                 https://gptdemomvp.scm.azurewebsites.net/api/vfs/site/data_backup_restore.tar.gz
-            
-            # 解压备份文件
-            echo "执行恢复命令..."
-            curl -s -u "$username:$password" https://gptdemomvp.scm.azurewebsites.net/api/command \
-                 -d "{'command': 'bash -c \"cd /home/site/wwwroot && tar xzf /home/site/data_backup_restore.tar.gz && echo \\\"恢复完成\\\"\"'}" \
-                 -H "Content-Type: application/json"
-            
-            echo "恢复操作已完成"
-          else
-            echo "没有找到备份文件，跳过恢复"
-          fi
