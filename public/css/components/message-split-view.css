@@ -1,0 +1,67 @@
+/* Split View Message Styles */
+.split-view .message {
+    max-width: var(--split-view-message-max-width);
+    font-size: var(--split-view-message-font-size);
+}
+
+/* Adjust spacing for split view */
+.split-view .user-message {
+    margin-left: 4%;
+    margin-right: 2%;
+}
+
+.split-view .assistant-message {
+    margin-right: 4%;
+    margin-left: 2%;
+}
+
+/* Adjust indicators position */
+.split-view .message::before {
+    width: 6px;
+    height: 6px;
+}
+
+.split-view .user-message::before {
+    right: -12px;
+}
+
+.split-view .assistant-message::before {
+    left: -12px;
+}
+
+/* Custom scrollbar for split view */
+.split-view .message-content::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.split-view .message-content::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+}
+
+.split-view .message-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Active state adjustments */
+.split-view .message.active {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.split-view .message:hover {
+    transform: translateY(-1px);
+}
+
+/* Dark theme adjustments */
+.theme-dark.split-view .message-content::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.theme-dark.split-view .user-message.active {
+    background-color: rgba(66, 133, 244, 0.8);
+}
+
+.theme-dark.split-view .assistant-message.active {
+    background-color: rgba(52, 53, 65, 0.85);
+}

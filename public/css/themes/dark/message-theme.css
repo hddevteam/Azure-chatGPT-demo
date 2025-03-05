@@ -1,0 +1,57 @@
+/* Split View Dark Theme Variables */
+.split-view {
+    /* Base Colors */
+    --split-view-bg: #2d333b;
+    --split-view-text: rgba(255, 255, 255, 0.9);
+    
+    /* Heading Colors */
+    --heading-1-color: rgba(255, 255, 255, 0.95);
+    --heading-2-color: rgba(255, 255, 255, 0.9);
+    --heading-3-color: rgba(255, 255, 255, 0.85);
+    --heading-4-color: rgba(255, 255, 255, 0.8);
+    --heading-5-color: rgba(255, 255, 255, 0.75);
+    
+    /* Heading Border Colors */
+    --heading-border-1: rgba(255, 255, 255, 0.25);
+    --heading-border-2: rgba(255, 255, 255, 0.2);
+    --heading-border-3: rgba(255, 255, 255, 0.15);
+    
+    /* Text Shadow */
+    --heading-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --heading-shadow-2: 0 1px 1px rgba(0, 0, 0, 0.2);
+    --heading-shadow-3: 0 1px 1px rgba(0, 0, 0, 0.1);
+    
+    /* Inactive States */
+    --heading-inactive-color: rgba(255, 255, 255, 0.6);
+    --heading-inactive-opacity: 0.7;
+    
+    /* Blockquote Heading Colors */
+    --blockquote-heading-color: rgba(255, 255, 255, 0.9);
+    --blockquote-heading-border: rgba(255, 255, 255, 0.15);
+    --blockquote-heading-active-color: rgba(255, 255, 255, 0.95);
+    --blockquote-heading-active-border: rgba(255, 255, 255, 0.2);
+    --blockquote-heading-inactive-color: rgba(255, 255, 255, 0.5);
+    
+    /* High Contrast Mode */
+    --high-contrast-heading-color: #ffffff;
+    --high-contrast-heading-border: #ffffff;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .split-view {
+        --heading-1-color: var(--high-contrast-heading-color);
+        --heading-2-color: var(--high-contrast-heading-color);
+        --heading-3-color: var(--high-contrast-heading-color);
+        --heading-4-color: var(--high-contrast-heading-color);
+        --heading-5-color: var(--high-contrast-heading-color);
+        
+        --heading-border-1: var(--high-contrast-heading-border);
+        --heading-border-2: var(--high-contrast-heading-border);
+        --heading-border-3: var(--high-contrast-heading-border);
+        
+        --heading-shadow-1: none;
+        --heading-shadow-2: none;
+        --heading-shadow-3: none;
+    }
+}

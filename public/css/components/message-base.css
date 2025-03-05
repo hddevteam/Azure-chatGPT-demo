@@ -1,0 +1,105 @@
+/* Base Message Container */
+.message {
+    position: relative;
+    max-width: var(--message-max-width);
+    padding: var(--message-padding);
+    margin: var(--message-margin);
+    border-radius: var(--message-border-radius);
+    border: 1px solid;
+    transition: var(--message-transition);
+    font-size: var(--message-font-size);
+    line-height: var(--message-line-height);
+}
+
+/* Message Content */
+.message-content {
+    position: relative;
+    overflow-y: auto;
+    max-height: 70vh;
+    padding-right: var(--spacing-sm);
+}
+
+/* Message Types */
+.user-message {
+    margin-left: auto;
+    background-color: var(--user-message-bg);
+    border-color: var(--user-message-border);
+    border-bottom-right-radius: 4px;
+}
+
+.assistant-message {
+    margin-right: auto;
+    background-color: var(--assistant-message-bg);
+    border-color: var(--assistant-message-border);
+    border-bottom-left-radius: 4px;
+}
+
+/* Active States */
+.user-message.active {
+    background-color: var(--user-message-active-bg);
+    border-color: var(--user-message-active-border);
+    color: white;
+    box-shadow: var(--message-active-shadow);
+}
+
+.assistant-message.active {
+    background-color: var(--assistant-message-active-bg);
+    border-color: var(--assistant-message-active-border);
+    box-shadow: var(--message-active-shadow);
+}
+
+/* Inactive States */
+.user-message.inactive {
+    background-color: var(--user-message-inactive-bg);
+    border-color: var(--user-message-inactive-border);
+    opacity: 0.8;
+}
+
+.assistant-message.inactive {
+    background-color: var(--assistant-message-inactive-bg);
+    border-color: var(--assistant-message-inactive-border);
+    opacity: 0.8;
+}
+
+/* Message Indicators */
+.message::before {
+    content: '';
+    position: absolute;
+    width: var(--message-indicator-size);
+    height: var(--message-indicator-size);
+    border-radius: 50%;
+    top: var(--spacing-md);
+}
+
+.user-message::before {
+    right: calc(-1 * var(--message-indicator-size) - 8px);
+    background-color: var(--accent-color);
+}
+
+.assistant-message::before {
+    left: calc(-1 * var(--message-indicator-size) - 8px);
+    background-color: var(--primary-color);
+}
+
+/* Hover Effects */
+.message:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--message-hover-shadow);
+    transition: var(--message-hover-transition);
+}
+
+.message.active:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--message-active-shadow);
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+    .message {
+        border-width: var(--message-border-width);
+    }
+    
+    .message.active {
+        border-width: var(--message-active-border-width);
+    }
+}

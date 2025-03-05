@@ -29,6 +29,96 @@
   color: white; /* 默认文本颜色 */
 }
 
+/* Typography Enhancements */
+.im-message-content h1 {
+  font-size: var(--font-size-h1);
+  margin: var(--spacing-lg) 0 var(--spacing-md);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.im-message-content h2 {
+  font-size: var(--font-size-h2);
+  margin: var(--spacing-lg) 0 var(--spacing-md);
+  padding-bottom: var(--spacing-xxs);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.im-message-content h3 {
+  font-size: var(--font-size-h3);
+  margin: var(--spacing-md) 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.im-message-content h4 {
+  font-size: var(--font-size-h4);
+  margin: var(--spacing-md) 0 var(--spacing-sm);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.im-message-content h5 {
+  font-size: var(--font-size-h5);
+  margin: var(--spacing-sm) 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Horizontal Rule Styles */
+.im-message-content hr {
+  border: none;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: var(--spacing-lg) 0;
+}
+
+.im-message-content hr.section-divider {
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  margin: var(--spacing-xl) 0;
+}
+
+.im-message-content hr.subtle-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: var(--spacing-md) 0;
+}
+
+/* Paragraph and Break Styles */
+.im-message-content p {
+  margin: var(--spacing-sm) 0;
+  line-height: var(--line-height-relaxed);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.im-message-content br {
+  content: "";
+  display: block;
+  margin-top: 0.3em;
+}
+
+.im-message-content br.paragraph-break {
+  margin: var(--spacing-sm) 0;
+}
+
+/* Links */
+.im-message-content a {
+  color: #7CB9FF;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(124, 185, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.im-message-content a:hover {
+  color: #99CCFF;
+  border-bottom-color: #99CCFF;
+  background: rgba(124, 185, 255, 0.1);
+}
+
 .im-message-content a {
   color: inherit;             
   text-decoration: underline; 
@@ -37,6 +127,23 @@
 
 .im-message-content a:hover {
   opacity: 1;                
+}
+
+/* Code Blocks */
+.im-message-content pre {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  overflow-x: auto;
+}
+
+.im-message-content code {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9em;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .im-message-user .im-message-content {
@@ -66,6 +173,32 @@
 
 .im-message-assistant .im-message-meta {
   text-align: left;
+}
+
+/* Lists */
+.im-message-content ul,
+.im-message-content ol {
+  margin: var(--spacing-sm) 0;
+  padding-left: var(--spacing-lg);
+}
+
+.im-message-content li {
+  margin: var(--spacing-xs) 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Blockquotes */
+.im-message-content blockquote {
+  border-left: 3px solid rgba(124, 185, 255, 0.5);
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.im-message-content blockquote p {
+  margin: var(--spacing-xs) 0;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* Welcome message */
@@ -236,5 +369,20 @@
   .im-summary-content li {
     font-size: var(--mobile-font-size-md);
     line-height: 1.6;
+  }
+
+  .im-message-content {
+    font-size: 0.95em;
+    padding: 10px 14px;
+  }
+
+  .im-message-content h1 { font-size: 1.6em; }
+  .im-message-content h2 { font-size: 1.4em; }
+  .im-message-content h3 { font-size: 1.2em; }
+  .im-message-content h4 { font-size: 1.1em; }
+  .im-message-content h5 { font-size: 1em; }
+
+  .im-message-content pre {
+    padding: var(--spacing-sm);
   }
 }

@@ -1,20 +1,18 @@
 /* Base message styles */
 .message {
     position: relative;
-    padding-left: 1em;
-    padding-bottom: 1em;
-    padding-top: 1.5em;
-    padding-right: 0.5em;
-    margin-bottom: 0.8em;
-    margin-right: 0.5em;
-    border-radius: 0.5em;
-    line-height: 150%;
-    overflow-wrap: anywhere;
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    border-radius: 8px;
+    line-height: var(--line-height-normal);
+    overflow-wrap: break-word;
+    transition: all 0.2s ease;
 }
 
 .message-content {
     overflow-y: auto;
-    max-height: 40vh;
+    max-height: 70vh;
+    padding-right: var(--spacing-sm);
 }
 
 .message-content.maximized {
@@ -23,9 +21,8 @@
 
 /* Message types */
 .user-message.active {
-    background-color: #e0e0e0;
-    color: #333333;
-    text-align: left;
+    background-color: var(--background-secondary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .user-message {
@@ -35,7 +32,8 @@
 }
 
 .assistant-message.active {
-    background-color: #c4d7ff;
+    background-color: var(--background-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .assistant-message {
@@ -549,4 +547,152 @@
 .message .sources-list::-webkit-scrollbar-track {
     background-color: var(--background-secondary);
     border-radius: 3px;
+}
+
+/* 标题样式优化 */
+.message-content h1 {
+    font-size: var(--font-size-h1);
+    margin: var(--spacing-xl) 0 var(--spacing-lg);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 2px solid var(--message-heading-border);
+    color: var(--message-heading-color);
+    font-weight: var(--font-weight-bold);
+}
+
+.message-content h2 {
+    font-size: var(--font-size-h2);
+    margin: var(--spacing-xl) 0 var(--spacing-md);
+    padding-bottom: var(--spacing-xxs);
+    border-bottom: 1px solid var(--message-heading-border);
+    color: var(--message-heading-color);
+    font-weight: var(--font-weight-semibold);
+}
+
+.message-content h3 {
+    font-size: var(--font-size-h3);
+    margin: var(--spacing-lg) 0 var(--spacing-md);
+    color: var(--message-heading-color);
+    font-weight: var(--font-weight-medium);
+}
+
+.message-content h4 {
+    font-size: var(--font-size-h4);
+    margin: var(--spacing-md) 0 var(--spacing-sm);
+    color: var(--message-heading-color);
+    font-weight: var(--font-weight-medium);
+}
+
+.message-content h5 {
+    font-size: var(--font-size-h5);
+    margin: var(--spacing-md) 0 var(--spacing-sm);
+    color: var(--message-heading-color);
+    font-weight: var(--font-weight-medium);
+}
+
+/* 段落样式优化 */
+.message-content p {
+    margin: var(--message-paragraph-spacing) 0;
+    line-height: var(--line-height-normal);
+}
+
+/* 第一个段落的特殊处理 */
+.message-content h1 + p,
+.message-content h2 + p,
+.message-content h3 + p,
+.message-content h4 + p,
+.message-content h5 + p {
+    margin-top: var(--spacing-sm);
+}
+
+/* 水平分隔线样式优化 */
+.message-content hr {
+    margin: var(--message-hr-spacing) 0;
+    border: none;
+    height: 1px;
+    background-color: var(--message-hr-color);
+    opacity: 0.6;
+}
+
+/* 主要分隔线 */
+.message-content hr.section-divider {
+    height: 2px;
+    background: linear-gradient(to right, 
+        transparent,
+        var(--accent-color),
+        transparent
+    );
+    margin: var(--spacing-xl) 0;
+    opacity: 0.8;
+}
+
+/* 次要分隔线 */
+.message-content hr.subtle-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    opacity: 0.3;
+    margin: var(--spacing-lg) 0;
+}
+
+/* 换行标签优化 */
+.message-content br {
+    display: block;
+    content: "";
+    margin-top: 0.5em;
+}
+
+/* 连续换行的处理 */
+.message-content br + br {
+    margin-top: 0;
+}
+
+/* 段落间隔的换行 */
+.message-content br.paragraph-break {
+    margin: var(--spacing-md) 0;
+}
+
+/* 引用块内的段落 */
+.message-content blockquote p.quote-paragraph {
+    color: var(--theme-text-quote);
+    margin: var(--spacing-xs) 0;
+    line-height: var(--line-height-relaxed);
+}
+
+/* 深色主题适配 */
+.theme-dark .message-content h1,
+.theme-dark .message-content h2,
+.theme-dark .message-content h3,
+.theme-dark .message-content h4,
+.theme-dark .message-content h5 {
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+.theme-dark .message-content hr {
+    background-color: var(--border-color);
+}
+
+.theme-dark .message-content blockquote {
+    background-color: var(--theme-bg-quote-dark);
+    border-left-color: var(--theme-border-quote-dark);
+}
+
+.theme-dark .message-content blockquote p {
+    color: var(--theme-text-quote-dark);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .message-content h1 { font-size: calc(var(--font-size-h1) * 0.9); }
+    .message-content h2 { font-size: calc(var(--font-size-h2) * 0.9); }
+    .message-content h3 { font-size: calc(var(--font-size-h3) * 0.9); }
+    .message-content h4 { font-size: calc(var(--font-size-h4) * 0.9); }
+    .message-content h5 { font-size: calc(var(--font-size-h5) * 0.9); }
+    
+    .message-content {
+        padding-right: var(--spacing-xs);
+    }
+    
+    .message {
+        padding: var(--spacing-sm);
+    }
 }

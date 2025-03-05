@@ -38,19 +38,51 @@ h1, h2, h3, h4, h5, h6 {
     --warning-color: #ffc107;
     --success-color: #28a745;
 
-    /* Spacing */
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 12px;
-    --spacing-lg: 16px;
-    --spacing-xl: 24px;
+    /* Typography Scale */
+    --font-size-xxs: 0.75em;   /* 12px */
+    --font-size-xs: 0.875em;   /* 14px */
+    --font-size-sm: 0.9375em;  /* 15px */
+    --font-size-md: 1em;       /* 16px */
+    --font-size-lg: 1.125em;   /* 18px */
+    --font-size-xl: 1.25em;    /* 20px */
+    --font-size-xxl: 1.5em;    /* 24px */
+    --font-size-h1: 2em;       /* 32px */
+    --font-size-h2: 1.75em;    /* 28px */
+    --font-size-h3: 1.5em;     /* 24px */
+    --font-size-h4: 1.25em;    /* 20px */
+    --font-size-h5: 1.125em;   /* 18px */
 
-    /* Typography */
-    --font-size-xs: 0.85em;
-    --font-size-sm: 0.9em;
-    --font-size-md: 1em;
-    --font-size-lg: 1.2em;
-    --font-size-xl: 1.5em;
+    /* Line Heights */
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+    --line-height-loose: 2;
+
+    /* Font Weights */
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Spacing */
+    --spacing-xxs: 0.25rem;  /* 4px */
+    --spacing-xs: 0.5rem;    /* 8px */
+    --spacing-sm: 0.75rem;   /* 12px */
+    --spacing-md: 1rem;      /* 16px */
+    --spacing-lg: 1.5rem;    /* 24px */
+    --spacing-xl: 2rem;      /* 32px */
+    --spacing-xxl: 3rem;     /* 48px */
+
+    /* Message Content Specific */
+    --message-heading-color: var(--text-color);
+    --message-heading-border: var(--border-color);
+    --message-paragraph-spacing: var(--spacing-md);
+    --message-line-height: var(--line-height-normal);
+    --message-blockquote-bg: rgba(0, 0, 0, 0.05);
+    --message-blockquote-border: var(--primary-color);
+    --message-hr-color: var(--border-color);
+    --message-hr-spacing: var(--spacing-xl);
 
     /* Backgrounds */
     --background-primary: #ffffff;
@@ -70,6 +102,37 @@ h1, h2, h3, h4, h5, h6 {
     --theme-text-quote-dark: #e5e7eb;
     --theme-bg-quote-dark: #1a2634;
     --theme-bg-code-in-quote-dark: #374151;
+}
+
+/* Text selection */
+::selection {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Global focus styles */
+:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
 }
 
 /* Dark theme */

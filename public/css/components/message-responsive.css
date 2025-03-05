@@ -1,0 +1,148 @@
+/* Responsive Message Styles */
+@media (max-width: 768px) {
+    .message {
+        max-width: var(--mobile-message-max-width);
+        padding: var(--mobile-message-padding);
+        font-size: var(--mobile-message-font-size);
+        margin: calc(var(--spacing-sm) / 2) 0;
+    }
+
+    /* Adjust message margins for mobile */
+    .user-message {
+        margin-left: 6%;
+        margin-right: 2%;
+    }
+
+    .assistant-message {
+        margin-right: 6%;
+        margin-left: 2%;
+    }
+
+    /* Smaller indicators for mobile */
+    .message::before {
+        width: var(--mobile-message-indicator-size);
+        height: var(--mobile-message-indicator-size);
+    }
+
+    .user-message::before {
+        right: -10px;
+    }
+
+    .assistant-message::before {
+        left: -10px;
+    }
+
+    /* Optimize touch targets */
+    .message-actions {
+        padding: calc(var(--spacing-xs) / 2);
+    }
+
+    .message-actions button {
+        min-width: 32px;
+        min-height: 32px;
+    }
+
+    /* Reduce animations on mobile */
+    .message {
+        transition: opacity 0.2s ease;
+    }
+
+    .message:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Optimize scrollbars for touch */
+    .message-content::-webkit-scrollbar {
+        width: 3px;
+        height: 3px;
+    }
+
+    .message-content {
+        -webkit-overflow-scrolling: touch;
+        max-height: 60vh;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .message {
+        max-width: 94%;
+        font-size: calc(var(--mobile-message-font-size) * 0.95);
+    }
+
+    .user-message {
+        margin-left: 4%;
+        margin-right: 2%;
+    }
+
+    .assistant-message {
+        margin-right: 4%;
+        margin-left: 2%;
+    }
+
+    /* Adjust content for very small screens */
+    .message-content {
+        max-height: 50vh;
+        padding-right: var(--spacing-xs);
+    }
+}
+
+/* Optimize for tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .message {
+        max-width: 88%;
+        font-size: calc(var(--message-font-size) * 0.95);
+    }
+
+    .user-message {
+        margin-left: 8%;
+        margin-right: 4%;
+    }
+
+    .assistant-message {
+        margin-right: 8%;
+        margin-left: 4%;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+    .message-content {
+        max-height: 80vh;
+    }
+
+    .message {
+        margin: var(--spacing-xs) 0;
+    }
+}
+
+/* High contrast mode adjustments for mobile */
+@media (max-width: 768px) and (prefers-contrast: high) {
+    .message {
+        border-width: 2px;
+    }
+
+    .message.active {
+        border-width: 2px;
+    }
+
+    .message::before {
+        border: 1px solid var(--border-color);
+    }
+}
+
+/* Mobile dark theme specific adjustments */
+@media (max-width: 768px) {
+    .theme-dark .message-content::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .theme-dark .user-message.active {
+        background-color: rgba(66, 133, 244, 0.85);
+    }
+
+    .theme-dark .assistant-message.active {
+        background-color: rgba(52, 53, 65, 0.9);
+    }
+}

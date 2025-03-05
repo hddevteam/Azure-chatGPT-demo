@@ -582,3 +582,142 @@
     transition: left 0.3s ease;
 }
 
+/* Split view specific heading styles */
+.split-view .message .message-content h1 {
+    color: var(--heading-1-color);
+    border-bottom-color: var(--heading-border-1);
+    text-shadow: var(--heading-shadow-1);
+}
+
+.split-view .message .message-content h2 {
+    color: var(--heading-2-color);
+    border-bottom-color: var(--heading-border-2);
+    text-shadow: var(--heading-shadow-2);
+}
+
+.split-view .message .message-content h3 {
+    color: var(--heading-3-color);
+    text-shadow: var(--heading-shadow-3);
+}
+
+.split-view .message .message-content h4 {
+    color: var(--heading-4-color);
+}
+
+.split-view .message .message-content h5 {
+    color: var(--heading-5-color);
+}
+
+/* Inactive message heading styles */
+.split-view .message.inactive .message-content h1,
+.split-view .message.inactive .message-content h2,
+.split-view .message.inactive .message-content h3,
+.split-view .message.inactive .message-content h4,
+.split-view .message.inactive .message-content h5 {
+    opacity: var(--heading-inactive-opacity);
+    color: var(--heading-inactive-color);
+}
+
+/* Active message heading styles */
+.split-view .message.active .message-content h1 {
+    color: rgba(255, 255, 255, 0.98);
+    border-bottom-color: rgba(255, 255, 255, 0.25);
+}
+
+.split-view .message.active .message-content h2 {
+    color: rgba(255, 255, 255, 0.95);
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+.split-view .message.active .message-content h3 {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.split-view .message.active .message-content h4 {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.split-view .message.active .message-content h5 {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .split-view .message .message-content h1,
+    .split-view .message .message-content h2,
+    .split-view .message .message-content h3,
+    .split-view .message .message-content h4,
+    .split-view .message .message-content h5 {
+        color: #ffffff;
+        text-shadow: none;
+    }
+
+    .split-view .message .message-content h1,
+    .split-view .message .message-content h2 {
+        border-bottom-color: #ffffff;
+    }
+}
+
+/* Quote block heading styles */
+.split-view .message .message-content blockquote h1,
+.split-view .message .message-content blockquote h2,
+.split-view .message .message-content blockquote h3,
+.split-view .message .message-content blockquote h4,
+.split-view .message .message-content blockquote h5 {
+    color: var(--blockquote-heading-color);
+    border-bottom-color: var(--blockquote-heading-border);
+    text-shadow: none;
+}
+
+.split-view .message .message-content blockquote h1 {
+    font-size: calc(var(--font-size-h1) * 0.9);
+}
+
+.split-view .message .message-content blockquote h2 {
+    font-size: calc(var(--font-size-h2) * 0.9);
+}
+
+.split-view .message .message-content blockquote h3 {
+    font-size: calc(var(--font-size-h3) * 0.9);
+}
+
+.split-view .message .message-content blockquote h4 {
+    font-size: calc(var(--font-size-h4) * 0.9);
+}
+
+.split-view .message .message-content blockquote h5 {
+    font-size: calc(var(--font-size-h5) * 0.9);
+}
+
+/* Inactive state for blockquote headings */
+.split-view .message.inactive .message-content blockquote h1,
+.split-view .message.inactive .message-content blockquote h2,
+.split-view .message.inactive .message-content blockquote h3,
+.split-view .message.inactive .message-content blockquote h4,
+.split-view .message.inactive .message-content blockquote h5 {
+    opacity: var(--heading-inactive-opacity);
+    color: var(--blockquote-heading-inactive-color);
+}
+
+/* Active state for blockquote headings */
+.split-view .message.active .message-content blockquote h1,
+.split-view .message.active .message-content blockquote h2,
+.split-view .message.active .message-content blockquote h3,
+.split-view .message.active .message-content blockquote h4,
+.split-view .message.active .message-content blockquote h5 {
+    color: var(--blockquote-heading-active-color);
+    border-bottom-color: var(--blockquote-heading-active-border);
+}
+
+/* High Contrast Mode Support for blockquote headings */
+@media (prefers-contrast: high) {
+    .split-view .message .message-content blockquote h1,
+    .split-view .message .message-content blockquote h2,
+    .split-view .message .message-content blockquote h3,
+    .split-view .message .message-content blockquote h4,
+    .split-view .message .message-content blockquote h5 {
+        color: #ffffff;
+        border-bottom-color: #ffffff;
+    }
+}
+

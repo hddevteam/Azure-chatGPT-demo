@@ -1,0 +1,71 @@
+/* Message Variables */
+:root {
+    /* Message Sizing */
+    --message-max-width: 85%;
+    --message-border-radius: 12px;
+    --message-padding: var(--spacing-md);
+    --message-margin: var(--spacing-sm) 0;
+    --message-indicator-size: 8px;
+    
+    /* Message Colors - Light Theme */
+    --user-message-bg: var(--background-secondary);
+    --user-message-border: var(--border-color);
+    --user-message-active-bg: var(--accent-color);
+    --user-message-active-border: var(--accent-color);
+    --user-message-inactive-bg: rgba(248, 249, 250, 0.7);
+    --user-message-inactive-border: var(--border-color);
+    
+    --assistant-message-bg: var(--background-primary);
+    --assistant-message-border: var(--border-color);
+    --assistant-message-active-bg: var(--background-primary);
+    --assistant-message-active-border: var(--accent-color);
+    --assistant-message-inactive-bg: var(--background-tertiary);
+    --assistant-message-inactive-border: var(--border-color);
+    
+    /* Message Colors - Dark Theme */
+    --user-message-dark-bg: rgba(66, 133, 244, 0.15);
+    --user-message-dark-border: rgba(66, 133, 244, 0.3);
+    --user-message-dark-active-bg: rgba(66, 133, 244, 0.9);
+    --user-message-dark-active-border: rgba(66, 133, 244, 1);
+    --user-message-dark-inactive-bg: rgba(66, 133, 244, 0.08);
+    --user-message-dark-inactive-border: rgba(66, 133, 244, 0.2);
+    
+    --assistant-message-dark-bg: rgba(52, 53, 65, 0.7);
+    --assistant-message-dark-border: rgba(86, 88, 105, 0.5);
+    --assistant-message-dark-active-bg: rgba(52, 53, 65, 0.95);
+    --assistant-message-dark-active-border: rgba(86, 88, 105, 0.8);
+    --assistant-message-dark-inactive-bg: rgba(52, 53, 65, 0.4);
+    --assistant-message-dark-inactive-border: rgba(86, 88, 105, 0.3);
+    
+    /* Message Shadows */
+    --message-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --message-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --message-hover-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+    
+    /* Message Typography */
+    --message-font-size: var(--font-size-md);
+    --message-line-height: var(--line-height-normal);
+    
+    /* Message Transitions */
+    --message-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --message-hover-transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    /* Split View Specific */
+    --split-view-message-max-width: 92%;
+    --split-view-message-font-size: var(--font-size-sm);
+    
+    /* Mobile Specific */
+    --mobile-message-max-width: 92%;
+    --mobile-message-padding: var(--spacing-sm);
+    --mobile-message-font-size: 0.95em;
+    --mobile-message-indicator-size: 6px;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    :root {
+        --message-border-width: 2px;
+        --message-active-border-width: 3px;
+        --message-contrast-ratio: 7;
+    }
+}

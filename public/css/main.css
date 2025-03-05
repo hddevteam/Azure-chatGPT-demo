@@ -33,3 +33,16 @@
 @import url("responsive.css");
 @import url("layout_split_view.css");
 
+/* Variables */
+@import url('variables/message-variables.css');
+
+/* Components */
+@import url('components/message-base.css');
+@import url('components/message-split-view.css');
+@import url('components/message-responsive.css');
+@import url('components/message-transitions.css');
+
+/* Theme Specific Styles */
+@import url('themes/dark/message-theme.css');
+
+
