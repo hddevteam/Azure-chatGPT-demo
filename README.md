@@ -17,6 +17,7 @@ These learnings will equip you with the skills to build robust, feature-rich cha
 
 ## 📺 What's new in the current version
 
+
 - **🎉Support for GPT-4o Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview-3🎉**
 ![GPT4O Realtime Chat Desktop Screenshot](screenshot_realtime_desktop.png)
 ![GPT4O Realtime Chat Mobile Screenshot](screenshot_realtime_mobile.png)
@@ -151,5 +152,66 @@ Why am I not putting this in the `.env` file? Because I encountered some issues 
    ```
 
 9. Open your browser and visit [http://localhost:3000](http://localhost:3000) to enjoy the chatGPT for your own!
+
+## 📊 Profile Migration to Azure Table Storage（For user from older version)
+
+This project now supports storing AI profiles in Azure Table Storage instead of JSON files. To migrate your existing profiles, follow these steps:
+
+### Prerequisites
+
+- Make sure your Azure Storage Connection String is correctly set in the `.env` file:
+  ```
+  AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
+  ```
+
+### Migration Options
+
+#### Option 1: Use the Migration Script
+
+For migrating a specific user's profile:
+
+```bash
+# Migrate a specific user's profile
+node scripts/runMigration.js yourusername@example.com
+```
+
+#### Option 2: Migrate All Profiles
+
+If you want to migrate all user profiles:
+
+```bash
+# Migrate all user profiles from .data directory
+node scripts/migrateProfilesToAzure.js --all
+```
+
+#### Option 3: Programmatic Migration
+
+You can also trigger the migration programmatically:
+
+```javascript
+const { initProfileMigration } = require('./services/profileMigrationInit');
+
+// Migrate a specific user's profile
+await initProfileMigration('yourusername@example.com');
+```
+
+### Table Structure
+
+The AI profiles are stored in Azure Table Storage with the following structure:
+
+- **Table name**: `AIProfiles`
+- **Partition key**: Username (email)
+- **Row key**: Profile name
+- **Properties**:
+  - `profileData`: Complete profile JSON (stringified)
+  - `sortedIndex`: Profile's sort order (extracted for easier filtering)
+  - `description`: Profile description (extracted for easier filtering)
+  - `timestamp`: Last update time
+
+### Verification
+
+After migration, you can verify the data has been correctly migrated by:
+- Checking the Azure Storage Explorer for the `AIProfiles` table
+- Logging in to the application and confirming all your profiles are available
 
 Now you're all set to explore and develop your chatbot application using JavaScript and the Azure OpenAI API. Happy coding! 🎉

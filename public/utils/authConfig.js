@@ -6,18 +6,18 @@
  */
 import * as msal from "@azure/msal-browser";
 
-// const cloudInstance = "https://login.microsoftonline.com/";
-// const tenantId = "a5fb26eb-4aac-4ae5-b7d2-5d2880183d61";
-// const scopes = "api://812a857f-f189-4aeb-b086-45f2cf69c701/user_impersonation";
-// const clientId = "812a857f-f189-4aeb-b086-45f2cf69c701";
-// const redirectUri = "https://chat.aiassist007.com/";
+const cloudInstance = "https://login.microsoftonline.com/";
+const tenantId = "a5fb26eb-4aac-4ae5-b7d2-5d2880183d61";
+const scopes = "api://812a857f-f189-4aeb-b086-45f2cf69c701/user_impersonation";
+const clientId = "812a857f-f189-4aeb-b086-45f2cf69c701";
+const redirectUri = "https://chat.aiassist007.com/";
 
-const cloudInstance = process.env.CLOUD_INSTANCE;
-const tenantId = process.env.TENANT_ID;
-const scopes = process.env.SCOPES;
-const clientId = process.env.CLIENT_ID;
-const redirectUri = process.env.REDIRECT_URI;
-const authority = `${cloudInstance}${tenantId}`;
+// const cloudInstance = process.env.CLOUD_INSTANCE;
+// const tenantId = process.env.TENANT_ID;
+// const scopes = process.env.SCOPES;
+// const clientId = process.env.CLIENT_ID;
+// const redirectUri = process.env.REDIRECT_URI;
+// const authority = `${cloudInstance}${tenantId}`;
 
 
 // 动态拼接得到authority
