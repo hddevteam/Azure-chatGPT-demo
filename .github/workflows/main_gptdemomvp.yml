@@ -69,12 +69,13 @@ jobs:
           echo "Creating backup of .data directory..."
           timestamp=$(date +%Y%m%d_%H%M%S)
           mkdir -p backup
-          az webapp ssh -n gptdemomvp -g chatgptdemo-rg -w <<EOF
-          cd /home/site/wwwroot
-          if [ -d ".data" ]; then
-            tar czf - .data | base64
+          backup_file="backup/data_backup_${timestamp}.tar.gz.b64"
+          backup_command="cd /home/site/wwwroot && if [ -d '.data' ]; then tar czf - .data | base64; fi"
+          az webapp ssh -n gptdemomvp -g chatgptdemo-rg --cmd "$backup_command" > "$backup_file"
+          if [ $? -ne 0 ]; then
+            echo "Error backing up .data directory."
+            exit 1
           fi
-          EOF > backup/data_backup_\$timestamp.tar.gz.b64
           
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -89,11 +90,15 @@ jobs:
         run: |
           echo "Restoring .data directory..."
           latest_backup=$(ls -t backup/data_backup_*.tar.gz.b64 | head -n1)
-          if [ -f "\$latest_backup" ]; then
-            az webapp ssh -n gptdemomvp -g chatgptdemo-rg -w <<EOF
-            cd /home/site/wwwroot
-            cat <<'EOB' | base64 -d | tar xzf -
-            $(cat \$latest_backup)
-            EOB
-            EOF
+          if [ -f "$latest_backup" ]; then
+            restore_command="cd /home/site/wwwroot && cat <<'EOB' | base64 -d | tar xzf -
+            $(cat $latest_backup)
+            EOB"
+            az webapp ssh -n gptdemomvp -g chatgptdemo-rg --cmd "$restore_command"
+            if [ $? -ne 0 ]; then
+              echo "Error restoring .data directory."
+              exit 1
+            fi
+          else
+            echo "No backup file found. Skipping restore."
           fi
