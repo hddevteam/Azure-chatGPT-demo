@@ -56,8 +56,9 @@ export default class ProfileFormManager {
             });
         }
 
+        // 修改为监听 deleteConfirmed 事件，而不是直接点击事件
         if (deleteProfileBtn) {
-            deleteProfileBtn.addEventListener("click", async () => {
+            deleteProfileBtn.addEventListener("deleteConfirmed", async () => {
                 await this.handleDelete();
             });
         }

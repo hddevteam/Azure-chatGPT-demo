@@ -142,18 +142,36 @@ export default class AIActorSettingsModal {
             });
         }
 
-        // Delete button - add an extra check to prevent errors in create mode
+        // Delete button - 添加确认对话框
         const deleteButton = this.modal.querySelector("#delete-profile");
         if (deleteButton) {
             deleteButton.addEventListener("click", (event) => {
-                // If in create mode, show warning and prevent default action
+                // 如果在创建模式下，显示警告消息并阻止默认操作
                 if (!this.editMode) {
                     event.preventDefault();
                     event.stopPropagation();
                     this.showWarningMessage("Cannot delete a profile that hasn't been created yet.");
                     return false;
                 }
-                // Otherwise let the ProfileFormManager handle it
+                
+                // 添加确认对话框，确保用户真的想删除这个 AI Actor
+                event.preventDefault();
+                event.stopPropagation();
+                
+                swal({
+                    title: "Are you sure?",
+                    text: `Do you really want to delete this AI Actor "${this.currentProfileData.displayName || this.currentProfileData.name}"?`,
+                    icon: "warning",
+                    buttons: ["Cancel", "Delete"],
+                    dangerMode: true,
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        // 用户确认删除，触发原有的删除逻辑
+                        // 由 ProfileFormManager 处理实际删除操作
+                        const deleteEvent = new Event("deleteConfirmed", { bubbles: true });
+                        deleteButton.dispatchEvent(deleteEvent);
+                    }
+                });
             });
         }
 
