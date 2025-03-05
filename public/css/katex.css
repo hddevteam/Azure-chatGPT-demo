@@ -124,6 +124,7 @@
   line-height: 1.2;
   text-indent: 0;
   text-rendering: auto;
+  white-space: normal;
 }
 .katex * {
   -ms-high-contrast-adjust: none !important;
@@ -1179,6 +1180,8 @@
   display: block;
   margin: 1em 0;
   text-align: center;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 .katex-display > .katex {
   display: block;
@@ -1207,3 +1210,55 @@
 body {
   counter-reset: katexEqnNo mmlEqnNo;
 }
+
+/* KaTeX custom styling */
+
+/* Basic container styling for KaTeX formulas */
+.katex-display {
+    display: block;
+    margin: 1em 0;
+    text-align: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.katex {
+    font: normal 1.21em KaTeX_Main, Times New Roman, serif;
+    line-height: 1.2;
+    white-space: normal;
+    text-indent: 0;
+}
+
+/* Custom block formula styling */
+.katex-block {
+    display: block;
+    margin: 1em 0;
+    text-align: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Error handling */
+.katex-error {
+    color: #cc0000;
+    background-color: #ffeeee;
+    padding: 2px;
+    border: 1px solid #cc0000;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+/* Add some space around inline math */
+.katex-inline {
+    padding: 0 0.2em;
+}
+
+/* Make sure block formulas are properly centered and have enough space */
+.katex-block > .katex {
+    display: block;
+    text-align: center;
+    margin: 1em 0;
+}
+
+/* Import the official KaTeX fonts and CSS from CDN */
+@import url('https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css');

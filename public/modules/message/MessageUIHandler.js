@@ -170,19 +170,7 @@ class MessageUIHandler {
 
     // 设置消息内容
     setMessageContent(sender, messageElem, message, isActive) {
-        const replaceText = (input) => {
-            if (!input) return "";
-            
-            // 替换单行数学表达式 \( ... \) 为 $ ... $
-            let outputText = input.replace(/\\\((.*?)\\\)/g, " $$$1$$ ");
-            // 替换多行数学表达式 \[ ... \] 为 $$ ... $$
-            outputText = outputText.replace(/\\\[(.*?)\\\)/gs, "$$$$$1$$$$");
-            return outputText;
-        };
-          
-        // 替换内联公式
-        message = replaceText(message);
-    
+
         let element;
         if (sender === "user") {
             element = messageElem.querySelector("pre");
