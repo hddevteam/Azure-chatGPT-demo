@@ -17,7 +17,8 @@ const redirectUri = "https://chat.aiassist007.com/";
 // const scopes = process.env.SCOPES;
 // const clientId = process.env.CLIENT_ID;
 // const redirectUri = process.env.REDIRECT_URI;
-// const authority = `${cloudInstance}${tenantId}`;
+
+const authority = `${cloudInstance}${tenantId}`;
 
 
 // 动态拼接得到authority
