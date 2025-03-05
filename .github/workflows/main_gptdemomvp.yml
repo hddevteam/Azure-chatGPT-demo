@@ -35,8 +35,6 @@ jobs:
         run: |
           npm install
           npm run build
-          # npm run build --if-present
-          # npm run test --if-present
 
       - name: Archive build artifacts
         run: zip release.zip ./* -r
@@ -65,7 +63,19 @@ jobs:
 
       - name: Remove the archive file
         run: rm release.zip
-        
+          
+      - name: Backup .data directory
+        run: |
+          echo "Creating backup of .data directory..."
+          timestamp=$(date +%Y%m%d_%H%M%S)
+          mkdir -p backup
+          az webapp ssh -n gptdemomvp -g chatgptdemo-rg -w <<EOF
+          cd /home/site/wwwroot
+          if [ -d ".data" ]; then
+            tar czf - .data | base64
+          fi
+          EOF > backup/data_backup_\$timestamp.tar.gz.b64
+          
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
@@ -74,3 +84,16 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_57B881AC264A443E873FD5B027994B9B }}
           package: .
+          
+      - name: Restore .data directory
+        run: |
+          echo "Restoring .data directory..."
+          latest_backup=$(ls -t backup/data_backup_*.tar.gz.b64 | head -n1)
+          if [ -f "\$latest_backup" ]; then
+            az webapp ssh -n gptdemomvp -g chatgptdemo-rg -w <<EOF
+            cd /home/site/wwwroot
+            cat <<'EOB' | base64 -d | tar xzf -
+            $(cat \$latest_backup)
+            EOB
+            EOF
+          fi
