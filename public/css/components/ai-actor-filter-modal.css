@@ -185,7 +185,7 @@
 }
 
 .ai-actor-filter-modal {
-    z-index: 9999;
+    z-index: 1000;
 }
 
 .ai-actor-filter-modal .modal-inner {
@@ -481,7 +481,7 @@
 }
 
 .ai-actor-filter-modal.modal-wrapper {
-    z-index: 9999;
+    z-index: 1000;
 }
 
 .ai-actor-filter-modal.modal-wrapper .modal-inner {
@@ -496,7 +496,7 @@
 
 .ai-actor-filter-modal.modal-wrapper,
 .ai-actor-filter-modal.modal {
-    z-index: 9999;
+    z-index: 1000;
 }
 
 /* 增加选择器特异性，确保覆盖 modal.css 中的样式 */

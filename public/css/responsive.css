@@ -19,7 +19,7 @@
         min-width: 100%;
         transition: all 0.3s ease;
         overflow-y: auto;
-        z-index: 9999;
+        z-index: 999;
         padding-bottom:100px;
     }
 
