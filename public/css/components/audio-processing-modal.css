@@ -1,0 +1,567 @@
+/* Audio Processing Modal Styles */
+:root {
+  /* Colors based on existing theme */
+  --apm-primary-color: var(--primary-color, #3391FF);
+  --apm-secondary-color: #4CAF50;
+  --apm-danger-color: #E53935;
+  --apm-border-color: var(--border-color, #e0e0e0);
+  --apm-background-color: var(--background-color, #fff);
+  --apm-text-color: var(--text-color, #333);
+  --apm-text-secondary: var(--text-secondary, #666);
+  
+  /* Modal specific variables */
+  --apm-border-radius: 8px;
+  --apm-transition: all 0.3s ease;
+  --apm-modal-max-height: 90vh; /* New: Control the maximum height of the modal */
+}
+
+/* Modal Container - Modified to match the working modal-wrapper pattern */
+#audio-processing-modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.3s ease;
+  
+  /* Fix centering issue by matching modal-wrapper.visible pattern */
+  justify-content: center;
+  align-items: center;
+}
+
+/* When the modal is visible, apply flex layout with centering */
+#audio-processing-modal.visible {
+  display: flex !important; /* Use !important to match modal-wrapper.visible pattern */
+  opacity: 1;
+}
+
+/* Modal Content - Modified to match the pattern of modal-inner */
+#audio-processing-modal .modal-content {
+  background-color: var(--apm-background-color);
+  width: 90%;
+  max-width: 900px;
+  max-height: var(--apm-modal-max-height);
+  border-radius: var(--apm-border-radius);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: slideDown 0.3s ease;
+  transition: var(--apm-transition);
+  
+  /* Use flex layout to build a fixed header and scrollable content area */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent modal content from overflowing */
+}
+
+/* Close Button */
+#close-audio-modal-btn {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  font-size: 24px;
+  color: var(--apm-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--apm-transition);
+  z-index: 2; /* Ensure the close button is always on top */
+}
+
+#close-audio-modal-btn:hover {
+  color: var(--apm-text-color);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Modal Header - Set as a fixed part */
+#audio-processing-modal h2 {
+  margin: 0;
+  padding: 20px;
+  font-size: 1.5rem;
+  color: var(--apm-text-color);
+  border-bottom: 1px solid var(--apm-border-color);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0; /* Prevent the header from being compressed */
+}
+
+#audio-processing-modal h2::before {
+  content: "\f130";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  margin-right: 10px;
+  color: var(--apm-primary-color);
+}
+
+/* Modal content container - New: Contains all content except the header */
+.modal-content-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Allow vertical scrolling in the content area */
+}
+
+/* Modal Sections */
+.modal-section {
+  padding: 20px;
+}
+
+/* Upload Section - Fixed part */
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  border-bottom: 1px solid var(--apm-border-color);
+  flex-shrink: 0; /* Prevent the upload section from being compressed */
+}
+
+.upload-section input[type="file"] {
+  display: none;
+}
+
+/* File Upload Button */
+#upload-audio-btn {
+  background-color: var(--apm-primary-color);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  transition: var(--apm-transition);
+}
+
+#upload-audio-btn:hover {
+  background-color: var(--apm-primary-color);
+  opacity: 0.9;
+}
+
+#upload-audio-btn:disabled {
+  background-color: #bbb;
+  cursor: not-allowed;
+}
+
+#upload-audio-btn i {
+  font-size: 1rem;
+}
+
+/* Options Section - Fixed part */
+.options-section {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  border-bottom: 1px solid var(--apm-border-color);
+  flex-shrink: 0; /* Prevent the options section from being compressed */
+}
+
+.language-select, .speaker-identification {
+  display: flex;
+  flex-direction: column;
+}
+
+.language-select label, .speaker-identification label {
+  margin-bottom: 8px;
+  color: var(--apm-text-color);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.language-select label::before {
+  content: "\f1ab";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  color: var(--apm-primary-color);
+}
+
+.speaker-identification label::before {
+  content: "\f007";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  color: var(--apm-primary-color);
+}
+
+/* Select and Input Styling */
+#language-options {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--apm-border-color);
+  border-radius: 4px;
+  background-color: var(--apm-background-color);
+  color: var(--apm-text-color);
+}
+
+#max-speakers {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--apm-border-color);
+  border-radius: 4px;
+  background-color: var(--apm-background-color);
+  color: var(--apm-text-color);
+}
+
+/* Files List Section - Scalable scrollable part */
+.files-list {
+  padding: 20px;
+  flex: 1; /* Let the files list take up the remaining space */
+  display: flex;
+  flex-direction: column;
+  min-height: 200px; /* Ensure the files list section has a minimum height */
+}
+
+.files-list h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--apm-text-color);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.files-list h3::before {
+  content: "\f15c";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  color: var(--apm-primary-color);
+}
+
+/* Audio Files List - Modified to scroll within files-list */
+#uploaded-audio-files-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1; /* Take up the remaining space */
+  overflow-y: auto; /* Scroll only within the files list */
+  border: 1px solid var(--apm-border-color);
+  border-radius: var(--apm-border-radius);
+  background-color: rgba(0,0,0,0.02);
+}
+
+.uploaded-file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid var(--apm-border-color);
+  background-color: var(--apm-background-color);
+  transition: var(--apm-transition);
+}
+
+.uploaded-file-item:last-child {
+  border-bottom: none;
+}
+
+.uploaded-file-item:hover {
+  background-color: rgba(0,0,0,0.02);
+}
+
+/* Empty State Message */
+#uploaded-audio-files-list:empty::before,
+#uploaded-audio-files-list:has(> :not(.uploaded-file-item))::before {
+  content: "No audio files uploaded yet.";
+  display: block;
+  padding: 30px 20px;
+  text-align: center;
+  color: var(--apm-text-secondary);
+  font-style: italic;
+  background-color: var(--apm-background-color);
+}
+
+/* Button Container */
+.button-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Action Buttons */
+.recognize-btn, .view-result-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: var(--apm-transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.recognize-btn {
+  background-color: var(--apm-primary-color);
+  color: white;
+}
+
+.recognize-btn:hover {
+  opacity: 0.9;
+}
+
+.recognize-btn:disabled {
+  background-color: #bbb;
+  cursor: not-allowed;
+}
+
+.view-result-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.view-result-btn:hover {
+  opacity: 0.9;
+}
+
+/* Delete Button */
+.delete-audio-btn {
+  background-color: transparent;
+  color: var(--apm-danger-color);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--apm-transition);
+}
+
+.delete-audio-btn:hover {
+  background-color: rgba(229, 57, 53, 0.1);
+}
+
+/* File Name and Info */
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.file-name {
+  font-weight: 500;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.file-size {
+  font-size: 0.85rem;
+  color: var(--apm-text-secondary);
+}
+
+/* Transcript Result Modal */
+.transcript-result {
+  width: 100%;
+  margin: 0;
+}
+
+#transcription-result-text {
+  width: 100%;
+  height: 300px;
+  padding: 10px;
+  border: 1px solid var(--apm-border-color);
+  border-radius: 4px;
+  background-color: var(--apm-background-color);
+  color: var(--apm-text-color);
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+/* Add fade-out animation */
+.fade-out {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* New: File item removal animation */
+@keyframes removeItem {
+  from { opacity: 1; height: auto; }
+  to { opacity: 0; height: 0; padding: 0; margin: 0; overflow: hidden; }
+}
+
+.uploaded-file-item.removing {
+  animation: removeItem 0.3s ease forwards;
+}
+
+/* Loading animation styles */
+.audio-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.spinner-container {
+  margin-bottom: 15px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--apm-primary-color);
+  animation: spin 1s linear infinite;
+}
+
+.loading-message {
+  color: var(--apm-text-secondary);
+  font-size: 0.9rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Drag and drop area styles */
+.drop-zone {
+  border: 2px dashed var(--apm-border-color);
+  border-radius: 8px;
+  padding: 30px 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  background-color: rgba(0,0,0,0.01);
+}
+
+.drop-zone-active {
+  border-color: var(--apm-primary-color);
+  background-color: rgba(51, 145, 255, 0.05);
+}
+
+.drop-text {
+  color: var(--apm-text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Dark Theme Support */
+.split-view #audio-processing-modal .modal-content {
+  background-color: #22272e;
+  border-color: #444c56;
+}
+
+.split-view #audio-processing-modal h2 {
+  color: #adbac7;
+  border-color: #444c56;
+}
+
+.split-view #language-options,
+.split-view #max-speakers {
+  background-color: #2d333b;
+  border-color: #444c56;
+  color: #adbac7;
+}
+
+.split-view .language-select label, 
+.split-view .speaker-identification label {
+  color: #adbac7;
+}
+
+.split-view #uploaded-audio-files-list {
+  border-color: #444c56;
+}
+
+.split-view .uploaded-file-item {
+  background-color: #22272e;
+  border-color: #444c56;
+}
+
+.split-view .uploaded-file-item:hover {
+  background-color: #2d333b;
+}
+
+.split-view #uploaded-audio-files-list:empty::before,
+.split-view #uploaded-audio-files-list:has(> :not(.uploaded-file-item))::before {
+  color: #768390;
+  background-color: #22272e;
+}
+
+.split-view #transcription-result-text {
+  background-color: #2d333b;
+  border-color: #444c56;
+  color: #adbac7;
+}
+
+.split-view .drop-zone {
+  border-color: #444c56;
+  background-color: rgba(255,255,255,0.03);
+}
+
+.split-view .drop-zone-active {
+  border-color: var(--apm-primary-color);
+  background-color: rgba(51, 145, 255, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #audio-processing-modal {
+    padding: 10px;
+  }
+  
+  #audio-processing-modal .modal-content {
+    width: 100%;
+    margin: 0;
+    max-height: 95vh;
+  }
+  
+  .options-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .uploaded-file-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .button-container {
+    margin-top: 10px;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .file-name {
+    max-width: 100%;
+  }
+}

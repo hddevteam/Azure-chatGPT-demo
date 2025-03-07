@@ -203,58 +203,6 @@
     overflow-y: auto;
 }
 
-/* Audio processing modal */
-#audio-processing-modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    padding-top: 100px;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-    align-items: center;
-}
-
-#audio-processing-modal .modal-content {
-    position: relative;
-    margin: auto;
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    width: 90%;
-    min-width: 80vw;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-#audio-processing-modal #close-audio-modal-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    color: #333;
-    font-size: 25px;
-    cursor: pointer;
-}
-
-/* Upload section */
-.upload-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid #ccc;
-}
-
-.upload-section button {
-    padding: 10px 20px;
-    font-size: 16px;
-    line-height: 1;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
-
 /* Progress section */
 .progress-item {
     display: flex;

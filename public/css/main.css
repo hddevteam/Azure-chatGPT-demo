@@ -24,6 +24,7 @@
 @import url("components/progress-bar.css");
 @import url("components/model-styles.css"); /* 引入新的模型样式文件 */
 @import url("components/drawer-toggle.css"); /* 引入抽屉式切换按钮样式 */
+@import url("components/audio-processing-modal.css"); /* 引入音频处理对话框样式 */
 
 /* Feature styles */
 @import url("chat_options_modal.css");

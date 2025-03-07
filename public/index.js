@@ -1,45 +1,37 @@
 // index.js
-// purpose: entry point of the application. It is responsible for creating the App object and passing it to the UIManager object. It also contains the event listeners for the message form and the modal form.
 import { signIn } from "./utils/authRedirect.js";
 import { getAppName, getPromptRepo } from "./utils/apiClient.js";
 import swal from "sweetalert";
 import MarkdownManager from "./components/MarkdownManager.js";
-import ModelDropdownManager from "./utils/ModelDropdownManager.js";
 import { addHorizontalResizeHandleListeners } from "./utils/horizontal-resize.js";
 import { addVerticalResizeHandleListeners } from "./utils/vertical-resize.js";
 import fileUploader from "./utils/fileUploader.js";
 import setup from "./setup.js";
-import audioModal from "./utils/audioModal.js";
+import AudioProcessingModal from "./components/AudioProcessingModal.js";
 import ChatOptionsModal from "./components/ChatOptionsModal.js";
 import { addChatHistoryResizeHandleListeners } from "./utils/chat-history-resize.js";
 
 (async () => {
     try {
-        const username = await signIn();  // 等待signIn执行完成，并获取用户名
+        const username = await signIn(); 
         if (username) {
-            initializeApp(username);  // 如果用户名存在，则初始化应用并传递用户名
+            initializeApp(username);  
         } else {
-            console.error("No user signed in.");
+            console.error("User not signed in");
         }
     } catch (error) {
-        console.error("SignIn failed:", error);
+        console.error("Error:", error);
     }
 })();
 
-async function initializeApp(username) {  // 接收传入的 username 参数
+async function initializeApp(username) {  
     console.log("initializeApp");
-    const uiManager = setup();  // 设置UI管理器
-    uiManager.storageManager.updateCurrentUserInfo(username);  // 使用传入的 username 更新用户名信息
+    const uiManager = setup();  
+    uiManager.storageManager.updateCurrentUserInfo(username);  
     const app = uiManager.app;
     
     // 初始化显示欢迎信息
     uiManager.showWelcomeMessage();
-    
-    // Initialize ModelDropdownManager
-    const modelDropdownManager = new ModelDropdownManager(
-        app, 
-        "#model-switch"  // 移除 "#model-dropdown" 参数
-    );
 
     //get client language
     const clientLanguage = navigator.language;
@@ -445,10 +437,14 @@ async function initializeApp(username) {  // 接收传入的 username 参数
         fileInput.click();
     });
 
-    audioModal.init();
+    // Initialize the AudioProcessingModal component
+    const audioProcessingModal = new AudioProcessingModal();
+    audioProcessingModal.init();
+    
+    // Add click event listener to the audio file container button
     const openModalBtn = document.getElementById("audio-file-container");
     openModalBtn.addEventListener("click", () => {
-        audioModal.showModal();
+        audioProcessingModal.showModal();
     });
 
     // Add close button handler for mobile
