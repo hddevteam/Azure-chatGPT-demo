@@ -29,7 +29,10 @@ class AIProfileManager {
         this.currentProfile = currentProfile;
         this.updateUIState();
         
-        // 不再自动绑定到表单
+        // Make sure TTS visibility is updated during initialization
+        if (this.uiManager.storageManager) {
+            this.uiManager.storageManager.updateTtsVisibility();
+        }
     }
 
     // 更新 UI 状态 - 移除表单绑定逻辑

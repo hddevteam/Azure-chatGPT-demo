@@ -8,7 +8,7 @@ import SyncManager from "./SyncManager.js";
 import ProfileFormManager from "./ProfileFormManager.js";
 import IntercomModal from "./IntercomModal.js";
 import UIEventHandler from "./UIEventHandler.js";
-import AudioManager from "./AudioManager.js";
+import TtsAudioManager from "./TtsAudioManager.js";
 import UIStateManager from "./UIStateManager.js";
 import AIProfileManager from "./AIProfileManager.js";
 import MessageContextManager from "../modules/chat/MessageContextManager.js";
@@ -54,7 +54,7 @@ class UIManager {
         this.syncManager = new SyncManager(this);
         this.chatHistoryManager = new ChatHistoryManager(this);
         this.eventHandler = new UIEventHandler(this);
-        this.audioManager = new AudioManager(this);
+        this.audioManager = new TtsAudioManager(this);
         this.uiStateManager = new UIStateManager(this);
         this.aiProfileManager = new AIProfileManager(this);
         this.messageContextManager = new MessageContextManager(this);

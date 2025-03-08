@@ -236,6 +236,11 @@ export default class ProfileFormManager {
                 
                 if (element.type === "checkbox") {
                     element.checked = !!profileData[key]; // 转换为布尔值
+                } else if (element.tagName === "SELECT") {
+                    // 特殊处理下拉选择框，确保正确显示选定的选项
+                    if (profileData[key]) {
+                        element.value = profileData[key];
+                    }
                 } else {
                     // 为输入框设置值时确保有默认值
                     element.value = profileData[key] || "";

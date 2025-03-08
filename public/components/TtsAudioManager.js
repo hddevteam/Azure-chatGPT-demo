@@ -1,7 +1,7 @@
-// AudioManager.js
+// TtsAudioManager.js
 import { getTts } from "../utils/apiClient.js";
 
-class AudioManager {
+class TtsAudioManager {
     constructor(uiManager) {
         this.uiManager = uiManager;
         this.audio = new Audio();
@@ -86,4 +86,4 @@ class AudioManager {
     }
 }
 
-export default AudioManager;
+export default TtsAudioManager;

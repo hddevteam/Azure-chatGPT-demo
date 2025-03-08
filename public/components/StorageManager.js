@@ -70,20 +70,33 @@ class StorageManager {
     setCurrentProfile(profile) {
         if (!profile) return;
         
-        // 检查是否与当前 profile 相同，避免重复设置
-        const currentProfile = this.getCurrentProfile();
-        if (currentProfile && 
-            currentProfile.name === profile.name && 
-            currentProfile.prompt === profile.prompt) {
-            return;
-        }
-
         console.log("setCurrentProfile: ", profile);
-        this.currentUserData.currentProfile = profile;
+        
+        // Always update the profile to ensure all properties (including tts) are saved
+        this.currentUserData.currentProfile = {...profile};
+        
+        // Update system prompt if available
         if (profile.prompt && this.uiManager.app.prompts) {
             this.uiManager.app.prompts.setSystemPrompt(profile.prompt);
         }
+        
+        // Make sure we configure Text to Speech display
+        this.updateTtsVisibility();
+        
+        // Save the updated profile data to local storage
         this.saveCurrentUserData();
+    }
+    
+    updateTtsVisibility() {
+        const ttsContainer = document.querySelector("#tts-container");
+        if (!ttsContainer) return;
+        
+        const currentProfile = this.getCurrentProfile();
+        if (currentProfile && currentProfile.tts === "enabled") {
+            ttsContainer.style.display = "inline-block";
+        } else {
+            ttsContainer.style.display = "none";
+        }
     }
     
     getCurrentUsername() {
