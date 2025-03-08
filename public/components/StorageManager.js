@@ -16,7 +16,12 @@ class StorageManager {
 
     readChatHistory(chatId) {
         const username = this.getCurrentUsername();
-        return this.getChatHistory(username).find(history => history.id === chatId);
+        console.debug("readChatHistory for chatId:", chatId, "username:", username);
+        const histories = this.getChatHistory(username);
+        console.debug("All chat histories for user:", histories);
+        const history = histories.find(history => history.id === chatId);
+        console.debug("Found chat history:", history);
+        return history;
     }
 
     updateChatHistory(chatHistoryItem) {
@@ -25,12 +30,27 @@ class StorageManager {
         let localHistories = this.getChatHistory(username);
         const historyIndex = localHistories.findIndex(h => h.id === chatHistoryItem.id);
         console.log("updateChatHistory: ", historyIndex);
-        if (historyIndex !== -1) {
+
+        // 如果历史记录被标记为删除，从本地存储中移除
+        if (chatHistoryItem.isDeleted) {
+            localHistories = localHistories.filter(history => history.id !== chatHistoryItem.id);
+            // 同时清理相关的消息数据
+            this.removeMessagesByChatId(chatHistoryItem.id);
+            this.cleanupChatData(chatHistoryItem.id);
+        } else if (historyIndex !== -1) {
             // To keep the same behavior as updateChatHistory, merge the properties
-            localHistories[historyIndex] = chatHistoryItem;
+            localHistories[historyIndex] = {
+                ...localHistories[historyIndex],
+                ...chatHistoryItem
+            };
             console.log("updateChatHistory: ", localHistories[historyIndex]);
+        } else {
+            // 如果不存在且未被标记为删除，则添加新记录
+            localHistories.push(chatHistoryItem);
         }
+        
         this.saveChatHistory(username, localHistories);
+        return chatHistoryItem.isDeleted ? null : (historyIndex !== -1 ? localHistories[historyIndex] : chatHistoryItem);
     }
 
     deleteChatHistory(chatId) {

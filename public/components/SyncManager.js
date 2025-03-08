@@ -112,23 +112,32 @@ class SyncManager {
         try {
             // First, check if this chat history exists in the cloud by checking for a timestamp
             const localChatHistory = this.uiManager.storageManager.readChatHistory(chatHistoryId);
+            console.debug("Deleting chat history, local data:", localChatHistory);
             
-            // If the chat is new (no timestamp) or doesn't exist, just delete locally without trying to delete from cloud
-            if (!localChatHistory || !localChatHistory.timestamp) {
-                console.log(`Chat history ${chatHistoryId} is new or not found, deleting only locally`);
-                this.uiManager.storageManager.deleteChatHistory(chatHistoryId);
-                // Still notify UI components about the deletion
-                this.uiManager.handleChatHistoryChange("delete", { id: chatHistoryId });
-                return;
-            }
-            
-            // Otherwise, if the chat has a timestamp (has been synced to cloud), delete it from cloud
-            console.log(`Chat history ${chatHistoryId} has timestamp, deleting from cloud`);
-            this.enqueueSyncItem({ type: "chatHistory", action: "delete", data: { id: chatHistoryId } });
-        } catch (error) {
-            console.error(`Error checking chat history before delete: ${error}`);
-            // In case of error, still attempt to delete locally
+            // Create a sync item for cloud deletion
+            const syncItem = {
+                type: "chatHistory",
+                action: "delete",
+                data: {
+                    id: chatHistoryId
+                }
+            };
+
+            // First delete from local storage
             this.uiManager.storageManager.deleteChatHistory(chatHistoryId);
+            
+            // Then sync deletion to cloud
+            this.enqueueSyncItem(syncItem);
+            
+            // Notify UI components about the deletion
+            this.uiManager.handleChatHistoryChange("delete", { id: chatHistoryId });
+            
+        } catch (error) {
+            console.error(`Error during chat history deletion (${chatHistoryId}):`, error);
+            // If cloud sync fails, still ensure local deletion is complete
+            this.uiManager.storageManager.deleteChatHistory(chatHistoryId);
+            // And notify UI
+            this.uiManager.handleChatHistoryChange("delete", { id: chatHistoryId });
         }
     }
 
