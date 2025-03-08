@@ -9,6 +9,7 @@ import fileUploader from "./utils/fileUploader.js";
 import setup from "./setup.js";
 import AudioProcessingModal from "./components/AudioProcessingModal.js";
 import ChatOptionsModal from "./components/ChatOptionsModal.js";
+import ModelDropdownManager from "./utils/ModelDropdownManager.js";
 import { addChatHistoryResizeHandleListeners } from "./utils/chat-history-resize.js";
 
 (async () => {
@@ -29,6 +30,9 @@ async function initializeApp(username) {
     const uiManager = setup();  
     uiManager.storageManager.updateCurrentUserInfo(username);  
     const app = uiManager.app;
+    
+    // Initialize ModelDropdownManager for model selection
+    const modelDropdownManager = new ModelDropdownManager(app, "#model-switch");
     
     // 初始化显示欢迎信息
     uiManager.showWelcomeMessage();
