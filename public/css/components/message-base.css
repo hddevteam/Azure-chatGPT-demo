@@ -70,6 +70,7 @@
     height: var(--message-indicator-size);
     border-radius: 50%;
     top: var(--spacing-md);
+    transition: all 0.3s ease;
 }
 
 .user-message::before {
@@ -80,6 +81,30 @@
 .assistant-message::before {
     left: calc(-1 * var(--message-indicator-size) - 8px);
     background-color: var(--primary-color);
+}
+
+/* Enhanced Inactive Indicator States - Changed to gray */
+.user-message.inactive::before {
+    background-color: #acacac;
+    box-shadow: none;
+    transform: scale(0.8);
+}
+
+.assistant-message.inactive::before {
+    background-color: #acacac; 
+    box-shadow: none;
+    transform: scale(0.8);
+}
+
+/* Enhanced Active Indicator States */
+.user-message.active::before {
+    box-shadow: 0 0 4px 1px rgba(26, 115, 232, 0.6);
+    transform: scale(1.1);
+}
+
+.assistant-message.active::before {
+    box-shadow: 0 0 4px 1px rgba(3, 102, 214, 0.6);
+    transform: scale(1.1);
 }
 
 /* Hover Effects */

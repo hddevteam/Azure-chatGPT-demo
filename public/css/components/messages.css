@@ -96,8 +96,21 @@
 }
 
 .message .fa-quote-left {
-    opacity: 0.3;
+    opacity: 0.6;
     margin-right: 0.5em;
+    transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.user-message.active .fa-quote-left,
+.assistant-message.active .fa-quote-left {
+    opacity: 0.9;
+    color: #ffffff;
+}
+
+.user-message.inactive .fa-quote-left,
+.assistant-message.inactive .fa-quote-left {
+    opacity: 0.6;
+    color: #cccccc;
 }
 
 .message .fa-volume-up {
@@ -441,7 +454,7 @@
     top: 0em;
     left: 0em;
     font-size: 1em;
-    color: #fff;
+    color: #c9d1d9;
 }
 
 /* Link popup menu styles */
