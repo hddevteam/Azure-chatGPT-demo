@@ -695,6 +695,13 @@ class UIManager {
         try {
             for (const attachment of attachments) {
                 try {
+                    // 如果是已经存在的附件，直接使用其文件名
+                    if (attachment.isExistingAttachment) {
+                        uploadedUrls.push(attachment.fileName);
+                        continue;
+                    }
+                    
+                    // 否则上传新附件
                     const response = await uploadAttachment(attachment.content, attachment.fileName);
                     if (response) {
                         uploadedUrls.push(response);

@@ -90,11 +90,20 @@ class MessageManager {
         let reEdit = validationResult.reEdit;
         let attachmentUrls = "";
 
-        if (attachments.length > 0 && !isRetry) {
-            attachmentUrls = await this.uiManager.uploadAttachments(attachments);
-            if (attachmentUrls === "") {
-                this.uiManager.finishSubmitProcessing();
-                return false;
+        if (attachments.length > 0) {
+            if (!isRetry) {
+                // 对于新消息，上传附件
+                attachmentUrls = await this.uiManager.uploadAttachments(attachments);
+                if (attachmentUrls === "") {
+                    this.uiManager.finishSubmitProcessing();
+                    return false;
+                }
+            } else {
+                // 对于重试的消息，使用现有的附件URL
+                attachmentUrls = attachments
+                    .filter(att => att.isExistingAttachment && att.fileName)
+                    .map(att => att.fileName)
+                    .join(";");
             }
         }
 

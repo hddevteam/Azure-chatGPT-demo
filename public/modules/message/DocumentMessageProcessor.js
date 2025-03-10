@@ -52,7 +52,17 @@ class DocumentMessageProcessor extends MessageProcessor {
     // 检查是否是文档处理请求
     static isDocumentRequest(attachments) {
         return attachments && attachments.length > 0 && 
-               attachments.some(att => !att.content.startsWith("data:image/"));
+               attachments.some(att => {
+                   // For new attachments with content
+                   if (att.content) {
+                       return !att.content.startsWith("data:image/");
+                   }
+                   // For existing attachments with fileName
+                   if (att.fileName) {
+                       return !att.fileName.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i);
+                   }
+                   return false;
+               });
     }
 }
 
