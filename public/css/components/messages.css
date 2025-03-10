@@ -709,3 +709,181 @@
         padding: var(--spacing-sm);
     }
 }
+
+/* Think block styles */
+.think-block-wrapper {
+    position: relative;
+    margin: 1.5em 0;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    background-color: rgba(245, 248, 255, 0.6); /* Light blue tint for better contrast */
+}
+
+.think-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7em 1em;
+    background: rgba(74, 144, 226, 0.15);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border: 1px solid rgba(74, 144, 226, 0.3);
+    border-bottom: none;
+    font-size: 0.9em;
+    color: var(--text-color);
+}
+
+.think-block-header .think-title {
+    font-weight: var(--font-weight-medium);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.think-block-header .think-title::before {
+    content: '\f0eb'; /* Lightbulb icon from Font Awesome */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 14px;
+    color: #3273dc; /* Improved icon color for better visibility */
+}
+
+.think-block-copy {
+    padding: 0.4em 0.6em;
+    background: rgba(255, 255, 255, 0.7); /* Improved background for better contrast */
+    border: 1px solid #4a7abe; /* Improved border color */
+    color: #2c4b7c; /* Darker text color for better contrast */
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: var(--font-size-xs);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.think-block-copy:hover {
+    background: #e6f0ff; /* Lighter background on hover */
+    border-color: #3273dc;
+    color: #2c3e50; /* Even darker text on hover for better visibility */
+}
+
+.think-block-copy:active {
+    transform: translateY(1px);
+}
+
+.think-block-copy i {
+    font-size: 14px;
+    color: #3273dc; /* Icon color to match the theme */
+}
+
+.think-block-copy.copied {
+    background: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+}
+
+/* Improved markdown content in think blocks */
+.think-block-markdown {
+    padding: 1.2em;
+    background-color: rgba(245, 248, 255, 0.6);
+    border: 1px solid rgba(74, 144, 226, 0.3);
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    color: #444444;
+    font-size: 0.92em;
+    line-height: 1.5;
+}
+
+/* Ensure proper paragraph spacing */
+.think-block-markdown p {
+    margin: 0.8em 0;
+}
+
+.think-block-markdown p:first-child {
+    margin-top: 0;
+}
+
+.think-block-markdown p:last-child {
+    margin-bottom: 0;
+}
+
+/* Style code blocks within think blocks */
+.think-block-markdown pre,
+.think-block-markdown code {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 4px;
+    padding: 0.2em 0.4em;
+    margin: 0 0.2em;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9em;
+}
+
+.think-block-markdown pre {
+    padding: 1em;
+    margin: 1em 0;
+    overflow-x: auto;
+}
+
+/* Lists within thinking blocks */
+.think-block-markdown ul,
+.think-block-markdown ol {
+    margin: 0.8em 0;
+    padding-left: 1.5em;
+}
+
+.think-block-markdown li {
+    margin-bottom: 0.4em;
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+    .think-block-wrapper {
+        background-color: rgba(30, 41, 59, 0.4);
+    }
+    
+    .think-block-header {
+        background: rgba(74, 144, 226, 0.15);
+        border-color: rgba(74, 144, 226, 0.2);
+        color: #e2e8f0;
+    }
+    
+    .think-block-header .think-title::before {
+        color: #92c5fd; /* Brighter blue for dark theme */
+    }
+    
+    .think-block-copy {
+        background: rgba(30, 41, 59, 0.6);
+        border-color: #60a5fa;
+        color: #e2e8f0; /* Lighter text color for dark theme */
+    }
+    
+    .think-block-copy:hover {
+        background: rgba(44, 82, 130, 0.8);
+        border-color: #93c5fd;
+        color: #ffffff;
+    }
+    
+    .think-block-copy i {
+        color: #93c5fd; /* Lighter blue icon for dark theme */
+    }
+    
+    .think-block-markdown {
+        background-color: rgba(30, 41, 59, 0.4);
+        border-color: rgba(74, 144, 226, 0.2);
+        color: #e2e8f0;
+    }
+    
+    .think-block-markdown pre,
+    .think-block-markdown code {
+        background-color: rgba(15, 23, 42, 0.6);
+        color: #93c5fd;
+    }
+}
+
+/* Style adjustments for blockquotes in think blocks */
+.message-content .think-block-wrapper blockquote {
+    margin-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}

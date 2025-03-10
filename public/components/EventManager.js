@@ -12,16 +12,16 @@ class EventManager {
                 document.getElementById("image-modal").style.display = "block";
                 document.getElementById("img-modal-content").src = imageUrl;
     
-                // 为下载按钮绑定一个新的点击事件来处理下载
+                // Bind a new click event to the download button to handle the download
                 const downloadBtn = document.getElementById("download-btn");
                 downloadBtn.onclick = function() {
-                    // 创建一个临时的<a>元素用于下载
+                    // Create a temporary <a> element for downloading
                     const tempLink = document.createElement("a");
                     tempLink.href = imageUrl;        
-                    // 根据图片URL获取或设置默认的文件名(使用时间戳)
+                    // Get or set the default file name based on the image URL (using timestamp)
                     const urlParts = imageUrl.split("/");
                     tempLink.download = urlParts[urlParts.length - 1] || `img-${new Date().getTime()}.jpg`;
-                    // 模拟点击
+                    // Simulate click
                     tempLink.click();
                 };
             });
@@ -101,15 +101,23 @@ class EventManager {
 
     // implement attachMessageCopyEvent function
     attachMessageCopyEvent(messageCopy) {
-        // 实例化clipboard.js
+        // Instantiate clipboard.js
         var clipboard = new ClipboardJS(messageCopy, {
             text: function (trigger) {
-                // 获取爷爷节点的data-message属性内容
+                // Get the data-message attribute content of the grandparent node
                 var message = trigger.parentNode.parentNode.getAttribute("data-message");
-                //convert the html escape characters to normal characters
+                var sender = trigger.parentNode.parentNode.getAttribute("data-sender");
+                
+                // Convert HTML escape characters to normal characters
                 const textElement = document.createElement("textarea");
                 textElement.innerHTML = message;
                 message = textElement.value;
+                
+                // If it is an assistant message, remove <think> tag content
+                if (sender === "assistant") {
+                    message = message.replace(/<think>[\s\S]*?<\/think>/g, "");
+                }
+                
                 return message;
             }
         });
@@ -150,10 +158,10 @@ class EventManager {
     }
 
     attachCodeBlockCopyEvent(codeBlock, copyElement) {
-        // 实例化clipboard.js
+        // Instantiate clipboard.js
         var clipboard = new ClipboardJS(copyElement, {
             text: function () {
-                // 获取code元素的文本内容
+                // Get the text content of the code element
                 const codeText = codeBlock.textContent;
                 console.log(codeText);
                 return codeText;
@@ -205,7 +213,15 @@ class EventManager {
         const copyItem = popupMenu.querySelector(".copy-item");
         copyItem.addEventListener("click", () => {
             const message = popupMenu.parentElement.dataset.message;
-            navigator.clipboard.writeText(message);
+            const sender = popupMenu.parentElement.dataset.sender;
+            
+            // If it is an assistant message, remove <think> tag content
+            let contentToCopy = message;
+            if (sender === "assistant") {
+                contentToCopy = message.replace(/<think>[\s\S]*?<\/think>/g, "");
+            }
+            
+            navigator.clipboard.writeText(contentToCopy);
             this.uiManager.showToast("copied successful");
         });
 

@@ -1,4 +1,4 @@
-// MessageUIHandler.js - 处理消息UI相关功能
+// MessageUIHandler.js - Handles message UI related functions
 import { marked } from "marked";
 import { generateExcerpt } from "../../utils/textUtils.js";
 import MarkdownRenderer from "../../utils/MarkdownRenderer.js";
@@ -20,106 +20,106 @@ class MessageUIHandler {
         this.linkHandler = messageManager.linkHandler;
     }
 
-    // 添加消息到DOM
+    // Add message to DOM
     addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false, attachmentUrls = "") {
-        // 清除欢迎消息
+        // Clear welcome message
         const welcomeMessage = document.querySelector("#welcome-message");
         if (welcomeMessage) {
             welcomeMessage.remove();
         }
 
-        // 创建消息元素
+        // Create message element
         const messageElement = this.domManager.createMessageElement(sender, messageId, isActive, isError);
         messageElement.dataset.message = message;
         messageElement.dataset.sender = sender;
         messageElement.dataset.attachmentUrls = attachmentUrls;
         
-        // 从存储中获取完整的消息数据，包括搜索结果
+        // Get full message data from storage, including search results
         const storedMessage = this.uiManager.storageManager.getMessage(
             this.uiManager.currentChatId,
             messageId
         );
 
         if (storedMessage && storedMessage.searchResults) {
-            // 更新消息管理器的搜索结果状态
+            // Update message manager's search results state
             this.messageManager.searchResults = storedMessage.searchResults;
         }
 
-        // 添加会话元素
+        // Add conversation element
         const conversationElement = this.domManager.createConversationElement();
         messageElement.appendChild(conversationElement);
         this.eventManager.attachToggleActiveMessageEventListener(conversationElement);
 
-        // 添加最大化按钮
+        // Add maximize button
         const maximizeElement = this.domManager.createMaximizeButtonElement();
         messageElement.appendChild(maximizeElement);
         this.eventManager.attachMaximizeMessageEventListener(maximizeElement);
 
-        // 添加菜单按钮
+        // Add menu button
         const menuButtonElement = this.domManager.createMenuButtonElement();
         messageElement.appendChild(menuButtonElement);
 
-        // 添加弹出菜单
+        // Add popup menu
         const popupMenuElement = this.domManager.createPopupMenuElement(!isActive);
         messageElement.appendChild(popupMenuElement);
         this.eventManager.attachMenuButtonEventListener(menuButtonElement);
         this.eventManager.attachPopupMenuItemEventListener(popupMenuElement);
 
-        // 添加附件容器
+        // Add attachment container
         if (attachmentUrls !== "") {
             const attachmentContainer = this.domManager.createAttachmentThumbnails(attachmentUrls);
             messageElement.appendChild(attachmentContainer);
         }
 
-        // 添加消息内容
+        // Add message content
         const messageContentElement = sender === "user" ? document.createElement("pre") : document.createElement("div");
         messageContentElement.classList.add("message-content");
         messageElement.appendChild(messageContentElement);
 
-        // 处理引用和搜索结果
+        // Handle citations and search results
         if (sender === "assistant") {
-            // 处理引用
+            // Handle citations
             message = this.processCitationsInMessage(message);
             
-            // 添加搜索结果（如果有）- 使用存储的搜索结果
+            // Add search results (if any) - use stored search results
             const currentSearchResults = storedMessage?.searchResults || this.messageManager.searchResults;
             if (currentSearchResults && Array.isArray(currentSearchResults) && currentSearchResults.length > 0) {
                 messageElement.appendChild(this.createSearchSourcesElement(currentSearchResults));
             }
         }
 
-        // 设置消息内容
+        // Set message content
         const codeBlocksWithCopyElements = this.setMessageContent(sender, messageElement, message, isActive);
 
-        // 折叠非激活消息
+        // Collapse inactive messages
         if (!isActive) {
             messageElement.classList.add("collapsed");
         }
 
-        // 添加按钮组
+        // Add icon group
         const iconGroup = this.domManager.createIconGroup();
 
-        // 添加复制按钮
+        // Add copy button
         const copyElement = this.domManager.createCopyElement();
         iconGroup.appendChild(copyElement);
 
-        // 添加重试按钮（用户消息）
+        // Add retry button (user messages)
         if (sender === "user") {
             const retryElement = this.domManager.createRetryElement();
             iconGroup.appendChild(retryElement);
             this.eventManager.attachRetryMessageEventListener(retryElement, messageId);
         }
 
-        // 添加语音朗读按钮（如果启用）
+        // Add text-to-speech button (if enabled)
         if (this.uiManager.storageManager.getCurrentProfile() && this.uiManager.storageManager.getCurrentProfile().tts === "enabled") {
             const speakerElement = this.domManager.createSpeakerElement();
             iconGroup.appendChild(speakerElement);
         }
 
-        // 将按钮组添加到消息元素
+        // Add icon group to message element
         messageElement.appendChild(iconGroup);
 
-        // 将消息元素添加到消息容器
+        // Add message element to message container
         const messagesContainer = document.querySelector("#messages");
         if (position === "top") {
             messagesContainer.insertBefore(messageElement, messagesContainer.firstChild);
@@ -127,10 +127,13 @@ class MessageUIHandler {
             messagesContainer.appendChild(messageElement);
         }
 
-        // 添加事件监听器
+        // Attach event listeners
         this.attachEventListeners(messageElement, codeBlocksWithCopyElements);
 
-        // 自动滚动到底部
+        // Handle think block copy buttons
+        this.attachThinkBlockCopyListeners(messageElement);
+
+        // Auto scroll to bottom
         if (position === "bottom") {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
@@ -138,37 +141,37 @@ class MessageUIHandler {
         return messageElement;
     }
 
-    // 添加事件监听器
+    // Attach event listeners
     attachEventListeners(messageElement, codeBlocksWithCopyElements) {
         const currentSpeaker = messageElement.querySelector(".message-speaker");
         this.eventManager.attachMessageSpeakerEvent(currentSpeaker);
 
-        // 自动播放（如果启用）
+        // Auto play (if enabled)
         const autoPlay = this.uiManager.app.ttsPracticeMode && messageElement.dataset.sender === "assistant";
         if (autoPlay) {
             this.uiManager.playMessage(currentSpeaker);
         }
 
-        // 添加复制功能
+        // Add copy functionality
         const currentCopy = messageElement.querySelector(".message-copy:not(.code-block-copy)");
         this.eventManager.attachMessageCopyEvent(currentCopy);
         
-        // 为代码块添加复制功能
+        // Add copy functionality for code blocks
         codeBlocksWithCopyElements.forEach(({ codeBlock, copyElement }) => {
             this.eventManager.attachCodeBlockCopyEvent(codeBlock, copyElement);
         });
 
-        // 图片预览功能
+        // Image preview functionality
         this.eventManager.attachImagePreviewEvent();
         
-        // 更新最大化按钮可见性
+        // Update maximize button visibility
         setTimeout(() => this.eventManager.updateMaximizeButtonVisibility(messageElement), 0);
 
-        // 为引用添加事件监听器
+        // Attach event listeners for citations
         this.attachCitationListeners(messageElement.querySelectorAll(".citation"));
     }
 
-    // 设置消息内容
+    // Set message content
     setMessageContent(sender, messageElem, message, isActive) {
 
         let element;
@@ -179,12 +182,12 @@ class MessageUIHandler {
             element = messageElem.querySelector("div.message-content");
             
             try {
-                // 使用新的 MarkdownRenderer 处理消息内容
+                // Use new MarkdownRenderer to handle message content
                 const messageToRender = isActive ? message : this.getMessagePreview(message || "");
                 element.innerHTML = MarkdownRenderer.render(messageToRender);
             } catch (error) {
                 console.error("Error rendering markdown:", error);
-                // 降级为原始 marked 作为后备
+                // Fallback to original marked as a backup
                 const messageHtml = isActive 
                     ? marked.parse(message || "")
                     : marked.parse(this.getMessagePreview(message || ""));
@@ -192,7 +195,7 @@ class MessageUIHandler {
             }
         }
     
-        // 处理代码块
+        // Handle code blocks
         const codeBlocks = element.querySelectorAll("pre > code, pre code");
         const codeBlocksWithCopyElements = [];
     
@@ -200,7 +203,7 @@ class MessageUIHandler {
             const codeBlock = codeBlocks[i];
             const copyElement = this.domManager.createCopyElement();
     
-            // 为代码块创建容器
+            // Create container for code block
             const wrapper = document.createElement("div");
             wrapper.classList.add("code-block-wrapper");
             wrapper.style.position = "relative";
@@ -212,7 +215,7 @@ class MessageUIHandler {
             codeBlocksWithCopyElements.push({ codeBlock, copyElement });
         }
 
-        // 处理链接
+        // Handle links
         if (sender === "assistant") {
             setTimeout(() => {
                 this.linkHandler.attachLinkHandlers();
@@ -222,7 +225,7 @@ class MessageUIHandler {
         return codeBlocksWithCopyElements;
     }
 
-    // 创建搜索结果元素
+    // Create search sources element
     createSearchSourcesElement(searchResults = null) {
         const sources = searchResults || this.messageManager.searchResults;
         if (!sources || !Array.isArray(sources) || sources.length === 0) {
@@ -247,13 +250,13 @@ class MessageUIHandler {
         return sourcesElement;
     }
 
-    // 处理消息中的引用
+    // Handle citations in message
     processCitationsInMessage(message) {
         if (!this.messageManager.searchResults || !Array.isArray(this.messageManager.searchResults)) {
             return message;
         }
 
-        // 首先处理Markdown链接，避免与引用冲突
+        // First handle Markdown links to avoid conflicts with citations
         const linkMap = new Map();
         let linkCounter = 0;
         message = message.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match) => {
@@ -263,11 +266,11 @@ class MessageUIHandler {
             return placeholder;
         });
 
-        // 处理引用
+        // Handle citations
         message = message.replace(/\[citation:(\d+)\]/g, (match, citationNum) => {
             const index = parseInt(citationNum) - 1;
             if (index < 0 || index >= this.messageManager.searchResults.length) {
-                return match; // 如果引用编号超出范围，保留原始文本
+                return match; // If citation number is out of range, keep the original text
             }
             const result = this.messageManager.searchResults[index];
             if (!result) return match;
@@ -276,7 +279,7 @@ class MessageUIHandler {
             return `<span class="citation" data-url="${result.url}" data-title="${result.title}${date}">${match}</span>`;
         });
 
-        // 恢复Markdown链接
+        // Restore Markdown links
         linkMap.forEach((value, key) => {
             message = message.replace(key, value);
         });
@@ -284,7 +287,7 @@ class MessageUIHandler {
         return message;
     }
 
-    // 为引用添加事件监听器
+    // Attach event listeners for citations
     attachCitationListeners(citations) {
         citations.forEach(citation => {
             citation.addEventListener("mouseover", () => {
@@ -299,7 +302,7 @@ class MessageUIHandler {
                 const rect = citation.getBoundingClientRect();
                 const isSplitView = document.body.classList.contains("split-view");
                 
-                // 调整分屏模式下的提示位置
+                // Adjust tooltip position in split view mode
                 if (isSplitView) {
                     const messageContainer = document.querySelector("#messages");
                     const containerRect = messageContainer.getBoundingClientRect();
@@ -310,7 +313,7 @@ class MessageUIHandler {
                 
                 tooltip.style.top = `${rect.bottom + 5}px`;
 
-                // 鼠标移出时移除提示
+                // Remove tooltip on mouse out
                 const handleMouseOut = () => {
                     tooltip.remove();
                     citation.removeEventListener("mouseout", handleMouseOut);
@@ -325,7 +328,7 @@ class MessageUIHandler {
         });
     }
 
-    // 获取消息预览内容
+    // Get message preview content
     getMessagePreview(message, maxLength = 80) {
         let previewText = message.replace(/\n/g, " ");
         if (previewText.length > maxLength) {
@@ -334,7 +337,7 @@ class MessageUIHandler {
         return previewText;
     }
 
-    // 切换消息折叠状态
+    // Toggle message collapse state
     toggleCollapseMessage(messageElement, forceCollapse) {
         const isCurrentlyCollapsed = messageElement.classList.contains("collapsed");
         if ((forceCollapse && !isCurrentlyCollapsed) || (!forceCollapse && isCurrentlyCollapsed)) {
@@ -354,7 +357,7 @@ class MessageUIHandler {
         }
     }
 
-    // 更新切换项UI
+    // Update toggle item UI
     updateToggleItemUI(messageElement, isCollapsed) {
         const toggleItem = messageElement.querySelector(".toggle-item");
         if (toggleItem) {
@@ -362,9 +365,9 @@ class MessageUIHandler {
             const span = toggleItem.querySelector("span");
             span.textContent = isCollapsed ? "Expand" : "Collapse";
 
-            // 获取Font Awesome图标元素
+            // Get Font Awesome icon element
             const icon = toggleItem.querySelector("i");
-            // 根据消息是否折叠更改类
+            // Change class based on message collapse state
             if (isCollapsed) {
                 icon.classList.replace("fa-chevron-up", "fa-chevron-down");
             } else {
@@ -373,7 +376,7 @@ class MessageUIHandler {
         }
     }
 
-    // 添加后续问题按钮
+    // Add follow-up questions
     addFollowUpQuestions(questions) {
         const followUpQuestionsElement = document.createElement("div");
         followUpQuestionsElement.classList.add("follow-up-questions");
@@ -390,7 +393,7 @@ class MessageUIHandler {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // 清除后续问题
+    // Clear follow-up questions
     clearFollowUpQuestions() {
         const followUpQuestionsElement = document.querySelector("#messages .follow-up-questions");
         if (followUpQuestionsElement) {
@@ -398,39 +401,39 @@ class MessageUIHandler {
         }
     }
 
-    // 删除消息
+    // Delete message
     deleteMessage(messageId, isMute = false) {
-        // 静默模式直接删除
+        // Silent mode directly deletes
         if (isMute) {
             this.messageManager.deleteMessageInStorage(messageId);
             return;
         }
 
-        // 获取消息元素
+        // Get message element
         const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
         if (!messageElement) {
             console.error(`Message element with ID ${messageId} not found in DOM`);
             return;
         }
 
-        // 获取消息预览文本
+        // Get message preview text
         const message = messageElement.dataset.message;
         const previewText = this.getMessagePreview(message, 500);
         
-        // 显示确认对话框
+        // Show confirmation dialog
         this._showDeleteConfirmDialog(messageId, previewText);
     }
 
-    // 显示删除确认对话框
+    // Show delete confirmation dialog
     _showDeleteConfirmDialog(messageId, previewText) {
         swal({
-            title: "是否确定要删除此消息？",
+            title: "Are you sure you want to delete this message?",
             text: previewText,
             icon: "warning",
             buttons: {
-                cancel: "取消",
+                cancel: "Cancel",
                 delete: {
-                    text: "删除",
+                    text: "Delete",
                     value: "delete",
                     className: "swal-button--danger"
                 }
@@ -443,27 +446,27 @@ class MessageUIHandler {
         });
     }
 
-    // 开始删除消息流程
+    // Start message deletion process
     _startMessageDeletion(messageId) {
-        // 显示删除中的加载状态
+        // Show loading state while deleting
         const loadingDialog = swal({
-            text: "正在删除消息...",
+            text: "Deleting message...",
             icon: "info",
             buttons: false,
             closeOnClickOutside: false,
             closeOnEsc: false
         });
 
-        // 执行删除操作
+        // Perform delete operation
         this.messageManager.deleteMessageInStorage(messageId)
             .then(result => {
-                // 确保先关闭加载框
+                // Ensure loading dialog is closed first
                 swal.close();
                 
-                // 然后显示成功消息
+                // Then show success message
                 if (result) {
                     setTimeout(() => {
-                        swal("消息已删除", { 
+                        swal("Message deleted", { 
                             icon: "success", 
                             buttons: false, 
                             timer: 1000 
@@ -472,18 +475,18 @@ class MessageUIHandler {
                 }
             })
             .catch(error => {
-                // 确保先关闭加载框
+                // Ensure loading dialog is closed first
                 swal.close();
                 
-                // 然后显示错误消息
+                // Then show error message
                 console.error("Error during message deletion:", error);
                 setTimeout(() => {
-                    swal("删除失败", "消息已在本地删除，但可能未能同步到云端", "warning");
+                    swal("Deletion failed", "Message has been deleted locally but may not have been synced to the cloud", "warning");
                 }, 100);
             });
     }
 
-    // 取消激活消息
+    // Inactivate message
     inactiveMessage(messageId) {
         const message = document.querySelector(`[data-message-id="${messageId}"]`);
         this.uiManager.app.prompts.removePrompt(messageId);
@@ -491,6 +494,38 @@ class MessageUIHandler {
             message.classList.remove("active");
             this.toggleCollapseMessage(message, true);
         }
+    }
+
+    // Attach event listeners for think block copy buttons
+    attachThinkBlockCopyListeners(messageElement) {
+        const thinkBlockCopyButtons = messageElement.querySelectorAll(".think-block-copy");
+        
+        thinkBlockCopyButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                const thinkBlockId = button.getAttribute("data-think-id");
+                const thinkBlock = document.getElementById(thinkBlockId);
+                
+                if (thinkBlock) {
+                    const thinkContent = decodeURIComponent(thinkBlock.getAttribute("data-think-content"));
+                    
+                    navigator.clipboard.writeText(thinkContent)
+                        .then(() => {
+                            // Show copied state
+                            button.classList.add("copied");
+                            button.innerHTML = "<i class=\"fas fa-check\"></i> Copied";
+                            
+                            // Restore original state after 3 seconds
+                            setTimeout(() => { 
+                                button.classList.remove("copied");
+                                button.innerHTML = "<i class=\"fas fa-copy\"></i> Copy";
+                            }, 3000);
+                        })
+                        .catch(err => {
+                            console.error("Could not copy think block text: ", err);
+                        });
+                }
+            });
+        });
     }
 }
 

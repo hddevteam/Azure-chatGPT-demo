@@ -1,23 +1,23 @@
-// MarkdownRenderer.js - 封装 marked.js 配置和处理换行符、数学公式的功能
+// MarkdownRenderer.js - Encapsulates marked.js configuration and handles line breaks and mathematical formulas
 import { marked } from "marked";
 import katex from "katex";
 
 /**
- * 公式处理器 - 负责处理 LaTeX 数学公式
+ * Formula Processor - Handles LaTeX mathematical formulas
  */
 class FormulaProcessor {
     /**
-     * 处理内联数学公式 \( ... \) 和 $ ... $ 
-     * @param {string} text - 输入文本
-     * @returns {string} - 处理后的文本
+     * Processes inline mathematical formulas \( ... \) and $ ... $
+     * @param {string} text - Input text
+     * @returns {string} - Processed text
      */
     processInlineFormulas(text) {
         if (!text) return "";
         
-        // 预处理 - 处理中间有转义反斜杠的模式，例如: \\( formula \\)
+        // Pre-processing - Handles patterns with escaped backslashes in the middle, e.g., \\( formula \\)
         let processed = text.replace(/\\\\(\(|\))/g, (match, p1) => `__ESCAPED_${p1 === "(" ? "LPAREN" : "RPAREN"}__`);
         
-        // 替换 \( ... \) 为内联 KaTeX 标记
+        // Replaces \( ... \) with inline KaTeX markup
         processed = processed.replace(/\\\(([^]*?)\\\)/g, (match, formula) => {
             try {
                 return katex.renderToString(formula.trim(), {
@@ -30,7 +30,7 @@ class FormulaProcessor {
             }
         });
         
-        // 替换 $ ... $ 为内联 KaTeX 标记（避免误匹配普通的 $ 符号）
+        // Replaces $ ... $ with inline KaTeX markup (avoids misinterpreting ordinary $ symbols)
         processed = processed.replace(/(\s|^)\$([^\$\n]+?)\$(?=\s|$|[.,;:!?])/g, (match, pre, formula) => {
             try {
                 return pre + katex.renderToString(formula.trim(), {
@@ -43,24 +43,24 @@ class FormulaProcessor {
             }
         });
         
-        // 恢复转义的括号
+        // Restores escaped parentheses
         return processed
             .replace(/__ESCAPED_LPAREN__/g, "\\(")
             .replace(/__ESCAPED_RPAREN__/g, "\\)");
     }
     
     /**
-     * 处理块级数学公式 \[ ... \] 和 $$ ... $$
-     * @param {string} text - 输入文本
-     * @returns {string} - 处理后的文本
+     * Processes block-level mathematical formulas \[ ... \] and $$ ... $$
+     * @param {string} text - Input text
+     * @returns {string} - Processed text
      */
     processBlockFormulas(text) {
         if (!text) return "";
         
-        // 预处理 - 处理中间有转义反斜杠的模式
+        // Pre-processing - Handles patterns with escaped backslashes in the middle
         let processed = text.replace(/\\\\(\[|\])/g, (match, p1) => `__ESCAPED_${p1 === "[" ? "LBRACKET" : "RBRACKET"}__`);
         
-        // 替换 \[ ... \] 为块级 KaTeX 标记
+        // Replaces \[ ... \] with block-level KaTeX markup
         processed = processed.replace(/\\\[([^]*?)\\\]/gs, (match, formula) => {
             try {
                 return `<div class="katex-block">${katex.renderToString(formula.trim(), {
@@ -73,7 +73,7 @@ class FormulaProcessor {
             }
         });
         
-        // 替换 $$ ... $$ 为块级 KaTeX 标记
+        // Replaces $$ ... $$ with block-level KaTeX markup
         processed = processed.replace(/\$\$([^]*?)\$\$/gs, (match, formula) => {
             try {
                 return `<div class="katex-block">${katex.renderToString(formula.trim(), {
@@ -86,45 +86,45 @@ class FormulaProcessor {
             }
         });
         
-        // 恢复转义的括号
+        // Restores escaped brackets
         return processed
             .replace(/__ESCAPED_LBRACKET__/g, "\\[")
             .replace(/__ESCAPED_RBRACKET__/g, "\\]");
     }
     
     /**
-     * 预处理公式 - 修复常见的格式问题
-     * @param {string} text - 输入文本
-     * @returns {string} - 处理后的文本
+     * Pre-processes formulas - Fixes common formatting issues
+     * @param {string} text - Input text
+     * @returns {string} - Processed text
      */
     preProcessFormulas(text) {
         if (!text) return "";
         
-        // 修复不完整的分数格式
+        // Fixes incomplete fraction formats
         let processed = text.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, "\\frac{$1}{$2}");
         
-        // 修复下标和上标
+        // Fixes subscripts and superscripts
         processed = processed.replace(/\_([a-zA-Z0-9])/g, "_{$1}");
         processed = processed.replace(/\^([a-zA-Z0-9])/g, "^{$1}");
         
-        // 修复 \pm 符号
+        // Fixes \pm symbol
         processed = processed.replace(/\\pm(?![a-zA-Z])/g, "\\pm ");
         
         return processed;
     }
     
     /**
-     * 处理所有数学公式
-     * @param {string} text - 输入文本
-     * @returns {string} - 处理后的文本
+     * Processes all mathematical formulas
+     * @param {string} text - Input text
+     * @returns {string} - Processed text
      */
     processAllFormulas(text) {
         if (!text) return "";
         
-        // 预处理公式
+        // Pre-processes formulas
         let processed = this.preProcessFormulas(text);
         
-        // 先处理块级公式，再处理内联公式
+        // Processes block-level formulas first, then inline formulas
         processed = this.processBlockFormulas(processed);
         processed = this.processInlineFormulas(processed);
         
@@ -132,86 +132,98 @@ class FormulaProcessor {
     }
     
     /**
-     * 包装处理 - 用于处理复杂情况下的公式
-     * 例如，当公式在列表项或表格中时，可能需要特殊处理
-     * @param {string} text - 输入文本
-     * @returns {string} - 处理后的文本
+     * Wrapper processing - Used to handle formulas in complex situations
+     * For example, when formulas are in list items or tables, special handling may be needed
+     * @param {string} text - Input text
+     * @returns {string} - Processed text
      */
     wrapAndProcessFormulas(text) {
-        // 实际应用中，可根据需要增加额外的包装处理逻辑
+        // In actual applications, additional wrapper processing logic can be added as needed
         return this.processAllFormulas(text);
     }
 }
 
 /**
- * 思维链处理器 - 处理思维链标记
+ * Thinking Chain Processor - Processes thinking chain markup
  */
 class ThinkingChainProcessor {
     /**
-     * 将思维链标记转换为 Markdown 引用格式
-     * @param {string} text - 输入文本
-     * @returns {string} - 处理后的文本
+     * Converts thinking chain markup into an HTML structure with a copy button
+     * @param {string} text - Input text
+     * @returns {string} - Processed text
      */
     process(text) {
         if (!text) return text;
         
-        // 使用正则表达式匹配 <think></think> 标签
+        // Use regular expression to match <think></think> tags
         const thinkRegex = /<think>([\s\S]*?)<\/think>/g;
+        let thinkBlockCount = 0;
         
         return text.replace(thinkRegex, (match, thinkContent) => {
-            // 检查 think 内容是否为空或只包含空白字符
+            // Check if think content is empty or contains only whitespace
             if (!thinkContent || thinkContent.trim() === "") {
-                return ""; // 如果内容为空，则替换为空字符串
+                return ""; // If content is empty, replace with empty string
             }
             
-            // 分割成行并处理每一行
-            const processedLines = thinkContent
-                .split("\n")
-                .filter(line => line.trim() !== undefined) // 保留所有行，包括空行
-                .map(line => {
-                    // 如果是空行，返回只有引用符号的行，否则正常加上引用符号和内容
-                    return line.trim() === "" ? ">" : `> ${line}`;
-                });
+            // Increment counter
+            thinkBlockCount++;
             
-            // 将处理后的行合并成一个引用块
-            const processedContent = processedLines.join("\n");
+            // Process the thinking content with Markdown
+            // We'll render it directly with marked to preserve paragraph formatting
+            let processedContent = thinkContent.trim();
             
-            // 返回处理后的引用块，确保周围有空行
-            return `\n\n${processedContent}\n\n`;
+            // Create an HTML structure with copy button
+            // Store the original think content for copying
+            const thinkBlockId = `think-block-${thinkBlockCount}`;
+            const header = `<div class="think-block-wrapper">
+  <div class="think-block-header">
+    <span class="think-title">Thinking Process</span>
+    <button class="think-block-copy" data-think-id="${thinkBlockId}">
+      <i class="fas fa-copy"></i> Copy
+    </button>
+  </div>
+  <div class="think-block-content" id="${thinkBlockId}" data-think-content="${encodeURIComponent(thinkContent)}">`;
+            
+            const footer = `</div>
+</div>`;
+            
+            // First render the content with marked to get HTML
+            // We'll add a special class to identify it as think content
+            return `\n\n${header}\n<div class="think-block-markdown">${marked.parse(processedContent)}</div>\n${footer}\n\n`;
         });
     }
 }
 
 /**
- * 文本格式处理器 - 处理换行符等文本格式
+ * Text Format Processor - Handles text formats such as line breaks
  */
 class TextFormatProcessor {
     /**
-     * 预处理文本，确保换行符能被正确处理
-     * @param {string} text - 要处理的文本内容
-     * @returns {string} - 处理后的文本
+     * Pre-processes text to ensure line breaks are handled correctly
+     * @param {string} text - The text content to process
+     * @returns {string} - Processed text
      */
     process(text) {
         if (!text) return "";
         
-        // 处理诗歌等需要保留换行的内容
+        // Handles content that needs to preserve line breaks, such as poetry
         const lines = text.split("\n");
         const processedLines = [];
         
-        // 遍历所有行
+        // Iterates through all lines
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
             processedLines.push(line);
             
-            // 如果不是空行且下一行存在且不是空行，确保添加换行标记
+            // If it is not an empty line and the next line exists and is not an empty line, ensure a line break tag is added
             if (line.trim() && i < lines.length - 1 && lines[i+1].trim()) {
                 const nextLine = lines[i+1];
                 
-                // 如果当前行和下一行都比较短（可能是诗歌格式）
-                // 或者下一行以特定标点开头（可能是多行内容）
+                // If the current line and the next line are both short (possibly poetry format)
+                // Or the next line starts with a specific punctuation mark (possibly multi-line content)
                 if ((line.length < 40 && nextLine.length < 40) || 
                      /^[，。？！,\.!?]/.test(nextLine.trim())) {
-                    processedLines[processedLines.length - 1] += "  "; // 添加两个空格确保换行
+                    processedLines[processedLines.length - 1] += "  "; // Add two spaces to ensure line break
                 }
             }
         }
@@ -220,9 +232,9 @@ class TextFormatProcessor {
     }
     
     /**
-     * 清理多余的空行，但保留段落结构
-     * @param {string} text - 文本内容
-     * @returns {string} - 处理后的文本
+     * Cleans up extra empty lines, but preserves paragraph structure
+     * @param {string} text - Text content
+     * @returns {string} - Processed text
      */
     cleanupEmptyLines(text) {
         if (!text) return "";
@@ -231,12 +243,12 @@ class TextFormatProcessor {
 }
 
 /**
- * Marked 扩展管理器 - 创建和管理 Marked 扩展
+ * Marked Extension Manager - Creates and manages Marked extensions
  */
 class MarkedExtensionManager {
     /**
-     * 创建 KaTeX 扩展
-     * @returns {Object} - KaTeX 扩展对象
+     * Creates a KaTeX extension
+     * @returns {Object} - KaTeX extension object
      */
     createKatexExtension() {
         return {
@@ -246,7 +258,7 @@ class MarkedExtensionManager {
                 return src.indexOf("$");
             },
             tokenizer(src) {
-                // 匹配内联公式 $...$ 
+                // Matches inline formulas $...$
                 const inlineMatch = /^\$((?:\\.|[^\$\\])+?)\$/.exec(src);
                 if (inlineMatch) {
                     return {
@@ -257,7 +269,7 @@ class MarkedExtensionManager {
                     };
                 }
                 
-                // 匹配块级公式 $$...$$
+                // Matches block-level formulas $$...$$
                 const blockMatch = /^\$\$((?:\\.|[^\$\\])+?)\$\$/.exec(src);
                 if (blockMatch) {
                     return {
@@ -278,116 +290,116 @@ class MarkedExtensionManager {
                     });
                 } catch (e) {
                     console.error("KaTeX rendering error:", e);
-                    return token.raw; // 出错时返回原始文本
+                    return token.raw; // Returns the original text when an error occurs
                 }
             }
         };
     }
     
     /**
-     * 应用所有扩展到 Marked
+     * Applies all extensions to Marked
      */
     applyExtensions() {
-        // 应用 KaTeX 扩展
+        // Applies the KaTeX extension
         const katexExtension = this.createKatexExtension();
         marked.use({ extensions: [katexExtension] });
         
-        // 配置 Marked 基本选项
+        // Configures basic Marked options
         marked.setOptions({
-            breaks: true,          // 启用换行符转换为 <br>
-            gfm: true,             // 启用 GitHub 风格的 Markdown
-            pedantic: false,       // 不启用 pedantic 模式
-            sanitize: false,       // 不进行净化处理，允许 HTML 标签
-            smartLists: true,      // 启用智能列表
-            smartypants: false     // 不启用 smartypants 标点处理
+            breaks: true,          // Enables line breaks to be converted to <br>
+            gfm: true,             // Enables GitHub-flavored Markdown
+            pedantic: false,       // Does not enable pedantic mode
+            sanitize: false,       // Does not perform sanitization, allows HTML tags
+            smartLists: true,      // Enables smart lists
+            smartypants: false     // Does not enable smartypants punctuation processing
         });
     }
 }
 
 /**
- * 错误处理器 - 处理渲染过程中的错误
+ * Error Handler - Handles errors during the rendering process
  */
 class ErrorHandler {
     /**
-     * 处理渲染错误
-     * @param {Error} error - 错误对象
-     * @param {string} text - 原始文本
-     * @returns {string} - 备用渲染结果
+     * Handles rendering errors
+     * @param {Error} error - Error object
+     * @param {string} text - Original text
+     * @returns {string} - Backup rendering result
      */
     handleRenderError(error, text) {
         console.error("Markdown rendering error:", error);
         try {
-            // 尝试使用基本 Marked 渲染（不含扩展）
+            // Attempts to render using basic Marked (without extensions)
             return marked.parse(text);
         } catch (fallbackError) {
             console.error("Basic rendering also failed:", fallbackError);
-            // 最后的备用方案 - 返回预格式化文本
+            // The final fallback - returns pre-formatted text
             return `<pre>${text}</pre>`;
         }
     }
 }
 
 /**
- * 主 Markdown 渲染器类
- * 整合各个处理器，提供统一的渲染接口
+ * Main Markdown Renderer class
+ * Integrates various processors to provide a unified rendering interface
  */
 class MarkdownRenderer {
     constructor() {
-        // 初始化各个处理器
+        // Initializes various processors
         this.formulaProcessor = new FormulaProcessor();
         this.thinkingChainProcessor = new ThinkingChainProcessor();
         this.textFormatProcessor = new TextFormatProcessor();
         this.extensionManager = new MarkedExtensionManager();
         this.errorHandler = new ErrorHandler();
         
-        // 应用扩展
+        // Applies extensions
         this.extensionManager.applyExtensions();
     }
 
     /**
-     * 渲染 Markdown 文本，包括处理思维链和数学公式
-     * @param {string} text - 要渲染的 Markdown 文本
-     * @returns {string} - 渲染后的 HTML
+     * Renders Markdown text, including processing thinking chains and mathematical formulas
+     * @param {string} text - The Markdown text to render
+     * @returns {string} - Rendered HTML
      */
     render(text) {
         if (!text) return "";
         
         try {
-            // 1. 处理思维链
+            // 1. Processes thinking chains
             const withProcessedThinking = this.thinkingChainProcessor.process(text);
             
-            // 2. 处理数学公式（在marked解析之前预处理）
+            // 2. Processes mathematical formulas (pre-processes before marked parsing)
             const withProcessedFormulas = this.formulaProcessor.wrapAndProcessFormulas(withProcessedThinking);
             
-            // 3. 处理文本格式
+            // 3. Processes text formatting
             const processedText = this.textFormatProcessor.process(withProcessedFormulas);
             
-            // 4. 清理多余的空行
+            // 4. Cleans up extra empty lines
             const cleanedText = this.textFormatProcessor.cleanupEmptyLines(processedText);
             
-            // 5. 渲染为 HTML
+            // 5. Renders to HTML
             const htmlContent = marked.parse(cleanedText);
             
-            // 6. 处理HTML内容中仍然存在的LaTeX标记
+            // 6. Processes LaTeX markup that still exists in the HTML content
             return this.processRemainingLaTeX(htmlContent);
         } catch (error) {
-            // 错误处理
+            // Error handling
             return this.errorHandler.handleRenderError(error, text);
         }
     }
     
     /**
-     * 处理HTML内容中仍然存在的LaTeX标记
-     * 这是一个额外的安全措施，确保所有公式都能被渲染
-     * @param {string} htmlContent - 已经渲染为HTML的内容
-     * @returns {string} - 处理后的HTML内容
+     * Processes LaTeX markup that still exists in the HTML content
+     * This is an additional safety measure to ensure all formulas can be rendered
+     * @param {string} htmlContent - The content already rendered as HTML
+     * @returns {string} - Processed HTML content
      */
     processRemainingLaTeX(htmlContent) {
         if (!htmlContent) return "";
         
         try {
-            // 使用正则表达式寻找未被处理的LaTeX标记
-            // 处理 \( ... \) 内联公式
+            // Uses regular expressions to find unprocessed LaTeX markup
+            // Processes \( ... \) inline formulas
             let processed = htmlContent.replace(/\\\(([^]*?)\\\)/g, (match, formula) => {
                 try {
                     return katex.renderToString(formula.trim(), {
@@ -396,11 +408,11 @@ class MarkdownRenderer {
                     });
                 } catch (e) {
                     console.error("Error rendering remaining inline formula:", e);
-                    return match; // 保持原样
+                    return match; // Keeps it as is
                 }
             });
             
-            // 处理 \[ ... \] 块级公式
+            // Processes \[ ... \] block-level formulas
             processed = processed.replace(/\\\[([^]*?)\\\]/g, (match, formula) => {
                 try {
                     return `<div class="katex-block">${katex.renderToString(formula.trim(), {
@@ -409,22 +421,22 @@ class MarkdownRenderer {
                     })}</div>`;
                 } catch (e) {
                     console.error("Error rendering remaining block formula:", e);
-                    return match; // 保持原样
+                    return match; // Keeps it as is
                 }
             });
             
             return processed;
         } catch (error) {
             console.error("Error processing remaining LaTeX:", error);
-            return htmlContent; // 如果出错，返回原始HTML内容
+            return htmlContent; // Returns the original HTML content if an error occurs
         }
     }
     
     /**
-     * 直接渲染数学公式
-     * @param {string} formula - 数学公式文本
-     * @param {boolean} displayMode - 是否为块级展示模式
-     * @returns {string} - 渲染后的 HTML
+     * Renders mathematical formulas directly
+     * @param {string} formula - Mathematical formula text
+     * @param {boolean} displayMode - Whether it is block-level display mode
+     * @returns {string} - Rendered HTML
      */
     renderMathFormula(formula, displayMode = false) {
         try {
@@ -434,10 +446,10 @@ class MarkdownRenderer {
             });
         } catch (e) {
             console.error("Math formula rendering error:", e);
-            return formula; // 出错时返回原始公式
+            return formula; // Returns the original formula when an error occurs
         }
     }
 }
 
-// 导出单例实例
+// Exports a singleton instance
 export default new MarkdownRenderer();
