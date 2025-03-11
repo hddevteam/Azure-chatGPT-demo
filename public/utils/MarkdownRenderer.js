@@ -172,9 +172,11 @@ class ThinkingChainProcessor {
             // We'll render it directly with marked to preserve paragraph formatting
             let processedContent = thinkContent.trim();
             
+            // Create a unique ID for this think block
+            const thinkBlockId = `think-block-${Date.now()}-${thinkBlockCount}`;
+            
             // Create an HTML structure with copy button
-            // Store the original think content for copying
-            const thinkBlockId = `think-block-${thinkBlockCount}`;
+            // Store the original think content for copying as URL-encoded data attribute
             const header = `<div class="think-block-wrapper">
   <div class="think-block-header">
     <span class="think-title">Thinking Process</span>
