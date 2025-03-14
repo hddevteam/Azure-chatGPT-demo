@@ -464,10 +464,17 @@ class UIManager {
         
         // 禁用提交按钮
         submitButton.disabled = true;
+        
+        // First hide the icon with transition
         buttonIcon.classList.add("hidden");
-        loader.classList.remove("hidden");
+        
+        // Short delay to allow the icon to fade out first
+        setTimeout(() => {
+            // Then show the loader with transition
+            loader.classList.remove("hidden");
+        }, 100);
     }
-
+    
     finishSubmitProcessing() {
         const progressBar = document.querySelector(".progress-bar");
         const submitButton = document.getElementById("submitButton");
@@ -478,10 +485,17 @@ class UIManager {
         progressBar.classList.remove("active");
         progressBar.classList.add("complete");
         
+        // First hide the loader with transition
+        loader.classList.add("hidden");
+        
+        // Short delay to allow the loader to fade out first
+        setTimeout(() => {
+            // Then show the icon with transition
+            buttonIcon.classList.remove("hidden");
+        }, 100);
+        
         // 重置按钮状态
         submitButton.disabled = false;
-        buttonIcon.classList.remove("hidden");
-        loader.classList.add("hidden");
         
         // 短暂延迟后移除完成状态
         setTimeout(() => {

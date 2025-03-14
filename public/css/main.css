@@ -8,6 +8,7 @@
 @import url("components/notifications.css");
 @import url("components/forms.css");
 @import url("components/buttons.css");
+@import url("components/submit-button.css"); /* Added specific submit button styling */
 @import url("components/messages.css");
 @import url("components/toolbars.css");
 @import url("components/lists.css");
