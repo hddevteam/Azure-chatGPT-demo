@@ -465,14 +465,13 @@ class UIManager {
         // 禁用提交按钮
         submitButton.disabled = true;
         
-        // First hide the icon with transition
+        // 使用 opacity 过渡来避免尺寸变化
         buttonIcon.classList.add("hidden");
         
-        // Short delay to allow the icon to fade out first
+        // 使用 setTimeout 创建平滑过渡
         setTimeout(() => {
-            // Then show the loader with transition
             loader.classList.remove("hidden");
-        }, 100);
+        }, 150);
     }
     
     finishSubmitProcessing() {
@@ -485,14 +484,13 @@ class UIManager {
         progressBar.classList.remove("active");
         progressBar.classList.add("complete");
         
-        // First hide the loader with transition
+        // 使用 opacity 过渡来避免尺寸变化
         loader.classList.add("hidden");
         
-        // Short delay to allow the loader to fade out first
+        // 使用 setTimeout 创建平滑过渡
         setTimeout(() => {
-            // Then show the icon with transition
             buttonIcon.classList.remove("hidden");
-        }, 100);
+        }, 150);
         
         // 重置按钮状态
         submitButton.disabled = false;

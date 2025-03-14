@@ -1,0 +1,46 @@
+/* Submit button styles */
+#submit-button-icon,
+#submit-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.2s ease-in-out;
+}
+
+#submit-button-icon.hidden,
+#submit-loader.hidden {
+  opacity: 0;
+}
+
+#submitButton {
+  position: relative !important;
+  overflow: hidden;
+}
+
+/* 确保在移动设备上按钮尺寸稳定 */
+@media screen and (max-width: 768px) {
+  #submitButton {
+    box-sizing: border-box;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    padding: 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #submit-button-icon,
+  #submit-loader {
+    height: 34px;
+    min-height: 34px;
+    max-height: 34px;
+  }
+  
+  #submit-loader object {
+    height: 24px;
+    width: 24px;
+  }
+}
