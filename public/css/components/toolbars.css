@@ -8,12 +8,17 @@
     color: #fff;
     padding: 5px;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
-    border-top-left-radius: 0.5em;
-    border-top-right-radius: 0.5em;
+    border-radius: 0.5em;
     display: flex;
     gap: 5px;
     justify-content: space-between;
     flex-wrap: wrap;
+    position: sticky;
+    bottom: 6px;
+    right: 6px;
+    float: right;
+    margin: 0 6px 6px 0;
+    z-index: 1;
 }
 
 .interactive-elements {

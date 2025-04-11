@@ -169,6 +169,8 @@ html {
     width: 100%;
     display: flex;
     justify-content: flex-end;
+    position: relative;
+    z-index: 1;
 }
 
 #message-form {
@@ -201,7 +203,7 @@ html {
 
 /* 基础按钮布局 - 非分屏模式 */
 .button-row {
-    position: absolute;
+    position: sticky;
     bottom: 6px;
     right: 6px;
     display: flex;
@@ -209,6 +211,8 @@ html {
     padding: 0;
     border-radius: 4px;
     z-index: 1;
+    float: right;
+    margin: 0 6px 6px 0;
 }
 
 

@@ -18,12 +18,12 @@ function addVerticalResizeHandleListeners() {
     function resize(e) {
         const currentY = e.clientY;
         const heightDelta = currentY - startY;
-        const newHeight = Math.max(startHeight - heightDelta, 50); // Enforce a minimum height
+        const newHeight = Math.max(startHeight - heightDelta, 100); // 增加最小高度以确保按钮行可见
         messageInputContainer.style.height = `${newHeight}px`;
 
-        // Maybe you want to do something with the paddingBottom as well?
-        const inputContainter = document.getElementById("input-container");
-        inputContainter.style.paddingBottom = "50px";
+        // 重置input-container的内边距，让按钮行有足够的空间
+        const inputContainer = document.getElementById("input-container");
+        inputContainer.style.paddingBottom = "";  // 移除固定的padding-bottom
     }
 
     // Function to stop the resize operation
