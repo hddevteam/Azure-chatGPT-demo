@@ -7,20 +7,28 @@ import katex from "katex";
  */
 class FormulaProcessor {
     /**
-     * Processes inline mathematical formulas \( ... \) and $ ... $
-     * @param {string} text - Input text
-     * @returns {string} - Processed text
+     * Helper method to pre-process formula content only
+     * @private
+     * @param {string} formula - The formula content to process
+     * @returns {string} - Processed formula
      */
+    _preProcessFormulaContent(formula) {
+        let processed = formula.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, "\\frac{$1}{$2}");
+        processed = processed.replace(/_([a-zA-Z0-9])/g, "_{$1}");
+        processed = processed.replace(/\^([a-zA-Z0-9])/g, "^{$1}");
+        processed = processed.replace(/\\pm(?![a-zA-Z])/g, "\\pm ");
+        return processed;
+    }
+
     processInlineFormulas(text) {
         if (!text) return "";
         
-        // Pre-processing - Handles patterns with escaped backslashes in the middle, e.g., \\( formula \\)
         let processed = text.replace(/\\\\(\(|\))/g, (match, p1) => `__ESCAPED_${p1 === "(" ? "LPAREN" : "RPAREN"}__`);
         
-        // Replaces \( ... \) with inline KaTeX markup
         processed = processed.replace(/\\\(([^]*?)\\\)/g, (match, formula) => {
             try {
-                return katex.renderToString(formula.trim(), {
+                const safeFormula = this._preProcessFormulaContent(formula.trim());
+                return katex.renderToString(safeFormula, {
                     throwOnError: false,
                     displayMode: false
                 });
@@ -30,10 +38,10 @@ class FormulaProcessor {
             }
         });
         
-        // Replaces $ ... $ with inline KaTeX markup (avoids misinterpreting ordinary $ symbols)
-        processed = processed.replace(/(\s|^)\$([^\$\n]+?)\$(?=\s|$|[.,;:!?])/g, (match, pre, formula) => {
+        processed = processed.replace(/(\s|^)\$([^$\n]+?)\$(?=\s|$|[.,;:!?])/g, (match, pre, formula) => {
             try {
-                return pre + katex.renderToString(formula.trim(), {
+                const safeFormula = this._preProcessFormulaContent(formula.trim());
+                return pre + katex.renderToString(safeFormula, {
                     throwOnError: false,
                     displayMode: false
                 });
@@ -43,27 +51,20 @@ class FormulaProcessor {
             }
         });
         
-        // Restores escaped parentheses
         return processed
             .replace(/__ESCAPED_LPAREN__/g, "\\(")
             .replace(/__ESCAPED_RPAREN__/g, "\\)");
     }
     
-    /**
-     * Processes block-level mathematical formulas \[ ... \] and $$ ... $$
-     * @param {string} text - Input text
-     * @returns {string} - Processed text
-     */
     processBlockFormulas(text) {
         if (!text) return "";
         
-        // Pre-processing - Handles patterns with escaped backslashes in the middle
         let processed = text.replace(/\\\\(\[|\])/g, (match, p1) => `__ESCAPED_${p1 === "[" ? "LBRACKET" : "RBRACKET"}__`);
         
-        // Replaces \[ ... \] with block-level KaTeX markup
         processed = processed.replace(/\\\[([^]*?)\\\]/gs, (match, formula) => {
             try {
-                return `<div class="katex-block">${katex.renderToString(formula.trim(), {
+                const safeFormula = this._preProcessFormulaContent(formula.trim());
+                return `<div class="katex-block">${katex.renderToString(safeFormula, {
                     throwOnError: false,
                     displayMode: true
                 })}</div>`;
@@ -73,10 +74,10 @@ class FormulaProcessor {
             }
         });
         
-        // Replaces $$ ... $$ with block-level KaTeX markup
         processed = processed.replace(/\$\$([^]*?)\$\$/gs, (match, formula) => {
             try {
-                return `<div class="katex-block">${katex.renderToString(formula.trim(), {
+                const safeFormula = this._preProcessFormulaContent(formula.trim());
+                return `<div class="katex-block">${katex.renderToString(safeFormula, {
                     throwOnError: false,
                     displayMode: true
                 })}</div>`;
@@ -86,28 +87,16 @@ class FormulaProcessor {
             }
         });
         
-        // Restores escaped brackets
         return processed
             .replace(/__ESCAPED_LBRACKET__/g, "\\[")
             .replace(/__ESCAPED_RBRACKET__/g, "\\]");
     }
     
-    /**
-     * Pre-processes formulas - Fixes common formatting issues
-     * @param {string} text - Input text
-     * @returns {string} - Processed text
-     */
     preProcessFormulas(text) {
         if (!text) return "";
         
-        // Fixes incomplete fraction formats
+        // Only process fractions and pm symbol globally
         let processed = text.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, "\\frac{$1}{$2}");
-        
-        // Fixes subscripts and superscripts
-        processed = processed.replace(/\_([a-zA-Z0-9])/g, "_{$1}");
-        processed = processed.replace(/\^([a-zA-Z0-9])/g, "^{$1}");
-        
-        // Fixes \pm symbol
         processed = processed.replace(/\\pm(?![a-zA-Z])/g, "\\pm ");
         
         return processed;
@@ -224,7 +213,7 @@ class TextFormatProcessor {
                 // If the current line and the next line are both short (possibly poetry format)
                 // Or the next line starts with a specific punctuation mark (possibly multi-line content)
                 if ((line.length < 40 && nextLine.length < 40) || 
-                     /^[，。？！,\.!?]/.test(nextLine.trim())) {
+                     /^[，。？！,.!?]/.test(nextLine.trim())) {
                     processedLines[processedLines.length - 1] += "  "; // Add two spaces to ensure line break
                 }
             }
@@ -261,7 +250,7 @@ class MarkedExtensionManager {
             },
             tokenizer(src) {
                 // Matches inline formulas $...$
-                const inlineMatch = /^\$((?:\\.|[^\$\\])+?)\$/.exec(src);
+                const inlineMatch = /^\$(?![\n$])((?:\\.|[^$\\])+?)\$(?!\$)/.exec(src);
                 if (inlineMatch) {
                     return {
                         type: "katex",
@@ -272,7 +261,7 @@ class MarkedExtensionManager {
                 }
                 
                 // Matches block-level formulas $$...$$
-                const blockMatch = /^\$\$((?:\\.|[^\$\\])+?)\$\$/.exec(src);
+                const blockMatch = /^\$\$((?:\\.|[^$\\])+?)\$\$/.exec(src);
                 if (blockMatch) {
                     return {
                         type: "katex",
