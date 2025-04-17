@@ -535,15 +535,50 @@ class UIManager {
     }
 
     async changeChatTopic(chatId, isNewTopic = false) {
-        // Clear existing messages
-        document.querySelector("#messages").innerHTML = "";
+        // 清空现有消息并显示加载指示器
+        const messagesContainer = document.querySelector("#messages");
+        messagesContainer.innerHTML = `
+            <div id="chat-loading-indicator" class="chat-loading-indicator">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">正在加载对话内容...</div>
+            </div>
+        `;
         
-        // Update current chat ID
+        // 立即更新当前聊天ID
         this.currentChatId = chatId;
+
+        // 立即更新UI活动状态
+        document.querySelector("#chat-history-list li.active")?.classList.remove("active");
+        document.querySelector(`#chat-history-list li[data-id="${chatId}"]`)?.classList.add("active");
 
         // 获取当前聊天的配置文件
         let currentProfile = this.storageManager.getCurrentProfile();
-
+        
+        // 异步执行数据加载过程
+        this.loadChatTopicData(chatId, isNewTopic, currentProfile).catch(error => {
+            console.error("Error loading chat topic:", error);
+            // 在加载失败时显示错误信息
+            const loadingIndicator = document.getElementById("chat-loading-indicator");
+            if (loadingIndicator) {
+                loadingIndicator.innerHTML = `
+                    <div class="loading-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div>加载对话内容时出错</div>
+                        <button class="retry-button">重试</button>
+                    </div>
+                `;
+                
+                // 添加重试按钮事件处理
+                const retryButton = loadingIndicator.querySelector(".retry-button");
+                if (retryButton) {
+                    retryButton.addEventListener("click", () => this.changeChatTopic(chatId, isNewTopic));
+                }
+            }
+        });
+    }
+    
+    // 新方法：用于处理聊天话题数据加载的异步过程
+    async loadChatTopicData(chatId, isNewTopic, currentProfile) {
         // 如果不是新话题，根据现有的聊天历史更新当前的 Profile
         if (!isNewTopic) {
             const chatHistory = this.chatHistoryManager.getChatHistory();
@@ -555,13 +590,13 @@ class UIManager {
                     // 找到了对应的profile，正常切换
                     if (profile.name !== currentProfile?.name) {
                         await this.aiProfileManager.switchToProfile(profile, false);
-                        currentProfile = profile;
+                        currentProfile = this.aiProfileManager.getCurrentProfile();
                     }
                 } else if (this.profiles.length > 0) {
                     // 如果没有找到对应的profile，但有其他profiles可用，切换到第一个profile
                     console.log(`Profile ${currentChat.profileName} not found, switching to first available profile: ${this.profiles[0].name}`);
                     await this.aiProfileManager.switchToProfile(this.profiles[0], false);
-                    currentProfile = this.profiles[0];
+                    currentProfile = this.aiProfileManager.getCurrentProfile();
                 }
             }
         }
@@ -580,7 +615,7 @@ class UIManager {
             // 对于新话题，确保更新表单数据
             this.profileFormManager.bindProfileData(currentProfile);
         } else {
-            // 如果不是新话题，先从Azure Storage同步消息
+            // 如果不是新话题，从Azure Storage同步消息
             try {
                 await this.syncManager.updateToken(); // 确保token有效
                 await this.syncManager.syncMessages(chatId);
@@ -597,14 +632,19 @@ class UIManager {
         // 初始化上下文（设置系统提示和恢复活跃消息）
         this.messageContextManager.initializeContext(currentProfile, messages);
 
-        // Load messages for this chat
+        // 清除加载指示器
+        const loadingIndicator = document.getElementById("chat-loading-indicator");
+        if (loadingIndicator) {
+            loadingIndicator.remove();
+        }
+
+        // 清空消息容器，以便重新加载消息
+        document.querySelector("#messages").innerHTML = "";
+
+        // 加载此聊天的消息
         await this.messageManager.loadMessages(chatId);
 
-        // Update UI active states
-        document.querySelector("#chat-history-list li.active")?.classList.remove("active");
-        document.querySelector(`#chat-history-list li[data-id="${chatId}"]`)?.classList.add("active");
-
-        // Show any welcome message if needed
+        // 如果没有消息，显示欢迎信息
         if (document.querySelector("#messages").innerHTML === "") {
             this.showWelcomeMessage();
         }

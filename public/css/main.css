@@ -26,6 +26,7 @@
 @import url("components/model-styles.css"); 
 @import url("components/drawer-toggle.css");
 @import url("components/audio-processing-modal.css");
+@import url("components/chat-loading.css");
 
 /* Feature styles */
 @import url("chat_options_modal.css");

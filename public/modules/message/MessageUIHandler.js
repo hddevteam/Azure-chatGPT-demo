@@ -252,6 +252,18 @@ class MessageUIHandler {
 
     // Handle citations in message
     processCitationsInMessage(message) {
+        // Check if message is undefined or null
+        if (message === undefined || message === null) {
+            console.warn("processCitationsInMessage received undefined or null message");
+            return "";
+        }
+        
+        // Ensure message is a string
+        if (typeof message !== "string") {
+            console.warn(`processCitationsInMessage received non-string message: ${typeof message}`);
+            message = String(message);
+        }
+        
         if (!this.messageManager.searchResults || !Array.isArray(this.messageManager.searchResults)) {
             return message;
         }
