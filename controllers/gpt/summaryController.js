@@ -113,7 +113,7 @@ exports.generateFollowUpQuestions = async (req, res) => {
     try {
         console.log("generateFollowUpQuestions", req.body);
         const prompt = JSON.parse(req.body.prompt);
-        const { apiKey, apiUrl } = gptService.getApiConfig("gpt-4o-mini");
+        const { apiKey, apiUrl } = gptService.getApiConfig("gpt-4.1-nano");
 
         const requestData = {
             apiKey,

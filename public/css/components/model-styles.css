@@ -6,6 +6,11 @@
     --model-o1-mini: #4cc9f0;
     --model-o3-mini: #7209b7;
     --model-deepseek: #d81b60; /* 改为玫红色，与紫色明显区分 */
+    --model-o4-mini: #ff6b6b; /* 鲜红色 */
+    --model-gpt45: #ff9f1c; /* 橙色 */
+    --model-gpt41: #8338ec; /* 紫色 */
+    --model-gpt41-nano: #118ab2; /* 深青色 */
+    --model-gpt41-mini: #06d6a0; /* 薄荷绿 */
 }
 
 /* Model button & indicator styles */
@@ -39,6 +44,11 @@
 .btn.o1-mini, .message-header .model-indicator.o1-mini { background-color: var(--model-o1-mini); }
 .btn.o3-mini, .message-header .model-indicator.o3-mini { background-color: var(--model-o3-mini); }
 .btn.deepseek-r1, .message-header .model-indicator.deepseek-r1 { background-color: var(--model-deepseek); }
+.btn.o4-mini, .message-header .model-indicator.o4-mini { background-color: var(--model-o4-mini); }
+.btn.gpt-4\.5-preview, .message-header .model-indicator.gpt-4\.5-preview { background-color: var(--model-gpt45); }
+.btn.gpt-4\.1, .message-header .model-indicator.gpt-4\.1 { background-color: var(--model-gpt41); }
+.btn.gpt-4\.1-nano, .message-header .model-indicator.gpt-4\.1-nano { background-color: var(--model-gpt41-nano); }
+.btn.gpt-4\.1-mini, .message-header .model-indicator.gpt-4\.1-mini { background-color: var(--model-gpt41-mini); }
 
 /* 模型选择器的微调 */
 #model-switch {
@@ -206,6 +216,11 @@
 #model-select-modal .model-option[data-model="o1-mini"]::before { color: var(--model-o1-mini); }
 #model-select-modal .model-option[data-model="o3-mini"]::before { color: var(--model-o3-mini); }
 #model-select-modal .model-option[data-model="deepseek-r1"]::before { color: var(--model-deepseek); }
+#model-select-modal .model-option[data-model="o4-mini"]::before { color: var(--model-o4-mini); }
+#model-select-modal .model-option[data-model="gpt-4.5-preview"]::before { color: var(--model-gpt45); }
+#model-select-modal .model-option[data-model="gpt-4.1"]::before { color: var(--model-gpt41); }
+#model-select-modal .model-option[data-model="gpt-4.1-nano"]::before { color: var(--model-gpt41-nano); }
+#model-select-modal .model-option[data-model="gpt-4.1-mini"]::before { color: var(--model-gpt41-mini); }
 
 /* 暗色主题适配 */
 .split-view #model-select-modal .modal-inner {

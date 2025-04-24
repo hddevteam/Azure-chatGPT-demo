@@ -39,3 +39,19 @@ GPT_4O_REALTIME_DEPLOYMENT=yourdeployment
 BING_SEARCH_API_KEY=your-bing-search-key
 BING_SEARCH_API_URL=https://api.bing.microsoft.com/
 BING_SEARCH_API_LOCALE=global
+
+# 新增模型配置
+O4_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/o4-mini/chat/completions?api-version=2025-01-01-preview
+O4_MINI_API_KEY=your-o4-mini-key
+
+GPT_4_5_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-4.5-preview/chat/completions?api-version=2025-01-01-preview
+GPT_4_5_API_KEY=your-gpt45-key
+
+GPT_4_1_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-01-01-preview
+GPT_4_1_API_KEY=your-gpt41-key
+
+GPT_4_1_NANO_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-4.1-nano/chat/completions?api-version=2025-01-01-preview
+GPT_4_1_NANO_API_KEY=your-gpt41-nano-key
+
+GPT_4_1_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-4.1-mini/chat/completions?api-version=2025-01-01-preview
+GPT_4_1_MINI_API_KEY=your-gpt41-mini-key

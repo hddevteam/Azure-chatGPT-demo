@@ -19,7 +19,12 @@ export default class ModelDropdownManager {
             "o1": "O1",
             "o1-mini": "O1-MINI",
             "o3-mini": "O3-MINI",
-            "deepseek-r1": "DEEPSEEK-R1"
+            "deepseek-r1": "DEEPSEEK-R1",
+            "o4-mini": "O4-MINI",
+            "gpt-4.5-preview": "GPT-4.5 PREVIEW",
+            "gpt-4.1": "GPT-4.1",
+            "gpt-4.1-nano": "GPT-4.1 NANO",
+            "gpt-4.1-mini": "GPT-4.1 MINI"
         };
         
         // 默认模型
