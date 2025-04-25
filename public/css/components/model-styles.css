@@ -4,6 +4,7 @@
     --model-gpt4o-mini: #2a9d8f;
     --model-o1: #3a86ff;
     --model-o1-mini: #4cc9f0;
+    --model-o3: #5a189a; /* 添加o3模型颜色 - 深紫色区分于o3-mini */
     --model-o3-mini: #7209b7;
     --model-deepseek: #d81b60; /* 改为玫红色，与紫色明显区分 */
     --model-o4-mini: #ff6b6b; /* 鲜红色 */
@@ -42,6 +43,7 @@
 .btn.gpt-4o-mini, .message-header .model-indicator.gpt-4o-mini { background-color: var(--model-gpt4o-mini); }
 .btn.o1, .message-header .model-indicator.o1 { background-color: var(--model-o1); }
 .btn.o1-mini, .message-header .model-indicator.o1-mini { background-color: var(--model-o1-mini); }
+.btn.o3, .message-header .model-indicator.o3 { background-color: var(--model-o3); } /* 添加o3样式 */
 .btn.o3-mini, .message-header .model-indicator.o3-mini { background-color: var(--model-o3-mini); }
 .btn.deepseek-r1, .message-header .model-indicator.deepseek-r1 { background-color: var(--model-deepseek); }
 .btn.o4-mini, .message-header .model-indicator.o4-mini { background-color: var(--model-o4-mini); }
@@ -87,6 +89,12 @@
 .model-dropdown .dropdown-item[data-model="o1-mini"]::before {
     content: "●";
     color: var(--model-o1-mini);
+    margin-right: 5px;
+}
+
+.model-dropdown .dropdown-item[data-model="o3"]::before {
+    content: "●";
+    color: var(--model-o3);
     margin-right: 5px;
 }
 
@@ -214,6 +222,7 @@
 #model-select-modal .model-option[data-model="gpt-4o-mini"]::before { color: var(--model-gpt4o-mini); }
 #model-select-modal .model-option[data-model="o1"]::before { color: var(--model-o1); }
 #model-select-modal .model-option[data-model="o1-mini"]::before { color: var(--model-o1-mini); }
+#model-select-modal .model-option[data-model="o3"]::before { color: var(--model-o3); } /* 添加o3模型的样式 */
 #model-select-modal .model-option[data-model="o3-mini"]::before { color: var(--model-o3-mini); }
 #model-select-modal .model-option[data-model="deepseek-r1"]::before { color: var(--model-deepseek); }
 #model-select-modal .model-option[data-model="o4-mini"]::before { color: var(--model-o4-mini); }

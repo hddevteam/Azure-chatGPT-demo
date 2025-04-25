@@ -1,6 +1,6 @@
 # 🤖 Powerful chatGPT for Azure OpenAI GPT model 
 
-Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the Azure OpenAI GPT-4o-realtime/o1/o1-mini/o3-mini/o4-mini/GPT-4O/GPT-4O-mini/GPT-4.5-preview/GPT-4.1/GPT-4.1-nano/GPT-4.1-mini model. This project serves as an excellent starting point for developers interested in developing chatbot applications using JavaScript and the Azure OpenAI API.
+Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the Azure OpenAI GPT-4o-realtime/o1/o1-mini/o3/o3-mini/o4-mini/GPT-4O/GPT-4O-mini/GPT-4.5-preview/GPT-4.1/GPT-4.1-nano/GPT-4.1-mini model. This project serves as an excellent starting point for developers interested in developing chatbot applications using JavaScript and the Azure OpenAI API.
 
 ## 📚 Learnings from this Project
 
@@ -21,7 +21,7 @@ These learnings will equip you with the skills to build robust, feature-rich cha
 - **🎉Support for GPT-4o Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview-3🎉**
 ![GPT4O Realtime Chat Desktop Screenshot](screenshot_realtime_desktop.png)
 ![GPT4O Realtime Chat Mobile Screenshot](screenshot_realtime_mobile.png)
-- **🎉Support for o1/o1-mini/o3-mini/o4-mini/GPT-4O/GPT-4O-mini/GPT-4.5-preview/GPT-4.1/GPT-4.1-nano/GPT-4.1-mini🎉**
+- **🎉Support for o1/o1-mini/o3/o3-mini/o4-mini/GPT-4O/GPT-4O-mini/GPT-4.5-preview/GPT-4.1/GPT-4.1-nano/GPT-4.1-mini🎉**
 - **✨Support PWA (Progressive Web App)✨**
 ![Dekstop Screenshot](screenshot_desktop.png)
 ![Desktop Screenshot](screenshot_desktop_focus_mode.png)

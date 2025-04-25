@@ -92,8 +92,8 @@ const handleRequestError = (error, res) => {
  * @returns {Object} Processed parameters for the specific model
  */
 const processModelParameters = (model, params) => {
-    // o1 系列模型使用不同的参数格式
-    if (model === "o1" || model === "o1-mini" || model === "o3-mini") {
+    // models with different parameter requirements for o1, o1-mini, o3, o3-mini... o series model
+    if (model === "o1" || model === "o1-mini" || model === "o3" || model === "o3-mini") {
         return {
             max_completion_tokens: parseInt(params.max_tokens)
         };

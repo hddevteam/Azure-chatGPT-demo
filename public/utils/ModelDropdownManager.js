@@ -18,6 +18,7 @@ export default class ModelDropdownManager {
             "gpt-4o-mini": "GPT-4O-MINI",
             "o1": "O1",
             "o1-mini": "O1-MINI",
+            "o3": "O3", 
             "o3-mini": "O3-MINI",
             "deepseek-r1": "DEEPSEEK-R1",
             "o4-mini": "O4-MINI",
