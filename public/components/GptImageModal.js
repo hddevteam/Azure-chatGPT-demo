@@ -1,201 +1,172 @@
 // public/components/GptImageModal.js
-/**
- * GPT-Image-1模态框组件
- * 用于处理GPT-Image-1的图像生成和编辑功能
- */
 export default class GptImageModal {
     constructor() {
         this.modalId = "gpt-image-modal";
         this.modal = null;
-        this.activeTab = "generate"; // 默认活动选项卡
+        this.activeTab = "generate";
         this.init();
     }
 
-    /**
-     * 初始化模态框
-     */
     init() {
         this.createModal();
         this.bindEvents();
     }
 
-    /**
-     * 创建模态框DOM结构
-     */
     createModal() {
-        // 检查模态框是否已存在，如果存在则移除
         const existingModal = document.getElementById(this.modalId);
         if (existingModal) {
             existingModal.remove();
         }
 
-        // 创建模态框HTML
         const modalHTML = `
-            <div id="${this.modalId}" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>GPT-Image-1 图像生成</h2>
-                        <button id="close-gpt-image-btn" class="modal-close">&times;</button>
+            <div id="${this.modalId}" class="modal" role="dialog" aria-labelledby="gptImageModalTitle" aria-modal="true">
+                <div class="gpt-image-modal__content">
+                    <div class="gpt-image-modal__header">
+                        <h2 id="gptImageModalTitle" class="gpt-image-modal__title">Generate Image with GPT-Image-1</h2>
+                        <button id="close-gpt-image-btn" class="gpt-image-modal__close" aria-label="Close dialog">&times;</button>
                     </div>
-                    <div class="modal-body">
-                        <div class="tab-header">
-                            <button id="generate-tab-btn" class="tab-btn active">生成图像</button>
-                            <button id="edit-tab-btn" class="tab-btn">编辑图像</button>
+                    
+                    <div class="gpt-image-modal__tabs" role="tablist" aria-label="Image operations">
+                        <button id="generate-tab-btn" 
+                            class="gpt-image-modal__tab gpt-image-modal__tab--active" 
+                            role="tab" 
+                            aria-selected="true" 
+                            aria-controls="generate-tab-content">
+                            Generate Image
+                        </button>
+                        <button id="edit-tab-btn" 
+                            class="gpt-image-modal__tab" 
+                            role="tab" 
+                            aria-selected="false" 
+                            aria-controls="edit-tab-content">
+                            Edit Image
+                        </button>
+                    </div>
+
+                    <div id="generate-tab-content" class="gpt-image-modal__tab-content active" role="tabpanel" aria-labelledby="generate-tab-btn">
+                        <div class="gpt-image-modal__form-group">
+                            <label class="gpt-image-modal__label" for="gptImagePrompt">Prompt Description</label>
+                            <textarea id="gptImagePrompt" class="gpt-image-modal__textarea" 
+                                    placeholder="Enter a detailed English description of the image you want to generate..." 
+                                    rows="3"
+                                    aria-describedby="promptHelpText"></textarea>
+                            <div id="promptHelpText" class="gpt-image-modal__help-text">Be specific and detailed in your description for better results.</div>
                         </div>
-                        
-                        <div id="generate-tab-content" class="tab-content active">
-                            <div class="setting-item">
-                                <label for="gptImagePrompt">提示词描述</label>
-                                <textarea id="gptImagePrompt" placeholder="输入英文描述您想要生成的图像..." rows="3"></textarea>
-                            </div>
-                            
-                            <div class="setting-item">
-                                <label for="gptImageSize">图像尺寸</label>
-                                <select id="gptImageSize">
-                                    <option value="1024x1024">1024x1024 (正方形)</option>
-                                    <option value="1024x1792">1024x1792 (竖向)</option>
-                                    <option value="1792x1024">1792x1024 (横向)</option>
-                                </select>
-                            </div>
-                            
-                            <div class="setting-item">
-                                <label for="gptImageQuality">图像质量</label>
-                                <select id="gptImageQuality">
-                                    <option value="medium">标准</option>
-                                    <option value="hd">高清</option>
-                                </select>
-                            </div>
-                            
-                            <div class="setting-item">
-                                <label for="gptImageCount">生成数量</label>
-                                <select id="gptImageCount">
-                                    <option value="1">1张</option>
-                                    <option value="2">2张</option>
-                                    <option value="3">3张</option>
-                                    <option value="4">4张</option>
-                                </select>
-                            </div>
+
+                        <div class="gpt-image-modal__form-group">
+                            <label class="gpt-image-modal__label" for="gptImageSize">Image Size</label>
+                            <select id="gptImageSize" class="gpt-image-modal__select">
+                                <option value="1024x1024">1024x1024 (Square)</option>
+                                <option value="1024x1792">1024x1792 (Portrait)</option>
+                                <option value="1792x1024">1792x1024 (Landscape)</option>
+                            </select>
                         </div>
-                        
-                        <div id="edit-tab-content" class="tab-content">
-                            <div class="setting-item">
-                                <label for="gptImageEditPrompt">编辑提示词</label>
-                                <textarea id="gptImageEditPrompt" placeholder="输入英文描述您想要对图像的编辑..." rows="3"></textarea>
-                            </div>
-                            
-                            <div class="setting-item">
-                                <label for="gptImageFile">上传图像</label>
-                                <div class="upload-area">
-                                    <input type="file" id="gptImageFile" accept="image/*" style="display: none;">
-                                    <button id="gptImageFileBtn" class="upload-btn">选择图像文件</button>
-                                    <div id="imagePreview" class="image-preview"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="setting-item">
-                                <label for="gptImageMask">上传遮罩（可选）</label>
-                                <div class="upload-area">
-                                    <input type="file" id="gptImageMask" accept="image/*" style="display: none;">
-                                    <button id="gptImageMaskBtn" class="upload-btn">选择遮罩文件</button>
-                                    <div id="maskPreview" class="image-preview"></div>
-                                </div>
-                            </div>
+
+                        <div class="gpt-image-modal__form-group">
+                            <label class="gpt-image-modal__label" for="gptImageQuality">Image Quality</label>
+                            <select id="gptImageQuality" class="gpt-image-modal__select" aria-describedby="qualityHelpText">
+                                <option value="medium">Standard</option>
+                                <option value="hd">HD</option>
+                            </select>
+                            <div id="qualityHelpText" class="gpt-image-modal__help-text">HD quality may take longer to generate but produces better results.</div>
+                        </div>
+
+                        <div class="gpt-image-modal__form-group">
+                            <label class="gpt-image-modal__label" for="gptImageCount">Number of Images</label>
+                            <select id="gptImageCount" class="gpt-image-modal__select">
+                                <option value="1">1 Image</option>
+                                <option value="2">2 Images</option>
+                                <option value="3">3 Images</option>
+                                <option value="4">4 Images</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <div id="gptImageError" class="error-message" style="display: none;"></div>
-                        <button id="gptImageGenerateBtn" class="btn primary-btn">生成</button>
-                        <button id="gptImageCancelBtn" class="btn">取消</button>
+
+                    <div id="edit-tab-content" class="gpt-image-modal__tab-content" role="tabpanel" aria-labelledby="edit-tab-btn" style="display: none;">
+                        <div class="gpt-image-modal__form-group">
+                            <label class="gpt-image-modal__label" for="gptImageEditPrompt">Edit Description</label>
+                            <textarea id="gptImageEditPrompt" class="gpt-image-modal__textarea" 
+                                    placeholder="Describe how you want to modify the image..." 
+                                    rows="3"
+                                    aria-describedby="editHelpText"></textarea>
+                            <div id="editHelpText" class="gpt-image-modal__help-text">Clearly describe the changes you want to make to the image.</div>
+                        </div>
+
+                        <div class="gpt-image-modal__form-group">
+                            <label class="gpt-image-modal__label" for="gptImageFile">Upload Image</label>
+                            <div class="gpt-image-modal__upload-area">
+                                <input type="file" id="gptImageFile" accept="image/png,image/jpeg" style="display: none;" aria-describedby="fileHelpText">
+                                <button id="gptImageFileBtn" class="gpt-image-modal__upload-button">Select Image File</button>
+                                <div id="fileHelpText" class="gpt-image-modal__help-text">Supported formats: PNG, JPEG</div>
+                                <div id="imagePreview" class="gpt-image-modal__preview" role="img" aria-label="Image preview"></div>
+                            </div>
+                        </div>
+
+                        <div class="gpt-image-modal__form-group">
+                            <label class="gpt-image-modal__label" for="gptImageMask">Upload Mask (Optional)</label>
+                            <div class="gpt-image-modal__upload-area">
+                                <input type="file" id="gptImageMask" accept="image/png" style="display: none;" aria-describedby="maskHelpText">
+                                <button id="gptImageMaskBtn" class="gpt-image-modal__upload-button">Select Mask File</button>
+                                <div id="maskHelpText" class="gpt-image-modal__help-text">PNG file with transparency to specify edit areas</div>
+                                <div id="maskPreview" class="gpt-image-modal__preview" role="img" aria-label="Mask preview"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="gpt-image-modal__footer">
+                        <div id="gptImageError" class="gpt-image-modal__error" style="display: none;"></div>
+                        <button id="gptImageCancelBtn" class="gpt-image-modal__button gpt-image-modal__button--secondary">Cancel</button>
+                        <button id="gptImageGenerateBtn" class="gpt-image-modal__button gpt-image-modal__button--primary">Generate</button>
                     </div>
                 </div>
             </div>`;
 
-        // 将模态框添加到文档中
         document.body.insertAdjacentHTML("beforeend", modalHTML);
-        
-        // 保存模态框引用
         this.modal = document.getElementById(this.modalId);
     }
 
-    /**
-     * 绑定事件处理
-     */
     bindEvents() {
         if (!this.modal) return;
 
-        // 关闭按钮
-        const closeBtn = document.getElementById("close-gpt-image-btn");
-        const cancelBtn = document.getElementById("gptImageCancelBtn");
+        // Close buttons
+        const closeBtn = this.modal.querySelector("#close-gpt-image-btn");
+        const cancelBtn = this.modal.querySelector("#gptImageCancelBtn");
         
-        if (closeBtn) {
-            closeBtn.addEventListener("click", () => this.hide());
-        }
-        
-        if (cancelBtn) {
-            cancelBtn.addEventListener("click", () => this.hide());
-        }
-        
-        // 点击外部关闭
+        if (closeBtn) closeBtn.addEventListener("click", () => this.hide());
+        if (cancelBtn) cancelBtn.addEventListener("click", () => this.hide());
+
+        // Click outside to close
         this.modal.addEventListener("click", (event) => {
-            if (event.target === this.modal) {
-                this.hide();
-            }
+            if (event.target === this.modal) this.hide();
         });
-        
-        // 标签切换
-        const generateTabBtn = document.getElementById("generate-tab-btn");
-        const editTabBtn = document.getElementById("edit-tab-btn");
-        const generateContent = document.getElementById("generate-tab-content");
-        const editContent = document.getElementById("edit-tab-content");
-        
-        if (generateTabBtn && editTabBtn) {
+
+        // Tab switching
+        const generateTabBtn = this.modal.querySelector("#generate-tab-btn");
+        const editTabBtn = this.modal.querySelector("#edit-tab-btn");
+        const generateContent = this.modal.querySelector("#generate-tab-content");
+        const editContent = this.modal.querySelector("#edit-tab-content");
+        const generateBtn = this.modal.querySelector("#gptImageGenerateBtn");
+
+        if (generateTabBtn && editTabBtn && generateBtn) {
             generateTabBtn.addEventListener("click", () => {
-                generateTabBtn.classList.add("active");
-                editTabBtn.classList.remove("active");
-                generateContent.classList.add("active");
-                editContent.classList.remove("active");
-                this.activeTab = "generate";
+                this.switchTab("generate");
+                generateBtn.textContent = "Generate";
             });
-            
+
             editTabBtn.addEventListener("click", () => {
-                editTabBtn.classList.add("active");
-                generateTabBtn.classList.remove("active");
-                editContent.classList.add("active");
-                generateContent.classList.remove("active");
-                this.activeTab = "edit";
+                this.switchTab("edit");
+                generateBtn.textContent = "Apply Edit";
             });
         }
-        
-        // 文件上传按钮
-        const imageFileBtn = document.getElementById("gptImageFileBtn");
-        const imageFileInput = document.getElementById("gptImageFile");
-        const maskFileBtn = document.getElementById("gptImageMaskBtn");
-        const maskFileInput = document.getElementById("gptImageMask");
-        
-        if (imageFileBtn && imageFileInput) {
-            imageFileBtn.addEventListener("click", () => {
-                imageFileInput.click();
-            });
-            
-            imageFileInput.addEventListener("change", (event) => {
-                this.handleImagePreview(event.target.files[0], "imagePreview");
-            });
-        }
-        
-        if (maskFileBtn && maskFileInput) {
-            maskFileBtn.addEventListener("click", () => {
-                maskFileInput.click();
-            });
-            
-            maskFileInput.addEventListener("change", (event) => {
-                this.handleImagePreview(event.target.files[0], "maskPreview");
-            });
-        }
-        
-        // 生成按钮
-        const generateBtn = document.getElementById("gptImageGenerateBtn");
+
+        // File upload handling
+        this.setupFileUpload("gptImageFile", "imagePreview");
+        this.setupFileUpload("gptImageMask", "maskPreview");
+
+        // Generate/Edit button
         if (generateBtn) {
             generateBtn.addEventListener("click", () => {
+                this.clearError();
                 if (this.activeTab === "generate") {
                     this.handleGenerate();
                 } else {
@@ -205,160 +176,164 @@ export default class GptImageModal {
         }
     }
 
-    /**
-     * 处理图像预览
-     */
+    switchTab(tabName) {
+        const tabs = this.modal.querySelectorAll(".gpt-image-modal__tab");
+        const contents = this.modal.querySelectorAll(".gpt-image-modal__tab-content");
+
+        this.activeTab = tabName;
+
+        // 移除所有标签的活动状态
+        tabs.forEach(tab => {
+            tab.classList.remove("gpt-image-modal__tab--active");
+            tab.setAttribute("aria-selected", "false");
+        });
+
+        // 隐藏所有内容
+        contents.forEach(content => {
+            content.classList.remove("active");
+            content.style.display = "none";
+        });
+
+        // 激活当前标签和内容
+        const activeTab = this.modal.querySelector(`#${tabName}-tab-btn`);
+        const activeContent = this.modal.querySelector(`#${tabName}-tab-content`);
+
+        if (activeTab && activeContent) {
+            activeTab.classList.add("gpt-image-modal__tab--active");
+            activeTab.setAttribute("aria-selected", "true");
+            activeContent.classList.add("active");
+            activeContent.style.display = "block";
+        }
+    }
+
+    setupFileUpload(inputId, previewId) {
+        const fileBtn = this.modal.querySelector(`#${inputId.replace("File", "FileBtn")}`);
+        const fileInput = this.modal.querySelector(`#${inputId}`);
+        
+        if (fileBtn && fileInput) {
+            fileBtn.addEventListener("click", () => fileInput.click());
+            fileInput.addEventListener("change", (event) => {
+                this.handleImagePreview(event.target.files[0], previewId);
+            });
+        }
+    }
+
     handleImagePreview(file, previewId) {
         if (!file) return;
-        
-        const preview = document.getElementById(previewId);
+
+        const preview = this.modal.querySelector(`#${previewId}`);
         if (!preview) return;
 
+        // Validate file type
+        if (!file.type.match("image.*")) {
+            this.showError("Please select a valid image file.");
+            return;
+        }
+
         const reader = new FileReader();
-        reader.onloadend = () => {
-            preview.innerHTML = `<img src="${reader.result}" alt="预览图">`;
+        reader.onload = (e) => {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
         };
         reader.readAsDataURL(file);
     }
 
-    /**
-     * 处理图像生成
-     * 直接设置命令到消息输入框并模拟发送，不再试图直接访问messageManager
-     */
     async handleGenerate() {
-        const prompt = document.getElementById("gptImagePrompt").value.trim();
-        const errorElement = document.getElementById("gptImageError");
-        
+        const promptInput = this.modal.querySelector("#gptImagePrompt");
+        const prompt = promptInput.value.trim();
+
         if (!prompt) {
-            errorElement.textContent = "请输入提示词描述";
-            errorElement.style.display = "block";
+            this.showError("Please enter a prompt description.");
             return;
         }
-        
+
         try {
             // 构建命令字符串
-            let command = `/gpt-image-1 ${prompt}`;
-            
-            // 获取消息输入框
             const messageInput = document.getElementById("message-input");
             if (messageInput) {
-                // 设置命令到输入框
-                messageInput.value = command;
+                messageInput.value = `/gpt-image-1 ${prompt}`;
                 
                 // 触发输入框的resize事件以调整高度
                 const resizeEvent = new Event("input", { bubbles: true });
                 messageInput.dispatchEvent(resizeEvent);
                 
                 // 获取发送按钮并模拟点击
-                const sendButton = document.querySelector("#submitButton") || document.querySelector("#submit-button") || document.getElementById("submitButton");
+                const sendButton = document.querySelector("#submitButton");
                 if (sendButton) {
-                    // 关闭模态框
                     this.hide();
-                    // 稍微延迟点击，确保模态框已关闭
-                    setTimeout(() => {
-                        sendButton.click();
-                    }, 10);
+                    setTimeout(() => sendButton.click(), 10);
                 } else {
-                    console.error("发送按钮不存在，尝试直接提交表单");
-                    // 尝试获取并提交表单
-                    const messageForm = document.querySelector("#message-form");
-                    if (messageForm) {
-                        // 关闭模态框
-                        this.hide();
-                        setTimeout(() => {
-                            messageForm.dispatchEvent(new Event("submit"));
-                        }, 10);
-                    } else {
-                        throw new Error("未找到发送按钮或消息表单");
-                    }
+                    throw new Error("Send button not found");
                 }
             } else {
-                throw new Error("消息输入框未找到");
+                throw new Error("Message input not found");
             }
         } catch (error) {
-            console.error("图像生成错误:", error);
-            errorElement.textContent = error.message || "图像生成失败";
-            errorElement.style.display = "block";
+            console.error("Image generation error:", error);
+            this.showError(error.message || "Failed to generate image");
         }
     }
 
-    /**
-     * 处理图像编辑
-     */
     async handleEdit() {
-        const prompt = document.getElementById("gptImageEditPrompt").value.trim();
-        const imageFile = document.getElementById("gptImageFile").files[0];
-        const errorElement = document.getElementById("gptImageError");
+        const promptInput = this.modal.querySelector("#gptImageEditPrompt");
+        const imageInput = this.modal.querySelector("#gptImageFile");
         
-        if (!prompt) {
-            errorElement.textContent = "请输入编辑提示词";
-            errorElement.style.display = "block";
+        if (!promptInput.value.trim()) {
+            this.showError("Please enter an edit description.");
             return;
         }
-        
-        if (!imageFile) {
-            errorElement.textContent = "请选择要编辑的图像文件";
-            errorElement.style.display = "block";
+
+        if (!imageInput.files || !imageInput.files[0]) {
+            this.showError("Please select an image to edit.");
             return;
         }
-        
-        try {
-            // 获取消息输入框
-            const messageInput = document.getElementById("message-input");
-            if (!messageInput) {
-                throw new Error("消息输入框未找到");
-            }
-            
-            // 设置提示词到输入框
-            messageInput.value = `/gpt-image-1-edit ${prompt}`;
-            
-            // 触发输入框的resize事件以调整高度
-            const resizeEvent = new Event("input", { bubbles: true });
-            messageInput.dispatchEvent(resizeEvent);
-            
-            // 尝试上传附件
-            // 图像编辑功能暂不支持直接通过命令完成，
-            // 未来可以单独为编辑功能开发后端API并集成到消息处理流程中
-            errorElement.textContent = "图像编辑功能暂不支持，请使用图像生成功能";
-            errorElement.style.display = "block";
-            
-        } catch (error) {
-            console.error("图像编辑错误:", error);
-            errorElement.textContent = error.message || "图像编辑失败";
-            errorElement.style.display = "block";
-        }
+
+        // TODO: Implement image editing logic
+        this.showError("Image editing feature is coming soon!");
     }
 
-    /**
-     * 显示模态框
-     */
     show() {
         if (this.modal) {
             this.modal.style.display = "block";
-            // 重置状态
-            document.getElementById("gptImageError").style.display = "none";
-            
-            // 重置表单
-            document.getElementById("gptImagePrompt").value = "";
-            document.getElementById("gptImageEditPrompt").value = "";
-            document.getElementById("imagePreview").innerHTML = "";
-            document.getElementById("maskPreview").innerHTML = "";
-            document.getElementById("gptImageFile").value = "";
-            document.getElementById("gptImageMask").value = "";
-            
-            // 重置选项
-            document.getElementById("gptImageSize").value = "1024x1024";
-            document.getElementById("gptImageQuality").value = "medium";
-            document.getElementById("gptImageCount").value = "1";
+            this.resetForm();
         }
     }
 
-    /**
-     * 隐藏模态框
-     */
     hide() {
         if (this.modal) {
             this.modal.style.display = "none";
+        }
+    }
+
+    resetForm() {
+        const form = this.modal.querySelector(".gpt-image-modal__content");
+        if (form) {
+            form.querySelectorAll("textarea, select").forEach(el => {
+                el.value = el.tagName === "SELECT" ? el.options[0].value : "";
+            });
+            form.querySelectorAll("input[type=\"file\"]").forEach(el => {
+                el.value = "";
+            });
+            form.querySelectorAll(".gpt-image-modal__preview").forEach(el => {
+                el.innerHTML = "";
+            });
+        }
+        this.switchTab("generate");
+        this.clearError();
+    }
+
+    showError(message) {
+        const errorElement = this.modal.querySelector("#gptImageError");
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = "block";
+        }
+    }
+
+    clearError() {
+        const errorElement = this.modal.querySelector("#gptImageError");
+        if (errorElement) {
+            errorElement.textContent = "";
+            errorElement.style.display = "none";
         }
     }
 }
