@@ -17,6 +17,9 @@ AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
 API_DALLE_URL=https://your-dalle3-url/openai/deployments/Dalle3/images/generations?api-version=2024-02-01
 API_DALLE_KEY=your-dalle-key
 
+GPT_IMAGE_1_API_URL=https://your-server.cognitiveservices.azure.com/openai/deployments/gpt-image-1/images/generations?api-version=2025-04-01-preview
+GPT_IMAGE_1_API_KEY=your-gpt-image-1-key
+
 GPT_4_LAST_API_URL=https://your-gpt-url.openai.azure.com/openai/deployments/gpt4/chat/completions?api-version=2024-02-15-preview
 GPT_4_LAST_API_KEY=your-gpt4-key
 

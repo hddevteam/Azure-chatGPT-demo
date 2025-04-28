@@ -10,7 +10,7 @@ By working on this project, you will gain hands-on experience with several key A
 - **Azure Speech Service**: Understand how to implement both Text-to-Speech and Speech-to-Text functionalities to enhance user interactions with voice capabilities.
 - **Azure Table Storage**: Discover how to sync and store conversation data across devices, ensuring a seamless user experience.
 - **Bing API**: Explore how to fetch and display the latest news updates within your chatbot application.
-- **DALL-E API**: Learn to generate images from text inputs, adding a visual dimension to your chatbot's responses.
+- **DALL-E & GPT-Image-1 APIs**: Learn to generate and edit images from text inputs, adding a visual dimension to your chatbot's responses.
 - **Azure AD Authentication**: Gain insights into securing your web application using Azure Active Directory, managing user authentication, and protecting sensitive data.
 
 These learnings will equip you with the skills to build robust, feature-rich chatbot applications leveraging the power of Azure's AI and cloud services.
@@ -48,6 +48,7 @@ These learnings will equip you with the skills to build robust, feature-rich cha
 
 - **Support for Azure Text-to-Speech engine 📢**
 - **Generate images from text using the DALL-E API 🖼️**
+- **Generate and edit images with GPT-Image-1 API ✏️🖼️**
 - **Support for Speech-to-Text using the Azure Speech-to-Text engine 🎙️**
 - **Display actor avatar and name in header when selected**
 - **Support for loading system prompt from remote URL**
@@ -92,6 +93,7 @@ These learnings will equip you with the skills to build robust, feature-rich cha
      ```
    
    - `API_DALLE_URL` and `API_DALLE_KEY` for DALL-E API service:
+   - `GPT_IMAGE_1_API_URL` and `GPT_IMAGE_1_API_KEY` for GPT-Image-1 API service:
    
      ```
      API_DALLE_URL=yourdalleapiurl

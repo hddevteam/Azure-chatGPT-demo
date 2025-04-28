@@ -14,6 +14,7 @@ const audioFileController = require("./controllers/audioFileController");
 const realtimeController = require("./controllers/realtimeController");
 const bingController = require("./controllers/bingController");
 const urlController = require("./controllers/urlController");
+const gptImageController = require("./controllers/gptImageController");
 
 const router = express.Router();
 
@@ -27,6 +28,11 @@ router.get("/prompt_repo", requireAuth, profileController.getPromptRepo);
 
 // Image and speech routes
 router.post("/text-to-image", requireAuth, dalleController.textToImageHandler);
+router.post("/gpt-image/generate", requireAuth, gptImageController.generateImage.bind(gptImageController));
+router.post("/gpt-image/edit", requireAuth, upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "mask", maxCount: 1 }
+]), gptImageController.editImage.bind(gptImageController));
 router.post("/tts", requireAuth, azureTTSController.getMultiLangTextToSpeech);
 router.post("/auto-speech-to-text", requireAuth, azureTTSController.uploadMiddleware, azureTTSController.autoSpeechToText);
 router.post("/speech-to-text", requireAuth, azureTTSController.uploadMiddleware, azureTTSController.speechToText);

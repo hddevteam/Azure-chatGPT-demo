@@ -270,7 +270,7 @@ export async function deleteAudioFile(blobName) {
     }
 }
 
-// text to image
+// text to image (DALL-E 3)
 export async function textToImage(caption) {
     try {
         const response = await axios.post("/text-to-image", {
@@ -635,6 +635,48 @@ export async function processDocumentContent(documentId) {
         return response.data;
     } catch (error) {
         console.error("Error getting document content:", error);
+        throw error;
+    }
+}
+
+/**
+ * 使用GPT-Image-1生成图像
+ * @param {string} prompt - 图像描述提示词
+ * @param {string} size - 图像尺寸 (1024x1024, 1024x1792, 1792x1024)
+ * @param {string} quality - 图像质量 (standard, hd)
+ * @param {number} n - 生成数量
+ * @returns {Promise<Object>} 包含图像URL的响应
+ */
+export async function gptImage1Generate(prompt, size = "1024x1024", quality = "medium", n = 1) {
+    try {
+        const response = await axios.post("/gpt-image/generate", {
+            prompt,
+            size,
+            quality,
+            n
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Failed to generate image with GPT-Image-1:", error);
+        throw error;
+    }
+}
+
+/**
+ * 使用GPT-Image-1编辑图像
+ * @param {Object} formData - 包含prompt, image和mask(可选)的FormData对象
+ * @returns {Promise<Object>} 包含编辑后图像URL的响应
+ */
+export async function gptImage1Edit(formData) {
+    try {
+        const response = await axios.post("/gpt-image/edit", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Failed to edit image with GPT-Image-1:", error);
         throw error;
     }
 }

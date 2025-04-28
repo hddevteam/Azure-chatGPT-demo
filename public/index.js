@@ -11,6 +11,7 @@ import AudioProcessingModal from "./components/AudioProcessingModal.js";
 import ChatOptionsModal from "./components/ChatOptionsModal.js";
 import ModelDropdownManager from "./utils/ModelDropdownManager.js";
 import { addChatHistoryResizeHandleListeners } from "./utils/chat-history-resize.js";
+import GptImageManager from "./components/GptImageManager.js";
 
 (async () => {
     try {
@@ -33,6 +34,9 @@ async function initializeApp(username) {
     
     // Initialize ModelDropdownManager for model selection
     const modelDropdownManager = new ModelDropdownManager(app, "#model-switch");
+    
+    // Initialize GPT-Image-1 manager
+    const gptImageManager = new GptImageManager();
     
     // 初始化显示欢迎信息
     uiManager.showWelcomeMessage();
