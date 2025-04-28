@@ -421,7 +421,7 @@ async function initializeApp(username) {
     // 根据元素初始的显示状态来初始化按钮状态
     uiManager.updateButtonActiveState(chatHistoryContainer.id, chatHistoryContainer.classList.contains("visible"));
     // 不再需要控制 ai-actor-settings-wrapper 的按钮状态，由 AIActorSettingsModal 负责
-
+    
     const generateImg = document.getElementById("generate-img");
     generateImg.addEventListener("click", () => {
         const content = messageInput.value;
@@ -430,7 +430,7 @@ async function initializeApp(username) {
                 buttons: false, timer: 3000 });
             return;
         }
-        messageInput.value = `/image ${messageInput.value}`;
+        messageInput.value = `/dalle ${messageInput.value}`;
         uiManager.handleMessageFormSubmit(messageInput);
     });
 

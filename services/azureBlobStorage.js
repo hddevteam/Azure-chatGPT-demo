@@ -28,11 +28,21 @@ async function uploadFileToBlob(containerName, blobName, fileContent, username) 
         // 不再添加时间戳，直接使用传入的 blobName
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
         const contentType = getContentTypeByFileName(blobName);
-
-        await blockBlobClient.upload(fileContent, Buffer.byteLength(fileContent), {
-            blobHTTPHeaders: { blobContentType: contentType },
-            metadata: { username }
-        });
+        
+        // 准备上传选项
+        const options = {
+            blobHTTPHeaders: { blobContentType: contentType }
+        };
+        
+        // 只有当username存在时才添加metadata
+        if (username) {
+            options.metadata = { username };
+        }
+        
+        // 处理不同类型的fileContent
+        const contentLength = Buffer.isBuffer(fileContent) ? fileContent.length : Buffer.byteLength(fileContent);
+        
+        await blockBlobClient.upload(fileContent, contentLength, options);
 
         return {
             url: blockBlobClient.url,

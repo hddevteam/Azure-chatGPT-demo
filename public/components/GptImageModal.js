@@ -3,9 +3,6 @@
  * GPT-Image-1模态框组件
  * 用于处理GPT-Image-1的图像生成和编辑功能
  */
-// 导入专用API客户端函数
-import { gptImage1Generate, gptImage1Edit, uploadAttachment } from "../utils/apiClient.js";
-
 export default class GptImageModal {
     constructor() {
         this.modalId = "gpt-image-modal";
@@ -104,10 +101,6 @@ export default class GptImageModal {
                                 </div>
                             </div>
                         </div>
-                        
-                        <div id="results-container" class="results-container">
-                            <!-- 结果将在这里显示 -->
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <div id="gptImageError" class="error-message" style="display: none;"></div>
@@ -128,6 +121,8 @@ export default class GptImageModal {
      * 绑定事件处理
      */
     bindEvents() {
+        if (!this.modal) return;
+
         // 关闭按钮
         const closeBtn = document.getElementById("close-gpt-image-btn");
         const cancelBtn = document.getElementById("gptImageCancelBtn");
@@ -217,25 +212,22 @@ export default class GptImageModal {
         if (!file) return;
         
         const preview = document.getElementById(previewId);
+        if (!preview) return;
+
         const reader = new FileReader();
-        
         reader.onloadend = () => {
             preview.innerHTML = `<img src="${reader.result}" alt="预览图">`;
         };
-        
         reader.readAsDataURL(file);
     }
 
     /**
      * 处理图像生成
+     * 直接设置命令到消息输入框并模拟发送，不再试图直接访问messageManager
      */
     async handleGenerate() {
         const prompt = document.getElementById("gptImagePrompt").value.trim();
-        const size = document.getElementById("gptImageSize").value;
-        const quality = document.getElementById("gptImageQuality").value;
-        const n = parseInt(document.getElementById("gptImageCount").value);
         const errorElement = document.getElementById("gptImageError");
-        const resultsContainer = document.getElementById("results-container");
         
         if (!prompt) {
             errorElement.textContent = "请输入提示词描述";
@@ -244,41 +236,59 @@ export default class GptImageModal {
         }
         
         try {
-            // 显示加载状态
-            resultsContainer.innerHTML = `
-                <div class="loading-container">
-                    <div class="spinner-border"></div>
-                    <p>生成中，请稍候...</p>
-                </div>`;
+            // 构建命令字符串
+            let command = `/gpt-image-1 ${prompt}`;
             
-            // 使用专用的GPT-Image-1函数生成图像
-            const response = await gptImage1Generate(prompt, size, quality, n);
-            
-            // 处理响应
-            if (response && response.success) {
-                // 显示结果
-                this.displayResults(response.data);
+            // 获取消息输入框
+            const messageInput = document.getElementById("message-input");
+            if (messageInput) {
+                // 设置命令到输入框
+                messageInput.value = command;
+                
+                // 触发输入框的resize事件以调整高度
+                const resizeEvent = new Event("input", { bubbles: true });
+                messageInput.dispatchEvent(resizeEvent);
+                
+                // 获取发送按钮并模拟点击
+                const sendButton = document.querySelector("#submitButton") || document.querySelector("#submit-button") || document.getElementById("submitButton");
+                if (sendButton) {
+                    // 关闭模态框
+                    this.hide();
+                    // 稍微延迟点击，确保模态框已关闭
+                    setTimeout(() => {
+                        sendButton.click();
+                    }, 10);
+                } else {
+                    console.error("发送按钮不存在，尝试直接提交表单");
+                    // 尝试获取并提交表单
+                    const messageForm = document.querySelector("#message-form");
+                    if (messageForm) {
+                        // 关闭模态框
+                        this.hide();
+                        setTimeout(() => {
+                            messageForm.dispatchEvent(new Event("submit"));
+                        }, 10);
+                    } else {
+                        throw new Error("未找到发送按钮或消息表单");
+                    }
+                }
             } else {
-                throw new Error(response?.error || "图像生成失败");
+                throw new Error("消息输入框未找到");
             }
-            
         } catch (error) {
             console.error("图像生成错误:", error);
             errorElement.textContent = error.message || "图像生成失败";
             errorElement.style.display = "block";
-            resultsContainer.innerHTML = "";
         }
     }
-    
+
     /**
      * 处理图像编辑
      */
     async handleEdit() {
         const prompt = document.getElementById("gptImageEditPrompt").value.trim();
         const imageFile = document.getElementById("gptImageFile").files[0];
-        const maskFile = document.getElementById("gptImageMask").files[0];
         const errorElement = document.getElementById("gptImageError");
-        const resultsContainer = document.getElementById("results-container");
         
         if (!prompt) {
             errorElement.textContent = "请输入编辑提示词";
@@ -293,214 +303,30 @@ export default class GptImageModal {
         }
         
         try {
-            // 显示加载状态
-            resultsContainer.innerHTML = `
-                <div class="loading-container">
-                    <div class="spinner-border"></div>
-                    <p>编辑中，请稍候...</p>
-                </div>`;
-            
-            // 创建表单数据
-            const formData = new FormData();
-            formData.append("prompt", prompt);
-            formData.append("image", imageFile);
-            if (maskFile) {
-                formData.append("mask", maskFile);
+            // 获取消息输入框
+            const messageInput = document.getElementById("message-input");
+            if (!messageInput) {
+                throw new Error("消息输入框未找到");
             }
             
-            // 使用专用的GPT-Image-1函数编辑图像
-            const response = await gptImage1Edit(formData);
+            // 设置提示词到输入框
+            messageInput.value = `/gpt-image-1-edit ${prompt}`;
             
-            // 处理响应
-            if (response && response.success) {
-                // 显示结果
-                this.displayResults(response.data);
-            } else {
-                throw new Error(response?.error || "图像编辑失败");
-            }
+            // 触发输入框的resize事件以调整高度
+            const resizeEvent = new Event("input", { bubbles: true });
+            messageInput.dispatchEvent(resizeEvent);
+            
+            // 尝试上传附件
+            // 图像编辑功能暂不支持直接通过命令完成，
+            // 未来可以单独为编辑功能开发后端API并集成到消息处理流程中
+            errorElement.textContent = "图像编辑功能暂不支持，请使用图像生成功能";
+            errorElement.style.display = "block";
             
         } catch (error) {
             console.error("图像编辑错误:", error);
             errorElement.textContent = error.message || "图像编辑失败";
             errorElement.style.display = "block";
-            resultsContainer.innerHTML = "";
         }
-    }
-    
-    /**
-     * 显示结果
-     */
-    async displayResults(images) {
-        const resultsContainer = document.getElementById("results-container");
-        
-        if (!images || images.length === 0) {
-            resultsContainer.innerHTML = "<p class=\"no-results\">未生成任何图像</p>";
-            return;
-        }
-        
-        console.log("处理图像结果:", images);
-        
-        // 自动处理第一张图像并发送到聊天
-        try {
-            const firstImage = images[0];
-            const imageUrl = firstImage.url || firstImage.b64_json ? `data:image/png;base64,${firstImage.b64_json}` : null;
-            
-            if (imageUrl) {
-                // 获取图片并转换为blob
-                const response = await fetch(imageUrl);
-                const blob = await response.blob();
-                
-                // 生成文件名
-                const fileName = `gpt-image-${Date.now()}-0.png`;
-                
-                // 上传图片作为附件
-                const uploadResponse = await uploadAttachment(blob, fileName);
-                console.log("图像上传成功:", uploadResponse);
-
-                // 自动发送到聊天
-                this.sendToChat(imageUrl, firstImage.revised_prompt, uploadResponse.url);
-                
-                // 关闭模态框
-                this.hide();
-                
-                // 直接返回，不再显示结果网格
-                return;
-            }
-        } catch (error) {
-            console.error("自动发送图像失败，继续显示结果网格:", error);
-        }
-        
-        // 如果自动发送失败，显示结果网格作为备选
-        let html = "<div class=\"results-grid\">";
-        
-        // 对每个图像，先上传到服务器以保存为附件
-        const processedImages = await Promise.all(images.map(async (image, index) => {
-            try {
-                // 检查图像数据结构
-                const imageUrl = image.url || image.b64_json ? `data:image/png;base64,${image.b64_json}` : null;
-                
-                if (!imageUrl) {
-                    console.error("无效的图像数据结构:", image);
-                    return {
-                        ...image,
-                        url: null,
-                        attachmentUrl: null
-                    };
-                }
-                
-                // 获取图片并转换为blob
-                const response = await fetch(imageUrl);
-                const blob = await response.blob();
-                
-                // 生成文件名
-                const fileName = `gpt-image-${Date.now()}-${index}.png`;
-                
-                // 上传图片作为附件
-                const uploadResponse = await uploadAttachment(blob, fileName);
-                console.log("图像上传成功:", uploadResponse);
-                
-                return {
-                    ...image,
-                    url: imageUrl, // 确保有可用的URL
-                    attachmentUrl: uploadResponse.url,
-                    fileName: fileName
-                };
-            } catch (error) {
-                console.error("处理图像失败:", error);
-                return image; // 如果上传失败，返回原始图像
-            }
-        }));
-        
-        // 渲染结果
-        processedImages.forEach((image, index) => {
-            const displayUrl = image.attachmentUrl || image.url;
-            
-            html += `
-                <div class="result-card">
-                    <img src="${displayUrl}" alt="生成的图像 ${index + 1}">
-                    <div class="result-actions">
-                        <button class="btn-sm use-in-chat" data-url="${displayUrl}" data-revised="${image.revised_prompt || ""}" data-attachment-url="${image.attachmentUrl || ""}">
-                            发送到聊天
-                        </button>
-                        <a href="${displayUrl}" class="btn-sm download" download="${image.fileName || `gpt-image-${Date.now()}-${index}.png`}">
-                            下载
-                        </a>
-                    </div>
-                    ${image.revised_prompt ? `<div class="revised-prompt">修改后的提示词: ${image.revised_prompt}</div>` : ""}
-                </div>`;
-        });
-        
-        html += "</div>";
-        resultsContainer.innerHTML = html;
-        
-        // 添加"发送到聊天"按钮的事件监听
-        const useInChatBtns = resultsContainer.querySelectorAll(".use-in-chat");
-        useInChatBtns.forEach(btn => {
-            btn.addEventListener("click", () => {
-                const url = btn.dataset.url;
-                const revised = btn.dataset.revised;
-                const attachmentUrl = btn.dataset.attachmentUrl;
-                this.sendToChat(url, revised, attachmentUrl);
-                this.hide();
-            });
-        });
-    }
-    
-    /**
-     * 发送图像到聊天
-     */
-    sendToChat(imageUrl, revisedPrompt, attachmentUrl) {
-        // 获取当前消息输入框
-        const messageInput = document.getElementById("message-input");
-        if (!messageInput) return;
-        
-        // 添加图像链接到消息
-        let message = messageInput.value.trim();
-        if (message) {
-            message += "\n\n";
-        }
-        
-        // 添加GPT-Image-1生成的图像标记和链接
-        message += `[GPT-Image-1生成的图像](${imageUrl})`;
-        
-        if (revisedPrompt) {
-            message += `\n修改后的提示词: ${revisedPrompt}`;
-        }
-        
-        // 设置消息文本
-        messageInput.value = message;
-        
-        // 如果有attachmentUrl，将其添加到消息附件中
-        if (attachmentUrl) {
-            // 查找附件预览列表
-            const attachmentPreviewList = document.getElementById("attachment-preview-list");
-            if (attachmentPreviewList) {
-                // 创建附件预览项
-                const previewItem = document.createElement("div");
-                previewItem.className = "attachment-preview-item";
-                previewItem.dataset.fileName = `gpt-image-${Date.now()}.png`;
-                previewItem.dataset.content = attachmentUrl;
-                previewItem.innerHTML = `
-                    <img src="${imageUrl}" alt="GPT-Image-1 生成的图像">
-                    <button class="remove-attachment"><i class="fas fa-times"></i></button>
-                `;
-                
-                // 添加到预览列表
-                attachmentPreviewList.appendChild(previewItem);
-                
-                // 绑定移除按钮事件
-                const removeBtn = previewItem.querySelector(".remove-attachment");
-                if (removeBtn) {
-                    removeBtn.addEventListener("click", () => {
-                        previewItem.remove();
-                    });
-                }
-            }
-        }
-        
-        // 触发输入框的resize事件以调整高度
-        const event = new Event("input", { bubbles: true });
-        messageInput.dispatchEvent(event);
     }
 
     /**
@@ -511,7 +337,19 @@ export default class GptImageModal {
             this.modal.style.display = "block";
             // 重置状态
             document.getElementById("gptImageError").style.display = "none";
-            document.getElementById("results-container").innerHTML = "";
+            
+            // 重置表单
+            document.getElementById("gptImagePrompt").value = "";
+            document.getElementById("gptImageEditPrompt").value = "";
+            document.getElementById("imagePreview").innerHTML = "";
+            document.getElementById("maskPreview").innerHTML = "";
+            document.getElementById("gptImageFile").value = "";
+            document.getElementById("gptImageMask").value = "";
+            
+            // 重置选项
+            document.getElementById("gptImageSize").value = "1024x1024";
+            document.getElementById("gptImageQuality").value = "medium";
+            document.getElementById("gptImageCount").value = "1";
         }
     }
 
