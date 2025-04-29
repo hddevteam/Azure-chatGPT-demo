@@ -5,19 +5,19 @@ const { uploadFileToBlob } = require("../services/azureBlobStorage");
 const { Buffer } = require("buffer");
 
 /**
- * GPT-Image-1控制器
- * 处理GPT-Image-1图像生成和编辑请求
- * 直接使用环境变量而不依赖于服务工厂，提高健壮性
+ * GPT-Image-1 Controller
+ * Handles GPT-Image-1 image generation and editing requests
+ * Uses environment variables directly without service factory for better robustness
  */
 class GptImageController {
     constructor() {
-        // 直接使用完整的API URL，不再分割
+        // Use complete API URL directly, no splitting
         this.apiUrl = process.env.GPT_IMAGE_1_API_URL;
         this.apiKey = process.env.GPT_IMAGE_1_API_KEY;
         
-        // 验证必要的环境变量
+        // Validate required environment variables
         if (!this.apiUrl || !this.apiKey) {
-            console.warn("警告: GPT_IMAGE_1 环境变量未正确配置");
+            console.warn("Warning: GPT_IMAGE_1 environment variables are not properly configured");
         }
     }
 
@@ -83,55 +83,55 @@ class GptImageController {
                 let attachmentUrl = null;
                 let revisedPrompt = imageData.revised_prompt || prompt;
                 
-                // 处理base64图像数据
+                // Process base64 image data
                 if (imageData.b64_json) {
-                    console.log("处理base64图像数据...");
+                    console.log("Processing base64 image data...");
                     const imageBuffer = Buffer.from(imageData.b64_json, "base64");
                     const timestamp = Date.now();
                     const fileName = `gpt-image-1-${timestamp}.png`;
                     
-                    // 上传到Blob存储
+                    // Upload to Blob storage
                     const containerName = "messageattachments";
-                    // 获取用户名，如果有
+                    // Get username if available
                     const username = req.body?.username || req.query?.username || null;
-                    // 传递可选用户名
+                    // Pass optional username
                     const uploadResult = await uploadFileToBlob(containerName, fileName, imageBuffer, username);
-                    console.log("图像上传成功:", uploadResult);
+                    console.log("Image upload successful:", uploadResult);
                     attachmentUrl = uploadResult.url;
                 } 
-                // 处理图像URL
+                // Process image URL
                 else if (imageData.url) {
-                    console.log("处理图像URL:", imageData.url);
+                    console.log("Processing image URL:", imageData.url);
                     try {
-                        // 下载图像
+                        // Download image
                         const imageResponse = await axios.get(imageData.url, { responseType: "arraybuffer" });
                         const imageBuffer = Buffer.from(imageResponse.data);
                         
-                        // 生成唯一文件名并上传
+                        // Generate unique filename and upload
                         const timestamp = Date.now();
                         const fileName = `gpt-image-1-${timestamp}.png`;
                         const containerName = "messageattachments";
-                        // 获取用户名，如果有
+                        // Get username if available
                         const username = req.body?.username || req.query?.username || null;
-                        // 传递可选用户名
+                        // Pass optional username
                         const uploadResult = await uploadFileToBlob(containerName, fileName, imageBuffer, username);
-                        console.log("图像上传成功:", uploadResult);
+                        console.log("Image upload successful:", uploadResult);
                         attachmentUrl = uploadResult.url;
                     } catch (downloadError) {
-                        console.error("下载图像失败:", downloadError);
-                        // 如果下载失败，使用原始URL
+                        console.error("Failed to download image:", downloadError);
+                        // If download fails, use original URL
                         attachmentUrl = imageData.url;
                     }
                 } else {
-                    console.error("未找到图像数据:", imageData);
+                    console.error("No image data found:", imageData);
                     return res.json({
                         success: true,
                         data: apiResponse.data.data,
-                        error: "API未返回图像数据"
+                        error: "API did not return image data"
                     });
                 }
                 
-                // 返回成功结果，包含上传后的附件URL
+                // Return success result with uploaded attachment URL
                 return res.json({
                     success: true,
                     data: apiResponse.data.data,
@@ -249,7 +249,7 @@ class GptImageController {
 
             // 处理base64图像数据
             if (imageData.b64_json) {
-                console.log("处理编辑后的图像数据...");
+                console.log("Processing image data after edit...");
                 const imageBuffer = Buffer.from(imageData.b64_json, "base64");
                 const timestamp = Date.now();
                 const fileName = `gpt-image-1-edit-${timestamp}.png`;
@@ -258,7 +258,7 @@ class GptImageController {
                 const containerName = "messageattachments";
                 const username = req.body?.username || req.query?.username || null;
                 const uploadResult = await uploadFileToBlob(containerName, fileName, imageBuffer, username);
-                console.log("编辑后的图像上传成功:", uploadResult);
+                console.log("Upload successful:", uploadResult);
                 attachmentUrl = uploadResult.url;
             }
 

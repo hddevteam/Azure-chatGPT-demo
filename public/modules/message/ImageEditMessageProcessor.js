@@ -1,4 +1,4 @@
-// ImageEditMessageProcessor.js - 处理图片编辑相关的消息
+// ImageEditMessageProcessor.js - Process Image Edit Messages
 import MessageProcessor from "./MessageProcessor.js";
 import * as apiClient from "../../utils/apiClient.js";
 
@@ -11,16 +11,16 @@ class ImageEditMessageProcessor extends MessageProcessor {
         const timestamp = new Date().toISOString();
         
         try {
-            // 验证消息并显示到界面
+            // validate input message and display
             const validationResult = await this.validateInput(message, attachments);
             if (!validationResult) {
                 return null;
             }
             
-            // 发送编辑请求
+            // send edit request
             const response = await this.editImage(message);
             
-            // 处理响应并显示
+            // process response
             return await this.handleAIResponse(response, timestamp);
         } catch (error) {
             console.error("Error in ImageEditMessageProcessor:", error);
@@ -32,16 +32,79 @@ class ImageEditMessageProcessor extends MessageProcessor {
         this.uiManager.showToast("AI is editing image...");
         
         const prompt = message.replace("/gpt-image-1-edit", "").trim();
-        
-        // 获取当前存储的FormData
-        const formData = window.currentEditFormData;
-        if (!formData) {
-            throw new Error("No image data available for editing");
+        const newFormData = new FormData();
+        newFormData.append("prompt", prompt);
+
+        // Show preview container
+        const previewContainer = document.getElementById("attachment-preview-container");
+        const previewList = document.getElementById("attachment-preview-list");
+        if (!previewContainer || !previewList) {
+            throw new Error("Preview container not found");
         }
 
-        // 这里不需要重新添加prompt，因为formData已经包含了prompt和文件
+        // Clear existing previews
+        previewList.innerHTML = "";
 
-        const data = await apiClient.gptImage1Edit(formData);
+        // Check if there's a FormData from the modal
+        const formData = window.currentEditFormData;
+        
+        if (formData) {
+            // Use files from the modal's FormData
+            const oldImage = formData.get("image");
+            if (oldImage) {
+                newFormData.append("image", oldImage, oldImage.name || "image.png");
+                
+                // Add preview for the image
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this._addPreviewItem(e.target.result, oldImage.name || "image.png");
+                };
+                reader.readAsDataURL(oldImage);
+            }
+            
+            const oldMask = formData.get("mask");
+            if (oldMask) {
+                newFormData.append("mask", oldMask, oldMask.name || "mask.png");
+                
+                // Add preview for the mask
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this._addPreviewItem(e.target.result, oldMask.name || "mask.png");
+                };
+                reader.readAsDataURL(oldMask);
+            }
+        } else {
+            // Check if we're editing an existing image message
+            const currentMessage = this.messageManager.uiManager.storageManager.getMessage(
+                this.messageManager.uiManager.currentChatId,
+                this.messageManager.uiManager.selectedMessageId
+            );
+
+            if (!currentMessage || !currentMessage.attachmentUrls) {
+                throw new Error("No image available for editing");
+            }
+
+            // Download the image from the attachment URL
+            try {
+                const response = await fetch(currentMessage.attachmentUrls);
+                const blob = await response.blob();
+                newFormData.append("image", blob, "image.png");
+                
+                // Add preview for the existing image
+                this._addPreviewItem(currentMessage.attachmentUrls, "Referenced Image");
+            } catch (error) {
+                console.error("Failed to fetch image from attachment:", error);
+                throw new Error("Failed to fetch image for editing");
+            }
+        }
+
+        console.log("Sending edit request with:", {
+            prompt,
+            hasImage: !!newFormData.get("image"),
+            hasMask: !!newFormData.get("mask")
+        });
+        
+        const data = await apiClient.gptImage1Edit(newFormData);
         console.log("GPT-Image-1 Edit API response:", data);
 
         // 如果服务器已经处理并上传了图像

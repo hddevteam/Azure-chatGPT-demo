@@ -640,12 +640,12 @@ export async function processDocumentContent(documentId) {
 }
 
 /**
- * 使用GPT-Image-1生成图像
- * @param {string} prompt - 图像描述提示词
- * @param {string} size - 图像尺寸 (1024x1024, 1024x1792, 1792x1024)
- * @param {string} quality - 图像质量 (standard, hd)
- * @param {number} n - 生成数量
- * @returns {Promise<Object>} 包含图像URL的响应
+ * Generate image via GPT-Image-1
+ * @param {string} prompt - image prompt to generate
+ * @param {string} size - image size (1024x1024, 1024x1792, 1792x1024)
+ * @param {string} quality - (medium, hd)
+ * @param {number} n - generation number of images
+ * @returns {Promise<Object>} includes response data with image URL
  */
 export async function gptImage1Generate(prompt, size = "1024x1024", quality = "medium", n = 1) {
     try {
@@ -663,9 +663,9 @@ export async function gptImage1Generate(prompt, size = "1024x1024", quality = "m
 }
 
 /**
- * 使用GPT-Image-1编辑图像
- * @param {Object} formData - 包含prompt, image和mask(可选)的FormData对象
- * @returns {Promise<Object>} 包含编辑后图像URL的响应
+ * Edit image via GPT-Image-1
+ * @param {Object} formData - prompt, image and mask(optional) with FormData
+ * @returns {Promise<Object>} Includes response data with edited image URL
  */
 export async function gptImage1Edit(formData) {
     try {

@@ -193,8 +193,13 @@ class EventManager {
 
         const editItem = popupMenu.querySelector(".edit-item");
         editItem.addEventListener("click", () => {
-            const message = popupMenu.parentElement.dataset.message;
-            const messageId = popupMenu.parentElement.dataset.messageId;
+            const messageElement = popupMenu.parentElement;
+            const message = messageElement.dataset.message;
+            const messageId = messageElement.dataset.messageId;
+            
+            // 设置当前选中的消息ID
+            this.uiManager.selectedMessageId = messageId;
+            
             this.uiManager.messageManager.editMessage(message, messageId);
         });
 
