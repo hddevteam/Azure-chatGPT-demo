@@ -162,15 +162,10 @@ class GptImageController {
     async editImage(req, res) {
         try {
             const { prompt } = req.body;
-            
             if (!prompt) {
                 return res.status(400).json({ success: false, error: "Prompt is required" });
             }
-            
-            if (!req.files || !req.files.image) {
-                return res.status(400).json({ success: false, error: "Image is required" });
-            }
-            
+
             // 验证API配置
             if (!this.apiUrl || !this.apiKey) {
                 return res.status(500).json({ 
@@ -178,21 +173,57 @@ class GptImageController {
                     error: "GPT-Image-1 service is not properly configured" 
                 });
             }
+
+            // 检查是否有图片文件
+            console.log("Received files:", req.files);
             
-            // 编辑图像使用不同的端点
-            const editUrl = this.apiUrl.replace("images/generations", "images/edits");
-            
-            const formData = new FormData();
-            const image = req.files.image[0].buffer;
-            const mask = req.files.mask ? req.files.mask[0].buffer : null;
-            
-            formData.append("image", image, { filename: "image.png" });
-            if (mask) {
-                formData.append("mask", mask, { filename: "mask.png" });
+            if (!req.files || !req.files.image) {
+                return res.status(400).json({ success: false, error: "Image file is required" });
             }
+
+            const imageFile = req.files.image[0]; // multer provides files as arrays
+            console.log("Image file data:", {
+                name: imageFile.originalname,
+                mimetype: imageFile.mimetype,
+                size: imageFile.size,
+                hasBuffer: !!imageFile.buffer,
+                bufferType: typeof imageFile.buffer
+            });
+
+            const formData = new FormData();
             formData.append("prompt", prompt);
 
-            // 发送编辑请求
+            // 确保图片数据存在且是有效的
+            if (!imageFile.buffer) {
+                throw new Error("Image data is missing");
+            }
+
+            // 处理主图片 - 使用原始的 buffer
+            const imageBuffer = imageFile.buffer;
+            
+            console.log("Using buffer:", {
+                bufferLength: imageBuffer.length,
+                isBuffer: Buffer.isBuffer(imageBuffer)
+            });
+
+            formData.append("image", imageBuffer, {
+                filename: imageFile.originalname || "image.png",
+                contentType: imageFile.mimetype || "image/png",
+                knownLength: imageBuffer.length
+            });
+
+            // 如果有mask文件，添加到formData
+            if (req.files.mask) {
+                const maskBuffer = Buffer.from(req.files.mask.data);
+                formData.append("mask", maskBuffer, {
+                    filename: req.files.mask.name || "mask.png",
+                    contentType: req.files.mask.mimetype || "image/png",
+                    knownLength: maskBuffer.length
+                });
+            }
+
+            // 调用GPT-Image-1 API编辑图像
+            const editUrl = this.apiUrl.replace("/images/generations", "/images/edits");
             const apiResponse = await axios.post(
                 editUrl,
                 formData,
@@ -204,86 +235,47 @@ class GptImageController {
                 }
             );
 
-            // 处理返回的图像数据并上传
-            try {
-                if (!apiResponse.data || !apiResponse.data.data || apiResponse.data.data.length === 0) {
-                    return res.status(500).json({
-                        success: false, 
-                        error: "API未返回有效的图像数据" 
-                    });
-                }
-                
-                const imageData = apiResponse.data.data[0];
-                let attachmentUrl = null;
-                let revisedPrompt = imageData.revised_prompt || prompt;
-                
-                // 处理base64图像数据
-                if (imageData.b64_json) {
-                    const imageBuffer = Buffer.from(imageData.b64_json, "base64");
-                    const timestamp = Date.now();
-                    const fileName = `gpt-image-1-edit-${timestamp}.png`;
-                    
-                    // 上传到Blob存储
-                    const containerName = "messageattachments";
-                    // 获取用户名，如果有
-                    const username = req.body?.username || req.query?.username || null;
-                    // 传递可选用户名
-                    const uploadResult = await uploadFileToBlob(containerName, fileName, imageBuffer, username);
-                    console.log("编辑后图像上传成功:", uploadResult);
-                    attachmentUrl = uploadResult.url;
-                } 
-                // 处理图像URL
-                else if (imageData.url) {
-                    try {
-                        // 下载图像
-                        const imageResponse = await axios.get(imageData.url, { responseType: "arraybuffer" });
-                        const imageBuffer = Buffer.from(imageResponse.data);
-                        
-                        // 生成唯一文件名并上传
-                        const timestamp = Date.now();
-                        const fileName = `gpt-image-1-edit-${timestamp}.png`;
-                        const containerName = "messageattachments";
-                        // 获取用户名，如果有
-                        const username = req.body?.username || req.query?.username || null;
-                        // 传递可选用户名
-                        const uploadResult = await uploadFileToBlob(containerName, fileName, imageBuffer, username);
-                        console.log("编辑后图像上传成功:", uploadResult);
-                        attachmentUrl = uploadResult.url;
-                    } catch (downloadError) {
-                        console.error("下载编辑后图像失败:", downloadError);
-                        // 如果下载失败，使用原始URL
-                        attachmentUrl = imageData.url;
-                    }
-                } else {
-                    console.error("未找到编辑后图像数据");
-                    return res.json({
-                        success: true,
-                        data: apiResponse.data.data,
-                        error: "API未返回编辑后图像数据"
-                    });
-                }
-                
-                // 返回成功结果，包含上传后的附件URL
-                return res.json({
-                    success: true,
-                    data: apiResponse.data.data,
-                    attachmentUrl: attachmentUrl,
-                    revisedPrompt: revisedPrompt
-                });
-            } catch (uploadError) {
-                console.error("上传编辑后图像失败:", uploadError);
-                // 即使上传失败，仍然返回API的原始响应
-                return res.json({
-                    success: true,
-                    data: apiResponse.data.data,
-                    error: "上传编辑后图像失败，但API调用成功"
+            if (!apiResponse.data || !apiResponse.data.data) {
+                console.error("Unexpected API response format:", apiResponse.data);
+                return res.status(500).json({
+                    success: false,
+                    error: "Invalid response from GPT-Image-1 API"
                 });
             }
+
+            // 处理编辑后的图像
+            const imageData = apiResponse.data.data[0];
+            let attachmentUrl = null;
+
+            // 处理base64图像数据
+            if (imageData.b64_json) {
+                console.log("处理编辑后的图像数据...");
+                const imageBuffer = Buffer.from(imageData.b64_json, "base64");
+                const timestamp = Date.now();
+                const fileName = `gpt-image-1-edit-${timestamp}.png`;
+                
+                // 上传到Blob存储
+                const containerName = "messageattachments";
+                const username = req.body?.username || req.query?.username || null;
+                const uploadResult = await uploadFileToBlob(containerName, fileName, imageBuffer, username);
+                console.log("编辑后的图像上传成功:", uploadResult);
+                attachmentUrl = uploadResult.url;
+            }
+
+            // 返回编辑后的图像URL
+            return res.json({
+                success: true,
+                data: {
+                    url: attachmentUrl,
+                    revised_prompt: imageData.revised_prompt || prompt
+                }
+            });
+
         } catch (error) {
-            console.error("Error editing image:", error.response?.data || error.message);
-            res.status(500).json({ 
-                success: false, 
-                error: error.response?.data?.error?.message || error.message 
+            console.error("Image editing error:", error);
+            return res.status(500).json({
+                success: false,
+                error: error.message || "Failed to edit image"
             });
         }
     }

@@ -276,8 +276,10 @@ export default class GptImageModal {
     async handleEdit() {
         const promptInput = this.modal.querySelector("#gptImageEditPrompt");
         const imageInput = this.modal.querySelector("#gptImageFile");
+        const maskInput = this.modal.querySelector("#gptImageMask");
+        const prompt = promptInput.value.trim();
         
-        if (!promptInput.value.trim()) {
+        if (!prompt) {
             this.showError("Please enter an edit description.");
             return;
         }
@@ -287,8 +289,114 @@ export default class GptImageModal {
             return;
         }
 
-        // TODO: Implement image editing logic
-        this.showError("Image editing feature is coming soon!");
+        try {
+            const messageInput = document.getElementById("message-input");
+            const previewContainer = document.getElementById("attachment-preview-list");
+            const attachmentContainer = document.getElementById("attachment-preview-container");
+            
+            if (!messageInput || !previewContainer || !attachmentContainer) {
+                throw new Error("Required elements not found");
+            }
+
+            // 构建命令字符串
+            let command = `/gpt-image-1-edit ${prompt}`;
+            messageInput.value = command;
+
+            // 准备要上传的文件
+            const files = [imageInput.files[0]];
+            if (maskInput.files && maskInput.files[0]) {
+                files.push(maskInput.files[0]);
+            }
+
+            // 构建FormData并保存供后续使用
+            const formData = new FormData();
+            formData.append("prompt", prompt);
+            
+            // 确保文件对象有效
+            const imageFile = imageInput.files[0];
+            if (!imageFile) {
+                throw new Error("No image file selected");
+            }
+            
+            console.log("Image file to upload:", {
+                name: imageFile.name,
+                type: imageFile.type,
+                size: imageFile.size
+            });
+            
+            formData.append("image", imageFile, imageFile.name);
+            
+            if (maskInput.files && maskInput.files[0]) {
+                const maskFile = maskInput.files[0];
+                console.log("Mask file to upload:", {
+                    name: maskFile.name,
+                    type: maskFile.type,
+                    size: maskFile.size
+                });
+                formData.append("mask", maskFile, maskFile.name);
+            }
+
+            // 存储FormData以供后续使用
+            window.currentEditFormData = formData;
+
+            // 将编辑的图片作为消息的附件
+            const previewPromises = files.map(file => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        resolve({
+                            fileName: file.name,
+                            content: e.target.result
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            const attachments = await Promise.all(previewPromises);
+                
+            // 触发输入框的resize事件以调整高度
+            messageInput.dispatchEvent(new Event("input", { bubbles: true }));
+            
+            // 隐藏模态框
+            this.hide();
+
+            // 添加预览
+            for (const attachment of attachments) {
+                const previewItem = document.createElement("div");
+                previewItem.classList.add("attachment-preview-item");
+                previewItem.dataset.fileName = attachment.fileName;
+                previewItem.dataset.content = attachment.content;
+                
+                previewItem.innerHTML = `
+                    <div class="attachment-thumbnail" style="background-image: url('${attachment.content}')">
+                        <div class="attachment-delete-btn"><i class="fas fa-times"></i></div>
+                    </div>
+                    <div class="attachment-file-name">${attachment.fileName}</div>`;
+                
+                const deleteBtn = previewItem.querySelector(".attachment-delete-btn");
+                deleteBtn.addEventListener("click", (event) => {
+                    event.target.closest(".attachment-preview-item").remove();
+                    if (previewContainer.children.length === 0) {
+                        attachmentContainer.classList.add("hidden");
+                    }
+                });
+                
+                previewContainer.appendChild(previewItem);
+            }
+            attachmentContainer.classList.remove("hidden");
+
+            // 触发发送
+            const sendButton = document.querySelector("#submitButton");
+            if (sendButton) {
+                setTimeout(() => sendButton.click(), 10);
+            } else {
+                throw new Error("Send button not found");
+            }
+        } catch (error) {
+            console.error("Image editing error:", error);
+            this.showError(error.message || "Failed to edit image");
+        }
     }
 
     show() {
