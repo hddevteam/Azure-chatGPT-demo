@@ -78,20 +78,32 @@ class DOMManager {
                            // 捕获不带扩展名但可能是图片的URL
                            (/\.(blob\.core\.windows\.net)|(openai\.com)/i.test(url) && !url.endsWith(".json"));
             
-            if (isImage) {
+            if (isImage) {                // 创建图片容器包装器
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("message-image-wrapper");
+
+                // 创建图片元素
                 const imgElement = document.createElement("img");
                 imgElement.src = url;
                 imgElement.classList.add("message-attachment-thumbnail");
                 
-                // 添加点击监听器以在模态框中显示大图
-                imgElement.addEventListener("click", () => {
-                    const modal = document.getElementById("image-modal");
-                    const modalImg = document.getElementById("img-modal-content");
-                    modal.style.display = "block";
-                    modalImg.src = url;
-                });
-                
-                attachmentsContainer.appendChild(imgElement);
+                // 创建编辑按钮
+                const editButton = document.createElement("button");
+                editButton.classList.add("message-image-edit-btn");
+                editButton.innerHTML = "<i class=\"fas fa-edit\"></i>";
+                editButton.title = "Edit this image";                    // 设置点击事件用于显示大图
+                    imgElement.addEventListener("click", () => {
+                        const modal = document.getElementById("image-modal");
+                        const modalImg = document.getElementById("img-modal-content");
+                        modal.style.display = "block";
+                        modalImg.src = url;
+                    });
+
+                    // 将图片和编辑按钮添加到包装器
+                    wrapper.appendChild(imgElement);
+                    wrapper.appendChild(editButton);
+                    
+                    attachmentsContainer.appendChild(wrapper);
             } else {
                 // 如果不是图片，创建一个文件链接
                 const fileLink = document.createElement("a");
@@ -325,9 +337,23 @@ class DOMManager {
 
         return popupMenuElement;
     }
-     
 
+    createFileLink(url) {
+        const fileLink = document.createElement("a");
+        fileLink.href = url;
+        fileLink.classList.add("file-attachment-link");
 
+        const fileName = url.split("/").pop() || "file";
+        fileLink.textContent = fileName;
+        fileLink.target = "_blank";
+        fileLink.rel = "noopener noreferrer";
+
+        const fileIcon = document.createElement("i");
+        fileIcon.classList.add("fas", "fa-file");
+        fileLink.insertBefore(fileIcon, fileLink.firstChild);
+
+        return fileLink;
+    }
 }
 
 export default DOMManager;

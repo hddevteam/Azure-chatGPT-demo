@@ -90,8 +90,12 @@ class UIManager {
         this.intercomModal = new IntercomModal();
         this.intercomModal.setUIManager(this);
 
-        // Setup event listeners
+        // Setup all event listeners
         this.eventHandler.setupEventListeners();
+        
+        // Initialize global event listeners
+        this.eventManager.attachFloatingEditButtonEvent();
+        this.eventManager.attachImagePreviewEvent();
     }
 
     // Profile and Menu Management

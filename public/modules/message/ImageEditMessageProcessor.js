@@ -56,9 +56,9 @@ class ImageEditMessageProcessor extends MessageProcessor {
         if (existingPreviewItems.length > 0) {
             hasExistingPreview = true;
             const previewItem = existingPreviewItems[0];
-            existingImageUrl = previewItem.dataset.url;
-            existingFileName = previewItem.dataset.fileName || existingImageUrl.split("/").pop() || "image.jpg";
-            existingFileType = previewItem.dataset.fileType || "image/jpeg";
+            existingImageUrl = previewItem.getAttribute("data-url");
+            existingFileName = previewItem.getAttribute("data-file-name") || existingImageUrl.split("/").pop() || "image.jpg";
+            existingFileType = previewItem.getAttribute("data-file-type") || "image/jpeg";
             
             console.log("Using existing preview image:", {
                 url: existingImageUrl,
@@ -153,31 +153,27 @@ class ImageEditMessageProcessor extends MessageProcessor {
             // Use the image already displayed in the preview area
             try {
                 const response = await fetch(existingImageUrl);
-                const blob = await response.blob();
                 
-                // Get the base filename from the URL
-                const urlParts = existingImageUrl.split("/");
-                let baseName = urlParts[urlParts.length - 1] || "image";
-                
-                // Remove existing extension to prepare for replacement
-                baseName = baseName.replace(/\.[^/.]+$/, "");
-                
-                // Determine the correct file extension based on the blob type
-                let fileExtension = ".jpg"; // default extension
-                if (blob.type) {
-                    const mimeToExt = {
-                        "image/jpeg": ".jpg",
-                        "image/jpg": ".jpg",
-                        "image/png": ".png",
-                        "image/webp": ".webp",
-                        "image/gif": ".gif"
-                    };
-                    fileExtension = mimeToExt[blob.type] || ".jpg";
+                // Determine the file type from the URL before fetching
+                let expectedMimeType = "image/jpeg"; // default type
+                const urlLower = existingImageUrl.toLowerCase();
+                if (urlLower.endsWith(".png")) {
+                    expectedMimeType = "image/png";
+                } else if (urlLower.endsWith(".webp")) {
+                    expectedMimeType = "image/webp";
+                } else if (urlLower.endsWith(".gif")) {
+                    expectedMimeType = "image/gif";
                 }
+
+                // Create a new blob with the correct MIME type
+                const arrayBuffer = await response.arrayBuffer();
+                const blob = new Blob([arrayBuffer], { type: expectedMimeType });
                 
-                // Combine filename with the correct MIME type and extension
-                const fileName = baseName + fileExtension;
-                console.log(`Using image: ${fileName} with type: ${blob.type}`);
+                // Keep the original filename from the URL
+                const urlParts = existingImageUrl.split("/");
+                const fileName = urlParts[urlParts.length - 1] || "image.png";
+                
+                console.log(`Using image: ${fileName} with forced type: ${expectedMimeType}`);
                 newFormData.append("image", blob, fileName);
                 // No need to add preview as it already exists
             } catch (error) {
@@ -225,8 +221,6 @@ class ImageEditMessageProcessor extends MessageProcessor {
                 console.log(`Using history image: ${fileName} with type: ${blob.type}`);
                 newFormData.append("image", blob, fileName);
                 
-                // Add preview for the existing image
-                this._addPreviewItem(currentMessage.attachmentUrls, "Referenced Image");
             } catch (error) {
                 console.error("Failed to fetch image from attachment:", error);
                 throw new Error("Failed to fetch image for editing");

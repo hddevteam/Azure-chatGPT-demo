@@ -254,31 +254,82 @@ class EventManager {
         });
     }
 
-    showImagePreviewForEdit(message, imageUrl) {
-        // Get the preview container
-        const previewContainer = document.getElementById("attachment-preview-container");
-        const previewList = document.getElementById("attachment-preview-list");
 
-        if (!previewContainer || !previewList) {
-            console.error("Preview containers not found");
+
+    // 事件代理方式挂载浮动编辑按钮事件
+    attachFloatingEditButtonEvent() {
+        document.addEventListener("click", (e) => {
+            const editButton = e.target.closest(".message-image-edit-btn");
+            if (!editButton) return;
+
+            e.stopPropagation(); // 阻止事件冒泡以避免触发图片预览
+            
+            // 获取消息元素
+            const messageElement = editButton.closest(".message");
+            if (!messageElement) {
+                console.error("Message element not found");
+                return;
+            }
+
+            const messageId = messageElement.dataset.messageId;
+            if (!messageId) {
+                console.error("Message ID not found");
+                return;
+            }
+
+            const imgElement = editButton.closest(".message-image-wrapper").querySelector(".message-attachment-thumbnail");
+            if (!imgElement) {
+                console.error("Image element not found");
+                return;
+            }
+
+            const imageUrl = imgElement.src;
+            
+            // 调用showImagePreviewForEdit方法统一处理图片预览和编辑设置
+            this.showImagePreviewForEdit(messageId, imageUrl);
+        });
+    }
+
+    // 统一处理图片预览和编辑设置的方法
+    showImagePreviewForEdit(messageId, imageUrl) {
+        console.log("Handling image edit:", {
+            messageId: messageId,
+            imageUrl: imageUrl
+        });
+
+        // 设置当前消息ID
+        if (this.uiManager) {
+            this.uiManager.selectedMessageId = messageId;
+            console.log("Set selectedMessageId in UIManager:", messageId);
+        }
+
+        // 设置编辑命令
+        const messageInput = document.getElementById("message-input");
+        if (messageInput) {
+            messageInput.value = "/gpt-image-1-edit ";
+            messageInput.focus();
+        }
+
+        // 准备预览区域
+        const previewList = document.getElementById("attachment-preview-list");
+        const attachmentContainer = document.getElementById("attachment-preview-container");
+
+        if (!previewList || !attachmentContainer) {
+            console.error("Preview container not found");
             return;
         }
 
-        // Clear existing previews
+        // 清除现有预览
         previewList.innerHTML = "";
 
-        // Create a preview item
+        // 创建预览项
         const previewItem = document.createElement("div");
         previewItem.classList.add("attachment-preview-item");
         previewItem.dataset.url = imageUrl;
-        // Add a flag to indicate this is an existing image and does not need uploading
         previewItem.dataset.isExisting = "true";
 
-        // Extract the file name (if any)
         const fileName = imageUrl.split("/").pop() || "image.jpg";
-
-        // Detect possible file types (based on URL)
-        let fileType = "image/jpeg"; // Default
+        let fileType = "image/jpeg";
         if (fileName.toLowerCase().endsWith(".png")) {
             fileType = "image/png";
         } else if (fileName.toLowerCase().endsWith(".webp")) {
@@ -287,7 +338,6 @@ class EventManager {
             fileType = "image/gif";
         }
 
-        // Store file type information
         previewItem.dataset.fileType = fileType;
         previewItem.dataset.fileName = fileName;
 
@@ -297,18 +347,26 @@ class EventManager {
             </div>
             <div class="attachment-file-name">${fileName} (original)</div>`;
 
-        // Add delete button event
         const deleteBtn = previewItem.querySelector(".attachment-delete-btn");
-        deleteBtn.addEventListener("click", (event) => {
-            event.target.closest(".attachment-preview-item").remove();
+        deleteBtn.addEventListener("click", (evt) => {
+            evt.stopPropagation();
+            previewItem.remove();
             if (previewList.children.length === 0) {
-                previewContainer.classList.add("hidden");
+                attachmentContainer.classList.add("hidden");
             }
         });
 
-        // Add to the preview list
+        // 保存编辑上下文
+        window.imageEditContext = {
+            messageId: messageId,
+            imageUrl: imageUrl,
+            fileType: fileType,
+            fileName: fileName
+        };
+        console.log("Stored image edit context:", window.imageEditContext);
+
         previewList.appendChild(previewItem);
-        previewContainer.classList.remove("hidden");
+        attachmentContainer.classList.remove("hidden");
     }
 
 }

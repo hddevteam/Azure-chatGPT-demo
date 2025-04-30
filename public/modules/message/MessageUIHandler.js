@@ -164,6 +164,9 @@ class MessageUIHandler {
         // Image preview functionality
         this.eventManager.attachImagePreviewEvent();
         
+        // 初始化浮动编辑按钮事件
+        this.eventManager.attachFloatingEditButtonEvent();
+        
         // Update maximize button visibility
         setTimeout(() => this.eventManager.updateMaximizeButtonVisibility(messageElement), 0);
 

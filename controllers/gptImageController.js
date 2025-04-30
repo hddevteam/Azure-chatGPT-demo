@@ -208,16 +208,17 @@ class GptImageController {
                 mimetype: imageFile.mimetype
             });
 
-            // Use original image format, do not force conversion to PNG
+            // Keep original image format and filename
             let processedImageBuffer = imageBuffer;
             
-            // Get corrected filename with proper extension based on MIME type
-            const fileName = ensureCorrectFileExtension("image", imageFile.mimetype);
+            // Use original filename if available, otherwise generate one with proper extension
+            const fileName = imageFile.originalname || ensureCorrectFileExtension("image", imageFile.mimetype);
             console.log(`Using file name: ${fileName} with MIME type: ${imageFile.mimetype}`);
             
+            // Append the buffer directly with metadata
             formData.append("image", processedImageBuffer, {
                 filename: fileName,
-                contentType: imageFile.mimetype || "image/png",
+                contentType: imageFile.mimetype,
                 knownLength: processedImageBuffer.length
             });
 
