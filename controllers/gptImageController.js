@@ -3,6 +3,7 @@ const axios = require("axios");
 const FormData = require("form-data");
 const { uploadFileToBlob } = require("../services/azureBlobStorage");
 const { Buffer } = require("buffer");
+const { ensureCorrectFileExtension } = require("../utils/fileUtils");
 
 /**
  * GPT-Image-1 Controller
@@ -22,7 +23,7 @@ class GptImageController {
     }
 
     /**
-     * 处理图像生成请求
+     * Handles image generation requests
      */
     async generateImage(req, res) {
         try {
@@ -32,7 +33,7 @@ class GptImageController {
                 return res.status(400).json({ success: false, error: "Prompt is required" });
             }
             
-            // 验证API配置
+            // Validate API configuration
             if (!this.apiUrl || !this.apiKey) {
                 return res.status(500).json({ 
                     success: false, 
@@ -50,7 +51,7 @@ class GptImageController {
                 }
             });
 
-            // 调用GPT-Image-1 API生成图像
+            // Call GPT-Image-1 API to generate image
             const apiResponse = await axios.post(
                 this.apiUrl,
                 {
@@ -76,9 +77,9 @@ class GptImageController {
                 });
             }
 
-            // 处理图像上传到附件
+            // Handle image upload to attachment
             try {
-                // 获取第一个生成的图像数据
+                // Get the first generated image data
                 const imageData = apiResponse.data.data[0];
                 let attachmentUrl = null;
                 let revisedPrompt = imageData.revised_prompt || prompt;
@@ -139,12 +140,12 @@ class GptImageController {
                     revisedPrompt: revisedPrompt
                 });
             } catch (uploadError) {
-                console.error("上传图像失败:", uploadError);
-                // 即使上传失败，仍然返回API的原始响应
+                console.error("Failed to upload image:", uploadError);
+                // Even if the upload fails, return the original API response
                 return res.json({
                     success: true,
                     data: apiResponse.data.data,
-                    error: "上传图像失败，但API调用成功"
+                    error: "Failed to upload image, but API call was successful"
                 });
             }
         } catch (error) {
@@ -157,7 +158,7 @@ class GptImageController {
     }
 
     /**
-     * 处理图像编辑请求
+     * Handles image editing requests
      */
     async editImage(req, res) {
         try {
@@ -166,7 +167,7 @@ class GptImageController {
                 return res.status(400).json({ success: false, error: "Prompt is required" });
             }
 
-            // 验证API配置
+            // Validate API configuration
             if (!this.apiUrl || !this.apiKey) {
                 return res.status(500).json({ 
                     success: false, 
@@ -174,7 +175,7 @@ class GptImageController {
                 });
             }
 
-            // 检查是否有图片文件
+            // Check if there is an image file
             console.log("Received files:", req.files);
             
             if (!req.files || !req.files.image) {
@@ -193,36 +194,57 @@ class GptImageController {
             const formData = new FormData();
             formData.append("prompt", prompt);
 
-            // 确保图片数据存在且是有效的
+            // Ensure image data exists and is valid
             if (!imageFile.buffer) {
                 throw new Error("Image data is missing");
             }
 
-            // 处理主图片 - 使用原始的 buffer
+            // Handle main image - use the original buffer
             const imageBuffer = imageFile.buffer;
             
             console.log("Using buffer:", {
                 bufferLength: imageBuffer.length,
-                isBuffer: Buffer.isBuffer(imageBuffer)
+                isBuffer: Buffer.isBuffer(imageBuffer),
+                mimetype: imageFile.mimetype
             });
 
-            formData.append("image", imageBuffer, {
-                filename: imageFile.originalname || "image.png",
+            // Use original image format, do not force conversion to PNG
+            let processedImageBuffer = imageBuffer;
+            
+            // Get corrected filename with proper extension based on MIME type
+            const fileName = ensureCorrectFileExtension("image", imageFile.mimetype);
+            console.log(`Using file name: ${fileName} with MIME type: ${imageFile.mimetype}`);
+            
+            formData.append("image", processedImageBuffer, {
+                filename: fileName,
                 contentType: imageFile.mimetype || "image/png",
-                knownLength: imageBuffer.length
+                knownLength: processedImageBuffer.length
             });
 
-            // 如果有mask文件，添加到formData
-            if (req.files.mask) {
-                const maskBuffer = Buffer.from(req.files.mask.data);
+            // If there is a mask file, add it to formData
+            if (req.files.mask && req.files.mask[0]) {
+                const maskFile = req.files.mask[0];
+                const maskBuffer = maskFile.buffer;
+                
+                console.log("Mask file data:", {
+                    name: maskFile.originalname,
+                    mimetype: maskFile.mimetype,
+                    size: maskFile.size,
+                    hasBuffer: !!maskFile.buffer
+                });
+                
+                // Get corrected filename with proper extension based on MIME type
+                const maskFileName = ensureCorrectFileExtension("mask", maskFile.mimetype);
+                console.log(`Using mask file name: ${maskFileName} with MIME type: ${maskFile.mimetype}`);
+                
                 formData.append("mask", maskBuffer, {
-                    filename: req.files.mask.name || "mask.png",
-                    contentType: req.files.mask.mimetype || "image/png",
+                    filename: maskFileName,
+                    contentType: maskFile.mimetype || "image/png",
                     knownLength: maskBuffer.length
                 });
             }
 
-            // 调用GPT-Image-1 API编辑图像
+            // Call GPT-Image-1 API to edit the image
             const editUrl = this.apiUrl.replace("/images/generations", "/images/edits");
             const apiResponse = await axios.post(
                 editUrl,
@@ -243,18 +265,18 @@ class GptImageController {
                 });
             }
 
-            // 处理编辑后的图像
+            // Process the edited image
             const imageData = apiResponse.data.data[0];
             let attachmentUrl = null;
 
-            // 处理base64图像数据
+            // Process base64 image data
             if (imageData.b64_json) {
                 console.log("Processing image data after edit...");
                 const imageBuffer = Buffer.from(imageData.b64_json, "base64");
                 const timestamp = Date.now();
                 const fileName = `gpt-image-1-edit-${timestamp}.png`;
                 
-                // 上传到Blob存储
+                // Upload to Blob storage
                 const containerName = "messageattachments";
                 const username = req.body?.username || req.query?.username || null;
                 const uploadResult = await uploadFileToBlob(containerName, fileName, imageBuffer, username);
@@ -262,7 +284,7 @@ class GptImageController {
                 attachmentUrl = uploadResult.url;
             }
 
-            // 返回编辑后的图像URL
+            // Return the URL of the edited image
             return res.json({
                 success: true,
                 data: {
@@ -281,6 +303,6 @@ class GptImageController {
     }
 }
 
-// 创建控制器实例并导出
+// Create a controller instance and export it
 const gptImageController = new GptImageController();
 module.exports = gptImageController;

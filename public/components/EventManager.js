@@ -11,13 +11,13 @@ class EventManager {
                 const imageUrl = imgElement.src;
                 document.getElementById("image-modal").style.display = "block";
                 document.getElementById("img-modal-content").src = imageUrl;
-    
+
                 // Bind a new click event to the download button to handle the download
                 const downloadBtn = document.getElementById("download-btn");
                 downloadBtn.onclick = function() {
                     // Create a temporary <a> element for downloading
                     const tempLink = document.createElement("a");
-                    tempLink.href = imageUrl;        
+                    tempLink.href = imageUrl;
                     // Get or set the default file name based on the image URL (using timestamp)
                     const urlParts = imageUrl.split("/");
                     tempLink.download = urlParts[urlParts.length - 1] || `img-${new Date().getTime()}.jpg`;
@@ -26,12 +26,12 @@ class EventManager {
                 };
             });
         });
-    
+
         document.querySelector("#image-modal .close").addEventListener("click", function() {
             document.getElementById("image-modal").style.display = "none";
         });
     }
-    
+
 
     // attach speaker event to message speaker
     attachMessageSpeakerEvent(speaker) {
@@ -107,17 +107,17 @@ class EventManager {
                 // Get the data-message attribute content of the grandparent node
                 var message = trigger.parentNode.parentNode.getAttribute("data-message");
                 var sender = trigger.parentNode.parentNode.getAttribute("data-sender");
-                
+
                 // Convert HTML escape characters to normal characters
                 const textElement = document.createElement("textarea");
                 textElement.innerHTML = message;
                 message = textElement.value;
-                
+
                 // If it is an assistant message, remove <think> tag content
                 if (sender === "assistant") {
                     message = message.replace(/<think>[\s\S]*?<\/think>/g, "");
                 }
-                
+
                 return message;
             }
         });
@@ -196,10 +196,17 @@ class EventManager {
             const messageElement = popupMenu.parentElement;
             const message = messageElement.dataset.message;
             const messageId = messageElement.dataset.messageId;
-            
-            // 设置当前选中的消息ID
+            const attachmentUrls = messageElement.dataset.attachmentUrls || "";
+
+            // Set the currently selected message ID
             this.uiManager.selectedMessageId = messageId;
-            
+
+            // Check if it is an image editing message
+            if (message.startsWith("/gpt-image-1-edit") && attachmentUrls) {
+                // Add image preview
+                this.showImagePreviewForEdit(message, attachmentUrls);
+            }
+
             this.uiManager.messageManager.editMessage(message, messageId);
         });
 
@@ -219,13 +226,13 @@ class EventManager {
         copyItem.addEventListener("click", () => {
             const message = popupMenu.parentElement.dataset.message;
             const sender = popupMenu.parentElement.dataset.sender;
-            
+
             // If it is an assistant message, remove <think> tag content
             let contentToCopy = message;
             if (sender === "assistant") {
                 contentToCopy = message.replace(/<think>[\s\S]*?<\/think>/g, "");
             }
-            
+
             navigator.clipboard.writeText(contentToCopy);
             this.uiManager.showToast("copied successful");
         });
@@ -245,6 +252,63 @@ class EventManager {
             // Use `question` as the message to send to AI
             this.uiManager.messageInput.value += question;
         });
+    }
+
+    showImagePreviewForEdit(message, imageUrl) {
+        // Get the preview container
+        const previewContainer = document.getElementById("attachment-preview-container");
+        const previewList = document.getElementById("attachment-preview-list");
+
+        if (!previewContainer || !previewList) {
+            console.error("Preview containers not found");
+            return;
+        }
+
+        // Clear existing previews
+        previewList.innerHTML = "";
+
+        // Create a preview item
+        const previewItem = document.createElement("div");
+        previewItem.classList.add("attachment-preview-item");
+        previewItem.dataset.url = imageUrl;
+        // Add a flag to indicate this is an existing image and does not need uploading
+        previewItem.dataset.isExisting = "true";
+
+        // Extract the file name (if any)
+        const fileName = imageUrl.split("/").pop() || "image.jpg";
+
+        // Detect possible file types (based on URL)
+        let fileType = "image/jpeg"; // Default
+        if (fileName.toLowerCase().endsWith(".png")) {
+            fileType = "image/png";
+        } else if (fileName.toLowerCase().endsWith(".webp")) {
+            fileType = "image/webp";
+        } else if (fileName.toLowerCase().endsWith(".gif")) {
+            fileType = "image/gif";
+        }
+
+        // Store file type information
+        previewItem.dataset.fileType = fileType;
+        previewItem.dataset.fileName = fileName;
+
+        previewItem.innerHTML = `
+            <div class="attachment-thumbnail" style="background-image: url('${imageUrl}')">
+                <div class="attachment-delete-btn"><i class="fas fa-times"></i></div>
+            </div>
+            <div class="attachment-file-name">${fileName} (original)</div>`;
+
+        // Add delete button event
+        const deleteBtn = previewItem.querySelector(".attachment-delete-btn");
+        deleteBtn.addEventListener("click", (event) => {
+            event.target.closest(".attachment-preview-item").remove();
+            if (previewList.children.length === 0) {
+                previewContainer.classList.add("hidden");
+            }
+        });
+
+        // Add to the preview list
+        previewList.appendChild(previewItem);
+        previewContainer.classList.remove("hidden");
     }
 
 }

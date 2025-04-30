@@ -1,4 +1,6 @@
 // public/components/GptImageModal.js
+import { ensureCorrectFileExtension } from "../utils/fileUtils.js";
+
 export default class GptImageModal {
     constructor() {
         this.modalId = "gpt-image-modal";
@@ -182,19 +184,19 @@ export default class GptImageModal {
 
         this.activeTab = tabName;
 
-        // 移除所有标签的活动状态
+        // remove active class from all tabs
         tabs.forEach(tab => {
             tab.classList.remove("gpt-image-modal__tab--active");
             tab.setAttribute("aria-selected", "false");
         });
 
-        // 隐藏所有内容
+        // hide all contents
         contents.forEach(content => {
             content.classList.remove("active");
             content.style.display = "none";
         });
 
-        // 激活当前标签和内容
+        // add active class to current tab
         const activeTab = this.modal.querySelector(`#${tabName}-tab-btn`);
         const activeContent = this.modal.querySelector(`#${tabName}-tab-content`);
 
@@ -247,16 +249,16 @@ export default class GptImageModal {
         }
 
         try {
-            // 构建命令字符串
+            // build command string
             const messageInput = document.getElementById("message-input");
             if (messageInput) {
                 messageInput.value = `/gpt-image-1 ${prompt}`;
                 
-                // 触发输入框的resize事件以调整高度
+                // activate the resize event to adjust the input height
                 const resizeEvent = new Event("input", { bubbles: true });
                 messageInput.dispatchEvent(resizeEvent);
                 
-                // 获取发送按钮并模拟点击
+                // activate the summit button and simulate a click
                 const sendButton = document.querySelector("#submitButton");
                 if (sendButton) {
                     this.hide();
@@ -298,48 +300,57 @@ export default class GptImageModal {
                 throw new Error("Required elements not found");
             }
 
-            // 构建命令字符串
+            // build edit command string
             let command = `/gpt-image-1-edit ${prompt}`;
             messageInput.value = command;
 
-            // 准备要上传的文件
+            // prepare files to upload
             const files = [imageInput.files[0]];
             if (maskInput.files && maskInput.files[0]) {
                 files.push(maskInput.files[0]);
             }
 
-            // 构建FormData并保存供后续使用
+            // build FormData and save for later use
             const formData = new FormData();
             formData.append("prompt", prompt);
             
-            // 确保文件对象有效
+            // make sure the file object is valid
             const imageFile = imageInput.files[0];
             if (!imageFile) {
                 throw new Error("No image file selected");
             }
             
+            // Ensure filename has the correct extension based on its MIME type
+            const correctFileName = ensureCorrectFileExtension(imageFile.name, imageFile.type);
+            
             console.log("Image file to upload:", {
-                name: imageFile.name,
+                original: imageFile.name,
+                corrected: correctFileName,
                 type: imageFile.type,
                 size: imageFile.size
             });
             
-            formData.append("image", imageFile, imageFile.name);
+            formData.append("image", imageFile, correctFileName);
             
             if (maskInput.files && maskInput.files[0]) {
                 const maskFile = maskInput.files[0];
+                
+                // Ensure mask filename has the correct extension based on its MIME type
+                const correctMaskName = ensureCorrectFileExtension(maskFile.name, maskFile.type);
+                
                 console.log("Mask file to upload:", {
-                    name: maskFile.name,
+                    original: maskFile.name,
+                    corrected: correctMaskName,
                     type: maskFile.type,
                     size: maskFile.size
                 });
-                formData.append("mask", maskFile, maskFile.name);
+                formData.append("mask", maskFile, correctMaskName);
             }
 
-            // 存储FormData以供后续使用
+            // Store FormData for later use
             window.currentEditFormData = formData;
 
-            // 将编辑的图片作为消息的附件
+            // use edited image as attachment
             const previewPromises = files.map(file => {
                 return new Promise((resolve) => {
                     const reader = new FileReader();
@@ -355,13 +366,13 @@ export default class GptImageModal {
 
             const attachments = await Promise.all(previewPromises);
                 
-            // 触发输入框的resize事件以调整高度
+            // trigger resize event of the input to adjust height
             messageInput.dispatchEvent(new Event("input", { bubbles: true }));
             
-            // 隐藏模态框
+            // hide modal
             this.hide();
 
-            // 添加预览
+            // add preview
             for (const attachment of attachments) {
                 const previewItem = document.createElement("div");
                 previewItem.classList.add("attachment-preview-item");
@@ -386,7 +397,7 @@ export default class GptImageModal {
             }
             attachmentContainer.classList.remove("hidden");
 
-            // 触发发送
+            // trigger send
             const sendButton = document.querySelector("#submitButton");
             if (sendButton) {
                 setTimeout(() => sendButton.click(), 10);

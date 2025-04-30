@@ -151,7 +151,7 @@ class UIManager {
             this.storageManager.setCurrentProfile(validProfile);
         }
         
-        // 初始化 AIProfileManager with the validated profile
+        // Initialize AIProfileManager with the validated profile
         this.aiProfileManager.initialize(validProfile, this.profiles);
         
         // Get the current valid profile
@@ -169,14 +169,14 @@ class UIManager {
         const username = this.storageManager.getCurrentUsername();
         let chatHistory = this.chatHistoryManager.getChatHistory();
         
-        // 根据过滤条件筛选聊天历史
+        // Filter chat history based on filter conditions
         if (!this.showAllChatHistories) {
             if (this.filteredActors && this.filteredActors.length > 0) {
-                // 如果有选择的 AI Actors，显示这些 actors 的聊天记录
+                // If there are selected AI Actors, show the chat history of these actors
                 chatHistory = chatHistory.filter(history => 
                     this.filteredActors.includes(history.profileName));
             } else {
-                // 如果没有选择任何 actor，但不是显示全部，则只显示当前 profile 的聊天记录
+                // If no actor is selected, but not showing all, only show the current profile's chat history
                 const currentProfile = this.storageManager.getCurrentProfile();
                 if (currentProfile) {
                     chatHistory = chatHistory.filter(history => 
@@ -189,7 +189,7 @@ class UIManager {
             await this.chatHistoryManager.generateChatHistory();
         }
         
-        // 更新聊天历史列表显示
+        // Update chat history list display
         this.domManager.renderChatHistoryList(chatHistory, this.profiles);
     }
 
@@ -276,7 +276,7 @@ class UIManager {
         const chatToEdit = chatHistory.find(history => history.id === chatId);
         
         if (chatToEdit) {
-            // 将标题作为第三个参数传递给 updateChatHistory
+            // Pass the title as the third parameter to updateChatHistory
             await this.chatHistoryManager.updateChatHistory(chatId, false, newTitle);
         }
     }
@@ -354,11 +354,11 @@ class UIManager {
         const attachmentPreviewList = document.getElementById("attachment-preview-list");
         const attachmentItems = attachmentPreviewList.querySelectorAll(".attachment-preview-item");
 
-        // 在发送新消息前清除之前的follow-up questions
+        // Clear previous follow-up questions before sending a new message
         this.messageManager.clearFollowUpQuestions();
 
         attachmentItems.forEach(item => {
-            // 使用 dataset 属性来获取文件名和内容
+            // Use dataset properties to get the file name and content
             const fileName = item.dataset.fileName;
             const content = item.dataset.content;
             if (fileName && content) {
@@ -368,7 +368,17 @@ class UIManager {
 
         // Clean up the UI
         this.clearMessageInput(); // Clear the message input
-        fileUploader.clearPreview();
+        
+        // Ensure that all attachment previews are cleared, including images marked as existing
+        const attachmentPreviewContainer = document.getElementById("attachment-preview-container");
+        if (attachmentPreviewContainer && attachmentPreviewList) {
+            attachmentPreviewList.innerHTML = "";
+            attachmentPreviewContainer.classList.add("hidden");
+        } else {
+            // If DOM elements do not exist, use the fileUploader fallback method
+            fileUploader.clearPreview();
+        }
+        
         messageInput.blur();
     
         // If both message and attachments are empty, return
@@ -409,17 +419,17 @@ class UIManager {
     }
 
     showAIActorList() {
-        // 显示 AI Actor 列表前确保列表内容已更新
+        // Ensure the list content is updated before displaying the AI Actor list
         const aiActorList = document.getElementById("ai-actor-list");
         if (aiActorList) {
-            // 先清空列表
+            // Clear the list first
             aiActorList.innerHTML = "";
             
-            // 获取当前配置文件列表和当前使用的配置文件
+            // Get the current profile list and the currently used profile
             const profiles = this.profiles;
             const currentProfile = this.storageManager.getCurrentProfile();
             
-            // 填充列表
+            // Populate the list
             if (profiles && profiles.length > 0) {
                 profiles.forEach(profile => {
                     let li = document.createElement("li");
@@ -440,7 +450,7 @@ class UIManager {
                 });
             }
             
-            // 调用 UIStateManager 显示列表
+            // Call UIStateManager to show the list
             this.uiStateManager.showAIActorList();
         }
     }
@@ -459,16 +469,16 @@ class UIManager {
         const buttonIcon = document.getElementById("submit-button-icon");
         const loader = document.getElementById("submit-loader");
         
-        // 激活进度条
+        // Activate the progress bar
         progressBar.classList.add("active");
         
-        // 禁用提交按钮
+        // Disable the submit button
         submitButton.disabled = true;
         
-        // 使用 opacity 过渡来避免尺寸变化
+        // Use opacity transition to avoid size changes
         buttonIcon.classList.add("hidden");
         
-        // 使用 setTimeout 创建平滑过渡
+        // Use setTimeout to create a smooth transition
         setTimeout(() => {
             loader.classList.remove("hidden");
         }, 150);
@@ -480,22 +490,22 @@ class UIManager {
         const buttonIcon = document.getElementById("submit-button-icon");
         const loader = document.getElementById("submit-loader");
         
-        // 完成进度条动画
+        // Complete the progress bar animation
         progressBar.classList.remove("active");
         progressBar.classList.add("complete");
         
-        // 使用 opacity 过渡来避免尺寸变化
+        // Use opacity transition to avoid size changes
         loader.classList.add("hidden");
         
-        // 使用 setTimeout 创建平滑过渡
+        // Use setTimeout to create a smooth transition
         setTimeout(() => {
             buttonIcon.classList.remove("hidden");
         }, 150);
         
-        // 重置按钮状态
+        // Reset button state
         submitButton.disabled = false;
         
-        // 短暂延迟后移除完成状态
+        // Remove complete state after a short delay
         setTimeout(() => {
             progressBar.classList.remove("complete");
         }, 500);
@@ -535,40 +545,40 @@ class UIManager {
     }
 
     async changeChatTopic(chatId, isNewTopic = false) {
-        // 清空现有消息并显示加载指示器
+        // Clear existing messages and display loading indicator
         const messagesContainer = document.querySelector("#messages");
         messagesContainer.innerHTML = `
             <div id="chat-loading-indicator" class="chat-loading-indicator">
                 <div class="loading-spinner"></div>
-                <div class="loading-text">正在加载对话内容...</div>
+                <div class="loading-text">Loading chat content...</div>
             </div>
         `;
         
-        // 立即更新当前聊天ID
+        // Immediately update the current chat ID
         this.currentChatId = chatId;
 
-        // 立即更新UI活动状态
+        // Immediately update UI active state
         document.querySelector("#chat-history-list li.active")?.classList.remove("active");
         document.querySelector(`#chat-history-list li[data-id="${chatId}"]`)?.classList.add("active");
 
-        // 获取当前聊天的配置文件
+        // Get the profile for the current chat
         let currentProfile = this.storageManager.getCurrentProfile();
         
-        // 异步执行数据加载过程
+        // Asynchronously execute the data loading process
         this.loadChatTopicData(chatId, isNewTopic, currentProfile).catch(error => {
             console.error("Error loading chat topic:", error);
-            // 在加载失败时显示错误信息
+            // Display error message on loading failure
             const loadingIndicator = document.getElementById("chat-loading-indicator");
             if (loadingIndicator) {
                 loadingIndicator.innerHTML = `
                     <div class="loading-error">
                         <i class="fas fa-exclamation-circle"></i>
-                        <div>加载对话内容时出错</div>
-                        <button class="retry-button">重试</button>
+                        <div>Error loading chat content</div>
+                        <button class="retry-button">Retry</button>
                     </div>
                 `;
                 
-                // 添加重试按钮事件处理
+                // Add retry button event handler
                 const retryButton = loadingIndicator.querySelector(".retry-button");
                 if (retryButton) {
                     retryButton.addEventListener("click", () => this.changeChatTopic(chatId, isNewTopic));
@@ -577,9 +587,9 @@ class UIManager {
         });
     }
     
-    // 新方法：用于处理聊天话题数据加载的异步过程
+    // New method: asynchronous process for handling chat topic data loading
     async loadChatTopicData(chatId, isNewTopic, currentProfile) {
-        // 如果不是新话题，根据现有的聊天历史更新当前的 Profile
+        // If it's not a new topic, update the current Profile based on the existing chat history
         if (!isNewTopic) {
             const chatHistory = this.chatHistoryManager.getChatHistory();
             const currentChat = chatHistory.find(history => history.id === chatId);
@@ -587,13 +597,13 @@ class UIManager {
                 const profile = this.profiles.find(p => p.name === currentChat.profileName);
                 
                 if (profile) {
-                    // 找到了对应的profile，正常切换
+                    // Found the corresponding profile, switch normally
                     if (profile.name !== currentProfile?.name) {
                         await this.aiProfileManager.switchToProfile(profile, false);
                         currentProfile = this.aiProfileManager.getCurrentProfile();
                     }
                 } else if (this.profiles.length > 0) {
-                    // 如果没有找到对应的profile，但有其他profiles可用，切换到第一个profile
+                    // If the corresponding profile is not found, but other profiles are available, switch to the first profile
                     console.log(`Profile ${currentChat.profileName} not found, switching to first available profile: ${this.profiles[0].name}`);
                     await this.aiProfileManager.switchToProfile(this.profiles[0], false);
                     currentProfile = this.aiProfileManager.getCurrentProfile();
@@ -612,39 +622,39 @@ class UIManager {
             };
             this.chatHistoryManager.createChatHistory(newChatHistory);
             
-            // 对于新话题，确保更新表单数据
+            // For new topics, ensure the form data is updated
             this.profileFormManager.bindProfileData(currentProfile);
         } else {
-            // 如果不是新话题，从Azure Storage同步消息
+            // If it's not a new topic, sync messages from Azure Storage
             try {
-                await this.syncManager.updateToken(); // 确保token有效
+                await this.syncManager.updateToken(); // Ensure token is valid
                 await this.syncManager.syncMessages(chatId);
                 console.log(`Synced messages from Azure Storage for chat ${chatId}`);
             } catch (error) {
                 console.error(`Error syncing messages from Azure Storage: ${error.message}`);
-                // 继续加载本地消息，即使同步失败
+                // Continue loading local messages, even if synchronization fails
             }
         }
 
-        // 获取此聊天的所有消息
+        // Get all messages for this chat
         const messages = this.storageManager.getMessages(chatId);
         
-        // 初始化上下文（设置系统提示和恢复活跃消息）
+        // Initialize context (set system prompts and restore active messages)
         this.messageContextManager.initializeContext(currentProfile, messages);
 
-        // 清除加载指示器
+        // Clear loading indicator
         const loadingIndicator = document.getElementById("chat-loading-indicator");
         if (loadingIndicator) {
             loadingIndicator.remove();
         }
 
-        // 清空消息容器，以便重新加载消息
+        // Clear the message container to reload messages
         document.querySelector("#messages").innerHTML = "";
 
-        // 加载此聊天的消息
+        // Load messages for this chat
         await this.messageManager.loadMessages(chatId);
 
-        // 如果没有消息，显示欢迎信息
+        // If there are no messages, display the welcome message
         if (document.querySelector("#messages").innerHTML === "") {
             this.showWelcomeMessage();
         }
@@ -747,13 +757,13 @@ class UIManager {
         try {
             for (const attachment of attachments) {
                 try {
-                    // 如果是已经存在的附件，直接使用其文件名
+                    // If it is an existing attachment, use its file name directly
                     if (attachment.isExistingAttachment) {
                         uploadedUrls.push(attachment.fileName);
                         continue;
                     }
                     
-                    // 否则上传新附件
+                    // Otherwise upload a new attachment
                     const response = await uploadAttachment(attachment.content, attachment.fileName);
                     if (response) {
                         uploadedUrls.push(response);
