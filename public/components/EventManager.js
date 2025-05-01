@@ -264,15 +264,15 @@ class EventManager {
 
             e.stopPropagation(); // 阻止事件冒泡以避免触发图片预览
             
-            // 获取消息元素
+            // 获取消息元素及当前消息ID
             const messageElement = editButton.closest(".message");
             if (!messageElement) {
                 console.error("Message element not found");
                 return;
             }
 
-            const messageId = messageElement.dataset.messageId;
-            if (!messageId) {
+            const currentMessageId = messageElement.dataset.messageId;
+            if (!currentMessageId) {
                 console.error("Message ID not found");
                 return;
             }
@@ -285,8 +285,78 @@ class EventManager {
 
             const imageUrl = imgElement.src;
             
-            // 调用showImagePreviewForEdit方法统一处理图片预览和编辑设置
-            this.showImagePreviewForEdit(messageId, imageUrl);
+            // 设置当前选中的消息ID，这是编辑时使用的图片源
+            this.uiManager.selectedMessageId = currentMessageId;
+            this.uiManager.selectedImageUrl = imageUrl;
+            
+            // 准备编辑
+            const messageInput = document.getElementById("message-input");
+            if (messageInput) {
+                messageInput.value = "/gpt-image-1-edit ";
+                messageInput.focus();
+            }
+
+            // 准备预览区域
+            const previewList = document.getElementById("attachment-preview-list");
+            const attachmentContainer = document.getElementById("attachment-preview-container");
+
+            if (!previewList || !attachmentContainer) {
+                console.error("Preview container not found");
+                return;
+            }
+
+            // 清除现有预览
+            previewList.innerHTML = "";
+
+            // 创建预览项
+            const previewItem = document.createElement("div");
+            previewItem.classList.add("attachment-preview-item");
+            previewItem.dataset.url = imageUrl;
+            previewItem.dataset.isExisting = "true";
+            previewItem.dataset.sourceMessageId = currentMessageId;
+
+            const fileName = imageUrl.split("/").pop() || "image.png";
+            let fileType = "image/png";
+            if (fileName.toLowerCase().endsWith(".jpg") || fileName.toLowerCase().endsWith(".jpeg")) {
+                fileType = "image/jpeg";
+            } else if (fileName.toLowerCase().endsWith(".webp")) {
+                fileType = "image/webp";
+            } else if (fileName.toLowerCase().endsWith(".gif")) {
+                fileType = "image/gif";
+            }
+
+            previewItem.dataset.fileType = fileType;
+            previewItem.dataset.fileName = fileName;
+
+            previewItem.innerHTML = `
+                <div class="attachment-thumbnail" style="background-image: url('${imageUrl}')">
+                    <div class="attachment-delete-btn"><i class="fas fa-times"></i></div>
+                </div>
+                <div class="attachment-file-name">${fileName}</div>`;
+
+            // 添加删除按钮事件
+            const deleteBtn = previewItem.querySelector(".attachment-delete-btn");
+            deleteBtn.addEventListener("click", (evt) => {
+                evt.stopPropagation();
+                previewItem.remove();
+                if (previewList.children.length === 0) {
+                    attachmentContainer.classList.add("hidden");
+                }
+                // 清除选中状态
+                this.uiManager.selectedMessageId = null;
+                this.uiManager.selectedImageUrl = null;
+            });
+
+            // 添加到预览区
+            previewList.appendChild(previewItem);
+            attachmentContainer.classList.remove("hidden");
+
+            console.log("Set up image edit:", {
+                messageId: currentMessageId,
+                imageUrl: imageUrl,
+                fileType: fileType,
+                fileName: fileName
+            });
         });
     }
 
