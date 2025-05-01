@@ -201,25 +201,38 @@ class GptImageController {
 
             // Handle main image - use the original buffer
             const imageBuffer = imageFile.buffer;
+            const imageOriginalName = imageFile.originalname;
             
-            console.log("Using buffer:", {
-                bufferLength: imageBuffer.length,
-                isBuffer: Buffer.isBuffer(imageBuffer),
-                mimetype: imageFile.mimetype
+            console.log("Processing image:", {
+                name: imageOriginalName,
+                size: imageBuffer.length,
+                type: imageFile.mimetype
             });
 
-            // Keep original image format and filename
-            let processedImageBuffer = imageBuffer;
+            // Determine file extension based on MIME type
+            const mimeToExt = {
+                "image/jpeg": ".jpg",
+                "image/jpg": ".jpg",
+                "image/png": ".png",
+                "image/webp": ".webp",
+                "image/gif": ".gif"
+            };
             
-            // Use original filename if available, otherwise generate one with proper extension
-            const fileName = imageFile.originalname || ensureCorrectFileExtension("image", imageFile.mimetype);
-            console.log(`Using file name: ${fileName} with MIME type: ${imageFile.mimetype}`);
+            let fileName = imageOriginalName;
+            const fileExt = mimeToExt[imageFile.mimetype] || ".png";
+
+            // Ensure filename has correct extension
+            if (!fileName.toLowerCase().endsWith(fileExt)) {
+                fileName = fileName.replace(/\.[^/.]+$/, "") + fileExt;
+            }
             
-            // Append the buffer directly with metadata
-            formData.append("image", processedImageBuffer, {
+            console.log(`Using file: ${fileName} (${imageFile.mimetype})`);
+
+            // Create blob with correct MIME type and append to form
+            formData.append("image", imageBuffer, {
                 filename: fileName,
                 contentType: imageFile.mimetype,
-                knownLength: processedImageBuffer.length
+                knownLength: imageBuffer.length
             });
 
             // If there is a mask file, add it to formData
