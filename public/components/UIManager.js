@@ -370,26 +370,30 @@ class UIManager {
             }
         });
 
-        // Clean up the UI
-        this.clearMessageInput(); // Clear the message input
-        
-        // Ensure that all attachment previews are cleared, including images marked as existing
-        const attachmentPreviewContainer = document.getElementById("attachment-preview-container");
-        if (attachmentPreviewContainer && attachmentPreviewList) {
-            attachmentPreviewList.innerHTML = "";
-            attachmentPreviewContainer.classList.add("hidden");
-        } else {
-            // If DOM elements do not exist, use the fileUploader fallback method
-            fileUploader.clearPreview();
-        }
-        
-        messageInput.blur();
-    
         // If both message and attachments are empty, return
         if (!message && attachments.length === 0) return;
     
-        // Call sendMessage, passing in message and attachments
-        await this.messageManager.sendMessage(message, attachments);
+        try {
+            // Call sendMessage before clearing UI
+            await this.messageManager.sendMessage(message, attachments);
+            
+            // Only clean up UI after successful message sending
+            this.clearMessageInput(); // Clear the message input
+            messageInput.blur();
+            
+            // Clear preview area
+            const attachmentPreviewContainer = document.getElementById("attachment-preview-container");
+            if (attachmentPreviewContainer && attachmentPreviewList) {
+                attachmentPreviewList.innerHTML = "";
+                attachmentPreviewContainer.classList.add("hidden");
+            } else {
+                fileUploader.clearPreview();
+            }
+        } catch (error) {
+            console.error("Error sending message:", error);
+            // Don't clear the UI if there was an error
+            throw error;
+        }
     }
 
     // UI State Management Methods - delegated to UIStateManager

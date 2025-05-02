@@ -36,225 +36,87 @@ class ImageEditMessageProcessor extends MessageProcessor {
         const newFormData = new FormData();
         newFormData.append("prompt", prompt);
 
-        // Show preview container
-        const previewContainer = document.getElementById("attachment-preview-container");
-        const previewList = document.getElementById("attachment-preview-list");
-        if (!previewContainer || !previewList) {
-            throw new Error("Preview container not found");
+        // Get the preview item - don't clear previews yet to avoid visual jumping
+        const previewItem = document.querySelector(".attachment-preview-item[data-is-existing='true']");
+        if (!previewItem) {
+            throw new Error("No image available in preview");
         }
 
-        // Clear existing previews
-        previewList.innerHTML = "";
+        // Get image information from preview item
+        const imageUrl = previewItem.dataset.url;
+        const fileName = previewItem.dataset.fileName || imageUrl.split("/").pop() || "image.png";
+        const mimeType = previewItem.dataset.fileType || this._getMimeTypeFromFileName(fileName);
 
-        // Check if there is already an image in the preview area (added by the edit button)
-        const existingPreviewItems = document.querySelectorAll(".attachment-preview-item[data-is-existing='true']");
-        let hasExistingPreview = false;
-        let existingImageUrl = null;
-        let existingFileName = null;
-        let existingFileType = null;
-        
-        if (existingPreviewItems.length > 0) {
-            hasExistingPreview = true;
-            const previewItem = existingPreviewItems[0];
-            existingImageUrl = previewItem.getAttribute("data-url");
-            existingFileName = previewItem.getAttribute("data-file-name") || existingImageUrl.split("/").pop() || "image.jpg";
-            existingFileType = previewItem.getAttribute("data-file-type") || "image/jpeg";
-            
-            console.log("Using existing preview image:", {
-                url: existingImageUrl,
-                fileName: existingFileName,
-                fileType: existingFileType
-            });
-        }
-
-        // Check if there's a FormData from the modal
-        const formData = window.currentEditFormData;
-        
-        if (formData) {
-            // Use files from the modal's FormData
-            const oldImage = formData.get("image");
-            if (oldImage) {
-                // Ensure original filename and MIME type are preserved
-                const originalName = oldImage.name || "image.jpg";
-                
-                // Determine extension based on file type
-                let fileExt = ".jpg";
-                if (oldImage.type) {
-                    const mimeToExt = {
-                        "image/jpeg": ".jpg",
-                        "image/jpg": ".jpg",
-                        "image/png": ".png",
-                        "image/webp": ".webp",
-                        "image/gif": ".gif"
-                    };
-                    fileExt = mimeToExt[oldImage.type] || ".jpg";
-                }
-                
-                // Correct the filename if it doesn't have the right extension
-                let correctFileName = originalName;
-                if (!correctFileName.toLowerCase().endsWith(fileExt)) {
-                    // Remove any existing extension
-                    correctFileName = correctFileName.replace(/\.[^/.]+$/, "");
-                    // Add the correct extension
-                    correctFileName += fileExt;
-                }
-                
-                console.log(`Using original image: ${correctFileName} with MIME type: ${oldImage.type}`);
-                newFormData.append("image", oldImage, correctFileName);
-                
-                // If there is no existing preview, add a preview
-                if (!hasExistingPreview) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        this._addPreviewItem(e.target.result, correctFileName);
-                    };
-                    reader.readAsDataURL(oldImage);
-                }
-            }
-            
-            const oldMask = formData.get("mask");
-            if (oldMask) {
-                // Ensure original filename and MIME type are preserved
-                const originalMaskName = oldMask.name || "mask.png";
-                
-                // Determine extension based on file type
-                let maskExt = ".png";
-                if (oldMask.type) {
-                    const mimeToExt = {
-                        "image/jpeg": ".jpg",
-                        "image/jpg": ".jpg",
-                        "image/png": ".png",
-                        "image/webp": ".webp",
-                        "image/gif": ".gif"
-                    };
-                    maskExt = mimeToExt[oldMask.type] || ".png";
-                }
-                
-                // Correct the filename if it doesn't have the right extension
-                let correctMaskName = originalMaskName;
-                if (!correctMaskName.toLowerCase().endsWith(maskExt)) {
-                    // Remove any existing extension
-                    correctMaskName = correctMaskName.replace(/\.[^/.]+$/, "");
-                    // Add the correct extension
-                    correctMaskName += maskExt;
-                }
-                
-                console.log(`Using mask image: ${correctMaskName} with MIME type: ${oldMask.type}`);
-                newFormData.append("mask", oldMask, correctMaskName);
-                
-                // Add mask preview
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this._addPreviewItem(e.target.result, correctMaskName);
-                };
-                reader.readAsDataURL(oldMask);
-            }
-        } else if (hasExistingPreview && existingImageUrl) {
-            // Use the image already displayed in the preview area
-            try {
-                const response = await fetch(existingImageUrl);
-                
-                // Determine the file type from the URL before fetching
-                let expectedMimeType = "image/jpeg"; // default type
-                const urlLower = existingImageUrl.toLowerCase();
-                if (urlLower.endsWith(".png")) {
-                    expectedMimeType = "image/png";
-                } else if (urlLower.endsWith(".webp")) {
-                    expectedMimeType = "image/webp";
-                } else if (urlLower.endsWith(".gif")) {
-                    expectedMimeType = "image/gif";
-                }
-
-                // Create a new blob with the correct MIME type
-                const arrayBuffer = await response.arrayBuffer();
-                const blob = new Blob([arrayBuffer], { type: expectedMimeType });
-                
-                // Keep the original filename from the URL
-                const urlParts = existingImageUrl.split("/");
-                const fileName = urlParts[urlParts.length - 1] || "image.png";
-                
-                console.log(`Using image: ${fileName} with forced type: ${expectedMimeType}`);
-                newFormData.append("image", blob, fileName);
-                // No need to add preview as it already exists
-            } catch (error) {
-                console.error("Failed to fetch existing preview image:", error);
-                throw new Error("Failed to fetch existing image for editing");
-            }
-        } else {
-            // Try to get the image from message history
-            const currentMessage = this.messageManager.uiManager.storageManager.getMessage(
-                this.messageManager.uiManager.currentChatId,
-                this.messageManager.uiManager.selectedMessageId
-            );
-
-            if (!currentMessage || !currentMessage.attachmentUrls) {
-                throw new Error("No image available for editing");
-            }
-
-            // Download the image from the attachment URL
-            try {
-                const response = await fetch(currentMessage.attachmentUrls);
-                const blob = await response.blob();
-                
-                // get the base name from the URL
-                const urlParts = currentMessage.attachmentUrls.split("/");
-                let baseName = urlParts[urlParts.length - 1] || "image";
-                
-                // remove any existing extension
-                baseName = baseName.replace(/\.[^/.]+$/, "");
-                
-                // determine the correct file extension based on the blob type
-                let fileExtension = ".jpg"; // default extension
-                if (blob.type) {
-                    const mimeToExt = {
-                        "image/jpeg": ".jpg",
-                        "image/jpg": ".jpg",
-                        "image/png": ".png",
-                        "image/webp": ".webp",
-                        "image/gif": ".gif"
-                    };
-                    fileExtension = mimeToExt[blob.type] || ".jpg";
-                }
-                
-                // Combine filename with the correct MIME type and extension
-                const fileName = baseName + fileExtension;
-                console.log(`Using history image: ${fileName} with type: ${blob.type}`);
-                newFormData.append("image", blob, fileName);
-                
-            } catch (error) {
-                console.error("Failed to fetch image from attachment:", error);
-                throw new Error("Failed to fetch image for editing");
-            }
-        }
-
-        console.log("Sending edit request with:", {
-            prompt,
-            hasImage: !!newFormData.get("image"),
-            hasMask: !!newFormData.get("mask")
-        });
-        
         try {
-            const data = await apiClient.gptImage1Edit(newFormData);
-            console.log("GPT-Image-1 Edit API response:", data);
+            console.log("Processing image from preview:", {
+                url: imageUrl,
+                fileName: fileName,
+                mimeType: mimeType
+            });
+
+            // Fetch and process the image
+            const response = await fetch(imageUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+            }
             
-            // Clear the attachment preview area
-            this._clearAttachmentPreview();
+            const arrayBuffer = await response.arrayBuffer();
+            const blob = new Blob([arrayBuffer], { type: mimeType });
             
-            // If the server has processed and uploaded the image
-            if (data && data.success) {
-                // Use the attachment URL and revised prompt returned by the server
-                return {
-                    message: data.data.revised_prompt || prompt,
-                    attachmentUrls: data.data.url
-                };
-            } else {
-                throw new Error("Failed to edit image: API returned unsuccessful response");
+            // Add image to FormData
+            newFormData.append("image", blob, fileName);
+
+            // Add mask if available (from modal)
+            if (window.currentEditFormData) {
+                const maskFile = window.currentEditFormData.get("mask");
+                if (maskFile) {
+                    const maskFileName = maskFile.name || "mask.png";
+                    const maskMimeType = maskFile.type || "image/png";
+                    console.log("Adding mask:", { fileName: maskFileName, type: maskMimeType });
+                    newFormData.append("mask", maskFile, maskFileName);
+                }
+            }
+
+            console.log("Sending edit request with:", {
+                prompt,
+                hasImage: !!newFormData.get("image"),
+                hasMask: !!newFormData.get("mask")
+            });
+            
+            try {
+                const data = await apiClient.gptImage1Edit(newFormData);
+                console.log("GPT-Image-1 Edit API response:", data);
+                
+                // Clear the attachment preview area
+                this._clearAttachmentPreview();
+                
+                // If the server has processed and uploaded the image
+                if (data && data.success) {
+                    // Use the attachment URL and revised prompt returned by the server
+                    return {
+                        message: data.data.revised_prompt || prompt,
+                        attachmentUrls: data.data.url
+                    };
+                } else {
+                    throw new Error("Failed to edit image: API returned unsuccessful response");
+                }
+            } catch (error) {
+                // Clear the attachment preview area (even if an error occurs)
+                this._clearAttachmentPreview();
+                
+                console.error("Image edit API error:", error);
+                if (error.response) {
+                    console.error("API error details:", {
+                        status: error.response.status,
+                        data: error.response.data
+                    });
+                    throw new Error(`Failed to edit image: API error ${error.response.status}`);
+                }
+                throw error;
             }
         } catch (error) {
-            // Clear the attachment preview area (even if an error occurs)
             this._clearAttachmentPreview();
-            
-            console.error("Image edit API error:", error);
+            console.error("Image edit error:", error);
             if (error.response) {
                 console.error("API error details:", {
                     status: error.response.status,
@@ -266,6 +128,19 @@ class ImageEditMessageProcessor extends MessageProcessor {
         }
     }
     
+    // Helper method to get MIME type from file name
+    _getMimeTypeFromFileName(fileName) {
+        const ext = fileName.toLowerCase().split(".").pop();
+        const mimeTypes = {
+            "jpg": "image/jpeg",
+            "jpeg": "image/jpeg",
+            "png": "image/png",
+            "webp": "image/webp",
+            "gif": "image/gif"
+        };
+        return mimeTypes[ext] || "image/png";
+    }
+
     // Clear the attachment preview area
     _clearAttachmentPreview() {
         const previewContainer = document.getElementById("attachment-preview-container");
