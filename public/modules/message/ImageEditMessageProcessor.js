@@ -36,14 +36,20 @@ class ImageEditMessageProcessor extends MessageProcessor {
         const newFormData = new FormData();
         newFormData.append("prompt", prompt);
 
-        // Get the preview item - don't clear previews yet to avoid visual jumping
-        const previewItem = document.querySelector(".attachment-preview-item[data-is-existing='true']");
+        // Try to get preview item with data-is-existing first (for Edit this image functionality)
+        let previewItem = document.querySelector(".attachment-preview-item[data-is-existing='true']");
+        
+        // If not found, try to get any preview item (for new uploads from modal)
+        if (!previewItem) {
+            previewItem = document.querySelector(".attachment-preview-item");
+        }
+        
         if (!previewItem) {
             throw new Error("No image available in preview");
         }
 
         // Get image information from preview item
-        const imageUrl = previewItem.dataset.url;
+        const imageUrl = previewItem.dataset.url || previewItem.dataset.content; // support both url and content
         const fileName = previewItem.dataset.fileName || imageUrl.split("/").pop() || "image.png";
         const mimeType = previewItem.dataset.fileType || this._getMimeTypeFromFileName(fileName);
 

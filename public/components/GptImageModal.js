@@ -234,6 +234,10 @@ export default class GptImageModal {
 
         const reader = new FileReader();
         reader.onload = (e) => {
+            // Store the file info in the preview div's dataset
+            preview.dataset.fileType = file.type;
+            preview.dataset.fileName = file.name;
+            preview.dataset.content = e.target.result;
             preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
         };
         reader.readAsDataURL(file);
@@ -378,6 +382,9 @@ export default class GptImageModal {
                 previewItem.classList.add("attachment-preview-item");
                 previewItem.dataset.fileName = attachment.fileName;
                 previewItem.dataset.content = attachment.content;
+                previewItem.dataset.url = attachment.content;  // Add data-url attribute
+                previewItem.dataset.isExisting = "true";  // Add data-is-existing attribute
+                previewItem.dataset.fileType = attachment.fileType || "image/png"; // Add fileType
                 
                 previewItem.innerHTML = `
                     <div class="attachment-thumbnail" style="background-image: url('${attachment.content}')">
