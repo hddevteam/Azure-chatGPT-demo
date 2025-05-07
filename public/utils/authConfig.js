@@ -10,7 +10,7 @@ const cloudInstance = "https://login.microsoftonline.com/";
 const tenantId = "a5fb26eb-4aac-4ae5-b7d2-5d2880183d61";
 const scopes = "api://812a857f-f189-4aeb-b086-45f2cf69c701/user_impersonation";
 const clientId = "812a857f-f189-4aeb-b086-45f2cf69c701";
-const redirectUri = "https://chat.aiassist007.com/";
+const redirectUri = "https://gptdemomvp.azurewebsites.net/";
 
 // const cloudInstance = process.env.CLOUD_INSTANCE;
 // const tenantId = process.env.TENANT_ID;
