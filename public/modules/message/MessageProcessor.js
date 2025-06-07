@@ -1,21 +1,21 @@
-// MessageProcessor.js - 消息处理器基类
+// MessageProcessor.js - Base class for message processors
 class MessageProcessor {
     constructor(messageManager) {
         this.messageManager = messageManager;
         this.uiManager = messageManager.uiManager;
     }
 
-    // 处理消息的抽象方法，子类需要实现
+    // Abstract method for processing messages, must be implemented by subclasses
     async process(message, attachments = []) {
         throw new Error("Method 'process' must be implemented by subclasses");
     }
 
-    // 验证消息输入
+    // Validate message input
     async validateInput(message, attachments = [], isRetry = false) {
         return this.messageManager.validateInput(message, attachments, isRetry);
     }
 
-    // 保存和显示用户消息
+    // Save and display user message
     async saveAndDisplayUserMessage(message, attachmentUrls = "") {
         const timestamp = new Date().toISOString();
         const messageId = this.uiManager.generateId();
@@ -26,10 +26,10 @@ class MessageProcessor {
             messageId: messageId, 
             isActive: true, 
             attachmentUrls: attachmentUrls,
-            createdAt: timestamp  // 只设置createdAt，不设置timestamp
+            createdAt: timestamp  // Only set createdAt, not timestamp
         };
 
-        // 添加用户消息到界面
+        // Add user message to the interface
         this.messageManager.addMessage(
             newMessage.role,
             newMessage.content,
@@ -40,20 +40,20 @@ class MessageProcessor {
             newMessage.attachmentUrls
         );
 
-        // 保存到存储并同步
+        // Save to storage and sync
         this.uiManager.app.prompts.addPrompt(newMessage);
         this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
         this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
         
-        // 强制生成标题
+        // Force generate title
         await this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId, true);
 
         return { message: newMessage, messageId };
     }
 
-    // 处理 AI 响应并显示
+    // Process AI response and display
     async handleAIResponse(data, timestamp) {
-        const responseTimestamp = new Date().toISOString(); // 新的时间戳，表示实际响应时间
+        const responseTimestamp = new Date().toISOString(); // New timestamp representing actual response time
         const newMessage = {
             role: "assistant",
             content: data.message || data.content,
@@ -62,7 +62,7 @@ class MessageProcessor {
             searchResults: data.searchResults,
             metadata: data.metadata,
             attachmentUrls: data.attachmentUrls || "",
-            createdAt: responseTimestamp  // 使用新的响应时间作为创建时间
+            createdAt: responseTimestamp  // Use new response time as creation time
         };
 
         this.messageManager.addMessage(
@@ -79,13 +79,13 @@ class MessageProcessor {
         this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
         this.uiManager.app.prompts.addPrompt(newMessage);
         
-        // 强制生成标题
+        // Force generate title
         await this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId, true);
         
         return data;
     }
     
-    // 处理搜索结果 - 确保唯一性并排序
+    // Process search results - ensure uniqueness and sorting
     processSearchResults(searchResults) {
         return searchResults
             .filter((result, index, self) => 

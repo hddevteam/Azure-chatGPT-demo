@@ -1,18 +1,18 @@
 // /utils/ModelDropdownManager.js
 
 /**
- * 管理模型选择模态对话框的类
+ * Class for managing model selection modal dialog
  */
 export default class ModelDropdownManager {
     /**
-     * @param {Object} app - 应用实例
-     * @param {string} switchElementId - 模型切换按钮的选择器
+     * @param {Object} app - Application instance
+     * @param {string} switchElementId - Selector for model switch button
      */
     constructor(app, switchElementId) {
         this.app = app;
         this.switchElement = document.querySelector(switchElementId);
         
-        // 支持的模型列表和它们的显示名称
+        // Supported model list and their display names
         this.supportedModels = {
             "gpt-4o": "GPT-4O",
             "gpt-4o-mini": "GPT-4O-MINI",
@@ -28,7 +28,7 @@ export default class ModelDropdownManager {
             "gpt-4.1-mini": "GPT-4.1 MINI"
         };
         
-        // 默认模型
+        // Default model
         this.model = "gpt-4o";
         
         this.createModal();
@@ -37,7 +37,7 @@ export default class ModelDropdownManager {
     }
 
     createModal() {
-        // 如果已存在则移除
+        // Remove if already exists
         const existingModal = document.getElementById("model-select-modal");
         if (existingModal) {
             existingModal.remove();
@@ -71,26 +71,26 @@ export default class ModelDropdownManager {
     }
 
     setupEventListeners() {
-        // 点击切换按钮显示模态框
+        // Click switch button to show modal
         this.switchElement.addEventListener("click", () => {
             this.showModal();
         });
 
-        // 关闭按钮和点击外部关闭
+        // Close button and click outside to close
         this.modal.addEventListener("click", (event) => {
             if (event.target === this.modal || event.target.closest(".modal-close")) {
                 this.hideModal();
             }
         });
 
-        // ESC键关闭
+        // ESC key to close
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape" && this.isVisible()) {
                 this.hideModal();
             }
         });
 
-        // 选择模型
+        // Select model
         const modelOptions = this.modal.querySelectorAll(".model-option");
         modelOptions.forEach(option => {
             option.addEventListener("click", () => {
@@ -144,19 +144,19 @@ export default class ModelDropdownManager {
         
         this.model = model;
         
-        // 更新切换按钮文本和样式
+        // Update switch button text and style
         this.switchElement.textContent = this.supportedModels[model];
         
-        // 更新切换按钮的类名
+        // Update switch button class name
         Object.keys(this.supportedModels).forEach(modelKey => {
             this.switchElement.classList.remove(modelKey);
         });
         this.switchElement.classList.add(model);
         
-        // 更新应用实例的模型
+        // Update application instance model
         this.app.model = model;
         
-        // 保存到本地存储
+        // Save to local storage
         try {
             localStorage.setItem("selectedModel", model);
         } catch (e) {

@@ -7,7 +7,7 @@ const path = require("path");
 
 exports.uploadAttachment = async (req, res) => {
     if (!req.file) {
-        return res.status(400).json({ error: 'No file provided' });
+        return res.status(400).json({ error: "No file provided" });
     }
 
     const fileContent = req.file.buffer;
@@ -16,7 +16,7 @@ exports.uploadAttachment = async (req, res) => {
     const containerName = "messageattachments";
 
     try {
-        // 使用时间戳创建唯一的文件名以避免冲突
+        // Use timestamp to create unique filename to avoid conflicts
         const timestamp = Date.now();
         const extension = path.extname(originalFileName);
         const timestampedFileName = `${timestamp}-${originalFileName}`;
@@ -27,7 +27,7 @@ exports.uploadAttachment = async (req, res) => {
     } catch (error) {
         console.error(`Failed to upload attachment: ${error.message}`);
         res.status(500).json({
-            error: 'Failed to upload attachment',
+            error: "Failed to upload attachment",
             message: error.message
         });
     }
@@ -35,13 +35,13 @@ exports.uploadAttachment = async (req, res) => {
 
 exports.uploadAttachmentAndUpdateMessage = async (req, res) => {
     const { chatId, messageId } = req.params;
-    const { fileContent, originalFileName } = req.body; // fileContent是一个Base64编码的字符串
+    const { fileContent, originalFileName } = req.body; // fileContent is a Base64 encoded string
 
     try {
-        const containerName = "messageattachments"; // 附件存储在这个容器中
+        const containerName = "messageattachments"; // Attachments are stored in this container
         const uploadResponse = await uploadFileToBlob(containerName, originalFileName, Buffer.from(fileContent, "base64"));
         console.log(uploadResponse);
-        // 更新消息的attachmentUrls字段
+        // Update the message's attachmentUrls field
         const tableClient = getTableClient("Messages");
         const entity = await tableClient.getEntity(chatId, messageId);
 
@@ -60,8 +60,8 @@ exports.uploadAttachmentAndUpdateMessage = async (req, res) => {
 
 exports.deleteAttachment = async (req, res) => {
     const { chatId, messageId } = req.params;
-    const attachmentUrl = req.body.attachmentUrl; // 通过请求体获取附件的完整URL
-    const containerName = "messageattachments"; // 附件所在的容器
+    const attachmentUrl = req.body.attachmentUrl; // Get complete attachment URL from request body
+    const containerName = "messageattachments"; // Container where attachments are stored
 
     try {
         const blobUrl = new URL(attachmentUrl);
@@ -69,7 +69,7 @@ exports.deleteAttachment = async (req, res) => {
 
         await deleteBlob(containerName, blobName);
 
-        // 从消息中移除附件URL
+        // Remove attachment URL from message
         const tableClient = getTableClient("Messages");
         const entity = await tableClient.getEntity(chatId, messageId);
         
@@ -105,7 +105,7 @@ exports.getCloudMessages = async (req, res) => {
         
         const messages = [];
         for await (const entity of iterator) {
-            // 处理从Blob存储中获取内容
+            // Process content retrieval from Blob storage
             if (entity.isContentInBlob) {
                 try {
                     entity.content = await getTextFromBlob(entity.content);
@@ -115,7 +115,7 @@ exports.getCloudMessages = async (req, res) => {
                 }
             }
 
-            // 反序列化JSON数据
+            // Deserialize JSON data
             if (entity.searchResults) {
                 try {
                     entity.searchResults = JSON.parse(entity.searchResults);
@@ -151,16 +151,16 @@ exports.createCloudMessage = async (req, res) => {
     try {
         const tableClient = getTableClient("Messages");
 
-        // 预处理消息数据，确保所有字段都是Azure Table Storage支持的类型
+        // Pre-process message data to ensure all fields are supported by Azure Table Storage
         const processedMessage = {
             ...message,
-            // 确保searchResults被序列化为字符串
+            // Ensure searchResults is serialized as string
             searchResults: message.searchResults ? JSON.stringify(message.searchResults) : null,
-            // 确保其他可能的对象类型也被序列化
+            // Ensure other possible object types are also serialized
             metadata: message.metadata ? JSON.stringify(message.metadata) : null
         };
 
-        // 检查消息内容大小并处理blob存储
+        // Check message content size and handle blob storage
         if (Buffer.byteLength(processedMessage.content, "utf16le") > 32 * 1024) {
             const blobName = `${chatId}_${message.messageId}`;
             const blobUrl = await uploadTextToBlob("messagecontents", blobName, processedMessage.content);
@@ -179,10 +179,10 @@ exports.createCloudMessage = async (req, res) => {
         await tableClient.createEntity(entity);
         console.log("Message created successfully:", entity);
 
-        // 获取创建的实体并在返回之前处理数据
+        // Get created entity and process data before returning
         const createdEntity = await tableClient.getEntity(chatId, message.messageId);
         
-        // 反序列化存储的JSON数据
+        // Deserialize stored JSON data
         if (createdEntity.searchResults) {
             try {
                 createdEntity.searchResults = JSON.parse(createdEntity.searchResults);
@@ -216,25 +216,25 @@ exports.updateCloudMessage = async (req, res) => {
     
     try {
         const tableClient = getTableClient("Messages");
-        // 获取当前实体
+        // Get current entity
         const entity = await tableClient.getEntity(chatId, messageId);
 
-        // 如果消息内容在Blob中且有新内容，则删除旧的Blob
+        // If message content is in Blob and there's new content, delete the old Blob
         if (message.content && entity.isContentInBlob) {
             const blobUrl = new URL(entity.content);
             const blobName = blobUrl.pathname.substring(blobUrl.pathname.lastIndexOf("/") + 1);
             await deleteBlob("messagecontents", blobName);
         }
 
-        // 处理新的消息数据
+        // Process new message data
         const processedMessage = {
             ...message,
-            // 序列化复杂数据类型
+            // Serialize complex data types
             searchResults: message.searchResults ? JSON.stringify(message.searchResults) : entity.searchResults,
             metadata: message.metadata ? JSON.stringify(message.metadata) : entity.metadata
         };
 
-        // 检查新内容是否需要存储到Blob
+        // Check if new content needs to be stored in Blob
         let blobUrl;
         if (message.content && Buffer.byteLength(message.content, "utf16le") > 32 * 1024) {
             const blobName = `${chatId}_${messageId}`;
@@ -246,17 +246,17 @@ exports.updateCloudMessage = async (req, res) => {
             processedMessage.isContentInBlob = false;
         }
 
-        // 更新实体
+        // Update entity
         await tableClient.updateEntity({
             partitionKey: chatId,
             rowKey: messageId,
             ...processedMessage
         }, "Merge");
 
-        // 获取更新后的实体并处理返回数据
+        // Get updated entity and process return data
         const updatedEntity = await tableClient.getEntity(chatId, messageId);
         
-        // 反序列化数据以返回
+        // Deserialize data for return
         if (updatedEntity.searchResults) {
             try {
                 updatedEntity.searchResults = JSON.parse(updatedEntity.searchResults);
@@ -275,7 +275,7 @@ exports.updateCloudMessage = async (req, res) => {
             }
         }
 
-        // 如果内容在Blob中，获取实际内容
+        // If content is in Blob, get actual content
         if (updatedEntity.isContentInBlob) {
             try {
                 updatedEntity.content = await getTextFromBlob(updatedEntity.content);
@@ -300,12 +300,12 @@ exports.deleteCloudMessage = async (req, res) => {
     try {
         const tableClient = getTableClient("Messages");
 
-        // 检索消息实体
+        // Retrieve message entity
         const entity = await tableClient.getEntity(chatId, messageId);
     
-        // 1. 如果消息内容在Blob中，删除Blob
+        // 1. If message content is in Blob, delete Blob
         if (entity.isContentInBlob) {
-            console.log("删除Blob存储的消息内容");
+            console.log("Deleting message content from Blob storage");
             const blobName = entity.content.substring(entity.content.lastIndexOf("/") + 1);
             try {
                 await deleteBlob("messagecontents", blobName);
@@ -315,12 +315,12 @@ exports.deleteCloudMessage = async (req, res) => {
             }
         }
 
-        // 2. 删除相关的附件
+        // 2. Delete related attachments
         if (entity.attachmentUrls) {
-            console.log("删除消息相关的附件");
+            console.log("Deleting message-related attachments");
             const attachments = entity.attachmentUrls.split(";");
             for (const url of attachments) {
-                if (!url) continue; // 跳过空URL
+                if (!url) continue; // Skip empty URLs
                 const blobName = url.split("/").pop();
                 try {
                     await deleteBlob("messageattachments", blobName);
@@ -331,7 +331,7 @@ exports.deleteCloudMessage = async (req, res) => {
             }
         }
 
-        // 3. 从Table Storage中删除消息实体
+        // 3. Delete message entity from Table Storage
         await tableClient.deleteEntity(chatId, messageId);
         console.log("Message entity deleted");
         
@@ -344,7 +344,7 @@ exports.deleteCloudMessage = async (req, res) => {
 
 exports.uploadDocument = async (req, res) => {
     if (!req.file) {
-        return res.status(400).json({ error: 'No file provided' });
+        return res.status(400).json({ error: "No file provided" });
     }
 
     const fileContent = req.file.buffer;
@@ -355,15 +355,15 @@ exports.uploadDocument = async (req, res) => {
     const baseName = path.basename(originalFileName, extension);
 
     try {
-        // 创建带时间戳的文件名
+        // Create filename with timestamp
         const timestampedFileName = `${Date.now()}-${originalFileName}`;
-        // 上传原始文件
+        // Upload original file
         const blobOriginal = await uploadFileToBlob(containerName, timestampedFileName, fileContent, username);
         
-        // 处理文档并生成处理后的版本
+        // Process document and generate processed version
         try {
             const processedContent = await processDocument(fileContent, originalFileName);
-            // 使用相同的时间戳创建处理后的文件名
+            // Use the same timestamp to create processed filename
             const processedFileName = `${Date.now()}-${baseName}_processed.md`;
             const processedBlob = await uploadFileToBlob(
                 containerName, 
@@ -379,20 +379,20 @@ exports.uploadDocument = async (req, res) => {
                 processedFileName: processedFileName
             });
         } catch (processingError) {
-            // 如果处理失败，仍然返回原始文件信息，但带有错误信息
+            // If processing fails, still return original file info with error message
             res.status(422).json({
                 originalUrl: blobOriginal.url,
                 originalFileName: timestampedFileName,
                 error: {
                     message: processingError.message,
-                    type: 'ProcessingError'
+                    type: "ProcessingError"
                 }
             });
         }
     } catch (error) {
         console.error(`Failed to upload document: ${error.message}`);
         res.status(500).json({
-            error: 'Internal server error',
+            error: "Internal server error",
             message: error.message
         });
     }
@@ -409,18 +409,18 @@ exports.getDocumentStatus = async (req, res) => {
         if (exists) {
             const processedContent = await getTextFromBlob(`${containerName}/${processedBlobName}`);
             res.json({
-                status: 'completed',
+                status: "completed",
                 processedContent
             });
         } else {
             res.json({
-                status: 'processing'
+                status: "processing"
             });
         }
     } catch (error) {
         console.error(`Failed to get document status: ${error.message}`);
         res.status(500).json({
-            error: 'Internal server error',
+            error: "Internal server error",
             message: error.message
         });
     }
@@ -434,21 +434,21 @@ exports.getDocumentContent = async (req, res) => {
         const content = await getTextFromBlob(`${containerName}/${fileName}`);
         if (!content) {
             return res.status(404).json({
-                error: 'Document not found',
+                error: "Document not found",
                 message: `Could not find document: ${fileName}`
             });
         }
         res.json(content);
     } catch (error) {
         console.error(`Failed to get document content: ${error.message}`);
-        if (error.message.includes('Blob not found')) {
+        if (error.message.includes("Blob not found")) {
             return res.status(404).json({
-                error: 'Document not found',
+                error: "Document not found",
                 message: `Could not find document: ${fileName}`
             });
         }
         res.status(500).json({
-            error: 'Failed to retrieve document content',
+            error: "Failed to retrieve document content",
             message: error.message
         });
     }

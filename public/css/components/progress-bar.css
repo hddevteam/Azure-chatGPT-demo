@@ -30,7 +30,7 @@
     animation: 
         progressBarAnimation 2s ease-in-out infinite,
         progressBarGlow 1.5s ease-in-out infinite;
-    /* 添加一个持续的阴影效果 */
+    /* Add a continuous shadow effect */
     box-shadow: 0 0 4px rgba(74, 144, 226, 0.4);
 }
 
@@ -49,7 +49,7 @@
     }
 }
 
-/* Enhanced Glow Effect - 使用 filter 代替高度变化 */
+/* Enhanced Glow Effect - Use filter instead of height changes */
 @keyframes progressBarGlow {
     0% {
         filter: brightness(1) drop-shadow(0 0 1px rgba(74, 144, 226, 0.4));
@@ -100,7 +100,7 @@
         );
     }
     
-    /* 调整暗色主题下的阴影效果 */
+    /* Adjust shadow effects for dark theme */
     .progress-bar.active {
         box-shadow: 0 0 4px rgba(95, 164, 230, 0.5);
     }

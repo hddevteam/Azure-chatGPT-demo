@@ -455,8 +455,8 @@ export default class IntercomModal {
                 config.apiKey, 
                 config.deployment,
                 true,
-                this.currentSummary,  // 传入之前保存的summary
-                currentPrompt        // 传入当前prompt
+                this.currentSummary,  // Pass in previously saved summary
+                currentPrompt        // Pass in current prompt
             );
             
             // Set additional configs

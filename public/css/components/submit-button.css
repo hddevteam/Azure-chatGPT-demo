@@ -19,7 +19,7 @@
   overflow: hidden;
 }
 
-/* 确保在移动设备上按钮尺寸稳定 */
+/* Ensure stable button size on mobile devices */
 @media screen and (max-width: 768px) {
   #submitButton {
     box-sizing: border-box;

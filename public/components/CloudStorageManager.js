@@ -3,7 +3,7 @@ import * as api from "../utils/apiClient.js";
 
 class CloudStorageManager {
     constructor() {
-        // 可以持有必要的配置，例如API的base URL等
+        // Can hold necessary configuration, such as API base URL, etc.
     }
     
     async syncChatHistories(username) {

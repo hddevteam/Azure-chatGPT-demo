@@ -1,8 +1,8 @@
-// UIEventHandler.js - 处理所有 UI 相关的事件
+// UIEventHandler.js - Handle all UI-related events
 class UIEventHandler {
     constructor(uiManager) {
         this.uiManager = uiManager;
-        // 绑定事件处理函数到实例，以便可以作为回调函数使用
+        // Bind event handler functions to instance, so they can be used as callbacks
         this.boundHideAIActorOnOutsideClick = this.hideAIActorOnOutsideClick.bind(this);
         this.handleClickOutsideCreateAIActorModal = this.clickOutsideCreateAIActorModal.bind(this);
         this.handleResize = this.handleResize.bind(this);
@@ -18,7 +18,7 @@ class UIEventHandler {
         this.setupResizeHandler();
     }
 
-    // 设置窗口 resize 事件处理程序
+    // Set window resize event handler
     setupResizeHandler() {
         let resizeTimeout;
         window.addEventListener("resize", () => {
@@ -27,13 +27,13 @@ class UIEventHandler {
         });
     }
 
-    // 处理窗口 resize 事件
+    // Handle window resize event
     handleResize() {
-        // 检查模态框是否可见，如果不可见，不做任何操作
+        // Check if modal is visible, if not visible, do nothing
         const aiActorSettingsModal = document.getElementById("ai-actor-settings-wrapper");
         if (!aiActorSettingsModal) return;
         
-        // 添加移动设备适配类
+        // Add mobile device adaptation class
         if (window.innerWidth <= 768) {
             aiActorSettingsModal.classList.add("mobile-view");
         } else {
@@ -41,9 +41,9 @@ class UIEventHandler {
         }
     }
 
-    // 设置模态框关闭处理程序
+    // Set modal close handler
     setupModalCloseHandlers() {
-        // 为模态框添加点击外部关闭功能
+        // Add click outside to close functionality to modal
         const modalOverlay = document.querySelector(".modal-overlay");
         if (modalOverlay) {
             modalOverlay.addEventListener("click", (event) => {
@@ -51,12 +51,12 @@ class UIEventHandler {
                     const aiActorWrapper = document.getElementById("ai-actor-wrapper");
                     const aiActorSettingsWrapper = document.getElementById("ai-actor-settings-wrapper");
                     
-                    // 检查 AI Actor 列表是否可见
+                    // Check if AI Actor list is visible
                     if (aiActorWrapper && aiActorWrapper.classList.contains("visible")) {
                         this.uiManager.hideAIActorList();
                     }
                     
-                    // 检查设置面板是否处于模态模式
+                    // Check if settings panel is in modal mode
                     if (aiActorSettingsWrapper && aiActorSettingsWrapper.classList.contains("modal-mode")) {
                         this.uiManager.hideNewAIActorModal();
                     }
@@ -125,21 +125,21 @@ class UIEventHandler {
         document.body.appendChild(fileInput);
     }
 
-    // 设置"新建 AI Actor"按钮的点击事件处理
+    // Set up click event handler for "Create AI Actor" button
     setupNewAIActorButton() {
         const newAIActorButton = document.getElementById("new-ai-actor");
         if (newAIActorButton) {
             newAIActorButton.addEventListener("click", (event) => {
                 event.stopPropagation();
-                // 关闭 AI Actor 列表
+                // Close AI Actor list
                 this.uiManager.hideAIActorList();
-                // 显示新建 AI Actor 表单
+                // Show create AI Actor form
                 this.uiManager.showNewAIActorModal();
             });
         }
     }
 
-    // 处理点击 AI Actor 列表外部区域
+    // Handle clicks outside AI Actor list area
     hideAIActorOnOutsideClick(event) {
         const aiActorWrapper = document.getElementById("ai-actor-wrapper");
         if (aiActorWrapper && aiActorWrapper.classList.contains("visible")) {
@@ -150,11 +150,11 @@ class UIEventHandler {
         }
     }
 
-    // 处理点击"新建 AI Actor"模态框外部区域
+    // Handle clicks outside "Create AI Actor" modal area
     clickOutsideCreateAIActorModal(event) {
         const modalWrapper = document.getElementById("ai-actor-settings-wrapper");
         if (modalWrapper && modalWrapper.classList.contains("modal-mode")) {
-            // 检查点击是否在模态框内部
+            // Check if click is inside modal
             const isClickInside = modalWrapper.contains(event.target);
             if (!isClickInside) {
                 this.uiManager.hideNewAIActorModal();
@@ -162,7 +162,7 @@ class UIEventHandler {
         }
     }
 
-    // 处理用于处理点击模态框外部事件的辅助函数
+    // Helper function for handling click outside modal events
     handleClickOutsideCreateAIActorModal(event) {
         const chatSettingsSidebar = document.getElementById("ai-actor-settings-wrapper");
         if (chatSettingsSidebar && !chatSettingsSidebar.contains(event.target)) {
@@ -172,7 +172,7 @@ class UIEventHandler {
         }
     }
 
-    // 处理配置文件列表菜单的点击事件
+    // Handle profile list menu click events
     handleProfileListMenuClick(event) {
         if (event.target.tagName.toLowerCase() === "li") {
             const selectedName = event.target.textContent;

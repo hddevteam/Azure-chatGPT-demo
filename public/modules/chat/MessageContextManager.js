@@ -1,5 +1,5 @@
 // MessageContextManager.js
-// 负责管理聊天消息的上下文，确保在页面刷新后能够正确恢复
+// Responsible for managing chat message context, ensuring proper recovery after page refresh
 
 class MessageContextManager {
     constructor(uiManager) {
@@ -7,41 +7,41 @@ class MessageContextManager {
     }
 
     /**
-     * 初始化聊天上下文，包括设置系统提示和恢复活跃消息
-     * @param {Object} profile - 包含系统提示的配置文件
-     * @param {Array} messages - 消息数组
+     * Initialize chat context, including setting system prompts and restoring active messages
+     * @param {Object} profile - Configuration profile containing system prompts
+     * @param {Array} messages - Array of messages
      */
     initializeContext(profile, messages) {
-        // 清除现有提示
+        // Clear existing prompts
         this.uiManager.app.prompts.clear();
 
-        // 设置系统提示
+        // Set system prompt
         if (profile?.prompt) {
             this.uiManager.app.prompts.setSystemPrompt(profile.prompt);
         }
 
-        // 恢复活跃消息
+        // Restore active messages
         if (messages && messages.length > 0) {
             this.restoreActiveMessages(messages);
         }
     }
 
     /**
-     * 恢复活跃消息到上下文
-     * @param {Array} messages - 消息数组
+     * Restore active messages to context
+     * @param {Array} messages - Array of messages
      */
     restoreActiveMessages(messages) {
-        // 先按时间顺序排序消息
+        // Sort messages by time order first
         const sortedMessages = [...messages].sort((a, b) => {
             const aTime = new Date(a.createdAt || a.timestamp || 0);
             const bTime = new Date(b.createdAt || b.timestamp || 0);
             return aTime - bTime;
         });
 
-        // 将活跃消息添加到提示上下文
+        // Add active messages to prompt context
         sortedMessages.forEach(message => {
             if (message.isActive) {
-                // 构建完整的消息对象，确保包含搜索结果
+                // Build complete message object, ensuring search results are included
                 const promptMessage = {
                     role: message.role,
                     content: message.content,
@@ -60,8 +60,8 @@ class MessageContextManager {
     }
 
     /**
-     * 添加消息到上下文
-     * @param {Object} message - 消息对象
+     * Add message to context
+     * @param {Object} message - Message object
      */
     addMessageToContext(message) {
         if (message.isActive) {
@@ -70,26 +70,26 @@ class MessageContextManager {
     }
 
     /**
-     * 从上下文移除消息
-     * @param {String} messageId - 消息ID
+     * Remove message from context
+     * @param {String} messageId - Message ID
      */
     removeMessageFromContext(messageId) {
         this.uiManager.app.prompts.removePrompt(messageId);
     }
 
     /**
-     * 更新消息在上下文中的状态
-     * @param {String} messageId - 消息ID
-     * @param {Boolean} isActive - 是否活跃
-     * @param {Object} message - 消息对象（可选）
+     * Update message status in context
+     * @param {String} messageId - Message ID
+     * @param {Boolean} isActive - Whether active
+     * @param {Object} message - Message object (optional)
      */
     updateMessageActiveState(messageId, isActive, message = null) {
         if (isActive) {
-            // 如果消息变为活跃，需要添加到上下文
+            // If message becomes active, add to context
             if (message) {
                 this.addMessageToContext(message);
             } else {
-                // 从存储中获取消息
+                // Get message from storage
                 const storedMessage = this.uiManager.storageManager.getMessage(
                     this.uiManager.currentChatId, messageId);
                 if (storedMessage) {
@@ -97,20 +97,20 @@ class MessageContextManager {
                 }
             }
         } else {
-            // 如果消息变为非活跃，从上下文中移除
+            // If message becomes inactive, remove from context
             this.removeMessageFromContext(messageId);
         }
     }
 
     /**
-     * 获取当前上下文中的活跃消息数量
+     * Get the number of active messages in current context
      */
     getActiveMessagesCount() {
         return this.uiManager.app.prompts.length;
     }
 
     /**
-     * 打印当前上下文状态（用于调试）
+     * Print current context state (for debugging)
      */
     logCurrentContext() {
         console.log("Current context:", this.uiManager.app.prompts);

@@ -39,9 +39,9 @@
     font-size: 14px;
 }
 
-/* 移动端关闭按钮样式 */
+/* Mobile close button styles */
 #close-chat-history {
-    display: none !important; /* 默认隐藏 */
+    display: none !important; /* Hidden by default */
 }
 
 @media screen and (max-width: 768px) {
@@ -68,7 +68,7 @@
     }
 
     #topic-button-container {
-        gap: 4px; /* 移动端按钮间距收紧一些 */
+        gap: 4px; /* Tighten button spacing on mobile */
     }
 }
 

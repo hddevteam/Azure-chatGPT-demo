@@ -88,7 +88,7 @@ function getVoiceAttributes(language) {
 
 const { detectFirstLanguage } = require("../services/languageDetection");
 const removeMarkdown = require("remove-markdown");
-// 去除Markdown格式字符的函数
+// Function to remove Markdown format characters
 const cleanMarkdown = (text) => {
     return removeMarkdown(text);
 };
@@ -99,7 +99,7 @@ exports.getMultiLangTextToSpeech = async (req, res) => {
     let message = req.body.message;
     console.log("Message: ", message);
 
-    // 去除消息中的Markdown格式字符
+    // Remove Markdown format characters from message
     message = cleanMarkdown(message);
     console.log("Cleaned Message: ", message);
 
@@ -146,7 +146,7 @@ exports.autoSpeechToText = async (req, res) => {
     const userId = req.body.userId;
     console.log("User ID: ", userId);
     const subscriptionKey = azureTTS.subscriptionKey;
-    const serviceRegion = "eastus"; // 根据你的区域进行修改
+    const serviceRegion = "eastus"; // Modify according to your region
     const filePath = req.file.path;
     const audioConfig = SpeechSDK.AudioConfig.fromWavFileInput(fs.readFileSync(filePath));
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(subscriptionKey, serviceRegion);
@@ -155,7 +155,7 @@ exports.autoSpeechToText = async (req, res) => {
 
     var speechRecognizer = SpeechSDK.SpeechRecognizer.FromConfig(speechConfig, autoDetectSourceLanguageConfig, audioConfig);
 
-    // 更新：在识别过程中发送数据到客户端
+    // Update: Send data to client during recognition process
     speechRecognizer.recognizing = (_sender, event) => {
         console.log(`Recognizing: ${event.result.text}`);
         if (event.result.text) {
@@ -189,7 +189,7 @@ exports.autoSpeechToText = async (req, res) => {
         speechRecognizer.close();
     };
 
-    // 开始连续识别
+    // Start continuous recognition
     speechRecognizer.startContinuousRecognitionAsync(
         () => {
             console.log("Recognition started");

@@ -94,10 +94,10 @@
   transition: all 0.4s ease-in-out;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   z-index: 2;
-  min-width: 64px; /* 添加最小宽度确保按钮保持圆形 */
-  min-height: 64px; /* 添加最小高度确保按钮保持圆形 */
-  padding: 0; /* 移除内边距防止变形 */
-  flex: 0 0 64px !important; /* 强制固定大小，防止 flex 布局影响形状 */
+  min-width: 64px; /* Add minimum width to ensure button stays circular */
+  min-height: 64px; /* Add minimum height to ensure button stays circular */
+  padding: 0; /* Remove padding to prevent deformation */
+  flex: 0 0 64px !important; /* Force fixed size to prevent flex layout from affecting shape */
 }
 
 .im-record-button::before {
@@ -300,9 +300,9 @@
     width: 72px;
     height: 72px;
     font-size: 28px;
-    min-width: 72px; /* 添加最小宽度 */
-    min-height: 72px; /* 添加最小高度 */
-    flex: 0 0 72px !important; /* 强制固定大小 */
+    min-width: 72px; /* Add minimum width */
+    min-height: 72px; /* Add minimum height */
+    flex: 0 0 72px !important; /* Force fixed size */
   }
 
   .im-button-warning {

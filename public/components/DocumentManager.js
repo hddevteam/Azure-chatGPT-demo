@@ -24,10 +24,10 @@ class DocumentManager {
             for (const attachment of attachments) {
                 this.progressTracker.updateProgress(attachment.fileName, "processing");
                 try {
-                    // 从 base64 内容创建 blob
+                    // Create blob from base64 content
                     const blob = this.uiManager.base64ToBlob(attachment.content);
                     
-                    // 计算和显示文件大小
+                    // Calculate and display file size
                     const fileSizeFormatted = DocumentUtils.formatFileSize(blob.size);
                     this.progressTracker.updateProgress(
                         attachment.fileName, 
@@ -35,10 +35,10 @@ class DocumentManager {
                         `Size: ${fileSizeFormatted}`
                     );
 
-                    // 上传文件并获取结果
+                    // Upload file and get result
                     const uploadResult = await uploadDocument(blob, attachment.fileName);
                     
-                    // 获取文档内容
+                    // Get document content
                     const content = await getDocumentContent(uploadResult.processedFileName);
                     documentContents.push({
                         fileName: attachment.fileName,
@@ -72,7 +72,7 @@ class DocumentManager {
                 swal("Warning", warningMessage, "warning");
             }
 
-            // 构建用户消息对象，包含问题和文档内容
+            // Build user message object containing question and document content
             const timestamp = new Date().toISOString();
             const messageId = this.uiManager.generateId();
             
@@ -83,7 +83,7 @@ class DocumentManager {
                 messageContent += `\n📄 ${doc.fileName}\n\`\`\`\n${doc.content}\n\`\`\`\n`;
             }
 
-            // 将 documents 属性序列化为字符串
+            // Serialize documents property to string
             const serializedDocuments = documentContents.map(doc => ({
                 ...doc,
                 content: doc.content || "",
@@ -98,7 +98,7 @@ class DocumentManager {
                 isActive: true,
                 timestamp: timestamp,
                 createdAt: timestamp,
-                documents: JSON.stringify(serializedDocuments) // 序列化为字符串
+                documents: JSON.stringify(serializedDocuments) // Serialize to string
             };
 
         } catch (error) {
@@ -122,7 +122,7 @@ class DocumentManager {
         }
 
         try {
-            // 确保从字符串解析回对象
+            // Ensure parsing from string back to object
             const parsedDocuments = typeof documents === "string" ? JSON.parse(documents) : documents;
             
             return await generateDocumentQuery(
@@ -136,11 +136,11 @@ class DocumentManager {
     }
 
     formatDocumentContent(content) {
-        // 为文档内容添加 Markdown 格式化
+        // Add Markdown formatting for document content
         const lines = content.split("\n");
         let formattedContent = [];
         
-        // 添加代码块标记使内容保持格式
+        // Add code block markers to preserve formatting
         formattedContent.push("```");
         formattedContent.push(...lines);
         formattedContent.push("```");

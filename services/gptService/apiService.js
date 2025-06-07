@@ -15,7 +15,7 @@ const AdapterFactory = require("./modelAdapters/AdapterFactory");
  * @param {Object} options - Request options
  * @param {string} options.apiKey - API key for authentication
  * @param {string} options.apiUrl - API endpoint URL
- * @param {string} options.model - 模型名称，用于判断模型特性
+ * @param {string} options.model - Model name, used to determine model features
  * @param {Array} options.prompt - Array of message objects
  * @param {Object} options.params - Additional parameters like temperature
  * @param {boolean} options.includeFunctionCalls - Whether to include function calling capabilities
@@ -25,13 +25,13 @@ const makeRequest = async ({ apiKey, apiUrl, model, prompt, params, includeFunct
     console.log("Making API request to:", apiUrl, "with model:", model);
     
     try {
-        // 获取模型对应的适配器
+        // Get adapter for the model
         const adapter = AdapterFactory.getAdapter(model, config);
         
-        // 使用适配器处理请求数据
+        // Use adapter to process request data
         const requestData = adapter.processRequestBody(prompt, params);
 
-        // 只有当模型支持函数调用且启用了函数调用时添加工具
+        // Only add tools when model supports function calling and function calling is enabled
         if (includeFunctionCalls && config.supportsFeature(model, "supportsFunctionCalls")) {
             requestData.tools = toolDefinitions;
         }
@@ -45,6 +45,9 @@ const makeRequest = async ({ apiKey, apiUrl, model, prompt, params, includeFunct
         };
 
         const response = await axios(apiUrl, options);
+        
+        console.log("API response status:", response.status);
+        console.log("API response data:", JSON.stringify(response.data, null, 2));
         
         if (response.status === 404) {
             throw new Error(`API endpoint not found: ${apiUrl}`);
@@ -98,7 +101,7 @@ const processModelParameters = (model, params) => {
             max_completion_tokens: parseInt(params.max_tokens)
         };
     } 
-    // DeepSeek-R1模型的参数处理
+    // DeepSeek-R1 model parameter processing
     else if (model === "deepseek-r1") {
         return {
             temperature: parseFloat(params.temperature),
@@ -126,9 +129,30 @@ const processModelParameters = (model, params) => {
  * @returns {Array} Filtered messages appropriate for the model
  */
 const filterMessagesByModel = (messages, model) => {
-    // 使用 supportsFeature 检查模型是否支持系统消息
+    // Use supportsFeature to check if model supports system messages
     if (!config.supportsFeature(model, "supportsSystemMessages")) {
-        return messages.filter(msg => msg.role !== "system");
+        // For models that don't support system messages, merge system prompt into first user message
+        const systemMessages = messages.filter(msg => msg.role === "system");
+        const nonSystemMessages = messages.filter(msg => msg.role !== "system");
+        
+        if (systemMessages.length > 0 && nonSystemMessages.length > 0) {
+            // Find the first user message
+            const firstUserIndex = nonSystemMessages.findIndex(msg => msg.role === "user");
+            
+            if (firstUserIndex !== -1) {
+                // Merge all system messages content
+                const systemContent = systemMessages.map(msg => msg.content).join("\n\n");
+                
+                // Add system content to the beginning of first user message
+                const firstUserMessage = nonSystemMessages[firstUserIndex];
+                nonSystemMessages[firstUserIndex] = {
+                    ...firstUserMessage,
+                    content: `${systemContent}\n\n${firstUserMessage.content}`
+                };
+            }
+        }
+        
+        return nonSystemMessages;
     }
     return messages;
 };

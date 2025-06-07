@@ -70,7 +70,7 @@ async function syncMessage(syncItem) {
             break;
         }
         
-        // 只有在操作成功完成后才发送同步成功消息
+        // Only send sync success message after operation completes successfully
         console.log("Message operation completed successfully:", action);
         self.postMessage({ action: "synced", payload: syncItem, res: response });
     } catch (error) {

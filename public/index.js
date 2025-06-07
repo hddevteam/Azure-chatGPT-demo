@@ -12,6 +12,7 @@ import ChatOptionsModal from "./components/ChatOptionsModal.js";
 import ModelDropdownManager from "./utils/ModelDropdownManager.js";
 import { addChatHistoryResizeHandleListeners } from "./utils/chat-history-resize.js";
 import GptImageManager from "./components/GptImageManager.js";
+import SoraVideoModal from "./components/SoraVideoModal.js";
 
 (async () => {
     try {
@@ -34,11 +35,12 @@ async function initializeApp(username) {
     
     // Initialize ModelDropdownManager for model selection
     const modelDropdownManager = new ModelDropdownManager(app, "#model-switch");
-    
     // Initialize GPT-Image-1 manager
     const gptImageManager = new GptImageManager();
     
-    // 初始化显示欢迎信息
+    // Initialize Sora Video Modal
+    const soraVideoModal = new SoraVideoModal();
+      // Initialize display welcome message
     uiManager.showWelcomeMessage();
 
     //get client language
@@ -129,34 +131,32 @@ async function initializeApp(username) {
     getPromptRepo(uiManager.storageManager.getCurrentUsername())
         .then(data => {
             uiManager.renderMenuList(data);
-            
-            // 在数据加载完成后，检查当前话题状态
+              // After data loading is complete, check current topic status
             checkAndEnterFirstTopic(uiManager);
         })
         .catch(error => {
             console.error("Error:", error);
         });
 
-    // 功能：检查并进入最近的历史话题
+    // Function: Check and enter the most recent historical topic
     function checkAndEnterFirstTopic(uiManager) {
-        // 获取当前聊天ID和聊天历史
+        // Get current chat ID and chat history
         const currentChatId = uiManager.currentChatId;
         const chatHistory = uiManager.chatHistoryManager.getChatHistory();
         
-        // 如果没有当前话题，或者缓存的话题在历史记录中不存在
+        // If there is no current topic, or the cached topic does not exist in the history
         if (!currentChatId || (chatHistory.length > 0 && !chatHistory.find(history => history.id === currentChatId))) {
             console.log("No valid current topic, entering most recent historical topic");
-            
-            if (chatHistory && chatHistory.length > 0) {
-                // 由于 getChatHistory 已经按 updatedAt 降序排序，第一个就是最近的话题
+              if (chatHistory && chatHistory.length > 0) {
+                // Since getChatHistory is already sorted by updatedAt in descending order, the first one is the most recent topic
                 const mostRecentTopic = chatHistory[0];
                 console.log("Entering most recent topic:", mostRecentTopic.id);
                 
-                // 获取该话题对应的配置文件
+                // Get the profile corresponding to this topic
                 const profile = uiManager.aiProfileManager.getProfileByName(mostRecentTopic.profileName);
                 
                 if (profile) {
-                    // 切换到对应的配置文件并加载话题
+                    // Switch to the corresponding profile and load the topic
                     uiManager.aiProfileManager.switchToProfile(profile, false);
                     uiManager.changeChatTopic(mostRecentTopic.id, false);
                 }
@@ -191,8 +191,7 @@ async function initializeApp(username) {
     });
 
     // Send message on form submit
-    messageForm.addEventListener("submit", (event) => {
-        event.preventDefault(); // 防止表单默认提交行为
+    messageForm.addEventListener("submit", (event) => {        event.preventDefault(); // Prevent default form submission behavior
         uiManager.handleMessageFormSubmit(messageInput);
     });
 
@@ -201,7 +200,7 @@ async function initializeApp(username) {
         document.documentElement.style.setProperty("--vh", `${vh}px`);
     }
     let vh;
-    // 获取视口高度，并将其设置为一个CSS变量
+    // Get viewport height and set it as a CSS variable
     updateVh();
 
     window.addEventListener("resize", () => {
@@ -210,9 +209,8 @@ async function initializeApp(username) {
 
     const messageInputContainer = document.querySelector("#message-input-container");
     const mainContainer = document.querySelector("#app-container");
-    let ro = new ResizeObserver(entries => {
-        if (mainContainer.classList.contains("split-view")) {
-        // 在 split-view 模式下，我们不改变 mainContainer 的高度，因为 message-input-container 高度是固定的
+    let ro = new ResizeObserver(entries => {        if (mainContainer.classList.contains("split-view")) {
+        // In split-view mode, we don't change the mainContainer height because message-input-container height is fixed
             return;
         }
         for (let entry of entries) {
@@ -237,15 +235,14 @@ async function initializeApp(username) {
 
     function handleAIActor(event) {
         event.stopPropagation();
-        
-        // 切换 AI Actor 列表的显示状态
+          // Toggle AI Actor list display state
         const aiActorWrapper = document.getElementById("ai-actor-wrapper");
         const isVisible = aiActorWrapper.classList.contains("visible");
         
         if (isVisible) {
             uiManager.hideAIActorList();
         } else {
-            // 确保在显示列表前，列表内容已更新
+            // Ensure list content is updated before showing the list
             uiManager.showAIActorList();
         }
     }
@@ -256,8 +253,7 @@ async function initializeApp(username) {
     toggleButton.addEventListener("click", function (event) {
         event.stopPropagation();
         const chatHistoryContainer = document.getElementById("chat-history-container");
-        const isChatHistoryVisible = chatHistoryContainer.classList.contains("visible");
-        // 更新 chatHistoryVisible 状态
+        const isChatHistoryVisible = chatHistoryContainer.classList.contains("visible");        // Update chatHistoryVisible state
         uiManager.storageManager.getCurrentUserData().uiState.chatHistoryVisible  = !isChatHistoryVisible;
         uiManager.storageManager.saveCurrentUserData();
 
@@ -304,12 +300,11 @@ async function initializeApp(username) {
         const inputContainter = document.querySelector("#input-container");
         const appContainer = document.querySelector("#app-container");
 
-        const isSplitView = mainContainer.classList.contains("split-view");
-        // 更新 splitView 状态
+        const isSplitView = mainContainer.classList.contains("split-view");        // Update splitView state
         uiManager.storageManager.getCurrentUserData().uiState.splitView = !isSplitView;
         uiManager.storageManager.saveCurrentUserData();
 
-        // 重置高度
+        // Reset height
         inputContainter.style = "";
         messageInputContainer.style = "";
         appContainer.style = "";
@@ -329,8 +324,7 @@ async function initializeApp(username) {
     // Adding event listeners to buttons
     toggleLayoutBtn.addEventListener("click", toggleLayout);
 
-    // Call this function to set initial display status based on the device type
-    // 在页面加载时设置初始可见性状态
+    // Call this function to set initial display status based on the device type    // Set initial visibility state when page loads
     function setInitialVisibility() {
         const chatHistoryContainer = document.getElementById("chat-history-container");
         const inputContainter = document.querySelector("#input-container");
@@ -339,19 +333,16 @@ async function initializeApp(username) {
         inputContainter.style = "";
         messageInputContainer.style = "";
 
-        const currentUserData = uiManager.storageManager.getCurrentUserData();
-        if (!currentUserData.uiState) {
-        // 如果 uiState 未定义，则进行初始化
+        const currentUserData = uiManager.storageManager.getCurrentUserData();        if (!currentUserData.uiState) {
+        // If uiState is undefined, initialize it
             currentUserData.uiState = {
                 splitView: false,
                 chatHistoryVisible: true,
-                aiActorSettingsVisible: false  // 初始隐藏 AI Actor 设置对话框
+                aiActorSettingsVisible: false  // Initially hide AI Actor settings dialog
             };
             uiManager.storageManager.saveCurrentUserData();
         }
-        const uiState = currentUserData.uiState;
-    
-        // 设置视图模式
+        const uiState = currentUserData.uiState;        // Set view mode
         if (uiState.splitView) {
             mainContainer.classList.add("split-view");
             appBar.classList.add("split-view");
@@ -364,17 +355,15 @@ async function initializeApp(username) {
             appBar.classList.remove("split-view");
             messageContainer.classList.remove("split-view");
             messageInputContainer.classList.remove("split-view");
-        }
-
-        // 根据保存的状态设置可见性
-        // 这里修改：不要以 uiState 中保存的状态来控制 ai-actor-settings-wrapper 的可见性
-        // 该元素现在由 AIActorSettingsModal 组件控制
+        }        // Set visibility based on saved state
+        // Modified here: Don't use saved state from uiState to control ai-actor-settings-wrapper visibility
+        // This element is now controlled by AIActorSettingsModal component
         uiManager.setElementVisibility(chatHistoryContainer, uiState.chatHistoryVisible);
 
         if (window.innerWidth <= 768) {
-            // 如果是移动设备，则隐藏聊天历史记录
+            // If it's a mobile device, hide the chat history
             uiManager.hiddenElement(chatHistoryContainer);
-        } 
+        }
     }
 
     // Function to handle responsive layout based on screen width
@@ -385,23 +374,21 @@ async function initializeApp(username) {
             const chatHistoryContainer = document.getElementById("chat-history-container");
             const inputContainter = document.querySelector("#input-container");
             const appContainer = document.querySelector("#app-container");
-            
-            // 更新 splitView 状态为 false (关闭分屏)
+              // Update splitView state to false (close split view)
             uiManager.storageManager.getCurrentUserData().uiState.splitView = false;
             uiManager.storageManager.saveCurrentUserData();
             
-            // 重置高度
+            // Reset height
             inputContainter.style = "";
             messageInputContainer.style = "";
             appContainer.style = "";
-            
-            // 移除分屏相关的类
+              // Remove split view related classes
             mainContainer.classList.remove("split-view");
             appBar.classList.remove("split-view");
             messageContainer.classList.remove("split-view");
             messageInputContainer.classList.remove("split-view");
             
-            // 隐藏聊天历史
+            // Hide chat history
             uiManager.hiddenElement(chatHistoryContainer);
         }
     }
@@ -410,18 +397,14 @@ async function initializeApp(username) {
         const files = event.target.files;
         if (files.length === 0) {
             return;
-        }
-        // 调用fileUploader中的方法进行文件处理
+        }        // Call the method in fileUploader for file processing
         await fileUploader.handleFileUpload(files);
     }
 
     console.log("initVisibilityAfterDataLoaded");
-    const chatHistoryContainer = document.getElementById("chat-history-container");
-
-    // 根据元素初始的显示状态来初始化按钮状态
+    const chatHistoryContainer = document.getElementById("chat-history-container");    // Initialize button state based on element's initial display status
     uiManager.updateButtonActiveState(chatHistoryContainer.id, chatHistoryContainer.classList.contains("visible"));
-    // 不再需要控制 ai-actor-settings-wrapper 的按钮状态，由 AIActorSettingsModal 负责
-    
+    // No longer need to control ai-actor-settings-wrapper button state, handled by AIActorSettingsModal
     const generateImg = document.getElementById("generate-img");
     generateImg.addEventListener("click", () => {
         const content = messageInput.value;
@@ -434,13 +417,16 @@ async function initializeApp(username) {
         uiManager.handleMessageFormSubmit(messageInput);
     });
 
-    // 绑定上传按钮的change事件
+    // Sora Video Generator button
+    const soraVideoBtn = document.getElementById("sora-video-btn");
+    soraVideoBtn.addEventListener("click", () => {
+        soraVideoModal.open();
+    });    // Bind upload button change event
     const attachButton = document.getElementById("attachments-container");
     attachButton.addEventListener("click", () => {
         const fileInput = document.createElement("input");
-        fileInput.type = "file";
-        fileInput.multiple = true; // 允许多文件选择
-        // 移除文件类型限制，允许上传所有类型的文件
+        fileInput.type = "file";        fileInput.multiple = true; // Allow multiple file selection
+        // Remove file type restrictions, allow uploading all types of files
         fileInput.onchange = handleFiles;
         fileInput.click();
     });
@@ -477,12 +463,10 @@ async function initializeApp(username) {
             width: window.innerWidth,
             height: window.innerHeight
         };
-    });
-
-    // 初始化聊天选项模态框，传入clientLanguage
+    });    // Initialize chat options modal, passing clientLanguage
     const chatOptionsModal = new ChatOptionsModal(clientLanguage);
     
-    // 添加点击事件处理
+    // Add click event handling
     document.getElementById("chat-options-button").addEventListener("click", () => {
         const messageInput = document.getElementById("message-input");
         const message = messageInput.value.trim();
@@ -506,7 +490,7 @@ async function initializeApp(username) {
       
         if (widthChanged || heightDifference > 150) {
             setInitialVisibility();
-            handleResponsiveLayout(); // 添加对响应式布局的处理
+            handleResponsiveLayout(); // Add responsive layout handling
       
             initialWindowSize = {
                 width: currentWindowSize.width,
@@ -516,11 +500,10 @@ async function initializeApp(username) {
     }
       
     window.addEventListener("resize", handleWindowResize);
-    
-    // 初始调用确保正确的布局
+    // Initial call to ensure correct layout
     handleResponsiveLayout();
 
-    // 初始化 AI Actor Filter Modal
+    // Initialize AI Actor Filter Modal
     await uiManager.initializeActorFilterModal();
 }
 

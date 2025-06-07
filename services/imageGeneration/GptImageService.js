@@ -4,25 +4,25 @@ const FormData = require("form-data");
 const ImageGenerationInterface = require("./imageGenerationInterface");
 
 /**
- * GPT-Image-1 服务实现
+ * GPT-Image-1 service implementation
  */
 class GptImageService extends ImageGenerationInterface {
     constructor() {
         super();
-        // 使用正确的环境变量名称
+        // Use correct environment variable name
         this.baseUrl = process.env.GPT_IMAGE_1_API_URL.split("/images/generations")[0];
         this.apiKey = process.env.GPT_IMAGE_1_API_KEY;
         this.apiVersion = "2025-04-01-preview";
     }
 
     /**
-     * 生成图像
+     * Generate image
      * @param {Object} params
-     * @param {string} params.prompt - 图像描述
-     * @param {string} params.size - 图像尺寸 (例如: "1024x1024")
-     * @param {string} params.quality - 图像质量 ("medium"/"hd")
-     * @param {number} params.n - 生成数量
-     * @returns {Promise<Array>} 生成的图像数据
+     * @param {string} params.prompt - Image description
+     * @param {string} params.size - Image size (e.g., "1024x1024")
+     * @param {string} params.quality - Image quality ("medium"/"hd")
+     * @param {number} params.n - Generation count
+     * @returns {Promise<Array>} Generated image data
      */
     async generateImage({ prompt, size = "1024x1024", quality = "standard", n = 1 }) {
         try {
@@ -50,29 +50,29 @@ class GptImageService extends ImageGenerationInterface {
     }
 
     /**
-     * 编辑图像
+     * Edit image
      * @param {Object} params
-     * @param {Buffer|string} params.image - 原图像数据
-     * @param {Buffer|string} params.mask - 遮罩图像数据 (可选)
-     * @param {string} params.prompt - 编辑描述
-     * @returns {Promise<Array>} 编辑后的图像数据
+     * @param {Buffer|string} params.image - Original image data
+     * @param {Buffer|string} params.mask - Mask image data (optional)
+     * @param {string} params.prompt - Edit description
+     * @returns {Promise<Array>} Edited image data
      */
     async editImage({ image, mask, prompt }) {
         try {
             const formData = new FormData();
             
-            // 处理图像数据
+            // Process image data
             if (typeof image === "string") {
-                // 如果是Base64字符串，转换为Buffer
+                // If it's a Base64 string, convert to Buffer
                 const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
                 const imageBuffer = Buffer.from(base64Data, "base64");
                 formData.append("image", imageBuffer, { filename: "image.png" });
             } else {
-                // 如果已经是Buffer
+                // If it's already a Buffer
                 formData.append("image", image, { filename: "image.png" });
             }
 
-            // 处理遮罩数据（如果有）
+            // Process mask data (if any)
             if (mask) {
                 if (typeof mask === "string") {
                     const maskBase64 = mask.replace(/^data:image\/\w+;base64,/, "");

@@ -256,15 +256,15 @@ class EventManager {
 
 
 
-    // 事件代理方式挂载浮动编辑按钮事件
+    // Mount floating edit button event using event delegation
     attachFloatingEditButtonEvent() {
         document.addEventListener("click", (e) => {
             const editButton = e.target.closest(".message-image-edit-btn");
             if (!editButton) return;
 
-            e.stopPropagation(); // 阻止事件冒泡以避免触发图片预览
+            e.stopPropagation(); // Prevent event bubbling to avoid triggering image preview
             
-            // 获取消息元素及当前消息ID
+            // Get message element and current message ID
             const messageElement = editButton.closest(".message");
             if (!messageElement) {
                 console.error("Message element not found");
@@ -285,18 +285,18 @@ class EventManager {
 
             const imageUrl = imgElement.src;
             
-            // 设置当前选中的消息ID，这是编辑时使用的图片源
+            // Set currently selected message ID, this is the image source used during editing
             this.uiManager.selectedMessageId = currentMessageId;
             this.uiManager.selectedImageUrl = imageUrl;
             
-            // 准备编辑
+            // Prepare for editing
             const messageInput = document.getElementById("message-input");
             if (messageInput) {
                 messageInput.value = "/gpt-image-1-edit ";
                 messageInput.focus();
             }
 
-            // 准备预览区域
+            // Prepare preview area
             const previewList = document.getElementById("attachment-preview-list");
             const attachmentContainer = document.getElementById("attachment-preview-container");
 
@@ -305,10 +305,10 @@ class EventManager {
                 return;
             }
 
-            // 清除现有预览
+            // Clear existing preview
             previewList.innerHTML = "";
 
-            // 创建预览项
+            // Create preview item
             const previewItem = document.createElement("div");
             previewItem.classList.add("attachment-preview-item");
             previewItem.dataset.url = imageUrl;
@@ -334,7 +334,7 @@ class EventManager {
                 </div>
                 <div class="attachment-file-name">${fileName}</div>`;
 
-            // 添加删除按钮事件
+            // Add delete button event
             const deleteBtn = previewItem.querySelector(".attachment-delete-btn");
             deleteBtn.addEventListener("click", (evt) => {
                 evt.stopPropagation();
@@ -342,12 +342,12 @@ class EventManager {
                 if (previewList.children.length === 0) {
                     attachmentContainer.classList.add("hidden");
                 }
-                // 清除选中状态
+                // Clear selected state
                 this.uiManager.selectedMessageId = null;
                 this.uiManager.selectedImageUrl = null;
             });
 
-            // 添加到预览区
+            // Add to preview area
             previewList.appendChild(previewItem);
             attachmentContainer.classList.remove("hidden");
 
@@ -360,27 +360,27 @@ class EventManager {
         });
     }
 
-    // 统一处理图片预览和编辑设置的方法
+    // Unified method for handling image preview and editing settings
     showImagePreviewForEdit(messageId, imageUrl) {
         console.log("Handling image edit:", {
             messageId: messageId,
             imageUrl: imageUrl
         });
 
-        // 设置当前消息ID
+        // Set current message ID
         if (this.uiManager) {
             this.uiManager.selectedMessageId = messageId;
             console.log("Set selectedMessageId in UIManager:", messageId);
         }
 
-        // 设置编辑命令
+        // Set edit command
         const messageInput = document.getElementById("message-input");
         if (messageInput) {
             messageInput.value = "/gpt-image-1-edit ";
             messageInput.focus();
         }
 
-        // 准备预览区域
+        // Prepare preview area
         const previewList = document.getElementById("attachment-preview-list");
         const attachmentContainer = document.getElementById("attachment-preview-container");
 
@@ -389,10 +389,10 @@ class EventManager {
             return;
         }
 
-        // 清除现有预览
+        // Clear existing preview
         previewList.innerHTML = "";
 
-        // 创建预览项
+        // Create preview item
         const previewItem = document.createElement("div");
         previewItem.classList.add("attachment-preview-item");
         previewItem.dataset.url = imageUrl;
@@ -426,7 +426,7 @@ class EventManager {
             }
         });
 
-        // 保存编辑上下文
+        // Save edit context
         window.imageEditContext = {
             messageId: messageId,
             imageUrl: imageUrl,

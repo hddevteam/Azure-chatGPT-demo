@@ -29,6 +29,7 @@
 @import url("components/chat-loading.css");
 @import url("components/gpt-image-modal.css");
 @import url("components/message-image-edit.css");
+@import url("components/sora-studio.css");
 
 /* Feature styles */
 @import url("chat_options_modal.css");

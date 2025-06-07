@@ -254,7 +254,7 @@
     background-color: rgba(0, 0, 0, 0.9);
 }
 
-/* 修复关闭按钮样式 */
+/* Fix close button style */
 #image-modal .close {
     position: absolute;
     top: 15px;

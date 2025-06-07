@@ -1,12 +1,12 @@
 // controllers/gpt/profileController.js
 /**
- * 配置文件控制器 - 处理聊天配置文件的创建和系统提示生成
+ * Profile controller - handles chat profile creation and system prompt generation
  */
 
 const gptService = require("../../services/gptService");
 
 /**
- * 从职业描述创建聊天配置文件
+ * Create chat profile from profession description
  */
 exports.createChatProfile = async (req, res) => {
     try {
@@ -83,7 +83,7 @@ You will highlight pronunciation, sentence structure, fluency, and cultural nuan
             },
         ];
 
-        // 获取GPT-4o的API配置
+        // Get GPT-4o API configuration
         const { apiKey, apiUrl } = gptService.getApiConfig("gpt-4o");
 
         const requestData = {
@@ -110,7 +110,7 @@ You will highlight pronunciation, sentence structure, fluency, and cultural nuan
 };
 
 /**
- * 为聊天配置文件生成系统提示
+ * Generate system prompt for chat profile
  */
 exports.generateSystemPrompt = async (req, res) => {
     try {
@@ -173,7 +173,7 @@ When a student says 'I very like pizza', respond like this:
 };
 
 /**
- * 生成基于消息的聊天选项
+ * Generate message-based chat options
  */
 exports.generateChatOptions = async (req, res) => {
     try {

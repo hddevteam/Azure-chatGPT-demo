@@ -36,7 +36,7 @@ class DocumentUtils {
     }
 
     static isDocumentFile(fileName) {
-        // 所有文件都当作文档处理
+        // Treat all files as documents
         return true;
     }
 }

@@ -27,9 +27,9 @@ html {
 }
 
 #chat-history-container{
-    flex: none; /* 改为 none 以允许宽度调整 */
-    width: 200px; /* 设置默认宽度 */
-    min-width: 100px; /* 最小宽度 */
+    flex: none; /* Change to none to allow width adjustment */
+    width: 200px; /* Set default width */
+    min-width: 100px; /* Minimum width */
     max-height: calc(100vh - 40px);
 }
 
@@ -38,11 +38,11 @@ html {
     background: #333;
     cursor: ew-resize;
     flex-shrink: 0;
-    display: none; /* 默认隐藏 */
+    display: none; /* Hidden by default */
 }
 
 #chat-history-container.visible + #chat-history-resize-handle {
-    display: block; /* 当 chat-history-container 可见时显示 */
+    display: block; /* Show when chat-history-container is visible */
 }
 
 #chat-history-resize-handle:hover {
@@ -63,7 +63,7 @@ html {
     display: flex;
     flex-direction: column;
     transition: height 0.2s ease-out;
-    position: relative; /* 保留相对定位，为toggle-chat-topic按钮做准备 */
+    position: relative; /* Keep relative positioning for toggle-chat-topic button */
 }
 
 #profile-content {
@@ -95,7 +95,7 @@ html {
     display: none;
 }
 
-/* 移除旧的toggle-chat-topic样式，现在使用drawer-toggle.css中的样式 */
+/* Remove old toggle-chat-topic styles, now using styles from drawer-toggle.css */
 
 #header #header-buttons {
     display: flex;
@@ -135,9 +135,9 @@ html {
 }
 
 #resize-handle {
-    height: 5px; /* 给把手设定一个高度 */
-    background: #333; /* 把手的背景颜色 */
-    cursor: ns-resize; /* 光标变为南北调整的形状，表示可垂直调整 */
+    height: 5px; /* Set height for the handle */
+    background: #333; /* Handle background color */
+    cursor: ns-resize; /* Cursor changes to north-south resize shape, indicating vertical adjustment */
 }
 
 
@@ -201,7 +201,7 @@ html {
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-/* 基础按钮布局 - 非分屏模式 */
+/* Basic button layout - non-split screen mode */
 .button-row {
     position: sticky;
     bottom: 6px;

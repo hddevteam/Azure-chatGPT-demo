@@ -31,7 +31,7 @@ async function processDocument(buffer, fileName) {
     try {
         let text = "";
         
-        // 处理支持的文件类型
+        // Process supported file types
         if (SUPPORTED_EXTENSIONS[extension]) {
             switch (extension) {
             case ".txt":
@@ -91,7 +91,7 @@ async function processDocument(buffer, fileName) {
 
             case ".pptx":
             case ".ppt":
-                // 使用专门的 PPTX 处理器处理 PowerPoint 文件
+                // Use specialized PPTX processor to handle PowerPoint files
                 const pptxProcessor = new PPTXProcessor();
                 text = await pptxProcessor.extractText(buffer);
                 if (!text) {
@@ -104,18 +104,18 @@ async function processDocument(buffer, fileName) {
                 break;
             }
         } else {
-            // 对于不支持的文件类型，尝试作为文本文件处理
+            // For unsupported file types, try to process as text file
             try {
                 text = buffer.toString("utf-8");
                 console.warn(`Processing unknown file type ${extension} as text file`);
             } catch (error) {
-                // 如果无法作为文本处理，生成一个二进制文件描述
+                // If unable to process as text, generate a binary file description
                 const fileSize = buffer.length;
                 text = `[Binary file: ${fileName}]\nFile size: ${fileSize} bytes\nFile type: ${extension || "unknown"}\n`;
             }
         }
 
-        // 验证提取的内容
+        // Validate extracted content
         if (!text.trim()) {
             throw new DocumentProcessingError(
                 "No text content could be extracted from the document",

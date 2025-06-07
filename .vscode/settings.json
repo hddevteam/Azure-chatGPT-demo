@@ -9,9 +9,9 @@
         "typescript",
         "typescriptreact"
     ],
-    // 可选，如果你正在使用Prettier，并想避免冲突，可以禁用默认格式化
+    // Optional: if you're using Prettier and want to avoid conflicts, you can disable default formatting
     "editor.formatOnSave": false,
-    // 只在检测到ESLint配置时格式化
+    // Only format when ESLint configuration is detected
     "editor.formatOnSaveMode": "modificationsIfAvailable",
     
 }

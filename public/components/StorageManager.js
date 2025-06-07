@@ -31,10 +31,10 @@ class StorageManager {
         const historyIndex = localHistories.findIndex(h => h.id === chatHistoryItem.id);
         console.log("updateChatHistory: ", historyIndex);
 
-        // 如果历史记录被标记为删除，从本地存储中移除
+        // If history is marked as deleted, remove it from local storage
         if (chatHistoryItem.isDeleted) {
             localHistories = localHistories.filter(history => history.id !== chatHistoryItem.id);
-            // 同时清理相关的消息数据
+            // Also clean up related message data
             this.removeMessagesByChatId(chatHistoryItem.id);
             this.cleanupChatData(chatHistoryItem.id);
         } else if (historyIndex !== -1) {
@@ -45,7 +45,7 @@ class StorageManager {
             };
             console.log("updateChatHistory: ", localHistories[historyIndex]);
         } else {
-            // 如果不存在且未被标记为删除，则添加新记录
+            // If it doesn't exist and is not marked as deleted, add new record
             localHistories.push(chatHistoryItem);
         }
         
@@ -60,7 +60,7 @@ class StorageManager {
         this.saveChatHistory(username, chatHistories);
     }
 
-    // 添加这个方法来更新聊天历史记录的timestamp
+    // Add this method to update chat history timestamp
     updateChatHistoryTimestamp(chatId, timestamp) {
         console.log("updateChatHistoryTimestamp: ", chatId, timestamp);
         const username = this.getCurrentUsername();
@@ -170,7 +170,7 @@ class StorageManager {
 
         const updatedMessages = savedMessages.map(savedMessage => {
             if (savedMessage.messageId === messageId) {
-                // 更新信息的isActive状态
+                // Update the isActive status of the message
                 return { ...savedMessage, isActive: isActive };
             } else {
                 return savedMessage;
@@ -183,11 +183,11 @@ class StorageManager {
         const savedMessages = this.getMessages(chatId);
         const message = savedMessages.find(m => m.messageId === messageId);
         if (!message) {
-            console.debug(`Message ${messageId} not found in chat ${chatId}`); // 改为 debug 级别，因为这是预期的情况
+            console.debug(`Message ${messageId} not found in chat ${chatId}`); // Changed to debug level as this is an expected scenario
             return null;
         }
         
-        // 确保搜索结果中的日期是正确的日期对象字符串
+        // Ensure the date in search results is a correct date object string
         if (message.searchResults) {
             message.searchResults = message.searchResults.map(result => ({
                 ...result,
@@ -206,10 +206,10 @@ class StorageManager {
             const savedMessages = this.getMessages(chatId);
             const updatedMessages = savedMessages.filter(savedMessage => savedMessage.messageId !== messageId);
             
-            // 保存更新后的消息列表
+            // Save the updated message list
             this.saveMessages(chatId, updatedMessages);
             
-            // 如果删除后没有消息了，可以考虑清理其他相关数据
+            // If no messages remain after deletion, consider cleaning up other related data
             if (updatedMessages.length === 0) {
                 this.cleanupChatData(chatId);
             }
@@ -227,7 +227,7 @@ class StorageManager {
         let messages = this.getMessages(chatId);
         const existingMessage = messages.find(m => m.messageId === message.messageId);
         
-        // 处理搜索结果，确保它们是可序列化的
+        // Process search results to ensure they are serializable
         let processedSearchResults = null;
         if (message.searchResults) {
             try {
@@ -267,18 +267,18 @@ class StorageManager {
         return messageToSave;
     }
 
-    // 获取消息列表时不再自动设置timestamp
+    // No longer automatically set timestamp when getting message list
     getMessages(chatId) {
         const key = `messages_${chatId}`;
         const messages = JSON.parse(localStorage.getItem(key) || "[]");
         
-        // 确保所有消息都有必要的属性并且搜索结果格式正确
+        // Ensure all messages have necessary properties and search results format is correct
         messages.forEach(message => {
             if (!message.createdAt) {
                 message.createdAt = message.timestamp || new Date().toISOString();
             }
 
-            // 确保搜索结果的完整性和一致性
+            // Ensure integrity and consistency of search results
             if (message.searchResults) {
                 try {
                     message.searchResults = Array.isArray(message.searchResults) ? 
@@ -295,7 +295,7 @@ class StorageManager {
             }
         });
 
-        // 按创建时间排序
+        // Sort by creation time
         messages.sort((a, b) => {
             const aTime = new Date(a.createdAt);
             const bTime = new Date(b.createdAt);
@@ -311,9 +311,9 @@ class StorageManager {
     async updateMessageTimestamp(chatId, messageId, timestamp) {
         console.log("updateMessageTimestamp:", { chatId, messageId, timestamp });
         
-        // 首先检查消息是否存在
+        // First check if the message exists
         if (!this.messageExists(chatId, messageId)) {
-            // 等待消息出现
+            // Wait for the message to appear
             const messageAppeared = await this.waitForMessage(chatId, messageId);
             if (!messageAppeared) {
                 console.warn(`Gave up waiting for message ${messageId} in chat ${chatId}`);
@@ -343,7 +343,7 @@ class StorageManager {
 
     saveMessages(chatId, messages) {
         const key = `messages_${chatId}`;
-        // 在保存之前确保所有消息都有必要的时间属性
+        // Ensure all messages have necessary time properties before saving
         const processedMessages = messages.map(message => ({
             ...message,
             createdAt: message.createdAt || new Date().toISOString(),
@@ -386,7 +386,7 @@ class StorageManager {
         let localStorageUsage = parseFloat(this.getLocalStorageUsage());
         console.log("localStorageUsage: ", localStorageUsage);
         
-        // 如果存储空间小于阈值，不需要清理
+        // If storage space is below threshold, no need to clean up
         if (localStorageUsage <= 4.5) {
             console.log("cleanUpUserChatHistories: LocalStorage usage is below 4.5MB, no cleanup needed.");
             return;
@@ -397,7 +397,7 @@ class StorageManager {
             return;
         }
 
-        // 按时间戳排序，优先清理旧的聊天记录
+        // Sort by timestamp, prioritize cleaning old chat history
         chatHistories.sort((a, b) => {
             const aTime = new Date(a.timestamp || a.updatedAt || 0);
             const bTime = new Date(b.timestamp || b.updatedAt || 0);
@@ -408,16 +408,16 @@ class StorageManager {
             const historyId = chatHistories[i].id;
             const messagesKey = `messages_${historyId}`;
             
-            // 只处理确实存在的聊天记录
+            // Only process chat records that actually exist
             if (localStorage.getItem(messagesKey)) {
                 const historySize = localStorage[messagesKey].length * 2 / 1024 / 1024;
-                // 只保留没有时间戳的消息（未同步的消息）
+                // Only keep messages without timestamp (unsynced messages)
                 let messages = this.getMessages(historyId).filter(message => !message.timestamp);
                 
-                // 保存过滤后的消息
+                // Save filtered messages
                 this.saveMessages(historyId, messages);
                 
-                // 更新存储使用量
+                // Update storage usage
                 if (messages.length === 0) {
                     localStorage.removeItem(messagesKey);
                     localStorageUsage -= historySize;
@@ -463,7 +463,7 @@ class StorageManager {
     cleanupChatData(chatId) {
         try {
             console.log(`Cleaning up data for chat ${chatId}`);
-            // 清除此聊天相关的其他数据，比如搜索结果缓存等
+            // Clear other data related to this chat, such as search result cache, etc.
             const cleanupKeys = [
                 `messages_${chatId}`,
                 `searchResults_${chatId}`,

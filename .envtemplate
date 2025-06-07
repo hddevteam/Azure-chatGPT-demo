@@ -43,7 +43,7 @@ BING_SEARCH_API_KEY=your-bing-search-key
 BING_SEARCH_API_URL=https://api.bing.microsoft.com/
 BING_SEARCH_API_LOCALE=global
 
-# 新增模型配置
+# Additional model configurations
 O3_API_URL=https://yourserver.openai.azure.com/openai/deployments/o3/chat/completions?api-version=2025-01-01-preview
 O3_API_KEY=your-o3-key
 
@@ -61,3 +61,6 @@ GPT_4_1_NANO_API_KEY=your-gpt41-nano-key
 
 GPT_4_1_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-4.1-mini/chat/completions?api-version=2025-01-01-preview
 GPT_4_1_MINI_API_KEY=your-gpt41-mini-key
+
+SORA_API_URL=https://yourserver.openai.azure.com/openai/deployments/sora/video/generations/jobs?api-version=2025-02-15-preview
+SORA_API_KEY=your-sora-api-key

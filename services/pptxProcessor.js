@@ -12,17 +12,17 @@ class PPTXProcessor {
             const directory = await unzipper.Open.buffer(buffer);
             let slideTexts = [];
 
-            // 查找所有幻灯片文件
+            // Find all slide files
             const slideFiles = directory.files.filter(file => 
                 file.path.match(/ppt\/slides\/slide[0-9]+\.xml/)
             ).sort((a, b) => {
-                // 按幻灯片编号排序
+                // Sort by slide number
                 const numA = parseInt(a.path.match(/slide([0-9]+)\.xml/)[1]);
                 const numB = parseInt(b.path.match(/slide([0-9]+)\.xml/)[1]);
                 return numA - numB;
             });
 
-            // 处理每个幻灯片
+            // Process each slide
             for (const slideFile of slideFiles) {
                 const content = await slideFile.buffer();
                 const slideContent = await this.parser.parseStringPromise(content);
@@ -43,7 +43,7 @@ class PPTXProcessor {
     extractSlideText(slideContent) {
         const texts = [];
         
-        // 遍历幻灯片内容提取文本
+        // Traverse slide content to extract text
         if (slideContent && slideContent["p:sld"] && slideContent["p:sld"]["p:cSld"]) {
             const shapes = slideContent["p:sld"]["p:cSld"][0]["p:spTree"][0]["p:sp"] || [];
             

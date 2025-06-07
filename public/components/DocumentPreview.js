@@ -10,7 +10,7 @@ class DocumentPreview {
     }
 
     createPreviewElements() {
-        // 创建预览窗口的 DOM 元素
+        // Create DOM elements for preview window
         this.overlay = document.createElement("div");
         this.overlay.className = "document-preview-overlay";
         this.overlay.innerHTML = `
@@ -28,14 +28,14 @@ class DocumentPreview {
                 </div>
             </div>`;
 
-        // 添加到文档中
+        // Add to document
         document.body.appendChild(this.overlay);
 
-        // 添加关闭按钮事件
+        // Add close button event
         const closeButton = this.overlay.querySelector(".close-preview");
         closeButton.addEventListener("click", () => this.hidePreview());
 
-        // 点击遮罩层关闭预览
+        // Click mask layer to close preview
         this.overlay.addEventListener("click", (e) => {
             if (e.target === this.overlay) {
                 this.hidePreview();
@@ -76,14 +76,14 @@ class DocumentPreview {
                 throw new Error("No content received from server");
             }
 
-            // 在显示文件名时使用原始文件名，如果有的话
+            // Use original filename when displaying file name, if available
             this.overlay.querySelector(".document-info").textContent = 
                 originalFileName || fileName.replace(/^\d+-/, "").replace("_processed.md", "");
             
             const previewElem = this.overlay.querySelector(".document-text");
             previewElem.textContent = content;
 
-            // 如果是处理后的markdown文件，添加代码内容类
+            // If it's a processed markdown file, add code content class
             if (fileName.endsWith("_processed.md")) {
                 previewElem.classList.add("code-content");
             }

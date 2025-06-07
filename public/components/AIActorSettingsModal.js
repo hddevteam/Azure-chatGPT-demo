@@ -94,20 +94,20 @@ export default class AIActorSettingsModal {
                 </div>
             </div>`;
 
-        // 将模态框添加到文档中
+        // Add modal to document
         document.body.insertAdjacentHTML("beforeend", modalTemplate);
         this.modal = document.getElementById("ai-actor-settings-wrapper");
     }
 
     bindEvents() {
-        // 点击外部区域关闭
+        // Click outside area to close
         this.modal.addEventListener("click", (event) => {
             if (event.target === this.modal) {
                 this.hide();
             }
         });
 
-        // ESC键关闭
+        // ESC key to close
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape" && this.isVisible()) {
                 this.hide();
@@ -125,16 +125,16 @@ export default class AIActorSettingsModal {
             });
         }
 
-        // 保存按钮
+        // Save button
         const saveButton = this.modal.querySelector("#save-profile");
         if (saveButton) {
             saveButton.addEventListener("click", () => {
-                // 触发保存逻辑后关闭模态框
+                // Trigger save logic and close modal
                 this.hide();
             });
         }
 
-        // 关闭按钮
+        // Close button
         const closeButton = this.modal.querySelector("#close-settings");
         if (closeButton) {
             closeButton.addEventListener("click", () => {
@@ -142,11 +142,11 @@ export default class AIActorSettingsModal {
             });
         }
 
-        // Delete button - 添加确认对话框
+        // Delete button - Add confirmation dialog
         const deleteButton = this.modal.querySelector("#delete-profile");
         if (deleteButton) {
             deleteButton.addEventListener("click", (event) => {
-                // 如果在创建模式下，显示警告消息并阻止默认操作
+                // If in create mode, show warning message and prevent default action
                 if (!this.editMode) {
                     event.preventDefault();
                     event.stopPropagation();
@@ -154,7 +154,7 @@ export default class AIActorSettingsModal {
                     return false;
                 }
                 
-                // 添加确认对话框，确保用户真的想删除这个 AI Actor
+                // Add confirmation dialog to ensure user really wants to delete this AI Actor
                 event.preventDefault();
                 event.stopPropagation();
                 
@@ -166,8 +166,8 @@ export default class AIActorSettingsModal {
                     dangerMode: true,
                 }).then((willDelete) => {
                     if (willDelete) {
-                        // 用户确认删除，触发原有的删除逻辑
-                        // 由 ProfileFormManager 处理实际删除操作
+                        // User confirmed deletion, trigger original deletion logic
+                        // Handled by ProfileFormManager for actual deletion operation
                         const deleteEvent = new Event("deleteConfirmed", { bubbles: true });
                         deleteButton.dispatchEvent(deleteEvent);
                     }
@@ -175,7 +175,7 @@ export default class AIActorSettingsModal {
             });
         }
 
-        // 监听 Display Name 变化，实时更新标题
+        // Listen for Display Name changes, update title in real-time
         const displayNameInput = this.modal.querySelector("#displayName");
         if (displayNameInput) {
             displayNameInput.addEventListener("input", (e) => {
@@ -242,19 +242,19 @@ export default class AIActorSettingsModal {
             }
         }
 
-        // 更新标题
+        // Update title
         const modalTitle = this.modal.querySelector("#modal-title");
         const nameField = this.modal.querySelector("#name");
 
         if (this.editMode && profileData) {
-            // 编辑模式：设置标题为 Display Name 并禁用 Name 字段
+            // Edit mode: set title to Display Name and disable Name field
             modalTitle.textContent = profileData.displayName || profileData.name;
             if (nameField) {
                 nameField.disabled = true;
                 nameField.classList.add("disabled");
             }
         } else {
-            // 新建模式：重置标题并启用 Name 字段
+            // Create mode: reset title and enable Name field
             modalTitle.textContent = "New AI Actor";
             if (nameField) {
                 nameField.disabled = false;
@@ -266,7 +266,7 @@ export default class AIActorSettingsModal {
         this.updateUIForEditMode();
 
         this.modal.classList.add("visible");
-        // 添加一个短暂延迟以确保过渡动画正确触发
+        // Add a brief delay to ensure transition animation triggers correctly
         requestAnimationFrame(() => {
             this.modal.style.opacity = "1";
         });
@@ -274,10 +274,10 @@ export default class AIActorSettingsModal {
 
     hide() {
         this.modal.style.opacity = "0";
-        // 等待过渡动画完成后再隐藏元素
+        // Wait for transition animation to complete before hiding element
         setTimeout(() => {
             this.modal.classList.remove("visible");
-        }, 300); // 与 CSS 过渡时间相匹配
+        }, 300); // Match CSS transition time
     }
 
     isVisible() {

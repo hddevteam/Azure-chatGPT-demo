@@ -129,11 +129,11 @@ export async function saveOrUpdateProfile(profile, username, isNewProfile, oldNa
 export async function uploadAttachment(fileContent, fileName) {
     try {
         const formData = new FormData();
-        // 如果 fileContent 已经是 Blob 或 File 对象，直接使用
+        // If fileContent is already a Blob or File object, use it directly
         if (fileContent instanceof Blob || fileContent instanceof File) {
             formData.append("fileContent", fileContent, fileName);
         } else {
-            // 如果是 base64 字符串，需要先转换为 Blob
+            // If it's a base64 string, need to convert to Blob first
             const base64Data = fileContent.split(",")[1];
             const mimeType = fileContent.split(",")[0].split(":")[1].split(";")[0];
             const binaryStr = window.atob(base64Data);
@@ -148,7 +148,7 @@ export async function uploadAttachment(fileContent, fileName) {
 
         formData.append("originalFileName", fileName);
 
-        // 获取当前用户名
+        // Get current username
         const username = getUserName();
         formData.append("username", username);
 
@@ -502,7 +502,7 @@ export async function deleteCloudMessage(chatId, messageId, token) {
     await axios.delete(`/messages/${encodeURIComponent(chatId)}/${encodeURIComponent(messageId)}`, {
         headers: { Authorization: `Bearer ${token}` }
     });
-    // 删除成功后不需要返回数据，因为实体已经被删除
+    // No need to return data after successful deletion, as the entity has been removed
     return true;
 }
 
@@ -608,15 +608,15 @@ export async function getDocumentContent(fileName) {
 
 export async function generateDocumentQuery(processedFileNames, question) {
     try {
-        // 首先获取所有文档的内容
+        // First get content from all documents
         const contentsPromises = processedFileNames.map(fileName => {
-            // 文件名已经是完整的处理后文件名，直接使用
+            // Filename is already complete processed filename, use directly
             return getDocumentContent(fileName);
         });
         
         const contents = await Promise.all(contentsPromises);
         
-        // 将所有文档内容和问题一起发送到服务器
+        // Send all document content and question together to server
         const response = await axios.post("/gpt/document-query", {
             documents: contents,
             question: question
@@ -677,6 +677,155 @@ export async function gptImage1Edit(formData) {
         return response.data;
     } catch (error) {
         console.error("Failed to edit image with GPT-Image-1:", error);
+        throw error;
+    }
+}
+
+// Sora Video Generation API methods
+export async function getSoraConfig() {
+    try {
+        const response = await axios.get("/sora/config");
+        return response.data;
+    } catch (error) {
+        console.error("Failed to get Sora config:", error);
+        throw error;
+    }
+}
+
+export async function generateSoraVideo(parameters) {
+    try {
+        console.log("Sending Sora video generation request with parameters:", parameters);
+        const response = await axios.post("/sora/generate", parameters);
+        console.log("Sora video generation response:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to generate Sora video:", error);
+        // Show more detailed error information
+        if (error.response) {
+            console.error("Response error data:", error.response.data);
+            console.error("Response status:", error.response.status);
+            console.error("Response headers:", error.response.headers);
+        } else if (error.request) {
+            console.error("No response received:", error.request);
+        } else {
+            console.error("Error setting up request:", error.message);
+        }
+        throw error;
+    }
+}
+
+export async function getSoraJobStatus(jobId) {
+    try {
+        const response = await axios.get(`/sora/status/${jobId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to get Sora job status:", error);
+        throw error;
+    }
+}
+
+export async function downloadSoraVideo(jobId, username = null) {
+    try {
+        const params = {};
+        if (username) {
+            params.username = username;
+        }
+        
+        const response = await axios.get(`/sora/download/${jobId}`, { params });
+        return response.data;
+    } catch (error) {
+        console.error("Failed to download Sora video:", error);
+        throw error;
+    }
+}
+
+export async function getSoraHistory(limit = 20) {
+    try {
+        const response = await axios.get(`/sora/history?limit=${limit}`);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to get Sora history:", error);
+        throw error;
+    }
+}
+
+export async function deleteSoraJob(jobId) {
+    try {
+        const response = await axios.delete(`/sora/job/${jobId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to delete Sora job:", error);
+        throw error;
+    }
+}
+
+// Video File Management API methods
+export async function uploadVideoFile(fileContent, fileName) {
+    try {
+        const formData = new FormData();
+        formData.append("fileContent", fileContent);
+        formData.append("originalFileName", fileName);
+        
+        const username = getUserName();
+        formData.append("username", username);
+
+        const response = await axios.post("/videofiles/upload", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+        
+        return response.data;
+    } catch (error) {
+        console.error("Failed to upload video file:", error);
+        throw error;
+    }
+}
+
+export async function fetchUploadedVideoFiles() {
+    try {
+        const username = getUserName();
+        const response = await axios.get("/videofiles/list", { params: { username } });
+        if (response && response.data) {
+            return {
+                success: true,
+                data: response.data,
+            };
+        }
+    } catch (error) {
+        console.error("Failed to get uploaded video files list:", error);
+        return {
+            success: false,
+            message: "Unable to fetch uploaded video files list",
+        };
+    }
+}
+
+export async function deleteVideoFile(fileName) {
+    try {
+        console.log(`Attempting to delete video file: ${fileName}`);
+        const response = await axios.delete("/videofiles/delete", { 
+            data: { fileName: fileName } 
+        });
+        console.log(`Video file ${fileName} deleted successfully`);
+        return response.data;
+    } catch (error) {
+        console.error(`Failed to delete video file ${fileName}:`, error);
+        if (error.response) {
+            console.error("Response data:", error.response.data);
+            console.error("Response status:", error.response.status);
+        }
+        throw error;
+    }
+}
+
+export async function getVideoFileDetails(fileName, username) {
+    try {
+        const params = username ? { username } : {};
+        const response = await axios.get(`/videofiles/details/${encodeURIComponent(fileName)}`, { params });
+        return response.data;
+    } catch (error) {
+        console.error("Failed to get video file details:", error);
         throw error;
     }
 }

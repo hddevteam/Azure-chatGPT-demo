@@ -10,8 +10,8 @@ export default class ProfileFormManager {
         this.onDeleteCallback = onDeleteCallback;
         this.onFormCloseCallback = onFormCloseCallback;
         this.oldName = "";
-        this.storageManager = this.uiManager.storageManager; // 初始化 storageManager 属性
-        this.initForm(); // 确保在构造函数中初始化表单元素
+        this.storageManager = this.uiManager.storageManager; // Initialize storageManager property
+        this.initForm(); // Ensure form elements are initialized in constructor
         this.bindEvents();
     }
 
@@ -56,7 +56,7 @@ export default class ProfileFormManager {
             });
         }
 
-        // 修改为监听 deleteConfirmed 事件，而不是直接点击事件
+        // Modified to listen for deleteConfirmed event instead of direct click event
         if (deleteProfileBtn) {
             deleteProfileBtn.addEventListener("deleteConfirmed", async () => {
                 await this.handleDelete();
@@ -81,7 +81,7 @@ export default class ProfileFormManager {
             });
         }
 
-        // 监听图标预览
+        // Listen for icon preview
         const iconInput = document.getElementById("icon");
         if (iconInput) {
             iconInput.addEventListener("input", () => {
@@ -124,7 +124,7 @@ export default class ProfileFormManager {
         const existingNames = this.uiManager.profiles.map(p => p.name.replace(/_/g, "-"));
         const existingDisplayNames = this.uiManager.profiles.map(p => p.displayName);
     
-        // 检查并调整 name，使用减号代替下划线
+        // Check and adjust name, using hyphens instead of underscores
         let newName = profile.name.replace(/_/g, "-");
         let counter = 1;
         while (existingNames.includes(newName) || existingDisplayNames.includes(newName)) {
@@ -133,7 +133,7 @@ export default class ProfileFormManager {
         }
         profile.name = newName;
     
-        // 检查并调整 displayName
+        // Check and adjust displayName
         let newDisplayName = profile.displayName || newName;
         counter = 1;
         while (existingDisplayNames.includes(newDisplayName) || existingNames.includes(newDisplayName)) {
@@ -153,7 +153,7 @@ export default class ProfileFormManager {
             reader.onload = event => {
                 const obj = JSON.parse(event.target.result);
                 this.bindProfileData(obj);
-                this.oldName = ""; // 确保视为新的Profile
+                this.oldName = ""; // Ensure it's treated as a new Profile
                 this.handleSave(); 
             };
             reader.readAsText(file);
@@ -186,14 +186,14 @@ export default class ProfileFormManager {
         try {
             const data = await createChatProfile({ profession });
             swal.close();
-            // 将获取到的数据动态填充到表单中
+            // Dynamically populate the form with retrieved data
             this.formElements.prompt.value = data.prompt;
             if (this.formElements.name.value === "") {
                 this.formElements.name.value = data.name;
             }
             this.formElements.icon.value = data.icon;
             this.formElements.displayName.value = data.displayName;
-            // 更新icon-preview的类
+            // Update icon-preview class
             document.getElementById("icon-preview").className = data.icon;
             this.showMessage("Profile generated successfully.", "success");
         } catch (error) {
@@ -204,17 +204,17 @@ export default class ProfileFormManager {
     }
 
     bindProfileData(profileData) {
-        // 增加防御性编程：检查 profileData 是否为空
+        // Add defensive programming: check if profileData is empty
         if (!profileData) {
             console.log("No profile data to bind.");
             return;
         }
         
-        // 检查并初始化表单元素（如果尚未初始化）
+        // Check and initialize form elements (if not already initialized)
         if (!this.formElements) {
             this.initForm();
         }
-        // 检查表单元素是否存在
+        // Check if form elements exist
         if (!this.formElements.prompt) {
             console.error("Form elements not properly initialized.");
             return;
@@ -224,28 +224,28 @@ export default class ProfileFormManager {
         this.oldName = profileData.name || "";
         console.log("Set oldName to:", this.oldName);
         
-        // 安全地设置表单值
+        // Safely set form values
         try {
-            // 遍历 formElements 对象的属性而不是 profileData
+            // Iterate through formElements object properties instead of profileData
             Object.keys(this.formElements).forEach(key => {
                 const element = this.formElements[key];
                 if (!element) {
                     console.warn(`Form element for ${key} not found.`);
-                    return; // 跳过当前迭代
+                    return; // Skip current iteration
                 }
                 
                 if (element.type === "checkbox") {
-                    element.checked = !!profileData[key]; // 转换为布尔值
+                    element.checked = !!profileData[key]; // Convert to boolean
                 } else if (element.tagName === "SELECT") {
-                    // 特殊处理下拉选择框，确保正确显示选定的选项
+                    // Special handling for dropdown select boxes to ensure correct display of selected options
                     if (profileData[key]) {
                         element.value = profileData[key];
                     }
                 } else {
-                    // 为输入框设置值时确保有默认值
+                    // Ensure default value when setting input box values
                     element.value = profileData[key] || "";
                     
-                    // 特殊处理图标预览
+                    // Special handling for icon preview
                     if (key === "icon") {
                         const iconPreview = document.getElementById("icon-preview");
                         if (iconPreview) {
@@ -292,7 +292,7 @@ export default class ProfileFormManager {
         
         try {
             await saveOrUpdateProfile(profile, username, isNewProfile, this.oldName);
-            this.storageManager.setCurrentProfile(profile); // 设置新保存的Profile为当前Profile
+            this.storageManager.setCurrentProfile(profile); // Set the newly saved Profile as the current Profile
             
             // Update AIProfileManager's current profile and UI state
             if (this.uiManager.aiProfileManager) {

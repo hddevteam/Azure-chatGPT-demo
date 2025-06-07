@@ -6,7 +6,7 @@ class FileUploader {
         this.attachmentPreviewContainer = document.getElementById("attachment-preview-container");
         this.attachmentPreviewList = document.getElementById("attachment-preview-list");
         
-        // 移除文件类型限制，接受所有类型
+        // Remove file type restrictions, accept all types
         this.maxSize = 20 * 1024 * 1024; // 20MB
         
         this.removePreviewItem = this.removePreviewItem.bind(this);
@@ -22,7 +22,7 @@ class FileUploader {
         if (fileType.includes("sheet")) return "fa-file-excel";
         if (fileType.includes("presentation")) return "fa-file-powerpoint";
         if (fileType.includes("text")) return "fa-file-text";
-        return "fa-file"; // 默认文件图标
+        return "fa-file"; // Default file icon
     }
 
     async handleFileUpload(files) {

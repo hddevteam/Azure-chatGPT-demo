@@ -4,18 +4,18 @@ class DocumentMessageBuilder {
     }
 
     createDocumentMessage(documentContents, question) {
-        // 生成消息ID
+        // Generate message ID
         const messageId = this.uiManager.generateId();
         const timestamp = new Date().toISOString();
 
-        // 创建包含所有文档内容的消息
+        // Create message containing all document content
         const docs = documentContents.map(doc => ({
             fileName: doc.fileName,
             content: doc.content,
             processedFileName: doc.processedFileName
         }));
 
-        // 构建完整的消息对象
+        // Build complete message object
         return {
             role: "user",
             messageId: messageId,
@@ -29,12 +29,12 @@ class DocumentMessageBuilder {
     }
 
     formatDocumentContent(content) {
-        const lines = content.split('\n');
-        let formattedContent = [];
-        formattedContent.push('```');
+        const lines = content.split("\n");
+        const formattedContent = [];
+        formattedContent.push("```");
         formattedContent.push(...lines);
-        formattedContent.push('```');
-        return formattedContent.join('\n');
+        formattedContent.push("```");
+        return formattedContent.join("\n");
     }
 }
 

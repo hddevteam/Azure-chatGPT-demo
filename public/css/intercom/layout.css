@@ -47,14 +47,14 @@
   background: var(--bg-overlay);
   border-bottom: 1px solid var(--border-light);
   margin-bottom: 0;
-  color: white; /* 添加标题文本颜色 */
+  color: white; /* Add title text color */
 }
 
 .im-header h2 {
   margin: 0;
   font-size: 20px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9); /* 更新标题颜色 */
+  color: rgba(255, 255, 255, 0.9); /* Update title color */
 }
 
 /* Content area */
@@ -225,13 +225,13 @@
     background: var(--bg-overlay-dark);
     backdrop-filter: blur(10px);
     padding: 16px;
-    color: rgba(255, 255, 255, 0.9); /* 确保移动端也有正确的文本颜色 */
+    color: rgba(255, 255, 255, 0.9); /* Ensure mobile also has correct text color */
   }
 
   .im-header h2 {
     margin: 0;
-    font-size: var(--mobile-font-size-xl); /* 使用移动端字体大小变量 */
+    font-size: var(--mobile-font-size-xl); /* Use mobile font size variable */
     font-weight: 500;
-    color: inherit; /* 继承父元素的颜色 */
+    color: inherit; /* Inherit parent element color */
   }
 }

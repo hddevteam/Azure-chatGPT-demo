@@ -23,7 +23,7 @@
         padding-bottom:100px;
     }
 
-    /* 调整移动端上的toggle-chat-topic按钮位置和样式 */
+    /* Adjust position and style of toggle-chat-topic button on mobile */
     #toggle-chat-topic {
         bottom: 100px;
         top: unset;
@@ -310,7 +310,7 @@
         box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.3);
     }
 
-    /* 在移动设备上隐藏 toggle-layout 按钮 */
+    /* Hide toggle-layout button on mobile devices */
     #toggle-layout {
         display: none;
     }

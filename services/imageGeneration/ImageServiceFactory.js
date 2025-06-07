@@ -3,14 +3,14 @@ const DalleImageService = require("./DalleImageService");
 const GptImageService = require("./GptImageService");
 
 /**
- * 图像生成服务工厂类
- * 负责创建和管理不同的图像生成服务实例
+ * Image generation service factory class
+ * Responsible for creating and managing different image generation service instances
  */
 class ImageServiceFactory {
     /**
-     * 获取图像生成服务实例
-     * @param {string} type - 服务类型 ("dalle" 或 "gpt-image")
-     * @returns {ImageGenerationInterface} 图像生成服务实例
+     * Get image generation service instance
+     * @param {string} type - Service type ("dalle" or "gpt-image")
+     * @returns {ImageGenerationInterface} Image generation service instance
      */
     static getService(type) {
         switch (type.toLowerCase()) {

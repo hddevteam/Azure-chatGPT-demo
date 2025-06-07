@@ -4,7 +4,7 @@ import swal from "sweetalert";
 export default class ChatOptionsModal {
     constructor(clientLanguage) {
         this.clientLanguage = clientLanguage;
-        this.optionsData = null; // 存储选项数据
+        this.optionsData = null; // Store options data
         this.createModal();
     }
 
@@ -51,14 +51,14 @@ export default class ChatOptionsModal {
         const loadingElement = document.getElementById("loading-options");
         const form = document.getElementById("chat-options-form");
 
-        // 显示模态框和加载状态
+        // Show modal and loading state
         modal.style.display = "block";
         loadingElement.style.display = "block";
         form.style.display = "none";
 
         try {
             const options = await generateChatOptions(message, this.clientLanguage);
-            this.optionsData = options; // 保存选项数据
+            this.optionsData = options; // Save options data
             this.renderOptions(options);
             loadingElement.style.display = "none";
             form.style.display = "block";

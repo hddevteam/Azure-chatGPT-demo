@@ -8,11 +8,11 @@ describe("Azure Blob Storage service", () => {
 
     test("uploadTextToBlob should upload text and return a blob URL", async () => {
         const url = await uploadTextToBlob(containerName, blobName, testContent);
-        expect(url).toMatch(/http[s]?:\/\/.+/);  // 确定返回的是一个URL
+        expect(url).toMatch(/http[s]?:\/\/.+/);  // Ensure the returned value is a URL
     });
 
     test("getTextFromBlob should retrieve the text content from the blob URL", async () => {
-        const url = await uploadTextToBlob(containerName, blobName, testContent); // 首先上传以便测试
+        const url = await uploadTextToBlob(containerName, blobName, testContent); // First upload for testing
         const content = await getTextFromBlob(url);
         expect(content).toBe(testContent);
     });
@@ -20,19 +20,19 @@ describe("Azure Blob Storage service", () => {
     describe("Azure Blob Storage service for file content upload", () => {
         const containerName = "test-container";
         const originalFileName = "testFile.txt";
-        const fileContent = "This is a test file content"; // 用字符串模拟文件内容
+        const fileContent = "This is a test file content"; // Use string to simulate file content
 
         test("uploadFileToBlob should upload file content and return metadata", async () => {
             const { filename, originalFileName: returnedFileName, url } = await uploadFileToBlob(containerName, originalFileName, fileContent);
 
-            expect(filename).toBeDefined(); // 确保生成了blob名称
-            expect(returnedFileName).toBe(originalFileName); // 确保原始文件名回传
-            expect(url).toMatch(/^http[s]?:\/\//); // 确保URL格式正确
+            expect(filename).toBeDefined(); // Ensure blob name is generated
+            expect(returnedFileName).toBe(originalFileName); // Ensure original file name is returned
+            expect(url).toMatch(/^http[s]?:\/\//); // Ensure URL format is correct
         });
 
-    // 根据需要添加更多测试场景。
+    // Add more test scenarios as needed.
     });
 
 
-    // 更多测试可以添加在这里，比如错误处理，权限问题等。
+    // Additional tests can be added here, such as error handling, permission issues, etc.
 });

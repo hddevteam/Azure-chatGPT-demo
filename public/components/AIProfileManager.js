@@ -1,4 +1,4 @@
-// AIProfileManager.js - 管理 AI Profile 状态的组件
+// AIProfileManager.js - Component for managing AI Profile state
 class AIProfileManager {
     constructor(uiManager) {
         this.uiManager = uiManager;
@@ -8,7 +8,7 @@ class AIProfileManager {
     }
 
     setupEventListeners() {
-        // 监听 AI Actor 列表的点击事件，使用事件委托
+        // Listen for AI Actor list click events, using event delegation
         document.addEventListener("click", (event) => {
             const listItem = event.target.closest("#ai-actor-list li");
             if (!listItem) return;
@@ -23,7 +23,7 @@ class AIProfileManager {
         });
     }
 
-    // 初始化 AI Profile 状态
+    // Initialize AI Profile state
     initialize(currentProfile, profiles) {
         this.profiles = profiles || [];
         this.currentProfile = currentProfile;
@@ -35,17 +35,17 @@ class AIProfileManager {
         }
     }
 
-    // 更新 UI 状态 - 移除表单绑定逻辑
+    // Update UI state - remove form binding logic
     updateUIState() {
         if (!this.currentProfile) return;
         
-        // 更新 AI Profile 按钮显示
+        // Update AI Profile button display
         const aiProfile = document.querySelector("#ai-profile");
         if (aiProfile) {
             aiProfile.innerHTML = `<i class="${this.currentProfile.icon}"></i> ${this.currentProfile.displayName}`;
         }
 
-        // 更新 AI Actor 列表的激活状态
+        // Update AI Actor list active state
         const aiActorList = document.querySelector("#ai-actor-list");
         if (aiActorList) {
             const items = aiActorList.querySelectorAll("li");
@@ -56,10 +56,10 @@ class AIProfileManager {
         }
     }
 
-    // 根据点击切换到新的 Profile
+    // Switch to new Profile based on click
     async switchToProfile(profile, isNewTopic = false) {
         if (!profile) {
-            // 如果没有提供 profile 或 profile 不存在，切换到第一个可用的 profile
+            // If no profile provided or profile doesn't exist, switch to first available profile
             if (this.profiles && this.profiles.length > 0) {
                 profile = this.profiles[0];
                 console.log("No valid profile provided, switching to the first available profile:", profile.name);
@@ -69,22 +69,22 @@ class AIProfileManager {
             }
         }
 
-        // 检查是否切换到相同的 profile
+        // Check if switching to the same profile
         if (this.currentProfile && this.currentProfile.name === profile.name && !isNewTopic) {
             console.log("Switching to the same profile, skip update");
             return;
         }
 
-        // 更新存储的当前 Profile
+        // Update stored current Profile
         this.currentProfile = profile;
         
-        // 更新存储
+        // Update storage
         this.uiManager.storageManager.setCurrentProfile(profile);
         
-        // 更新 UI 状态
+        // Update UI state
         this.updateUIState();
 
-        // 生成或获取聊天 ID
+        // Generate or get chat ID
         const chatId = isNewTopic ? 
             this.uiManager.chatHistoryManager.generateChatId(
                 this.uiManager.storageManager.getCurrentUsername(), 
@@ -92,16 +92,16 @@ class AIProfileManager {
             ) :
             this.getExistingChatId(profile);
 
-        // 切换到新的聊天主题
+        // Switch to new chat topic
         await this.uiManager.changeChatTopic(chatId, isNewTopic);
 
-        // 如果是新话题并且已经打开了 AI Actor 列表，则隐藏它
+        // If it's a new topic and AI Actor list is already open, hide it
         if (isNewTopic) {
             this.uiManager.hideAIActorList();
         }
     }
 
-    // 根据聊天历史获取现有的聊天 ID
+    // Get existing chat ID based on chat history
     getExistingChatId(profile) {
         const chatHistory = this.uiManager.chatHistoryManager.getChatHistory();
         const latestChat = chatHistory.find(history => history.profileName === profile.name);
@@ -113,28 +113,28 @@ class AIProfileManager {
             );
     }
 
-    // 根据 Profile 名称获取 Profile 对象
+    // Get Profile object by Profile name
     getProfileByName(profileName) {
         return this.profiles.find(p => p.name === profileName);
     }
 
-    // 获取当前 Profile
+    // Get current Profile
     getCurrentProfile() {
         return this.currentProfile;
     }
 
-    // 更新 Profiles 列表
+    // Update Profiles list
     updateProfiles(profiles) {
         if (!profiles || profiles.length === 0) return;
         
         this.profiles = profiles;
         
-        // 如果当前 profile 不在新列表中，切换到第一个
+        // If current profile is not in new list, switch to first one
         if (!this.profiles.find(p => p.name === this.currentProfile?.name)) {
             this.switchToProfile(this.profiles[0]);
         }
         
-        // 确保 UI 状态更新
+        // Ensure UI state is updated
         this.updateUIState();
     }
 }

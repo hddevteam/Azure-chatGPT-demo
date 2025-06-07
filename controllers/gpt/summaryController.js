@@ -1,12 +1,12 @@
 // controllers/gpt/summaryController.js
 /**
- * 摘要控制器 - 处理会话摘要和标题生成的功能
+ * Summary controller - handles session summary and title generation functionality
  */
 
 const gptService = require("../../services/gptService");
 
 /**
- * 摘要一个会话内容
+ * Summarize a conversation content
  */
 exports.summarizeConversation = async (req, res) => {
     try {
@@ -57,7 +57,7 @@ exports.summarizeConversation = async (req, res) => {
 };
 
 /**
- * 为会话生成标题
+ * Generate title for session
  */
 exports.generateTitle = async (req, res) => {
     try {
@@ -107,7 +107,7 @@ exports.generateTitle = async (req, res) => {
 };
 
 /**
- * 生成后续问题
+ * Generate follow-up questions
  */
 exports.generateFollowUpQuestions = async (req, res) => {
     try {
@@ -137,7 +137,7 @@ exports.generateFollowUpQuestions = async (req, res) => {
 };
 
 /**
- * 生成实时会话摘要
+ * Generate real-time session summary
  */
 exports.generateRealtimeSummary = async (req, res) => {
     try {
@@ -185,7 +185,7 @@ exports.generateRealtimeSummary = async (req, res) => {
         const responseContent = response.data.choices[0].message.content;
         const summaryData = JSON.parse(responseContent);
         
-        // 如果模型没有提供token计数，添加token计数
+        // If model didn't provide token count, add token count
         if (!summaryData.tokens && response.data.usage) {
             summaryData.tokens = response.data.usage.total_tokens;
         }

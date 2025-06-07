@@ -117,7 +117,7 @@ describe("Message Controller", () => {
 
     test("Upload a new Attachment to Blob", async () => {
         const req = setupMockRequest({}, {}, {});
-        // 向req对象直接添加file属性
+        // Add file property directly to req object
         req.file = {
             buffer: Buffer.from("This is a test attachment content"),
             originalname: "testAttachment.txt"
@@ -155,11 +155,11 @@ describe("Message Controller", () => {
     }, timeout);
     
 
-    // 测试用例中假设已经有 uploadedAttachmentUrl 包含正确的附件URL
+    // Test case assumes uploadedAttachmentUrl already contains the correct attachment URL
     test("Delete an Attachment from Blob and Update the Message", async () => {
         expect(uploadedAttachmentUrl).not.toBe("");
 
-        // 将attachmentUrl作为请求体传递
+        // Pass attachmentUrl as request body
         const req = setupMockRequest({
             attachmentUrl: uploadedAttachmentUrl
         }, {}, {
@@ -174,7 +174,7 @@ describe("Message Controller", () => {
         expect(res.status).toHaveBeenCalledWith(204);
 
         const updatedEntity = await tableClient.getEntity(chatHistoryId, messageId);
-        // 使用更精确的断言来确认attachmentUrl不再出现在attachmentUrls字段中
+        // Use more precise assertion to confirm attachmentUrl no longer appears in attachmentUrls field
         expect(updatedEntity.attachmentUrls).not.toContain(uploadedAttachmentUrl);
     }, timeout);
 

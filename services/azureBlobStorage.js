@@ -1,4 +1,3 @@
-// services/azureBlobStorage.js
 require("dotenv").config();
 const { BlobServiceClient } = require("@azure/storage-blob");
 
@@ -6,7 +5,6 @@ const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STR
 
 const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
 
-// 该函数用于根据文件扩展名返回对应的内容类型
 function getContentTypeByFileName(fileName) {
     const extension = fileName.split(".").pop().toLowerCase();
     const mimeTypes = {
@@ -16,30 +14,49 @@ function getContentTypeByFileName(fileName) {
         "webp": "image/webp",
         "gif": "image/gif"
     };
-    // 默认返回 application/octet-stream 表示“二进制流”类型
     return mimeTypes[extension] || "application/octet-stream";
 }
   
-async function uploadFileToBlob(containerName, blobName, fileContent, username) { 
+async function uploadFileToBlob(containerName, blobName, fileContent, username, additionalMetadata = null) { 
     try {
         const containerClient = blobServiceClient.getContainerClient(containerName);
         await containerClient.createIfNotExists({ access: "blob" });
 
-        // 不再添加时间戳，直接使用传入的 blobName
+        // No longer add timestamp, directly use the passed blobName
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
         const contentType = getContentTypeByFileName(blobName);
         
-        // 准备上传选项
+        // Prepare upload options
         const options = {
             blobHTTPHeaders: { blobContentType: contentType }
         };
         
-        // 只有当username存在时才添加metadata
+        // Build metadata object
+        const metadata = {};
+        
+        // Add username
         if (username) {
-            options.metadata = { username };
+            metadata.username = encodeURIComponent(username);
         }
         
-        // 处理不同类型的fileContent
+        // Add additional metadata, URL encode all values
+        if (additionalMetadata && typeof additionalMetadata === "object") {
+            for (const [key, value] of Object.entries(additionalMetadata)) {
+                if (value !== null && value !== undefined) {
+                    // URL encode metadata values to ensure they can be passed as HTTP headers
+                    metadata[key] = encodeURIComponent(String(value));
+                }
+            }
+        }
+        
+        // If there's metadata, add it to options
+        if (Object.keys(metadata).length > 0) {
+            options.metadata = metadata;
+        }
+        
+        console.log(`📋 Uploading blob ${blobName} with encoded metadata:`, metadata);
+        
+        // Handle different types of fileContent
         const contentLength = Buffer.isBuffer(fileContent) ? fileContent.length : Buffer.byteLength(fileContent);
         
         await blockBlobClient.upload(fileContent, contentLength, options);
@@ -73,13 +90,13 @@ async function getTextContentFromBlob(containerName, blobName) {
         const downloadedContent = await streamToString(downloadBlockBlobResponse.readableStreamBody);
         return downloadedContent;
     } catch (error) {
-        console.error("从Blob获取内容时发生错误:", error.toString());
+        console.error("Error occurred while getting content from Blob:", error.toString());
         throw new Error("FailedToGetTextFromBlob");
     }
 }
 
 
-// 辅助函数，将读取流转换为字符串
+// Helper function to convert read stream to string
 async function streamToString(readableStream) {
     return new Promise((resolve, reject) => {
         const chunks = [];
@@ -111,25 +128,25 @@ async function updateBlobMetadata(containerName, blobName, metadataUpdates) {
     const blobClient = containerClient.getBlobClient(blobName);
 
     try {
-        // 在设置之前对元数据的值进行URL编码
+        // URL encode metadata values before setting them
         const encodedMetadataUpdates = {};
         for (const key in metadataUpdates) {
             const value = metadataUpdates[key];
             encodedMetadataUpdates[key] = encodeURIComponent(value);
         }
 
-        // 获取现有的元数据
+        // Get existing metadata
         const existingMetadata = (await blobClient.getProperties()).metadata;
 
-        // 合并现有的元数据与更新内容
+        // Merge existing metadata with updated content
         const updatedMetadata = { ...existingMetadata, ...encodedMetadataUpdates };
 
-        // 更新 Blob 元数据
+        // Update Blob metadata
         await blobClient.setMetadata(updatedMetadata);
 
-        console.log("元数据更新成功");
+        console.log("Metadata updated successfully");
     } catch (error) {
-        console.error("更新元数据时发生错误：", error);
+        console.error("Error occurred while updating metadata:", error);
         throw error;
     }
 }
@@ -137,35 +154,66 @@ async function updateBlobMetadata(containerName, blobName, metadataUpdates) {
 
 async function deleteBlob(containerName, blobName) {
     try {
+        if (!blobName) {
+            throw new Error("Blob name is required and cannot be undefined or empty");
+        }
+        
+        console.log(`Deleting blob: ${blobName} from container: ${containerName}`);
         const containerClient = blobServiceClient.getContainerClient(containerName);
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
         await blockBlobClient.delete();
+        console.log(`Successfully deleted blob: ${blobName}`);
     } catch (error) {
         console.error(`Failed to delete blob: ${blobName}`, error);
         throw error;
     }
 }
 
-async function listBlobsByUser(username) {
-    const containerClient = blobServiceClient.getContainerClient("audiofiles");
-    let blobs = [];
-    const containerUrl = containerClient.url; 
+async function listBlobsByUser(username, containerName = "audiofiles") {
+    try {
+        const containerClient = blobServiceClient.getContainerClient(containerName);
+        
+        // Create container if it doesn't exist
+        await containerClient.createIfNotExists({ access: "blob" });
+        
+        let blobs = [];
+        const containerUrl = containerClient.url; 
 
-    for await (const blob of containerClient.listBlobsFlat({ includeMetadata: true })) {
-        if (blob.metadata && blob.metadata.username === username) {
-            const blobUrl = `${containerUrl}/${blob.name}`; 
-            blobs.push({ 
-                name: blob.name, 
-                contentLength: blob.properties.contentLength,
-                url: blobUrl,
-                transcriptionStatus: blob.metadata.transcriptionStatus, // 转录状态
-                transcriptionUrl: blob.metadata.transcriptionUrl, // 转录结果URL
-                transcriptionId: blob.metadata.transcriptionId, // 转录ID
-                lastModified: blob.properties.lastModified
-            });
+        for await (const blob of containerClient.listBlobsFlat({ includeMetadata: true })) {
+            if (blob.metadata && blob.metadata.username) {
+                // Decode username for comparison
+                const decodedUsername = decodeURIComponent(blob.metadata.username);
+                if (decodedUsername === username) {
+                    const blobUrl = `${containerUrl}/${blob.name}`; 
+                    
+                    // Decode all metadata values
+                    const decodedMetadata = {};
+                    if (blob.metadata) {
+                        for (const [key, value] of Object.entries(blob.metadata)) {
+                            if (value) {
+                                decodedMetadata[key] = decodeURIComponent(value);
+                            }
+                        }
+                    }
+                    
+                    blobs.push({ 
+                        name: blob.name, 
+                        contentLength: blob.properties.contentLength,
+                        url: blobUrl,
+                        metadata: decodedMetadata,
+                        transcriptionStatus: decodedMetadata.transcriptionStatus, // Transcription status
+                        transcriptionUrl: decodedMetadata.transcriptionUrl, // Transcription result URL
+                        transcriptionId: decodedMetadata.transcriptionId, // Transcription ID
+                        lastModified: blob.properties.lastModified
+                    });
+                }
+            }
         }
+        return blobs;
+    } catch (error) {
+        console.error("Error listing blobs by user:", error);
+        throw error;
     }
-    return blobs;
 }
 
 async function checkBlobExists(containerName, blobName) {
@@ -176,32 +224,32 @@ async function checkBlobExists(containerName, blobName) {
         const exists = await blobClient.exists();
         return exists;
     } catch (error) {
-        console.error(`检查Blob存在时发生错误: ${error}`);
+        console.error(`Error occurred while checking Blob existence: ${error}`);
         throw error;
     }
 }
 
-async function getTextFromBlob(blobPath) {
+async function getTextFromBlobByPath(blobPath) {
     try {
         console.log(`Getting text from blob: ${blobPath}`);
         const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
         
-        // 正确解析容器名和 blob 名称
+        // Correctly parse container name and blob name
         let [containerName, ...blobNameParts] = blobPath.split('/');
-        const blobName = decodeURIComponent(blobNameParts.join('/')); // 确保 URL 编码的文件名被正确解码
+        const blobName = decodeURIComponent(blobNameParts.join('/')); // Ensure URL-encoded filename is properly decoded
         
         console.log(`Container: ${containerName}, Blob: ${blobName}`);
         
         const containerClient = blobServiceClient.getContainerClient(containerName);
         const blobClient = containerClient.getBlobClient(blobName);
         
-        // 检查 blob 是否存在
+        // Check if blob exists
         const exists = await blobClient.exists();
         if (!exists) {
             throw new Error(`Blob not found: ${blobName}`);
         }
         
-        // 下载 blob 内容
+        // Download blob content
         const downloadResponse = await blobClient.download();
         const content = await streamToBuffer(downloadResponse.readableStreamBody);
         
@@ -212,7 +260,7 @@ async function getTextFromBlob(blobPath) {
     }
 }
 
-// 辅助函数：将流转换为buffer
+// Helper function: convert stream to buffer
 async function streamToBuffer(readableStream) {
     return new Promise((resolve, reject) => {
         const chunks = [];

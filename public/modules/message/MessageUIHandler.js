@@ -164,7 +164,7 @@ class MessageUIHandler {
         // Image preview functionality
         this.eventManager.attachImagePreviewEvent();
         
-        // 初始化浮动编辑按钮事件
+        // Initialize floating edit button events
         this.eventManager.attachFloatingEditButtonEvent();
         
         // Update maximize button visibility

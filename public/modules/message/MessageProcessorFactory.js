@@ -1,4 +1,4 @@
-// MessageProcessorFactory.js - 消息处理器工厂
+// MessageProcessorFactory.js - Message Processor Factory
 import TextMessageProcessor from "./TextMessageProcessor.js";
 import ImageMessageProcessor from "./ImageMessageProcessor.js";
 import ImageEditMessageProcessor from "./ImageEditMessageProcessor.js";
@@ -15,29 +15,29 @@ class MessageProcessorFactory {
         this.documentProcessor = new DocumentMessageProcessor(messageManager);
     }
 
-    // 根据消息类型创建合适的处理器
+    // Create appropriate processor based on message type
     getProcessor(message, attachments = []) {
-        // 检查是否是文档处理请求
+        // Check if it's a document processing request
         if (DocumentMessageProcessor.isDocumentRequest(attachments)) {
             return this.documentProcessor;
         }
         
-        // 检查是否是图片编辑请求
+        // Check if it's an image edit request
         if (ImageEditMessageProcessor.isImageEditRequest(message)) {
             return this.imageEditProcessor;
         }
         
-        // 检查是否是图片生成请求
+        // Check if it's an image generation request
         if (ImageMessageProcessor.isImageRequest(message)) {
             return this.imageProcessor;
         }
         
-        // 检查是否是配置文件请求
+        // Check if it's a profile request
         if (ProfileMessageProcessor.isProfileRequest(message)) {
             return this.profileProcessor;
         }
         
-        // 默认为文本消息处理器
+        // Default to text message processor
         return this.textProcessor;
     }
 }

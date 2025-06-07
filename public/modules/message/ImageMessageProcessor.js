@@ -11,16 +11,16 @@ class ImageMessageProcessor extends MessageProcessor {
         const timestamp = new Date().toISOString();
         
         try {
-            // 验证消息并显示到界面
+            // Validate message and display to interface
             const validationResult = await this.validateInput(message, attachments);
             if (!validationResult) {
                 return null;
             }
             
-            // 处理图片生成
+            // Process image generation
             const response = await this.generateImage(message);
             
-            // 处理响应并显示
+            // Process response and display
             return await this.handleAIResponse(response, timestamp);
         } catch (error) {
             console.error("Error in ImageMessageProcessor:", error);
@@ -31,28 +31,28 @@ class ImageMessageProcessor extends MessageProcessor {
     async generateImage(message) {
         this.uiManager.showToast("AI is generating image...");
         
-        // 确定使用哪种图像生成服务
+        // Determine which image generation service to use
         if (message.startsWith("/gpt-image-1")) {
-            // 使用GPT-Image-1
+            // Use GPT-Image-1
             const prompt = message.replace("/gpt-image-1", "").trim();
             const data = await apiClient.gptImage1Generate(prompt);
-            console.log("GPT-Image-1 API 返回数据:", data);
+            console.log("GPT-Image-1 API returned data:", data);
             
-            // 如果服务器已经处理并上传了图像
+            // If server has already processed and uploaded the image
             if (data && data.success) {
-                // 首选服务器返回的附件URL
+                // Prefer attachment URL returned by server
                 if (data.attachmentUrl) {
-                    console.log("使用服务器生成的附件URL:", data.attachmentUrl);
+                    console.log("Using server-generated attachment URL:", data.attachmentUrl);
                     return {
                         message: data.revisedPrompt || prompt,
                         attachmentUrls: data.attachmentUrl
                     };
                 }
                 
-                // 如果服务器返回了图像数据但没有附件URL
+                // If server returned image data but no attachment URL
                 if (data.data && data.data.length > 0) {
                     const imageData = data.data[0];
-                    // 优先使用 URL，否则尝试 base64
+                    // Prefer URL, otherwise try base64
                     const imageUrl = imageData.url || 
                         (imageData.b64_json ? `data:image/png;base64,${imageData.b64_json}` : null);
                     const revisedPrompt = imageData.revised_prompt || prompt;
@@ -66,18 +66,17 @@ class ImageMessageProcessor extends MessageProcessor {
                 }
             }
             
-            console.error("GPT-Image-1 API返回无效数据:", data);
+            console.error("GPT-Image-1 API returned invalid data:", data);
             return {
-                message: `${prompt}\n(图像生成失败或无法显示)`,
+                message: `${prompt}\n(Image generation failed or cannot be displayed)`,
                 attachmentUrls: ""
             };
         } else {
-            // 默认使用DALL-E
+            // Default to using DALL-E
             const imageCaption = message.replace("/dalle", "").trim();
-            const data = await apiClient.textToImage(imageCaption);
-            console.log("DALL-E API 返回数据:", data);
-            
-            // 直接使用DALL-E返回的URL
+            const data = await apiClient.textToImage(imageCaption);            console.log("DALL-E API returned data:", data);
+
+            // Directly use URL returned by DALL-E
             return {
                 message: data.revised_prompt || imageCaption,
                 attachmentUrls: data.url || ""
@@ -85,7 +84,7 @@ class ImageMessageProcessor extends MessageProcessor {
         }
     }
     
-    // 检查消息是否是图片生成请求
+    // Check if the message is an image generation request
     static isImageRequest(message) {
         return message.startsWith("/dalle") || message.startsWith("/gpt-image-1");
     }

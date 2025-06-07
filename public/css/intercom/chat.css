@@ -25,8 +25,8 @@
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  background: rgba(255, 255, 255, 0.1); /* 默认背景色 */
-  color: white; /* 默认文本颜色 */
+  background: rgba(255, 255, 255, 0.1); /* Default background color */
+  color: white; /* Default text color */
 }
 
 /* Typography Enhancements */
@@ -154,7 +154,7 @@
 }
 
 .im-message-assistant .im-message-content {
-  background: rgba(255, 255, 255, 0.1); /* 明确设置助手消息的背景色 */
+  background: rgba(255, 255, 255, 0.1); /* Explicitly set assistant message background color */
   color: white;
   border-bottom-left-radius: 4px;
   margin-right: auto;
@@ -224,7 +224,7 @@
   margin: 0;
   margin-bottom: 12px;
   font-size: 24px;
-  color: rgba(255, 255, 255, 0.9); /* 调整标题颜色为更浅的白色 */
+  color: rgba(255, 255, 255, 0.9); /* Adjust title color to lighter white */
   font-weight: 500;
 }
 

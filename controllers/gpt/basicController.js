@@ -1,28 +1,28 @@
 // controllers/gpt/basicController.js
 /**
- * 基本对话控制器 - 处理基本的文本生成请求
- * 拆分为更小的函数以增强可维护性
+ * Basic conversation controller - handles basic text generation requests
+ * Split into smaller functions to enhance maintainability
  */
 
 const gptService = require("../../services/gptService");
 
 /**
- * 返回默认的GPT请求参数
+ * Return default GPT request parameters
  */
 exports.getDefaultParams = (req, res) => {
     res.json(gptService.defaultParams);
 };
 
 /**
- * 从请求中提取参数
- * @param {Object} req - 请求对象
- * @returns {Object} 提取的参数
+ * Extract parameters from request
+ * @param {Object} req - Request object
+ * @returns {Object} Extracted parameters
  */
 const extractParameters = (req) => {
-    // 从顶层获取模型参数
+    // Get model parameters from top level
     const model = req.body.model || "gpt-4o";
     
-    // 从params对象获取其他参数
+    // Get other parameters from params object
     const {
         temperature = gptService.defaultParams.temperature,
         top_p = gptService.defaultParams.top_p,
@@ -44,9 +44,9 @@ const extractParameters = (req) => {
 };
 
 /**
- * 解析和验证提示内容
- * @param {string} promptString - JSON格式的提示字符串
- * @returns {Array} 解析后的提示数组
+ * Parse and validate prompt content
+ * @param {string} promptString - JSON formatted prompt string
+ * @returns {Array} Parsed prompt array
  */
 const parseAndValidatePrompt = (promptString) => {
     try {
@@ -62,36 +62,36 @@ const parseAndValidatePrompt = (promptString) => {
 };
 
 /**
- * 处理搜索结果
- * @param {Array} prompt - 提示数组
- * @param {Array} searchResults - 搜索结果
- * @param {Object} options - 搜索选项
- * @returns {Object} 更新后的提示
+ * Process search results
+ * @param {Array} prompt - Prompt array
+ * @param {Array} searchResults - Search results
+ * @param {Object} options - Search options
+ * @returns {Object} Updated prompt
  */
 const processSearchResults = (prompt, searchResults, { language }) => {
     if (!searchResults) return prompt;
     
-    // 格式化搜索结果
+    // Format search results
     const formattedResults = gptService.formatSearchResults(searchResults);
     
-    // 获取当前日期
+    // Get current date
     const curDate = new Date().toLocaleDateString(
         language === "zh" ? "zh-CN" : "en-US",
         { year: "numeric", month: "long", day: "numeric" }
     );
     
-    // 根据语言选择模板
+    // Select template based on language
     const template = language === "zh" 
         ? gptService.searchAnswerZhTemplate 
         : gptService.searchAnswerEnTemplate;
     
-    // 格式化最终提示
+    // Format final prompt
     const searchPrompt = template
         .replace("{search_results}", formattedResults)
         .replace("{cur_date}", curDate)
         .replace("{question}", prompt[prompt.length - 1].content);
     
-    // 返回更新后的提示
+    // Return updated prompt
     return [...prompt, {
         role: "system",
         content: searchPrompt
@@ -99,13 +99,13 @@ const processSearchResults = (prompt, searchResults, { language }) => {
 };
 
 /**
- * 从GPT API生成响应
+ * Generate response from GPT API
  */
 exports.generateResponse = async (req, res) => {
     console.log("generateResponse - Request body:", req.body);
     
     try {
-        // 提取参数
+        // Extract parameters
         const {
             model,
             temperature,
@@ -120,7 +120,7 @@ exports.generateResponse = async (req, res) => {
             temperature, top_p, frequency_penalty, presence_penalty, max_tokens, webSearchEnabled
         });
         
-        // 处理用户参数
+        // Process user parameters
         const params = gptService.processModelParameters(model, {
             temperature,
             top_p,
@@ -131,7 +131,7 @@ exports.generateResponse = async (req, res) => {
         
         console.log("Processed parameters:", params);
         
-        // 解析并验证提示
+        // Parse and validate prompt
         let prompt;
         try {
             prompt = parseAndValidatePrompt(req.body.prompt);
@@ -139,29 +139,29 @@ exports.generateResponse = async (req, res) => {
             return res.status(400).send(error.message);
         }
 
-        // 根据模型过滤消息
+        // Filter messages by model
         prompt = gptService.filterMessagesByModel(prompt, model);
 
-        // 获取请求的模型的API配置
+        // Get API configuration for the requested model
         const { apiKey, apiUrl } = gptService.getApiConfig(model);
 
         console.log("API config:", { apiKey, apiUrl });
 
-        // 初始请求数据
+        // Initial request data
         let requestData = {
             apiKey,
             apiUrl,
-            model,  // 确保传递模型参数
+            model,  // Ensure model parameter is passed
             prompt,
             params,
             includeFunctionCalls: webSearchEnabled
         };
 
-        // 初始API请求
+        // Initial API request
         let response = await gptService.makeRequest(requestData);
         console.log("Initial API response received");
 
-        // 如果启用了函数调用功能，处理函数调用
+        // If function calling is enabled, process function calls
         let needsFurtherProcessing = webSearchEnabled;
         let maxIterations = 5;
         let currentIteration = 0;
@@ -174,12 +174,12 @@ exports.generateResponse = async (req, res) => {
             const choices = response.data.choices || [];
             const responseMessage = choices[0]?.message;
             
-            // 检查是否有工具调用需要处理
+            // Check if there are tool calls to process
             if (responseMessage?.tool_calls && responseMessage.tool_calls.length > 0) {
-                // 处理所有工具调用
+                // Process all tool calls
                 const toolCallResults = await gptService.processToolCalls(responseMessage.tool_calls);
                 
-                // 如果这是搜索，存储结果以供模板使用
+                // If this is a search, store results for template use
                 const searchToolCall = responseMessage.tool_calls.find(
                     call => call.function.name === "search_bing"
                 );
@@ -188,19 +188,19 @@ exports.generateResponse = async (req, res) => {
                     searchResults = searchResult?.result?.results || null;
                 }
 
-                // 将函数调用和结果添加到对话中
+                // Add function calls and results to conversation
                 for (const { toolCallId, result } of toolCallResults) {
-                    // 找到产生此结果的工具调用
+                    // Find the tool call that produced this result
                     const toolCall = responseMessage.tool_calls.find(tc => tc.id === toolCallId);
                     if (toolCall) {
-                        // 添加助手的工具调用
+                        // Add assistant's tool call
                         prompt.push({
                             role: "assistant",
                             content: null,
                             tool_calls: [toolCall]
                         });
                         
-                        // 添加工具的响应
+                        // Add tool response
                         prompt.push({
                             role: "tool",
                             tool_call_id: toolCallId,
@@ -209,17 +209,17 @@ exports.generateResponse = async (req, res) => {
                     }
                 }
 
-                // 更新请求数据并再次调用API
+                // Update request data and call API again
                 requestData.prompt = prompt;
                 console.log(`Making follow-up request (iteration ${currentIteration})`);
                 response = await gptService.makeRequest(requestData);
                 
-                // 检查是否需要继续处理
+                // Check if further processing is needed
                 const newChoices = response.data.choices || [];
                 const newResponseMessage = newChoices[0]?.message;
                 needsFurtherProcessing = newResponseMessage?.tool_calls?.length > 0;
             } else {
-                // 没有工具调用，结束处理
+                // No tool calls, end processing
                 needsFurtherProcessing = false;
             }
         }
@@ -228,29 +228,37 @@ exports.generateResponse = async (req, res) => {
             console.warn("Reached maximum number of tool call iterations");
         }
 
-        // 检查是否应使用搜索模板格式化响应
+        // Check if search template should be used to format response
         const hasSearchContent = prompt.some(msg => {
             const content = msg.content;
             return typeof content === "string" && content.toLowerCase().includes("search");
         });
 
         if (hasSearchContent && searchResults) {
-            // 处理搜索结果并更新提示
+            // Process search results and update prompt
             prompt = processSearchResults(prompt, searchResults, { language: req.body.language });
             
-            // 使用搜索结果再次请求
+            // Request again with search results
             requestData.prompt = prompt;
             response = await gptService.makeRequest(requestData);
         }
 
-        // 返回最终响应
+        // Return final response
         const finalMessage = response.data.choices[0].message.content;
         const totalTokens = response.data.usage?.total_tokens || 0;
-        res.json({ 
+        
+        console.log("Final response message:", finalMessage);
+        console.log("Token usage:", totalTokens);
+        
+        const responseData = { 
             message: finalMessage, 
             totalTokens,
             searchResults: searchResults || [] 
-        });
+        };
+        
+        console.log("Data returned to frontend:", JSON.stringify(responseData, null, 2));
+        
+        res.json(responseData);
     } catch (error) {
         gptService.handleRequestError(error, res);
     }

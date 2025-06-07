@@ -17,15 +17,15 @@ async function signIn() {
     if (accounts.length === 0) {
         console.log("no user signed in, redirecting to login...");
         myMSALObj.loginRedirect();
-        return null;  // 返回 null 表示没有登录用户
+        return null;  // Return null indicates no logged in user
     } else {
-        return accounts[0].username;  // 返回登录的用户名
+        return accounts[0].username;  // Return username of logged in user
     }
 }
 
 
 
-// getToken函数改进
+// Improved getToken function
 async function getToken() {
     const accounts = myMSALObj.getAllAccounts();
     if (accounts.length > 0) {
@@ -34,25 +34,25 @@ async function getToken() {
             account: accounts[0],
             scopes: msalConfig.auth.scopes
         });
-        console.log("静默获取Token成功");
+        console.log("Silent token acquisition successful");
         return response.accessToken;
         
     } else {
         console.log("no account detected, sign in...");
-        // 如果静默获取失败，引导用户登录
-        await signIn(); // 等待登录
-        // 登录成功后再次尝试静默获取Token
+        // If silent acquisition fails, guide user to login
+        await signIn(); // Wait for login
+        // After successful login, try silent token acquisition again
         const accountsAfterSignIn = myMSALObj.getAllAccounts();
         if (accountsAfterSignIn.length > 0) {
             const responseAfterSignIn = await myMSALObj.acquireTokenSilent({
-                account: accountsAfterSignIn[0], // 假定登录后存在账户
+                account: accountsAfterSignIn[0], // Assume account exists after login
                 scopes: msalConfig.auth.scopes
             });
-            console.log("登录后获取Token成功");
+            console.log("Token acquisition after login successful");
             return responseAfterSignIn.accessToken;
         } else {
-            console.error("登录后未找到账户");
-            throw new Error("登录后未找到账户");
+            console.error("No account found after login");
+            throw new Error("No account found after login");
         }
     }
 }
@@ -100,7 +100,7 @@ function getTokenPopup(request) {
 }
 
 
-let userId = "";  // 定义一个全局变量来存储用户ID
+let userId = "";  // Define a global variable to store user ID
 
 function selectAccount() {
     const currentAccounts = myMSALObj.getAllAccounts();
@@ -113,13 +113,13 @@ function selectAccount() {
         username = currentAccounts[0].username;
         console.log("logged in as: " + username);
 
-        // 从账户信息中获取userId
+        // Get userId from account information
         userId = currentAccounts[0].homeAccountId;
         console.log("userId: ", userId);
     }
 }
 
-// 导出一个函数来获取userId
+// Export a function to get userId
 function getUserId() {
     selectAccount();
     return userId;

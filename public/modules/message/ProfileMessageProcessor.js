@@ -1,4 +1,4 @@
-// ProfileMessageProcessor.js - 处理用户配置文件相关的消息
+// ProfileMessageProcessor.js - Handles user profile-related messages
 import MessageProcessor from "./MessageProcessor.js";
 import { getGpt } from "../../utils/apiClient.js";
 
@@ -11,16 +11,16 @@ class ProfileMessageProcessor extends MessageProcessor {
         const timestamp = new Date().toISOString();
         
         try {
-            // 验证消息并显示到界面
+            // Validate message and display in UI
             const validationResult = await this.validateInput(message, attachments);
             if (!validationResult) {
                 return null;
             }
             
-            // 处理配置文件消息
+            // Process profile message
             const response = await this.sendProfileMessage(message);
             
-            // 处理响应并显示
+            // Process response and display
             return await this.handleAIResponse(response, timestamp);
         } catch (error) {
             console.error("Error in ProfileMessageProcessor:", error);
@@ -55,7 +55,7 @@ class ProfileMessageProcessor extends MessageProcessor {
         throw new Error("Invalid profile message format");
     }
     
-    // 检查消息是否是配置文件请求
+    // Check if message is a profile request
     static isProfileRequest(message) {
         return message.startsWith("@") && message.includes(":");
     }

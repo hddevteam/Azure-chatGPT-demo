@@ -3,8 +3,8 @@ const axios = require("axios");
 const ImageGenerationInterface = require("./imageGenerationInterface");
 
 /**
- * DALL-E服务适配类
- * 包装现有的DALL-E服务以适配统一接口
+ * DALL-E Service Adapter Class
+ * Wraps existing DALL-E service to adapt to unified interface
  */
 class DalleImageService extends ImageGenerationInterface {
     constructor() {
@@ -14,17 +14,17 @@ class DalleImageService extends ImageGenerationInterface {
     }
 
     /**
-     * 生成图像
+     * Generate image
      * @param {Object} params
-     * @param {string} params.prompt - 图像描述
-     * @param {string} params.size - 图像尺寸 (例如: "1024x1024")
-     * @param {string} params.quality - 图像质量
-     * @param {number} params.n - 生成数量
-     * @returns {Promise<Array>} 生成的图像数据
+     * @param {string} params.prompt - Image description
+     * @param {string} params.size - Image size (e.g., "1024x1024")
+     * @param {string} params.quality - Image quality
+     * @param {number} params.n - Generation count
+     * @returns {Promise<Array>} Generated image data
      */
     async generateImage({ prompt, size = "1024x1024", quality, n = 1 }) {
         try {
-            // DALL-E使用style而不是quality
+            // DALL-E uses style instead of quality
             const style = quality === "hd" ? "vivid" : "natural";
             
             const response = await axios.post(
@@ -51,7 +51,7 @@ class DalleImageService extends ImageGenerationInterface {
     }
 
     /**
-     * DALL-E不支持编辑图像，这里抛出未实现错误
+     * DALL-E does not support image editing, throwing unimplemented error
      */
     async editImage() {
         throw new Error("DALL-E does not support image editing");

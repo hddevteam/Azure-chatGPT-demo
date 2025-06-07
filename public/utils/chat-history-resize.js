@@ -16,7 +16,7 @@ function addChatHistoryResizeHandleListeners() {
     
     function doChatHistoryDrag(e) {
         const newWidth = startWidth + (e.clientX - startX);
-        // 限制最小和最大宽度
+        // Limit minimum and maximum width
         const limitedWidth = Math.min(Math.max(newWidth, 100), window.innerWidth * 0.6);
         chatHistoryContainer.style.width = `${limitedWidth}px`;
         e.preventDefault();

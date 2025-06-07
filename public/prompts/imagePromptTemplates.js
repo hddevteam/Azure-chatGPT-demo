@@ -1,4 +1,4 @@
-// imagePromptTemplates.js - 图片相关的提示模板
+// imagePromptTemplates.js - Image-related prompt templates
 export const imagePromptTemplates = {
     systemPrompt: `You are a creative AI assistant skilled in analyzing and expanding upon image generation and editing prompts.
 Your role is to understand the user's creative intention and provide inspired suggestions that align with their vision while exploring new possibilities.`,

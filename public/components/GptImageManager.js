@@ -3,8 +3,8 @@
 import GptImageModal from "./GptImageModal.js";
 
 /**
- * GPT-Image-1管理类
- * 用于初始化和管理GPT-Image-1相关功能
+ * GPT-Image-1 management class
+ * Used to initialize and manage GPT-Image-1 related functions
  */
 export default class GptImageManager {
     constructor() {
@@ -13,7 +13,7 @@ export default class GptImageManager {
     }
 
     /**
-     * 初始化
+     * Initialize
      */
     init() {
         this.initModal();
@@ -21,14 +21,14 @@ export default class GptImageManager {
     }
 
     /**
-     * 初始化模态框
+     * Initialize modal
      */
     initModal() {
         this.modal = new GptImageModal();
     }
 
     /**
-     * 绑定事件
+     * Bind events
      */
     bindEvents() {
         const gptImageBtn = document.getElementById("gpt-image-btn");
@@ -38,7 +38,7 @@ export default class GptImageManager {
     }
 
     /**
-     * 显示模态框
+     * Show modal
      */
     showModal() {
         if (this.modal) {

@@ -2,7 +2,7 @@ const path = require("path");
 const webpack = require("webpack");
 const Dotenv = require("dotenv-webpack");
 
-// 检查是否在CI/CD环境中
+// Check if running in CI/CD environment
 const isCICD = process.env.CI;
 
 console.log("isCICD:", isCICD);
@@ -18,11 +18,11 @@ if (isCICD) {
     console.log("process.env.SCOPES:", process.env.SCOPES);
     pluginsConfig = [
         new webpack.DefinePlugin({
-            'process.env.CLOUD_INSTANCE': JSON.stringify(process.env.CLOUD_INSTANCE),
-            'process.env.TENANT_ID': JSON.stringify(process.env.TENANT_ID),
-            'process.env.CLIENT_ID': JSON.stringify(process.env.CLIENT_ID),
-            'process.env.REDIRECT_URI': JSON.stringify(process.env.REDIRECT_URI),
-            'process.env.SCOPES': JSON.stringify(process.env.SCOPES),
+            "process.env.CLOUD_INSTANCE": JSON.stringify(process.env.CLOUD_INSTANCE),
+            "process.env.TENANT_ID": JSON.stringify(process.env.TENANT_ID),
+            "process.env.CLIENT_ID": JSON.stringify(process.env.CLIENT_ID),
+            "process.env.REDIRECT_URI": JSON.stringify(process.env.REDIRECT_URI),
+            "process.env.SCOPES": JSON.stringify(process.env.SCOPES),
         }),
     ];    
 } else {

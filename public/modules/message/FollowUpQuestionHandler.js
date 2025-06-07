@@ -1,4 +1,4 @@
-// FollowUpQuestionHandler.js - 处理跟进问题功能
+// FollowUpQuestionHandler.js - Handles follow-up question functionality
 import { getFollowUpQuestions } from "../../utils/apiClient.js";
 import { generateExcerpt } from "../../utils/textUtils.js";
 
@@ -9,7 +9,7 @@ class FollowUpQuestionHandler {
         this.uiHandler = messageManager.uiHandler;
     }
 
-    // 生成并显示跟进问题
+    // Generate and display follow-up questions
     async generateAndShowFollowUpQuestions() {
         try {
             const questions = await this.generateFollowUpQuestions();
@@ -21,25 +21,25 @@ class FollowUpQuestionHandler {
         }
     }
 
-    // 检查是否是图片相关的消息
+    // Check if this is an image-related message
     isImageRelatedMessage(message) {
         return message.startsWith("/dalle") || 
                message.startsWith("/gpt-image-1") || 
                message.startsWith("/gpt-image-1-edit");
     }
 
-    // 从消息中提取提示内容
+    // Extract prompt content from message
     extractPromptFromCommand(message) {
         return message.replace(/^\/[^ ]+ /, "").trim();
     }
 
-    // 处理图片相关的跟进问题
+    // Handle image-related follow-up questions
     async handleImageFollowUpQuestions(userMessage, assistantMessage, currentProfile) {
         const { imagePromptTemplates } = await import("../../prompts/imagePromptTemplates.js");
         const prompt = this.extractPromptFromCommand(userMessage.getAttribute("data-message"));
         const isEditCommand = userMessage.getAttribute("data-message").startsWith("/gpt-image-1-edit");
         
-        // 构建完整的提示
+        // Build complete prompt
         const systemPrompt = {
             role: "system",
             content: `${imagePromptTemplates.systemPrompt}
@@ -65,29 +65,29 @@ class FollowUpQuestionHandler {
         return response.suggestedUserResponses || [];
     }
 
-    // 生成跟进问题
+    // Generate follow-up questions
     async generateFollowUpQuestions() {
         const currentProfile = this.uiManager.storageManager.getCurrentProfile();
         const activeMessages = [...document.querySelectorAll(".message.active")];
         
         if (activeMessages.length < 2) {
-            return []; // 需要至少两条消息才能生成有意义的跟进问题
+            return []; // Need at least two messages to generate meaningful follow-up questions
         }
         
-        const lastMessages = activeMessages.slice(-2); // 获取最后两条消息
+        const lastMessages = activeMessages.slice(-2); // Get the last two messages
         const [userMessage, assistantMessage] = lastMessages;
 
-        // 检查是否是图片相关的消息
+        // Check if this is an image-related message
         if (userMessage.getAttribute("data-sender") === "user" && 
             this.isImageRelatedMessage(userMessage.getAttribute("data-message"))) {
             return await this.handleImageFollowUpQuestions(userMessage, assistantMessage, currentProfile);
         }
         
-        // 处理普通对话消息
+        // Handle regular conversation messages
         let content = "";
         lastMessages.forEach(message => {
             let dataMessage = message.getAttribute("data-message");
-            // 如果消息太长，提取精华部分
+            // If message is too long, extract key parts
             dataMessage = generateExcerpt(dataMessage, 500, 250, 500);
 
             const dataRole = message.getAttribute("data-sender");
@@ -133,7 +133,7 @@ class FollowUpQuestionHandler {
         return followUpResponsesData.suggestedUserResponses;
     }
 
-    // 清除跟进问题
+    // Clear follow-up questions
     clearFollowUpQuestions() {
         this.uiHandler.clearFollowUpQuestions();
     }

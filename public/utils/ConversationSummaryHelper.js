@@ -17,12 +17,12 @@ export class ConversationSummaryHelper {
                 .join(" ");
         }
 
-        // 处理直接是字符串的情况
+        // Handle case where content is directly a string
         if (typeof msg.content === "string") {
             return msg.content;
         }
 
-        // 处理text属性的情况
+        // Handle case with text property
         if (msg.text) {
             return msg.text;
         }
@@ -34,7 +34,7 @@ export class ConversationSummaryHelper {
         try {
             if (!messages || messages.length === 0) return null;
 
-            // 过滤并提取消息内容
+            // Filter and extract message content
             const validMessages = messages
                 .filter(msg => msg && (msg.content || msg.text))
                 .map(msg => ({

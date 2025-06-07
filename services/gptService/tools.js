@@ -145,8 +145,8 @@ const handleBingSearch = async (args) => {
     try {
         // For "news" queries, enhance with keywords for relevance
         let enhancedQuery = query;
-        if (query.includes("要闻") || query.includes("新闻")) {
-            enhancedQuery = `${query} 重要 最新`;
+        if (query.includes("news") || query.includes("latest")) {
+            enhancedQuery = `${query} important recent`;
         }
 
         const result = await bingController.advancedSearch(enhancedQuery, { 

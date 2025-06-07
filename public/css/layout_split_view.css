@@ -282,34 +282,34 @@
         0 1px 3px rgba(0, 0, 0, 0.2),
         inset 0 1px 1px rgba(255, 255, 255, 0.1);
     color: #4A90E2;
-    will-change: transform; /* 优化transform性能 */
-    transform: translateY(0); /* 设置初始transform状态 */
+    will-change: transform; /* Optimize transform performance */
+    transform: translateY(0); /* Set initial transform state */
 }
 
 #message-input-container.split-view .button-row #web-search-toggle.active {
     color: #2E7D32;
     border-color: rgba(46, 125, 50, 0.3);
-    background: rgba(46, 125, 50, 0.1); /* 添加淡绿色背景 */
+    background: rgba(46, 125, 50, 0.1); /* Add light green background */
 }
 
 #message-input-container.split-view .button-row #web-search-toggle:hover {
     filter: brightness(110%);
-    background: rgba(74, 144, 226, 0.1); /* 添加淡蓝色背景 */
-    border-color: rgba(74, 144, 226, 0.3); /* 加深边框颜色 */
-    transform: translateY(1px); /* 添加轻微下移效果 */
+    background: rgba(74, 144, 226, 0.1); /* Add light blue background */
+    border-color: rgba(74, 144, 226, 0.3); /* Deepen border color */
+    transform: translateY(1px); /* Add slight downward movement effect */
 }
 
 #message-input-container.split-view .button-row #web-search-toggle.active:hover {
     filter: brightness(120%);
-    background: rgba(46, 125, 50, 0.15); /* 加深淡绿色背景 */
-    border-color: rgba(46, 125, 50, 0.4); /* 加深边框颜色 */
+    background: rgba(46, 125, 50, 0.15); /* Deepen light green background */
+    border-color: rgba(46, 125, 50, 0.4); /* Deepen border color */
 }
 
 #message-input-container.split-view .button-row #web-search-toggle:active {
-    transform: translateY(2px); /* 增加按下时的下移距离 */
-    filter: brightness(90%); /* 按下时稍微变暗 */
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加内阴影 */
-    transition: all 0.1s ease; /* 加快过渡效果 */
+    transform: translateY(2px); /* Increase downward movement distance when pressed */
+    filter: brightness(90%); /* Slightly darken when pressed */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Add inner shadow */
+    transition: all 0.1s ease; /* Faster transition effect */
 }
 
 #message-input-container.split-view .mini-toolbar {
@@ -556,7 +556,7 @@
     border-color: #2E7D32;
 }
 
-/* 调整聊天历史容器在分屏模式下的样式 */
+/* Adjust chat history container styles in split view mode */
 #chat-history-container.split-view {
     flex: none;
     width: 200px;
@@ -564,7 +564,7 @@
     max-width: 40vw;
 }
 
-/* 在split view模式下调整toggle-chat-topic按钮的样式 */
+/* Adjust toggle-chat-topic button styles in split view mode */
 #main-container.split-view #toggle-chat-topic {
     top: 10px;
     left: 10px;
@@ -586,7 +586,7 @@
 }
 
 #main-container.split-view.visible #toggle-chat-topic {
-    left: calc(200px + 10px); /* 当聊天历史显示时，按钮位置移动到聊天历史右侧 */
+    left: calc(200px + 10px); /* When chat history is visible, move button to the right of chat history */
     transition: left 0.3s ease;
 }
 

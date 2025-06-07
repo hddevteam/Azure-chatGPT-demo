@@ -61,25 +61,25 @@ class Prompts {
         return removedItems;
     }
 
-    // 用来在profile message中替换system prompt和最后一个user prompt
+    // Used to replace system prompt and last user prompt in profile message
     getPromptTextWithReplacement(externalSystemPrompt, replacementContent) {
         const systemPrompt = {
             role: "system",
             content: [{ type: "text", text: externalSystemPrompt }]
         };
 
-        // 创建一个数据副本，以保持原始数据不变
+        // Create a data copy to keep the original data unchanged
         let modifiedData = [...this.data];
 
-        // 检索并保存最后一个prompt的附件信息
-        const lastPrompt = modifiedData.pop();  // 移除并获取最后一个prompt
+        // Retrieve and save attachment info from the last prompt
+        const lastPrompt = modifiedData.pop();  // Remove and get the last prompt
         const attachmentUrls = lastPrompt ? lastPrompt.attachmentUrls : "";
 
-        // 给新的内容添加替换的最后一个prompt，包括附件信息
+        // Add replacement content for the last prompt, including attachment info
         modifiedData.push({
             role: "user",
             content: replacementContent,
-            attachmentUrls: attachmentUrls  // 保留附件信息
+            attachmentUrls: attachmentUrls  // Retain attachment info
         });
 
         const prompts = [systemPrompt, ...modifiedData];

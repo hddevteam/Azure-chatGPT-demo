@@ -1,4 +1,4 @@
-// DocumentMessageProcessor.js - 处理文档相关消息
+// DocumentMessageProcessor.js - Handles document-related messages
 import MessageProcessor from "./MessageProcessor.js";
 
 class DocumentMessageProcessor extends MessageProcessor {
@@ -11,14 +11,14 @@ class DocumentMessageProcessor extends MessageProcessor {
         const timestamp = new Date().toISOString();
         
         try {
-            // 对于文档处理，我们不使用标准验证流程
-            // 文档处理需要特殊处理，不需要立即显示用户消息
+            // For document processing, we don't use the standard validation flow
+            // Document processing requires special handling, no need to immediately show user message
             console.log("Processing document message:", message, attachments);
             
-            // 处理文档和创建包含文档内容的消息
+            // Process documents and create messages containing document content
             const documentMessage = await this.documentManager.processDocuments(attachments, message);
             
-            // 将文档消息添加到对话中
+            // Add document message to conversation
             this.messageManager.addMessage(
                 documentMessage.role,
                 documentMessage.content,
@@ -29,19 +29,19 @@ class DocumentMessageProcessor extends MessageProcessor {
                 ""
             );
 
-            // 保存并同步文档消息
+            // Save and sync document message
             this.uiManager.app.prompts.addPrompt(documentMessage);
             this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, documentMessage);
             this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, documentMessage);
             
-            // 更新聊天历史并可能生成标题
+            // Update chat history and possibly generate title
             this.uiManager.chatHistoryManager.updateChatHistory(this.uiManager.currentChatId);
 
-            // 解析文档信息并生成文档查询响应
+            // Parse document information and generate document query response
             const documents = JSON.parse(documentMessage.documents);
             const response = await this.documentManager.generateQuery(documents, message);
             
-            // 处理响应并显示
+            // Process response and display
             return await this.handleAIResponse(response, timestamp);
         } catch (error) {
             console.error("Error in DocumentMessageProcessor:", error);
@@ -49,7 +49,7 @@ class DocumentMessageProcessor extends MessageProcessor {
         }
     }
     
-    // 检查是否是文档处理请求
+    // Check if this is a document processing request
     static isDocumentRequest(attachments) {
         return attachments && attachments.length > 0 && 
                attachments.some(att => {

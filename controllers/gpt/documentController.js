@@ -1,14 +1,14 @@
 // controllers/gpt/documentController.js
 /**
- * 文档控制器 - 处理文档查询和网页内容摘要的功能
+ * Document controller - handles document queries and webpage content summarization functionality
  */
 
 const gptService = require("../../services/gptService");
 
 /**
- * 摘要网页内容
- * @param {Array} prompt - 对话提示
- * @returns {string} 摘要内容
+ * Summarize web content
+ * @param {Array} prompt - Conversation prompt
+ * @returns {string} Summary content
  */
 exports.summarizeWebContent = async (prompt) => {
     try {
@@ -32,7 +32,7 @@ exports.summarizeWebContent = async (prompt) => {
 };
 
 /**
- * 处理针对上传文档的查询
+ * Handle queries against uploaded documents
  */
 exports.processDocumentQuery = async (req, res) => {
     try {
@@ -46,7 +46,7 @@ exports.processDocumentQuery = async (req, res) => {
             return res.status(400).json({ error: "No question provided" });
         }
 
-        // 合并所有文档内容并添加到系统提示中
+        // Combine all document content and add to system prompt
         const combinedContent = documents.join("\n\n---\n\n");
         const systemPrompt = `You are an AI assistant analyzing the following documents. Please answer questions about their content:\n\n${combinedContent}`;
 

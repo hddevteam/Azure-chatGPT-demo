@@ -52,50 +52,50 @@ export class AIActorFilterModal {
     }
 
     bindEvents() {
-        // 关闭按钮事件
+        // Close button event
         const closeBtn = this.modal.querySelector(".close-button");
         closeBtn.addEventListener("click", () => this.hide());
 
-        // 点击外部区域关闭
+        // Click outside to close
         this.modal.addEventListener("click", (event) => {
             if (event.target === this.modal) {
                 this.hide();
             }
         });
 
-        // ESC键关闭
+        // ESC key to close
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape" && this.isVisible()) {
                 this.hide();
             }
         });
 
-        // 搜索功能
+        // Search functionality
         const searchInput = this.modal.querySelector("#actor-filter-search");
         searchInput.addEventListener("input", (e) => {
             this.searchQuery = e.target.value.toLowerCase();
             this.updateActorList();
         });
 
-        // Select All 按钮
+        // Select All button
         const selectAllBtn = this.modal.querySelector("#select-all-actors");
         selectAllBtn.addEventListener("click", () => {
             this.selectAllActors();
         });
 
-        // Clear All 按钮
+        // Clear All button
         const clearBtn = this.modal.querySelector("#clear-actor-selection");
         clearBtn.addEventListener("click", () => {
             this.clearSelection();
         });
 
-        // Apply 按钮
+        // Apply button
         const applyBtn = this.modal.querySelector("#apply-filter");
         applyBtn.addEventListener("click", () => {
             this.applyFilter();
         });
 
-        // Cancel 按钮
+        // Cancel button
         const cancelBtn = this.modal.querySelector("#cancel-filter");
         cancelBtn.addEventListener("click", () => {
             this.hide();
@@ -106,10 +106,10 @@ export class AIActorFilterModal {
         const listElement = this.modal.querySelector("#actor-filter-list");
         const profiles = this.uiManager.profiles;
 
-        // 清空列表
+        // Clear list
         listElement.innerHTML = "";
 
-        // 根据搜索关键字过滤配置文件
+        // Filter profiles by search keywords
         const filteredProfiles = profiles.filter(profile => 
             profile.displayName.toLowerCase().includes(this.searchQuery) ||
             profile.name.toLowerCase().includes(this.searchQuery)
@@ -123,7 +123,7 @@ export class AIActorFilterModal {
             return;
         }
 
-        // 创建过滤后的配置文件列表
+        // Create filtered profile list
         filteredProfiles.forEach(profile => {
             const li = document.createElement("li");
             li.className = "actor-filter-item";
@@ -172,7 +172,7 @@ export class AIActorFilterModal {
     }
 
     async applyFilter() {
-        // 如果没有选择任何 Actor，显示所有聊天历史
+        // If no Actor is selected, show all chat history
         if (this.selectedActors.size === 0) {
             this.uiManager.showAllChatHistories = true;
         } else {
@@ -180,13 +180,13 @@ export class AIActorFilterModal {
             this.uiManager.filteredActors = Array.from(this.selectedActors);
         }
         
-        // 更新聊天历史显示
+        // Update chat history display
         await this.uiManager.showChatHistory();
         this.hide();
     }
 
     show() {
-        // 显示之前，根据当前过滤状态设置选中项
+        // Before showing, set selected items based on current filter state
         if (!this.uiManager.showAllChatHistories && this.uiManager.filteredActors) {
             this.selectedActors = new Set(this.uiManager.filteredActors);
         } else {
@@ -205,7 +205,7 @@ export class AIActorFilterModal {
         this.modal.style.opacity = "0";
         setTimeout(() => {
             this.modal.classList.remove("visible");
-            // 清空搜索
+            // Clear search
             const searchInput = this.modal.querySelector("#actor-filter-search");
             if (searchInput) {
                 searchInput.value = "";

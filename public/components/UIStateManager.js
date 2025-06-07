@@ -72,14 +72,14 @@ class UIStateManager {
         aiActorWrapper.setAttribute("data-visible", "true");
         this.visibleElement(overlay);
         
-        // 清空搜索输入框
+        // Clear search input box
         const searchInput = document.getElementById("ai-actor-search");
         if (searchInput) {
             searchInput.value = "";
             this.searchQuery = "";
         }
         
-        // 更新列表显示
+        // Update list display
         this.updateActorList();
         
         setTimeout(() => {
@@ -97,7 +97,7 @@ class UIStateManager {
             aiActorWrapper.setAttribute("data-visible", "false");
             this.hiddenElement(overlay);
     
-            // 清空搜索状态
+            // Clear search state
             if (searchInput) {
                 searchInput.value = "";
                 this.searchQuery = "";
@@ -114,7 +114,7 @@ class UIStateManager {
         this.hideAIActorList();
         this.uiManager.profileFormManager.resetForm();
         this.uiManager.profileFormManager.oldName = "";
-        // 在新建模式下显示模态框，没有配置文件数据
+        // Display modal in create mode, without profile data
         this.actorSettingsModal.show(null);
     }
 
@@ -122,7 +122,7 @@ class UIStateManager {
         this.hideAIActorList();
         this.uiManager.profileFormManager.bindProfileData(profileData);
         this.uiManager.profileFormManager.oldName = profileData.name;
-        // 在编辑模式下显示模态框，传入配置文件数据
+        // Display modal in edit mode, passing profile data
         this.actorSettingsModal.show(profileData);
     }
 

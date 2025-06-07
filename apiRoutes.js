@@ -15,6 +15,8 @@ const realtimeController = require("./controllers/realtimeController");
 const bingController = require("./controllers/bingController");
 const urlController = require("./controllers/urlController");
 const gptImageController = require("./controllers/gptImageController");
+const soraController = require("./controllers/soraController");
+const videoFileController = require("./controllers/videoFileController");
 
 const router = express.Router();
 
@@ -92,5 +94,19 @@ router.post("/bing-search", requireAuth, bingController.search);
 
 // URL summary route
 router.post("/url-summary", requireAuth, urlController.getUrlSummary);
+
+// Sora video generation routes
+router.post("/sora/generate", requireAuth, soraController.generateVideo.bind(soraController));
+router.get("/sora/status/:jobId", requireAuth, soraController.getJobStatus.bind(soraController));
+router.get("/sora/download/:jobId", requireAuth, soraController.downloadVideo.bind(soraController));
+router.get("/sora/history", requireAuth, soraController.getJobHistory.bind(soraController));
+router.delete("/sora/job/:jobId", requireAuth, soraController.deleteJob.bind(soraController));
+router.get("/sora/config", requireAuth, soraController.getConfig.bind(soraController));
+
+// Video file management routes
+router.post("/videofiles/upload", requireAuth, upload.single("fileContent"), videoFileController.uploadVideofile);
+router.get("/videofiles/list", requireAuth, videoFileController.listVideoFiles);
+router.delete("/videofiles/delete", requireAuth, videoFileController.deleteVideoFile);
+router.get("/videofiles/details/:id", requireAuth, videoFileController.getVideoFileDetails);
 
 module.exports = router;

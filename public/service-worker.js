@@ -28,7 +28,7 @@ const CACHE_NAME = "pwa-cache-v3";
 
 self.addEventListener("install", function(event) {
     // console.log("Service Worker installing.");
-    // 调用 skipWaiting() 让这个 Service Worker 立即激活
+    // Call skipWaiting() to activate this Service Worker immediately
     event.waitUntil(self.skipWaiting());
 });
 
@@ -37,16 +37,16 @@ self.addEventListener("activate", (event) => {
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.filter((cacheName) => {
-                    // 返回所有不匹配当前版本的缓存名称
+                    // Return all cache names that don't match current version
                     return cacheName !== CACHE_NAME;
                 }).map((cacheName) => {
-                    // 删除旧缓存
+                    // Delete old cache
                     return caches.delete(cacheName);
                 })
             );
         }).then(() => {
             console.log("Service worker activated and old caches cleared.");
-            return self.clients.claim(); // 更新所有客户端上的Service Worker
+            return self.clients.claim(); // Update Service Worker on all clients
         })
     );
 });
@@ -107,14 +107,14 @@ self.addEventListener("fetch", event => {
 
     if (authUrlPattern.test(url.hostname)) {
         console.log("Authentication request detected, skip cache.");
-        // 直接跳过Service Worker处理，让请求直接通过
+        // Skip Service Worker processing directly, let request pass through
         return;
     }
 
-    // 检查请求是否针对API
+    // Check if request is targeting API
     if (url.pathname.startsWith("/api/")) {
         console.log("API request detected, skip cache.", url.href);
-        // API 请求直接通过，不进行缓存处理
+        // API requests pass through directly, no cache processing
         return;
     }
 

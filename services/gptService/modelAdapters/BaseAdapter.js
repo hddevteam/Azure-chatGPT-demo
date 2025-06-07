@@ -1,10 +1,10 @@
-// BaseAdapter.js - 基础模型适配器接口
+// BaseAdapter.js - Base model adapter interface
 class BaseAdapter {
     constructor(config) {
         this.config = config;
     }
 
-    // 处理请求头
+    // Process request headers
     getHeaders(apiKey) {
         return {
             "Content-Type": "application/json",
@@ -12,12 +12,12 @@ class BaseAdapter {
         };
     }
 
-    // 处理请求参数
+    // Process request parameters
     processRequestParameters(params) {
         return params;
     }
 
-    // 处理请求体
+    // Process request body
     processRequestBody(prompt, params) {
         return {
             messages: prompt,

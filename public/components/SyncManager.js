@@ -7,14 +7,14 @@ class SyncManager {
         this.uiManager = uiManager;
         this.syncQueue = [];
         this.maxRetryAttempts = 3;
-        // 在SyncManager类的构造器中使用模块化Worker
+        // Use modular Worker in SyncManager class constructor
         this.webWorker = new Worker(new URL("../workers/syncWorker.js", import.meta.url), { type: "module" });
         this.initializeSyncWorker();
         this.isWorkerBusy = false;
         this.cachedToken = null;
     }
 
-    // 获取并更新Token
+    // Get and update Token
     async updateToken() {
         this.cachedToken = await getToken();
         // console.log("Token updated in SyncManager");
@@ -34,7 +34,7 @@ class SyncManager {
                 this.handleSyncedItem(payload, res);
                 break;
             case "failed":
-                // 如果Token过期，尝试更新Token并重新尝试同步
+                // If Token is expired, try to update Token and retry sync
                 this.enqueueSyncItem(payload, true); // re-enqueue with retry incremented
                 break;
             }
@@ -61,7 +61,7 @@ class SyncManager {
         const cloudHistories = await fetchCloudChatHistories(username, lastTimestamp, this.cachedToken).catch(e => console.error(e));
         console.log("syncChatHistories: ", {localHistories}, {cloudHistories});
         
-        // 对于cloudHistories，将每个history与localHistories进行比较
+        // For cloudHistories, compare each history with localHistories
         cloudHistories.forEach(cloudHistory => {
             const localHistory = localHistories.find(lh => lh.id === cloudHistory.id);
             if (cloudHistory.isDeleted) {
@@ -104,7 +104,7 @@ class SyncManager {
     }
 
     syncChatHistoryCreateOrUpdate(chatHistory) {
-        // 将创建操作添加到同步队列
+        // Add create operation to sync queue
         this.enqueueSyncItem({ type: "chatHistory", action: "upsert", data: chatHistory });
     }
 
@@ -378,7 +378,7 @@ class SyncManager {
     syncMessageUpdate(chatId, message) {
         if (!this.webWorker) return;
         
-        // 确保搜索结果被包含在同步数据中
+        // Ensure search results are included in sync data
         const syncItem = {
             action: "update",
             chatId,
@@ -389,7 +389,7 @@ class SyncManager {
             }
         };
         
-        // 添加延迟以确保本地存储已完成
+        // Add delay to ensure local storage is completed
         setTimeout(() => {
             this.webWorker.postMessage(syncItem);
         }, 100);
@@ -407,12 +407,12 @@ class SyncManager {
             }
         };
 
-        // 无论结果如何，先删除本地消息以保持一致性
+        // Regardless of result, delete local message first to maintain consistency
         console.log(`Deleting message ${messageId} from local storage`);
         this.uiManager.storageManager.deleteMessage(chatId, messageId);
         
         try {
-            // 尝试在云端删除消息
+            // Try to delete message in cloud
             await new Promise((resolve, reject) => {
                 const handleWorkerMessage = (event) => {
                     const { action, payload } = event.data;
@@ -433,10 +433,10 @@ class SyncManager {
                 this.enqueueSyncItem(syncItem);
             });
             
-            return true; // 成功删除
+            return true; // Successfully deleted
         } catch (error) {
             console.error(`Error during cloud message deletion (${messageId}):`, error);
-            // 即使云端删除失败，本地删除已经完成，所以不抛出异常
+            // Even if cloud deletion fails, local deletion is completed, so no exception is thrown
             return false;
         }
     }

@@ -75,7 +75,7 @@ describe("Profile Controller", () => {
             name: "JavaScript Advisor",
             icon: "fab fa-js-square",
             displayName: "JavaScript Advisor",
-            prompt: "假如你是一个有经验的全栈JavaScript程序员, 你会根据我的需求提供代码实现和解释",
+            prompt: "Assume you are an experienced full-stack JavaScript programmer, you will provide code implementation and explanation based on my requirements",
             tts: "disabled",
             sortedIndex: "1",
         };
@@ -95,7 +95,7 @@ describe("Profile Controller", () => {
             name: "JavaScript Advisor",
             icon: "fab fa-js-square",
             displayName: "Updated JavaScript Advisor",
-            prompt: "更新后的提示",
+            prompt: "Updated prompt",
             tts: "enabled",
             sortedIndex: "1",
         };

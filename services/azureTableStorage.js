@@ -2,7 +2,7 @@
 require("dotenv").config();
 const { TableServiceClient, TableClient } = require("@azure/data-tables");
 
-// 从环境变量中读取 Azure Storage 设置
+// Read Azure Storage settings from environment variables
 const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const client = TableServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
 
@@ -11,14 +11,14 @@ async function createTable(tableName) {
         const tables = client.listTables();
 
         for await (const table of tables) {
-            // 表已经存在，直接返回
+            // Table already exists, return directly
             if (table.name === tableName) {
                 console.log(`Table ${tableName} already exists.`);
                 return;
             }
         }
 
-        // 创建表
+        // Create table
         await client.createTable(tableName);
         console.log(`Table ${tableName} created.`);
     } catch (error) {

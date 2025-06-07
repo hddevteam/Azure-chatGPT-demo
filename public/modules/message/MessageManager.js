@@ -1,4 +1,4 @@
-// MessageManager.js - 重构后的消息管理器
+// MessageManager.js - Refactored message manager
 import swal from "sweetalert";
 import LinkHandler from "../utils/linkHandler.js";
 import DocumentManager from "../components/DocumentManager.js";
@@ -9,36 +9,36 @@ import { ConversationSummaryHelper } from "../../utils/ConversationSummaryHelper
 
 class MessageManager {
     constructor(uiManager) {
-        // 初始化基本依赖
+        // Initialize basic dependencies
         this.uiManager = uiManager;
         this.linkHandler = new LinkHandler(uiManager);
         this.documentManager = new DocumentManager(uiManager);
         
-        // 初始化状态
+        // Initialize state
         this.searchResults = null;
         this.webSearchEnabled = false;
         this.isDeleting = false;
         this.currentSummary = null;
         
-        // 初始化关联的处理器
+        // Initialize associated processors
         this.uiHandler = new MessageUIHandler(this);
         this.followUpHandler = new FollowUpQuestionHandler(this);
         this.processorFactory = new MessageProcessorFactory(this);
     }
 
-    // 切换网络搜索功能
+    // Toggle network search functionality
     toggleWebSearch() {
         this.webSearchEnabled = !this.webSearchEnabled;
         const button = document.getElementById("web-search-toggle");
         button.classList.toggle("active", this.webSearchEnabled);
     }
 
-    // 添加消息到DOM - 代理到UIHandler
+    // Add message to DOM - delegate to UIHandler
     addMessage(sender, message, messageId, isActive = true, position = "bottom", isError = false, attachmentUrls = "") {
         return this.uiHandler.addMessage(sender, message, messageId, isActive, position, isError, attachmentUrls);
     }
 
-    // 发送消息的主要方法
+    // Main method for sending messages
     async sendMessage(inputMessage = "", attachments = [], isRetry = false) {
         console.log("[MessageManager] Processing message:", { 
             inputMessage: inputMessage.substring(0, 100) + "...", 
@@ -46,44 +46,44 @@ class MessageManager {
             isRetry 
         });
         
-        // 清除跟进问题
+        // Clear follow-up questions
         this.followUpHandler.clearFollowUpQuestions();
         
-        // 初始化提交按钮状态
+        // Initialize submit button state
         this.uiManager.initSubmitButtonProcessing();
 
         try {
-            // 选择合适的消息处理器
+            // Select appropriate message processor
             const processor = this.processorFactory.getProcessor(inputMessage, attachments);
             
-            // 处理消息
+            // Process message
             await processor.process(inputMessage, attachments);
             
-            // 完成处理
+            // Complete processing
             this.uiManager.finishSubmitProcessing();
             
-            // 生成跟进问题
+            // Generate follow-up questions
             await this.followUpHandler.generateAndShowFollowUpQuestions();
             
         } catch (error) {
             console.error("Error in sendMessage:", error);
             this.uiManager.finishSubmitProcessing();
             
-            // 处理网络错误的重试
+            // Handle network error retries
             if (!isRetry && error.message === "Failed to fetch") {
                 await this.retryMessage(inputMessage, attachments);
             } else {
-                // 显示错误消息
+                // Show error message
                 let errorMessage = error.message;
                 if (!navigator.onLine) {
-                    errorMessage = "您当前处于离线状态，请检查网络连接。";
+                    errorMessage = "You are currently offline, please check your network connection.";
                 }
-                swal("请求错误", errorMessage, { icon: "error" });
+                swal("Request Error", errorMessage, { icon: "error" });
             }
         }
     }
 
-    // 消息输入验证
+    // Message input validation
     async validateInput(message, attachments = [], isRetry = false) {
         const validationResult = await this.uiManager.validateMessage(message);
         message = validationResult.message;
@@ -92,14 +92,14 @@ class MessageManager {
 
         if (attachments.length > 0) {
             if (!isRetry) {
-                // 对于新消息，上传附件
+                // For new messages, upload attachments
                 attachmentUrls = await this.uiManager.uploadAttachments(attachments);
                 if (attachmentUrls === "") {
                     this.uiManager.finishSubmitProcessing();
                     return false;
                 }
             } else {
-                // 对于重试的消息，使用现有的附件URL
+                // For retry messages, use existing attachment URLs
                 attachmentUrls = attachments
                     .filter(att => att.isExistingAttachment && att.fileName)
                     .map(att => att.fileName)
@@ -126,7 +126,7 @@ class MessageManager {
             createdAt: timestamp
         };
 
-        // 添加用户消息到界面
+        // Add user message to interface
         this.addMessage(
             newMessage.role,
             newMessage.content,
@@ -137,7 +137,7 @@ class MessageManager {
             newMessage.attachmentUrls
         );
 
-        // 保存到存储并同步
+        // Save to storage and sync
         this.uiManager.messageContextManager.addMessageToContext(newMessage);
         this.uiManager.storageManager.saveMessage(this.uiManager.currentChatId, newMessage);
         this.uiManager.syncManager.syncMessageCreate(this.uiManager.currentChatId, newMessage);
@@ -147,7 +147,7 @@ class MessageManager {
         return validationResult;
     }
 
-    // 重试消息
+    // Retry message
     async retryMessage(messageId) {
         const messageElem = document.querySelector(`[data-message-id="${messageId}"]`);
         if (!messageElem) {
@@ -156,11 +156,11 @@ class MessageManager {
         }
 
         try {
-            // 提取原始消息数据
+            // Extract original message data
             const originalMessage = this.extractMessageData(messageElem);
             console.log("Retrying message:", originalMessage);
 
-            // 判断是否为最后一条消息并处理
+            // Check if it's the last message and handle it
             const lastMessageId = this.getLastMessageId();
             if (messageId === lastMessageId) {
                 await this.deleteMessageInStorage(messageId);
@@ -168,7 +168,7 @@ class MessageManager {
                 this.inactiveMessage(messageId);
             }
 
-            // 准备附件数据（如果有）
+            // Prepare attachment data (if any)
             let attachments = [];
             if (originalMessage.attachmentUrls) {
                 attachments = originalMessage.attachmentUrls.split(";")
@@ -179,22 +179,22 @@ class MessageManager {
                     }));
             }
 
-            // 重新发送消息
+            // Resend message
             await this.sendMessage(originalMessage.content, attachments, true);
 
         } catch (error) {
             console.error("Error retrying message:", error);
-            swal("错误", "重试消息失败: " + error.message, "error");
+            swal("Error", "Failed to retry message: " + error.message, "error");
         }
     }
 
-    // 获取最后一条消息的ID
+    // Get the ID of the last message
     getLastMessageId() {
         const messages = document.querySelectorAll(".message");
         return messages.length > 0 ? messages[messages.length - 1].dataset.messageId : null;
     }
 
-    // 从DOM元素提取消息数据
+    // Extract message data from DOM element
     extractMessageData(messageElem) {
         return {
             role: messageElem.dataset.sender,
@@ -204,21 +204,21 @@ class MessageManager {
         };
     }
 
-    // 将消息标记为非激活
+    // Mark message as inactive
     inactiveMessage(messageId) {
         this.uiHandler.inactiveMessage(messageId);
         
-        // 从上下文中移除
+        // Remove from context
         this.uiManager.messageContextManager.removeMessageFromContext(messageId);
 
-        // 更新存储
+        // Update storage
         this.uiManager.storageManager.saveMessageActiveStatus(
             this.uiManager.currentChatId,
             messageId,
             false
         );
 
-        // 同步到服务器
+        // Sync to server
         const updatedMessage = this.uiManager.storageManager.getMessage(
             this.uiManager.currentChatId,
             messageId
@@ -231,11 +231,11 @@ class MessageManager {
         }
     }
 
-    // 编辑消息
+    // Edit message
     editMessage(message, messageId) {
         this.inactiveMessage(messageId);
         
-        // 将之后的消息也标记为非激活
+        // Mark subsequent messages as inactive
         const messages = document.querySelectorAll(".message");
         let isFollowing = false;
         for (let i = 0; i < messages.length; i++) {
@@ -248,31 +248,31 @@ class MessageManager {
             }
         }
 
-        // 将消息填入输入框
+        // Fill message into input box
         this.uiManager.messageInput.value = message;
         this.uiManager.messageInput.focus();
     }
 
-    // 删除消息
+    // Delete message
     deleteMessage(messageId, isMute = false) {
         this.uiHandler.deleteMessage(messageId, isMute);
     }
 
-    // 从存储中删除消息
+    // Delete message from storage
     async deleteMessageInStorage(messageId) {
         try {
             this.isDeleting = true;
             
-            // 从DOM中移除消息
+            // Remove message from DOM
             const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
             if (messageElement) {
                 messageElement.remove();
             }
             
-            // 从上下文中移除
+            // Remove from context
             this.uiManager.messageContextManager.removeMessageFromContext(messageId);
             
-            // 先删除本地数据，确保即使云端同步失败也能保持本地的一致性
+            // Delete local data first to ensure local consistency even if cloud sync fails
             const chatId = this.uiManager.currentChatId;
             const result = this.uiManager.storageManager.deleteMessage(chatId, messageId);
             if (!result) {
@@ -280,35 +280,35 @@ class MessageManager {
             }
             
             try {
-                // 尝试与云端同步删除
+                // Try to sync deletion with cloud
                 const cloudDeleteResult = await this.uiManager.syncManager.syncMessageDelete(chatId, messageId);
                 if (!cloudDeleteResult) {
                     console.warn(`Cloud deletion failed for message ${messageId}, but local deletion completed successfully`);
                 }
             } catch (cloudError) {
-                // 云端删除失败，但不会影响用户体验，因为本地数据已经删除
+                // Cloud deletion failed, but won't affect user experience since local data is already deleted
                 console.error("Error during cloud message deletion:", cloudError);
-                // 不显示错误提示，因为对用户体验影响较小
+                // Don't show error message as it has minimal impact on user experience
             }
             
-            // 检查是否删除了所有消息
+            // Check if all messages have been deleted
             const remainingMessages = document.querySelectorAll(".message");
             if (remainingMessages.length === 0) {
                 this.uiManager.showWelcomeMessage();
             }
             
-            return true; // 本地删除成功
+            return true; // Local deletion successful
             
         } catch (error) {
             console.error("Failed to delete message:", error);
-            swal("删除消息失败", "无法完成消息删除操作，请刷新后重试", "error");
+            swal("Delete Message Failed", "Unable to complete message deletion operation, please refresh and try again", "error");
             return false;
         } finally {
             this.isDeleting = false;
         }
     }
 
-    // 删除所有激活的消息
+    // Delete all active messages
     deleteActiveMessages() {
         const activeMessages = document.querySelectorAll(".message.active");
         for (let i = activeMessages.length - 1; i >= 0; i--) {
@@ -317,7 +317,7 @@ class MessageManager {
         }
     }
 
-    // 删除所有非激活的消息
+    // Delete all inactive messages
     deleteInactiveMessages() {
         const inactiveMessages = document.querySelectorAll(".message:not(.active)");
         for (let i = inactiveMessages.length - 1; i >= 0; i--) {
@@ -326,7 +326,7 @@ class MessageManager {
         }
     }
 
-    // 删除所有消息
+    // Delete all messages
     deleteAllMessages() {
         const allMessages = document.querySelectorAll(".message");
         for (let i = allMessages.length - 1; i >= 0; i--) {
@@ -335,7 +335,7 @@ class MessageManager {
         }
     }
 
-    // 加载更多消息
+    // Load more messages
     loadMoreMessages() {
         if (this.isDeleting) {
             return;
@@ -348,29 +348,29 @@ class MessageManager {
         const startingIndex = savedMessages.length - currentMessagesCount - messageLimit > 0 ? 
             savedMessages.length - currentMessagesCount - messageLimit : 0;
         
-        // 记录当前滚动位置
+        // Record current scroll position
         const currentScrollPosition = messagesContainer.scrollHeight - messagesContainer.scrollTop;
 
-        // 获取当前消息ID列表
+        // Get current message ID list
         const currentMessageIds = Array.from(messagesContainer.children).map(message => message.dataset.messageId);
 
-        // 加载更多消息
+        // Load more messages
         savedMessages.slice(startingIndex, savedMessages.length - currentMessagesCount)
             .reverse()
             .forEach(message => {
-                // 检查消息是否已存在
+                // Check if message already exists
                 if (!currentMessageIds.includes(message.messageId)) {
                     let isActive = message.isActive || false;
                     this.addMessage(message.role, message.content, message.messageId, isActive, "top", false, message.attachmentUrls);
                     
-                    // 保存搜索结果（如果有）
+                    // Save search results (if any)
                     if (message.searchResults && message.role === "assistant") {
                         this.searchResults = message.searchResults;
                     }
                 }
             });
 
-        // 恢复滚动位置
+        // Restore scroll position
         messagesContainer.scrollTop = messagesContainer.scrollHeight - currentScrollPosition;
     }
 
@@ -387,7 +387,7 @@ class MessageManager {
         savedMessages.slice(startIndex).forEach(message => {
             const isActive = message.isActive || false;
             
-            // 添加消息到UI
+            // Add message to UI
             this.addMessage(
                 message.role,
                 message.content,
@@ -398,13 +398,13 @@ class MessageManager {
                 message.attachmentUrls
             );
             
-            // 保存搜索结果（如果有）
+            // Save search results (if any)
             if (message.searchResults && message.role === "assistant") {
                 this.searchResults = message.searchResults;
             }
         });
 
-        // 记录一些消息加载的统计信息
+        // Log some message loading statistics
         console.log(`Loaded ${savedMessages.length} messages for chat ${chatId}`);
         console.log("Active messages in context:", 
             this.uiManager.messageContextManager.getActiveMessagesCount());
@@ -413,7 +413,7 @@ class MessageManager {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // 获取最新的摘要
+    // Get the latest summary
     async getLatestSummary(messages) {
         const activeMessages = messages.filter(msg => msg.isActive);
         if (activeMessages.length === 0) return null;
@@ -421,12 +421,12 @@ class MessageManager {
         return await ConversationSummaryHelper.generateSummary(activeMessages, this.currentSummary);
     }
 
-    // 切换消息折叠状态
+    // Toggle message collapse state
     toggleCollapseMessage(messageElement, forceCollapse) {
         this.uiHandler.toggleCollapseMessage(messageElement, forceCollapse);
     }
     
-    // 清除后续问题
+    // Clear follow-up questions
     clearFollowUpQuestions() {
         this.followUpHandler.clearFollowUpQuestions();
     }

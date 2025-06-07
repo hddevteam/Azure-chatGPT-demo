@@ -15,7 +15,7 @@ const parseChatId = (chatId) => {
 
 exports.getCloudChatHistories = async (req, res) => {
     const username = req.params.username;
-    const lastTimestamp = req.query.lastTimestamp; // 从查询参数中获取timestamp
+    const lastTimestamp = req.query.lastTimestamp; // Get timestamp from query parameters
 
     if (!username) {
         return res.status(400).json({ message: "Username parameter is required." });
@@ -27,14 +27,14 @@ exports.getCloudChatHistories = async (req, res) => {
         let query = { queryOptions: { filter: `PartitionKey eq '${username}'` } };
 
         if (lastTimestamp) {
-            // 将Unix时间戳转换为ISO 8601格式
+            // Convert Unix timestamp to ISO 8601 format
             const date = new Date(parseInt(lastTimestamp));
             const isoTimestamp = date.toISOString();
-            // 使用正确的datetime格式
+            // Use correct datetime format
             query.queryOptions.filter += ` and Timestamp gt datetime'${isoTimestamp}'`;
         }
 
-        // 使用筛选条件查询
+        // Query using filter conditions
         const iterator = tableClient.listEntities(query);
 
         for await (const entity of iterator) {

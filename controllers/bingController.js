@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-// 验证市场代码的辅助函数
+// Helper function to validate market codes
 const isValidMarket = (mkt) => {
     const validMarkets = [
         "en-US", "en-GB", "zh-CN", "ja-JP", "en-CA", "en-AU", "en-IN", "es-ES", 
@@ -13,7 +13,7 @@ const bingController = {
     search: async (req, res) => {
         try {
             const { query, mkt, responseFilter, freshness } = req.body;
-            // 复用 advancedSearch 函数
+            // Reuse advancedSearch function
             const results = await bingController.advancedSearch(query, { 
                 mkt, 
                 responseFilter, 
@@ -30,11 +30,11 @@ const bingController = {
         }
     },
 
-    // 新增: 高级搜索功能
+    // New: Advanced search functionality
     advancedSearch: async (query, options = {}) => {
         console.log("Performing advanced search for:", query, options);
         try {
-            // 获取当前时间上下文
+            // Get current time context
             const now = new Date();
             const timeContext = now.toLocaleString("en-US", { 
                 hour: "numeric", 
@@ -49,10 +49,10 @@ const bingController = {
 
             const { responseFilter, freshness, count = 10 } = options;
 
-            // 分离不同类型的搜索目标
+            // Separate different types of search targets
             const newsParams = {
                 q: query,
-                count: Math.ceil(count * 0.6), // 60% 的配额给新闻结果
+                count: Math.ceil(count * 0.6), // 60% of quota for news results
                 textDecorations: false,
                 textFormat: "HTML",
                 freshness: freshness || "Month",
@@ -61,7 +61,7 @@ const bingController = {
 
             const webParams = {
                 q: query,
-                count: Math.ceil(count * 0.4), // 40% 的配额给网页结果
+                count: Math.ceil(count * 0.4), // 40% of quota for web results
                 textDecorations: false,
                 textFormat: "HTML",
                 freshness: freshness || "Month",
@@ -72,7 +72,7 @@ const bingController = {
                 "Ocp-Apim-Subscription-Key": process.env.BING_SEARCH_API_KEY
             };
 
-            // 并行请求新闻和网页结果
+            // Request news and web results in parallel
             const [newsResponse, webResponse] = await Promise.all([
                 axios.get(`${process.env.BING_SEARCH_API_URL}v7.0/search`, { headers, params: newsParams }),
                 axios.get(`${process.env.BING_SEARCH_API_URL}v7.0/search`, { headers, params: webParams })
@@ -80,7 +80,7 @@ const bingController = {
 
             let results = [];
 
-            // 处理新闻结果
+            // Process news results
             if (newsResponse.data.news?.value) {
                 results.push(...newsResponse.data.news.value.map(result => ({
                     type: "news",
@@ -93,7 +93,7 @@ const bingController = {
                 })));
             }
 
-            // 处理网页结果
+            // Process web page results
             if (webResponse.data.webPages?.value) {
                 results.push(...webResponse.data.webPages.value.map(result => ({
                     type: "webpage",
@@ -106,9 +106,9 @@ const bingController = {
                 })));
             }
 
-            // 结果去重和排序
+            // Deduplicate and sort results
             results = results.reduce((unique, item) => {
-                // 检查是否已经存在相同来源和相似标题的内容
+                // Check if content with same source and similar title already exists
                 const exists = unique.find(x => 
                     x.provider === item.provider && 
                     (x.title.includes(item.title) || item.title.includes(x.title))
@@ -117,17 +117,17 @@ const bingController = {
                 if (!exists) {
                     unique.push(item);
                 } else if (new Date(item.date) > new Date(exists.date)) {
-                    // 如果新内容更新，替换旧内容
+                    // If new content is more recent, replace old content
                     const index = unique.indexOf(exists);
                     unique[index] = item;
                 }
                 return unique;
             }, []);
 
-            // 按日期排序
+            // Sort by date
             results.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // 限制结果数量
+            // Limit results count
             results = results.slice(0, count);
 
             return {

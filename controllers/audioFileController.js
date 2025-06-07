@@ -3,15 +3,15 @@ const { uploadFileToBlob, listBlobsByUser, uploadTextToBlob, updateBlobMetadata,
 
 const axios = require("axios");
 require("dotenv").config();
-const containerName = "audiofiles"; // 附件存储在这个容器中
+const containerName = "audiofiles"; // Attachments are stored in this container
 
 exports.uploadAudiofile = async (req, res) => {
-    const fileContent = req.file.buffer; // 文件的二进制内容
+    const fileContent = req.file.buffer; // File binary content
     const originalFileName = req.body.originalFileName || req.file.originalname;
-    const username = req.body.username; // 从请求中获取username
+    const username = req.body.username; // Get username from request
 
     try {
-        // 将username作为一个参数传递给uploadFileToBlob
+        // Pass username as a parameter to uploadFileToBlob
         const audioFile = await uploadFileToBlob(containerName, originalFileName, fileContent, username);
         console.log("audioFile", audioFile);
         res.status(201).json(audioFile.url);
@@ -54,16 +54,16 @@ const endpoint = process.env.AZURE_BATCH_TRANSCRIPTION_ENDPOINT;
 
 exports.submitTranscriptionJob = async (req, res) => {
     const { audioUrl, audioName } = req.body;
-    const languages = req.body.languages || ["zh-cn"]; // 默认为中文简体
+    const languages = req.body.languages || ["zh-cn"]; // Default to Chinese Simplified
     const identifySpeakers = req.body.identifySpeakers || false;
     const maxSpeakers = req.body.maxSpeakers || 2;
 
     const transcriptionDisplayName = `Transcription_${audioName}_${new Date().toISOString()}`;
 
-    // 构造请求数据基础结构
+    // Build basic request data structure
     const data = {
         contentUrls: [audioUrl],
-        locale: languages[0], // 使用用户选择的第一种语言作为主要语言
+        locale: languages[0], // Use the first selected language as primary language
         displayName: transcriptionDisplayName,
         properties: {
             punctuationMode: "DictatedAndAutomatic",
@@ -71,7 +71,7 @@ exports.submitTranscriptionJob = async (req, res) => {
         }
     };
 
-    // 根据条件动态添加diarization属性
+    // Dynamically add diarization property based on conditions
     if (identifySpeakers) {
         data.properties.diarizationEnabled = true;
         data.properties.diarization = {
@@ -82,7 +82,7 @@ exports.submitTranscriptionJob = async (req, res) => {
         };
     }
 
-    // 如果languages数组中包含多个值，则添加languageIdentification属性
+    // If languages array contains multiple values, add languageIdentification property
     if (languages.length > 1) {
         data.properties.languageIdentification = {
             candidateLocales: languages
@@ -134,7 +134,7 @@ exports.getTranscriptionStatus = async (req, res) => {
         }
 
         console.log("Transcription job status: ", status, "Transcription URL: ", transcriptionUrl);
-        res.json({ status, transcriptionUrl }); // 返回状态和转录结果URL
+        res.json({ status, transcriptionUrl }); // Return status and transcription result URL
     } catch (error) {
         console.error("Error fetching transcription job status", error);
         res.status(500).send("Failed to fetch transcription job status.");
@@ -158,10 +158,10 @@ async function saveTranscriptionResultToBlobAndUpdateMetadata(transcriptionId, a
             }
         }
         if (transcriptResultsUrl) {
-            // 假设您已经有转录文本内容的逻辑
+            // Assuming you already have logic for transcription text content
             const transcriptionResult = await axios.get(transcriptResultsUrl);
             const transcriptionText = transcriptionResult.data;
-            // 取audioName中的文件名部分，不包括扩展名，加上.json后缀
+            // Extract filename part from audioName, excluding extension, and add .json suffix
             const blobUrl = `${audioName.split(".")[0]}.json`;
             await uploadTextToBlob("transcriptions", blobUrl, JSON.stringify(transcriptionText));
             await updateBlobMetadata("audiofiles", audioName, {
@@ -171,10 +171,10 @@ async function saveTranscriptionResultToBlobAndUpdateMetadata(transcriptionId, a
 
             return { transcriptionUrl: blobUrl };
         } else {
-            throw new Error("未找到转录结果文件。");
+            throw new Error("Transcription result file not found.");
         }
     } catch (error) {
-        console.error("保存转录结果到Blob并更新Metadata时发生错误", error);
+        console.error("Error saving transcription result to Blob and updating Metadata", error);
     }
 }
 
@@ -184,18 +184,18 @@ exports.getTranscriptTextFromBlob = async (req, res) => {
     try {
         const transcriptText = await getTextContentFromBlob("transcriptions", transcriptionBlobName);
 
-        // parseAndDisplayResults 函数的逻辑此处需要实现，并假定其将JSON转换为易读文本
+        // parseAndDisplayResults function logic needs to be implemented here, assuming it converts JSON to readable text
         const readableText = parseAndDisplayResults(JSON.parse(transcriptText));
         res.json({ success: true, transcriptText: readableText });
 
     } catch (error) {
-        console.error("从Blob获取转录文本时发生错误", error);
-        res.status(500).send("无法从Blob获取转录文本。");
+        console.error("Error getting transcription text from Blob", error);
+        res.status(500).send("Unable to get transcription text from Blob.");
     }
 };
 
 
-// 解析转录结果
+// Parse transcription results
 function parseAndDisplayResults(resultsJson) {
     let resultText = "";
     for (const phrase of resultsJson.recognizedPhrases) {
@@ -209,9 +209,9 @@ function parseAndDisplayResults(resultsJson) {
     return resultText;
 }
 
-// 转换持续时间为 MM:SS 格式
+// Convert duration to MM:SS format
 function convertDurationInTicksToMMSS(durationInTicks) {
-    // 持续时间的刻度为100纳秒，所以这里先转换为秒
+    // Duration ticks are in 100-nanosecond units, so convert to seconds first
     const durationInSeconds = durationInTicks / 10000000;
     
     const minutes = Math.floor(durationInSeconds / 60).toString().padStart(2, "0");
@@ -225,21 +225,21 @@ exports.deleteAudioFile = async (req, res) => {
     const { blobName } = req.body;
     
     try {
-        // 删除音频文件
+        // Delete audio file
         await deleteBlob(containerName, blobName);
         const transcriptionBlobName = blobName.replace(/\.[^.]+$/, ".json");
         
-        // 检查转录文件是否存在
+        // Check if transcription file exists
         const exists = await checkBlobExists("transcriptions", transcriptionBlobName);
         if (exists) {
-            // 如果转录文件存在，则尝试删除
+            // If transcription file exists, try to delete it
             await deleteBlob("transcriptions", transcriptionBlobName);
         }
         
-        res.status(200).send("文件删除成功");
+        res.status(200).send("Files deleted successfully");
     } catch (error) {
-        console.error("删除音频文件和转录文件时发生错误：", error);
-        res.status(500).send("删除音频文件和转录文件时发生错误：", error);
+        console.error("Error deleting audio and transcription files:", error);
+        res.status(500).send("Error deleting audio and transcription files:", error);
     }
 };
 

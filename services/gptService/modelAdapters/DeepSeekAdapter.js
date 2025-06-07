@@ -1,4 +1,4 @@
-// DeepSeekAdapter.js - DeepSeek 模型专用适配器
+// DeepSeekAdapter.js - DeepSeek model-specific adapter
 const BaseAdapter = require("./BaseAdapter");
 
 class DeepSeekAdapter extends BaseAdapter {
@@ -6,7 +6,7 @@ class DeepSeekAdapter extends BaseAdapter {
         super(config);
     }
 
-    // 重写请求头处理方法，添加 Bearer token
+    // Override request header handling method, add Bearer token
     getHeaders(apiKey) {
         return {
             "Content-Type": "application/json",
@@ -14,9 +14,9 @@ class DeepSeekAdapter extends BaseAdapter {
         };
     }
 
-    // 重写参数处理方法
+    // Override parameter handling method
     processRequestParameters(params) {
-        // 确保所有参数都是正确的类型
+        // Ensure all parameters are of the correct type
         const processedParams = {
             temperature: params.temperature ? parseFloat(params.temperature) : 0.7,
             top_p: params.top_p ? parseFloat(params.top_p) : 1,
@@ -26,16 +26,16 @@ class DeepSeekAdapter extends BaseAdapter {
         return processedParams;
     }
 
-    // 重写请求体处理方法
+    // Override request body handling method
     processRequestBody(prompt, params) {
-        // 确保消息格式正确
+        // Ensure message format is correct
         if (!Array.isArray(prompt)) {
             prompt = [{ role: "user", content: prompt }];
         }
 
-        // 构造标准的请求体
+        // Build standard request body
         return {
-            model: "deepseek-r1", // 明确指定模型名称
+            model: "deepseek-r1", // Explicitly specify model name
             messages: prompt.map(msg => ({
                 role: msg.role,
                 content: msg.content

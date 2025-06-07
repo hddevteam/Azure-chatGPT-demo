@@ -18,12 +18,12 @@ function addVerticalResizeHandleListeners() {
     function resize(e) {
         const currentY = e.clientY;
         const heightDelta = currentY - startY;
-        const newHeight = Math.max(startHeight - heightDelta, 100); // 增加最小高度以确保按钮行可见
+        const newHeight = Math.max(startHeight - heightDelta, 100); // Increase minimum height to ensure button row is visible
         messageInputContainer.style.height = `${newHeight}px`;
 
-        // 重置input-container的内边距，让按钮行有足够的空间
+        // Reset input-container padding to give the button row enough space
         const inputContainer = document.getElementById("input-container");
-        inputContainer.style.paddingBottom = "";  // 移除固定的padding-bottom
+        inputContainer.style.paddingBottom = "";  // Remove fixed padding-bottom
     }
 
     // Function to stop the resize operation

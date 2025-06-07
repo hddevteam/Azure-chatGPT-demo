@@ -57,7 +57,7 @@ const defaultParams = {
  * @type {Object}
  */
 const modelFeatures = {
-    "gpt-4o": { supportsFunctionClls: true, supportsSystemMessages: true },
+    "gpt-4o": { supportsFunctionCalls: true, supportsSystemMessages: true },
     "gpt-4o-mini": { supportsFunctionCalls: true, supportsSystemMessages: true },
     "o1": { supportsFunctionCalls: false, supportsSystemMessages: false },
     "o1-mini": { supportsFunctionCalls: false, supportsSystemMessages: false },
@@ -96,7 +96,7 @@ const getApiConfig = (model) => {
         apiKey = apiKeys.o1Mini;
         apiUrl = apiUrls.o1Mini;
         break;
-    case "o3":  // 添加 o3 的配置
+    case "o3":  // Add o3 configuration
         apiKey = apiKeys.o3;
         apiUrl = apiUrls.o3;
         break;
@@ -104,27 +104,27 @@ const getApiConfig = (model) => {
         apiKey = apiKeys.o3Mini;
         apiUrl = apiUrls.o3Mini;
         break;
-    case "deepseek-r1":  // 添加 deepseek-r1 的配置
+    case "deepseek-r1":  // Add deepseek-r1 configuration
         apiKey = apiKeys.deepseek;
         apiUrl = apiUrls.deepseek;
         break;
-    case "o4-mini":  // 添加 o4-mini 的配置
+    case "o4-mini":  // Add o4-mini configuration
         apiKey = apiKeys.o4Mini;
         apiUrl = apiUrls.o4Mini;
         break;
-    case "gpt-4.5-preview":  // 添加 gpt-4.5-preview 的配置
+    case "gpt-4.5-preview":  // Add gpt-4.5-preview configuration
         apiKey = apiKeys.gpt45;
         apiUrl = apiUrls.gpt45;
         break;
-    case "gpt-4.1":  // 添加 gpt-4.1 的配置
+    case "gpt-4.1":  // Add gpt-4.1 configuration
         apiKey = apiKeys.gpt41;
         apiUrl = apiUrls.gpt41;
         break;
-    case "gpt-4.1-nano":  // 添加 gpt-4.1-nano 的配置
+    case "gpt-4.1-nano":  // Add gpt-4.1-nano configuration
         apiKey = apiKeys.gpt41Nano;
         apiUrl = apiUrls.gpt41Nano;
         break;
-    case "gpt-4.1-mini":  // 添加 gpt-4.1-mini 的配置
+    case "gpt-4.1-mini":  // Add gpt-4.1-mini configuration
         apiKey = apiKeys.gpt41Mini;
         apiUrl = apiUrls.gpt41Mini;
         break;
@@ -139,13 +139,13 @@ const getApiConfig = (model) => {
 };
 
 /**
- * 检查模型是否支持指定的功能
- * @param {string} model - 模型名称
- * @param {string} feature - 功能名称
- * @returns {boolean} 是否支持该功能
+ * Check if model supports specified feature
+ * @param {string} model - Model name
+ * @param {string} feature - Feature name
+ * @returns {boolean} Whether the feature is supported
  */
 const supportsFeature = (model, feature) => {
-    const features = modelFeatures[model] || modelFeatures["gpt-4o"]; // 默认使用 gpt-4o 的特性
+    const features = modelFeatures[model] || modelFeatures["gpt-4o"]; // Default to gpt-4o features
     return !!features[feature];
 };
 

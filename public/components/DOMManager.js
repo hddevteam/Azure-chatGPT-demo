@@ -71,27 +71,27 @@ class DOMManager {
         attachmentsContainer.classList.add("attachments-container");
         
         urlArray.forEach(url => {
-            // 检查是否为图片URL（通过文件扩展名或DALL-E返回的URL模式）
+            // Check if it's an image URL (by file extension or DALL-E returned URL pattern)
             const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url) || 
-                           // DALL-E URL通常包含这些特征
+                           // DALL-E URLs usually contain these characteristics
                            url.includes("dalleprodsec.blob.core.windows.net") ||
-                           // 捕获不带扩展名但可能是图片的URL
+                           // Capture URLs without extensions that might be images
                            (/\.(blob\.core\.windows\.net)|(openai\.com)/i.test(url) && !url.endsWith(".json"));
             
-            if (isImage) {                // 创建图片容器包装器
+            if (isImage) {                // Create image container wrapper
                 const wrapper = document.createElement("div");
                 wrapper.classList.add("message-image-wrapper");
 
-                // 创建图片元素
+                // Create image element
                 const imgElement = document.createElement("img");
                 imgElement.src = url;
                 imgElement.classList.add("message-attachment-thumbnail");
                 
-                // 创建编辑按钮
+                // Create edit button
                 const editButton = document.createElement("button");
                 editButton.classList.add("message-image-edit-btn");
                 editButton.innerHTML = "<i class=\"fas fa-edit\"></i>";
-                editButton.title = "Edit this image";                    // 设置点击事件用于显示大图
+                editButton.title = "Edit this image";                    // Set click event to display large image
                     imgElement.addEventListener("click", () => {
                         const modal = document.getElementById("image-modal");
                         const modalImg = document.getElementById("img-modal-content");
@@ -99,13 +99,13 @@ class DOMManager {
                         modalImg.src = url;
                     });
 
-                    // 将图片和编辑按钮添加到包装器
+                    // Add image and edit button to wrapper
                     wrapper.appendChild(imgElement);
                     wrapper.appendChild(editButton);
                     
                     attachmentsContainer.appendChild(wrapper);
             } else {
-                // 如果不是图片，创建一个文件链接
+                // If not an image, create a file link
                 const fileLink = document.createElement("a");
                 fileLink.href = url;
                 fileLink.target = "_blank";
@@ -296,7 +296,7 @@ class DOMManager {
         maximizeButtonElement.classList.add("fas");
         maximizeButtonElement.classList.add("fa-angles-down");
         maximizeButtonElement.title = "Maximize the message content area";
-        maximizeButtonElement.style.display = "none"; // 默认隐藏
+        maximizeButtonElement.style.display = "none"; // Hide by default
         return maximizeButtonElement;
     }
 

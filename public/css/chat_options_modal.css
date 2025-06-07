@@ -3,10 +3,10 @@
     margin-bottom: 16px;
     background-color: #fff;
     border-radius: 4px;
-    /* 确保每个section都能完整显示 */
-    min-width: 0; /* 防止内容溢出 */
+    /* Ensure each section can be displayed completely */
+    min-width: 0; /* Prevent content overflow */
     max-width: 100%;
-    /* 新增：选项容器的网格布局 */
+    /* Added: Grid layout for options container */
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 16px;
@@ -20,7 +20,7 @@
     margin: 0;
     padding-bottom: 16px;
     min-width: fit-content;
-    /* 新增：标题占据整行 */
+    /* Added: Title takes up the entire row */
     grid-column: 1 / -1;
 }
 
@@ -30,7 +30,7 @@
     grid-template-columns: auto 1fr;
     gap: 12px;
     padding: 12px 16px;
-    /* 修改：移除 margin，由grid gap控制间距 */
+    /* Modified: Remove margin, controlled by grid gap */
     margin: 0;
     border-radius: 4px;
     transition: background-color 0.2s;
@@ -72,7 +72,7 @@
     width: 100%;
 }
 
-/* 新增滑块容器样式 */
+/* New slider container styles */
 .slider-input-container {
     width: 100%;
     margin: 0 auto;
@@ -94,7 +94,7 @@ input[type="range"] {
     color: rgba(0, 0, 0, 0.6);
 }
 
-/* 隐藏中间的标签 */
+/* Hide middle labels */
 .slider-labels span:not(:first-child):not(:last-child) {
     display: none;
 }
@@ -128,8 +128,8 @@ input[type="range"] {
 
 .modal-body {
     margin-bottom: 24px;
-    overflow-y: auto; /* 内容过多时显示滚动条 */
-    flex-grow: 1; /* 允许内容区域伸展 */
+    overflow-y: auto; /* Show scroll bar when content is too much */
+    flex-grow: 1; /* Allow content area to expand */
 }
 
 #chat-options-form {
@@ -179,7 +179,7 @@ input[type="range"] {
     background-color: rgba(0, 0, 0, 0.04);
 }
 
-/* 在小屏幕上保持单列布局 */
+/* Maintain single column layout on small screens */
 @media (max-width: 768px) {
     .options-section {
         grid-template-columns: 1fr;

@@ -49,13 +49,13 @@ body.swal-shown {
     width: 100%;
 }
 
-/* Content wrapper - 确保内容区域与模态框同宽 */
+/* Content wrapper - ensure content area has same width as modal */
 .swal-content__content-wrapper {
     width: 100%;
     box-sizing: border-box;
 }
 
-/* Form groups - 为表单元素添加合适的间距 */
+/* Form groups - add appropriate spacing for form elements */
 .swal-content .form-group {
     margin-bottom: 16px;
     width: 100%;
@@ -87,14 +87,14 @@ body.swal-shown {
     text-align: left;
     width: 100%;
     box-sizing: border-box;
-    max-height: calc(90vh - 200px); /* 预留标题和按钮空间 */
+    max-height: calc(90vh - 200px); /* Reserve space for title and buttons */
     overflow-y: auto;
 }
 
-/* 修复内容区域的宽度问题 */
+/* Fix content area width issues */
 .swal-content {
     margin: 0;
-    padding: 0 2px; /* 添加小边距防止内容贴边 */
+    padding: 0 2px; /* Add small margin to prevent content from touching edges */
     width: 100%; /* Ensure full width */
     box-sizing: border-box;
     flex: 1;
@@ -120,7 +120,7 @@ body.swal-shown {
     font-size: 14px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    margin: 8px 0 16px; /* 统一上下间距 */
+    margin: 8px 0 16px; /* Unified top and bottom spacing */
     font-family: inherit;
     min-height: 36px; /* Minimum height for inputs */
     background-color: #fff;
@@ -262,7 +262,7 @@ body.swal-shown {
 
     .swal-content__input,
     .swal-content textarea {
-        font-size: 16px; /* 防止iOS自动缩放 */
+        font-size: 16px; /* Prevent iOS automatic scaling */
     }
 
     .swal-footer {
@@ -271,7 +271,7 @@ body.swal-shown {
     }
 }
 
-/* 修复滚动时的内容显示问题 */
+/* Fix content display issues during scrolling */
 .swal-modal::-webkit-scrollbar {
     width: 6px;
     background-color: transparent;
@@ -286,7 +286,7 @@ body.swal-shown {
     background-color: rgba(0, 0, 0, 0.3);
 }
 
-/* 弹窗出现时的过渡动画 */
+/* Modal appearance transition animation */
 @keyframes swalModalAppear {
     from {
         opacity: 0;
