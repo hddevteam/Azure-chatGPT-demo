@@ -1,0 +1,2813 @@
+/* Sora Video Generator Styles - Updated UI */
+
+/* Video Studio Layout */
+.sora-video-studio {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+/* Header */
+.sora-video-studio__header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px 0;
+}
+
+.sora-video-studio__title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.sora-video-studio__title h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0;
+}
+
+.sora-video-studio__title i {
+    font-size: 2.2rem;
+    color: #667eea;
+}
+
+.sora-video-studio__subtitle {
+    font-size: 1.1rem;
+    color: #718096;
+    margin: 0;
+}
+
+/* Video Studio Layout - Updated without separate toolbar */
+
+/* Active Tasks Bar */
+.sora-active-tasks-bar {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.sora-active-tasks-bar--visible {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 500px;
+}
+
+.sora-active-tasks-bar:not(.sora-active-tasks-bar--visible) {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+    margin-bottom: 0;
+    padding: 0;
+    border: none;
+}
+
+.sora-active-tasks-bar--visible {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 500px; /* Adjust based on expected content */
+}
+
+.sora-active-tasks-bar__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sora-active-tasks-bar__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.sora-active-tasks-bar__collapse {
+    background: none;
+    border: none;
+    color: #718096;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.sora-active-tasks-bar__collapse:hover {
+    background: #f7fafc;
+    color: #4a5568;
+}
+
+.sora-active-tasks-bar__content {
+    padding: 16px 20px;
+}
+
+/* Video Gallery */
+.sora-video-studio__content {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sora-video-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* Video Grid inside Gallery */
+.sora-video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+.sora-video-grid__empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #718096;
+}
+
+.sora-video-grid__empty i {
+    font-size: 3rem;
+    color: #cbd5e0;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.sora-video-grid__empty h3 {
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+    color: #4a5568;
+}
+
+/* Video Cards */
+.sora-video-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transition: all 0.3s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sora-video-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.sora-video-card--list {
+    display: flex;
+    align-items: center;
+    grid-column: 1 / -1;
+}
+
+.sora-video-card__thumbnail {
+    position: relative;
+    background: #f7fafc;
+    aspect-ratio: 16/9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.sora-video-card--list .sora-video-card__thumbnail {
+    width: 200px;
+    flex-shrink: 0;
+    aspect-ratio: 16/9;
+}
+
+.sora-video-card__placeholder {
+    color: #cbd5e0;
+    font-size: 3rem;
+}
+
+.sora-video-card__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.sora-video-card:hover .sora-video-card__overlay {
+    opacity: 1;
+}
+
+.sora-video-card__play-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sora-video-card__play-btn:hover {
+    background: white;
+    transform: scale(1.1);
+}
+
+.sora-video-card__type-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sora-video-card__content {
+    padding: 16px;
+    flex: 1;
+}
+
+.sora-video-card__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 8px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sora-video-card__metadata {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #718096;
+}
+
+.sora-video-card__date,
+.sora-video-card__size {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sora-video-card__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.sora-video-card__action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: white;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sora-video-card__action:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+.sora-video-card__action--danger {
+    color: #e53e3e;
+}
+
+.sora-video-card__action--danger:hover {
+    background: #fed7d7;
+    border-color: #feb2b2;
+}
+
+/* Empty State */
+.sora-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: #718096;
+}
+
+.sora-empty-state__icon {
+    font-size: 4rem;
+    color: #cbd5e0;
+    margin-bottom: 20px;
+}
+
+.sora-empty-state__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin: 0 0 8px 0;
+}
+
+.sora-empty-state__description {
+    font-size: 1rem;
+    margin: 0 0 24px 0;
+    max-width: 400px;
+}
+
+.sora-empty-state__btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sora-empty-state__btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Modal Styles */
+.sora-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.sora-modal__backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.sora-modal__content {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    max-width: 95vw;
+    width: 90vw;
+    max-height: 95vh;
+    overflow-y: auto;
+}
+
+.sora-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sora-modal__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.sora-modal__close {
+    background: none;
+    border: none;
+    color: #718096;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.sora-modal__close:hover {
+    background: #f7fafc;
+    color: #1a202c;
+    transform: scale(1.05);
+}
+
+.sora-modal__form {
+    padding: 24px;
+}
+
+/* Form Styles */
+.sora-form__group {
+    margin-bottom: 20px;
+}
+
+.sora-form__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.sora-form__label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.sora-form__textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+
+.sora-form__textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.sora-form__select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.sora-form__select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.sora-form__help-text {
+    font-size: 12px;
+    color: #718096;
+    margin-top: 4px;
+}
+
+.sora-form__actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.sora-form__btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.sora-form__btn--secondary {
+    background: #f7fafc;
+    color: #4a5568;
+    border-color: #e2e8f0;
+}
+
+.sora-form__btn--secondary:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+.sora-form__btn--primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.sora-form__btn--primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.sora-form__btn--primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Task Styles */
+.sora-task__item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid #e2e8f0;
+    margin-bottom: 12px;
+    transition: all 0.3s;
+}
+
+.sora-task__item--pending {
+    border-left-color: #fbbf24;
+    background: #fffbeb;
+}
+
+.sora-task__item--in_progress {
+    border-left-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.sora-task__item--succeeded {
+    border-left-color: #10b981;
+    background: #ecfdf5;
+}
+
+.sora-task__item--failed {
+    border-left-color: #ef4444;
+    background: #fef2f2;
+}
+
+.sora-task__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.sora-task__title {
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.sora-task__status {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.sora-task__status--pending {
+    background: #fbbf24;
+    color: #92400e;
+}
+
+.sora-task__status--in_progress {
+    background: #3b82f6;
+    color: white;
+}
+
+.sora-task__status--succeeded {
+    background: #10b981;
+    color: white;
+}
+
+.sora-task__status--failed {
+    background: #ef4444;
+    color: white;
+}
+
+.sora-task__prompt {
+    font-size: 14px;
+    color: #4a5568;
+    margin-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sora-task__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.sora-task__action {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sora-task__action:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+.sora-active-task__description {
+    font-size: 0.75rem;
+    color: #a0aec0;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* Stage-specific status colors */
+.sora-active-task__status[data-stage="creating_task"],
+.sora-active-task__status[data-stage="pending"] {
+    background: #e6fffa;
+    color: #234e52;
+}
+
+.sora-active-task__status[data-stage="processing"],
+.sora-active-task__status[data-stage="rendering"],
+.sora-active-task__status[data-stage="running"] {
+    background: #fef5e7;
+    color: #744210;
+}
+
+.sora-active-task__status[data-stage="downloading"],
+.sora-active-task__status[data-stage="uploading"] {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.sora-active-task__status[data-stage="completed"],
+.sora-active-task__status[data-stage="finished"] {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+.sora-active-task__status[data-stage="failed"],
+.sora-active-task__status[data-stage="error"] {
+    background: #fed7d7;
+    color: #c53030;
+}
+
+/* Video Details Modal */
+.sora-video-details {
+    padding: 20px 0;
+}
+
+.sora-video-details__item {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sora-video-details__item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.sora-video-details__item strong {
+    display: block;
+    color: #2d3748;
+    margin-bottom: 4px;
+}
+
+.sora-video-details__item pre {
+    background: #f7fafc;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    overflow-x: auto;
+    margin: 8px 0 0 0;
+}
+
+/* Notifications */
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sora-video-studio {
+        padding: 16px;
+    }
+    
+    .sora-video-studio__toolbar {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .sora-toolbar__divider {
+        display: none;
+    }
+    
+    .sora-video-gallery {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .sora-form__row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .sora-video-card--list {
+        flex-direction: column;
+    }
+    
+    .sora-video-card--list .sora-video-card__thumbnail {
+        width: 100%;
+    }
+}
+
+/* Aspect Ratio */
+.sora-generator__aspect-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.sora-generator__aspect-options {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.sora-generator__aspect-option {
+    flex: 1;
+    position: relative;
+}
+
+.sora-generator__aspect-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sora-generator__aspect-label {
+    display: block;
+    padding: 12px 8px;
+    text-align: center;
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.sora-generator__aspect-input:checked + .sora-generator__aspect-label {
+    background: #3182ce;
+    color: white;
+    border-color: #3182ce;
+}
+
+.sora-generator__aspect-label:hover {
+    border-color: #cbd5e0;
+}
+
+/* Select Inputs */
+.sora-generator__select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.sora-generator__select:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+/* Duration Slider */
+.sora-generator__duration-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.sora-generator__duration-slider {
+    width: 100%;
+    margin: 8px 0;
+}
+
+.sora-generator__duration-value {
+    text-align: center;
+    font-weight: 600;
+    color: #3182ce;
+    font-size: 16px;
+}
+
+/* Number Input */
+.sora-generator__number-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Generate Button */
+.sora-generator__generate-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 10px;
+}
+
+.sora-generator__generate-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.sora-generator__generate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Center Panel - Preview and Tasks */
+.sora-studio__center {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sora-preview {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    min-height: 200px;
+}
+
+.sora-preview__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 16px;
+}
+
+.sora-preview__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #e2e8f0;
+}
+
+.sora-preview__placeholder {
+    text-align: center;
+    color: #718096;
+}
+
+/* Active Tasks */
+.sora-tasks {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.sora-tasks__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 16px;
+}
+
+.sora-tasks__list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sora-task__item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid #e2e8f0;
+    transition: border-color 0.3s;
+}
+
+.sora-task__item--pending {
+    border-left-color: #fbbf24;
+}
+
+.sora-task__item--in_progress {
+    border-left-color: #3b82f6;
+}
+
+.sora-task__item--succeeded {
+    border-left-color: #10b981;
+}
+
+.sora-task__item--failed {
+    border-left-color: #ef4444;
+}
+
+.sora-task__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.sora-task__id {
+    font-family: monospace;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.sora-task__status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.sora-task__status--pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.sora-task__status--in_progress {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.sora-task__status--succeeded {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.sora-task__status--failed {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.sora-task__prompt {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.sora-task__params {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.sora-task__progress {
+    width: 100%;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.sora-task__progress-bar {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.sora-task__progress-fill {
+    height: 100%;
+    background: #3b82f6;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.sora-task__video {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sora-task__download-btn {
+    padding: 6px 12px;
+    background: #10b981;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Right Panel - History */
+.sora-history {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.sora-history__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.sora-history__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a202c;
+}
+
+.sora-history__refresh-btn {
+    padding: 6px 12px;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.sora-history__list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sora-history__item {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fafafa;
+}
+
+.sora-history__item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.sora-history__item-status {
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.sora-history__item-status--pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.sora-history__item-status--succeeded {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.sora-history__item-status--failed {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.sora-history__item-date {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.sora-history__item-prompt {
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.sora-history__item-params {
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.sora-history__item-videos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.sora-history__video-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sora-history__video-item video {
+    border-radius: 4px;
+}
+
+.sora-history__download-btn {
+    padding: 4px 8px;
+    background: #10b981;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.sora-history__item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.sora-history__reuse-btn,
+.sora-history__delete-btn {
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.sora-history__reuse-btn {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.sora-history__delete-btn {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.sora-history__empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+}
+
+/* Notifications */
+.sora-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    z-index: 99999; /* Highest z-index to ensure notifications appear above all modals */
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease-out;
+}
+
+.sora-notification--success {
+    background: #d1fae5;
+    color: #065f46;
+    border-left: 4px solid #10b981;
+}
+
+.sora-notification--error {
+    background: #fee2e2;
+    color: #991b1b;
+    border-left: 4px solid #ef4444;
+}
+
+.sora-notification--info {
+    background: #dbeafe;
+    color: #1e40af;
+    border-left: 4px solid #3b82f6;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Modal Styles for Sora Video Generator */
+.modal-overlay--sora {
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+}
+
+.modal--sora {
+    max-width: 1200px;
+    width: 95vw;
+    max-height: 90vh;
+    margin: 5vh auto;
+    background: var(--background-color, #ffffff);
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.modal__header {
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.modal__title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modal__title i {
+    color: #ffd700;
+}
+
+.modal__close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+}
+
+.modal__close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.modal__body {
+    flex: 1;
+    overflow: auto;
+    padding: 0;
+}
+
+/* Loading and Error States */
+.sora-studio__loading,
+.sora-studio__error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    min-height: 300px;
+}
+
+.sora-studio__loading i {
+    font-size: 3rem;
+    color: var(--primary-color, #667eea);
+    margin-bottom: 1rem;
+}
+
+.sora-studio__error i {
+    font-size: 3rem;
+    color: #e74c3c;
+    margin-bottom: 1rem;
+}
+
+.sora-studio__error h3 {
+    color: #e74c3c;
+    margin: 0.5rem 0;
+}
+
+.sora-studio__error p {
+    color: var(--text-color, #666);
+    margin-bottom: 1.5rem;
+}
+
+/* Container adjustments for modal */
+.modal--sora .sora-studio__container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr;
+    gap: 0;
+    height: auto;
+    min-height: 500px;
+}
+
+.modal--sora .sora-studio__panel {
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.modal--sora .sora-studio__panel:last-child {
+    border-bottom: none;
+}
+
+.modal--sora .sora-studio__panel--history {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Responsive modal adjustments */
+@media (max-width: 768px) {
+    .modal--sora {
+        width: 98vw;
+        margin: 1vh auto;
+        max-height: 98vh;
+        border-radius: 8px;
+    }
+
+    .modal__header {
+        padding: 1rem;
+    }
+
+    .modal__title {
+        font-size: 1.25rem;
+    }
+
+    .modal--sora .sora-studio__container {
+        min-height: 400px;
+    }
+}
+
+/* Animation for modal */
+.modal-overlay--sora {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay--sora:not(.hidden) {
+    opacity: 1;
+}
+
+.modal--sora {
+    transform: scale(0.9) translateY(-20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay--sora:not(.hidden) .modal--sora {
+    transform: scale(1) translateY(0);
+}
+
+/* Focus styles for accessibility */
+.modal--sora:focus {
+    outline: none;
+}
+
+.modal--sora .sora-studio__btn:focus,
+.modal--sora .sora-studio__select:focus,
+.modal--sora .sora-studio__textarea:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .sora-studio__layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .sora-studio {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sora-studio__title {
+        font-size: 2rem;
+    }
+    
+    .sora-generator__aspect-options {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .sora-task__video {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .sora-history__video-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Video Preview Modal Styles - Optimized for space utilization */
+.sora-modal--video-preview .sora-modal__content {
+    max-width: 95vw;
+    max-height: 95vh;
+    width: auto;
+}
+
+.sora-modal__content--video {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.sora-modal__content--video .sora-modal__header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: rgba(248, 250, 252, 0.95);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.sora-modal__content--video .sora-modal__body {
+    padding: 0;
+    position: relative;
+}
+
+.sora-video-preview {
+    position: relative;
+    background: #000;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sora-video-preview__player {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 80vh;
+    display: block;
+}
+
+.sora-video-preview__loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    font-size: 16px;
+    z-index: 1;
+}
+
+.sora-video-preview__loading i {
+    font-size: 24px;
+}
+
+/* Video Prompt Section */
+.sora-video-prompt {
+    margin-top: 20px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.sora-video-prompt__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.sora-video-prompt__title i {
+    color: #667eea;
+}
+
+.sora-video-prompt__content {
+    line-height: 1.6;
+    color: #4a5568;
+    font-size: 14px;
+    word-wrap: break-word;
+    padding: 0;
+    margin: 0;
+}
+
+/* Model Selection Checkboxes */
+.sora-model-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.sora-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+}
+
+.sora-checkbox-wrapper:hover {
+    border-color: #667eea;
+    background: #f7fafc;
+}
+
+.sora-checkbox-wrapper:has(.sora-checkbox:checked) {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.sora-checkbox {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #cbd5e0;
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    appearance: none;
+    transition: all 0.2s;
+}
+
+.sora-checkbox:checked {
+    background: #667eea;
+    border-color: #667eea;
+}
+
+.sora-checkbox:checked::after {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.sora-checkbox-label {
+    font-size: 14px;
+    color: #2d3748;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: pointer;
+}
+
+/* Mobile responsive for checkboxes */
+@media (max-width: 768px) {
+    .sora-model-checkboxes {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Video Details Modal */
+.sora-video-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sora-video-details__item {
+    padding: 12px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sora-video-details__item:last-child {
+    border-bottom: none;
+}
+
+.sora-video-details__item strong {
+    color: #2d3748;
+    margin-right: 8px;
+}
+
+.sora-video-details__item pre {
+    background: #f7fafc;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 8px 0 0 0;
+    overflow-x: auto;
+    font-size: 14px;
+    border: 1px solid #e2e8f0;
+}
+
+@media (max-width: 768px) {
+    .sora-modal--video-preview .sora-modal__content {
+        max-width: 95vw;
+        max-height: 95vh;
+    }
+    
+    .sora-video-preview__player {
+        max-height: 60vh;
+    }
+    
+    .sora-modal__content--video .sora-modal__header {
+        padding: 16px 20px;
+    }
+    
+    .sora-modal__title {
+        font-size: 1.2rem;
+    }
+}
+
+/* Generation Parameters Bar */
+.sora-generation-bar {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 24px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.sora-generation-form__row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sora-generation-form__field--prompt {
+    width: 100%;
+}
+
+.sora-generation-form__textarea {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s;
+    background: #f8fafc;
+    box-sizing: border-box;
+}
+
+.sora-generation-form__textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.sora-generation-form__params {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.sora-generation-form__param {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 100px;
+    flex-shrink: 0;
+}
+
+.sora-generation-form__param:last-child {
+    margin-left: auto;
+}
+
+.sora-generation-form__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+.sora-generation-form__label i {
+    font-size: 12px;
+    color: #718096;
+    width: 14px;
+    text-align: center;
+}
+
+.sora-generation-form__select {
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    color: #4a5568;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    min-width: 80px;
+    height: 40px;
+    box-sizing: border-box;
+}
+
+.sora-generation-form__select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.sora-generation-form__ai-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: white;
+    color: #667eea;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    height: 40px;
+    box-sizing: border-box;
+}
+
+.sora-generation-form__ai-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.sora-generation-form__generate-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    min-width: 120px;
+    justify-content: center;
+    height: 40px;
+    box-sizing: border-box;
+}
+
+.sora-generation-form__generate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+}
+
+.sora-generation-form__generate-btn:active {
+    transform: translateY(0);
+}
+
+.sora-generation-form__generate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Unified Generation Bar Controls */
+.sora-generation-bar__controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sora-generation-bar__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sora-control__btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: white;
+    color: #4a5568;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sora-control__btn:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+.sora-generation-bar__view-options {
+    display: flex;
+    gap: 4px;
+}
+
+.sora-view__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: white;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sora-view__btn:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+.sora-view__btn--active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+/* Responsive adjustments for generation bar */
+@media (max-width: 1024px) {
+    .sora-generation-form__params {
+        justify-content: flex-start;
+    }
+    
+    .sora-generation-form__param:last-child {
+        margin-left: 0;
+        margin-top: 8px;
+        width: 100%;
+    }
+    
+    .sora-generation-form__ai-btn,
+    .sora-generation-form__generate-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .sora-generation-bar {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .sora-generation-form__row {
+        gap: 12px;
+    }
+    
+    .sora-generation-form__params {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .sora-generation-form__param {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .sora-generation-form__param:last-child {
+        margin-left: 0;
+        margin-top: 0;
+    }
+    
+    .sora-generation-form__ai-btn,
+    .sora-generation-form__generate-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .sora-generation-form__textarea {
+        padding: 12px;
+        font-size: 14px;
+        min-height: 60px;
+    }
+}
+
+/* Confirmation Dialog */
+.sora-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sora-confirm-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 90%;
+    width: 400px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    overflow: hidden;
+    animation: modal-appear 0.3s ease-out forwards;
+}
+
+.sora-confirm-modal__content {
+    padding: 24px;
+}
+
+.sora-confirm-modal__title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1a202c;
+    margin: 0 0 16px;
+}
+
+.sora-confirm-modal__message {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #4a5568;
+    margin: 0 0 24px;
+}
+
+.sora-confirm-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.sora-confirm-modal__btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sora-confirm-modal__btn--cancel {
+    background-color: #e2e8f0;
+    color: #4a5568;
+    border: none;
+}
+
+.sora-confirm-modal__btn--cancel:hover {
+    background-color: #cbd5e0;
+}
+
+.sora-confirm-modal__btn--confirm {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.sora-confirm-modal__btn--confirm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+@keyframes modal-appear {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Enhanced video card hover effects */
+.sora-video-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Video Player Modal Styles */
+.sora-modal--video .sora-modal__container {
+    max-width: 90vw;
+    max-height: 90vh;
+    width: auto;
+}
+
+.sora-modal__container--video {
+    min-width: 600px;
+    max-width: 1200px;
+}
+
+.sora-video-player {
+    width: 100%;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.sora-video-player__video {
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    display: block;
+}
+
+/* Details Modal Styles */
+.sora-modal--details .sora-modal__container {
+    max-width: 600px;
+    width: 90vw;
+}
+
+.sora-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.sora-details__row {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sora-details__row:last-child {
+    border-bottom: none;
+}
+
+.sora-details__label {
+    font-weight: 600;
+    color: #2d3748;
+    min-width: 140px;
+    flex-shrink: 0;
+}
+
+.sora-details__value {
+    color: #4a5568;
+    word-break: break-word;
+    line-height: 1.5;
+}
+
+/* Modal General Styles */
+.sora-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.sora-modal__backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.sora-modal__container {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-width: 500px;
+    width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.sora-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.sora-modal__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a202c;
+    margin: 0;
+}
+
+.sora-modal__title i {
+    color: #667eea;
+}
+
+.sora-modal__close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #718096;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.sora-modal__close:hover {
+    background: #f7fafc;
+    color: #1a202c;
+    transform: scale(1.05);
+}
+
+.sora-modal__body {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.sora-modal__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+/* Unified Header Styles for Main Interface and Modals */
+.sora-video-studio__header,
+.sora-modal__header {
+    position: relative;
+}
+
+.sora-video-studio__title,
+.sora-modal__title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.sora-video-studio__title i,
+.sora-modal__title i {
+    color: #667eea;
+}
+
+/* Modal specific adjustments */
+.sora-modal__header {
+    padding: 20px 24px;
+    min-height: 60px;
+    border-bottom: 1px solid #e2e8f0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(255, 255, 255, 0.95) 100%);
+}
+
+.sora-modal__title {
+    font-size: 1.5rem;
+    flex: 1;
+}
+
+.sora-modal__close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    background: none;
+    border: none;
+    color: #718096;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.sora-modal__close:hover {
+    background: #f7fafc;
+    color: #1a202c;
+    transform: scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sora-modal__container--video {
+        min-width: 0;
+        max-width: 95vw;
+    }
+    
+    .sora-video-player__video {
+        max-height: 50vh;
+    }
+    
+    .sora-modal__header,
+    .sora-modal__body,
+    .sora-modal__footer {
+        padding: 16px;
+    }
+    
+    .sora-details__label {
+        min-width: 100px;
+        font-size: 0.9rem;
+    }
+    
+    .sora-details__value {
+        font-size: 0.9rem;
+    }
+}
+
+/* Active Tasks Styles */
+.sora-active-tasks {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.sora-active-tasks__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.sora-active-tasks__header h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.sora-active-tasks__toggle {
+    background: none;
+    border: none;
+    color: #718096;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sora-active-tasks__toggle:hover {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.sora-active-tasks__list {
+    padding: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    opacity: 1;
+}
+
+.sora-active-tasks__list.collapsed {
+    max-height: 0;
+    padding: 0 12px;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.sora-active-task {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+}
+
+.sora-active-task:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e0;
+}
+
+.sora-active-task:last-child {
+    margin-bottom: 0;
+}
+
+.sora-active-task__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sora-active-task__prompt {
+    font-weight: 500;
+    color: #2d3748;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.sora-active-task__status {
+    font-size: 0.8rem;
+    color: #718096;
+    text-transform: capitalize;
+    padding: 2px 8px;
+    background: #e2e8f0;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.sora-active-task__status.running {
+    background: #fed7d7;
+    color: #c53030;
+}
+
+.sora-active-task__status.completed {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+.sora-active-task__status.failed {
+    background: #fed7d7;
+    color: #c53030;
+}
+
+.sora-active-task__progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+}
+
+.sora-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.sora-progress-bar__fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4299e1, #3182ce);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.sora-progress-bar__fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.sora-progress-text {
+    font-size: 0.8rem;
+    color: #4a5568;
+    font-weight: 500;
+    min-width: 35px;
+    text-align: right;
+}
+
+.sora-active-task__cancel {
+    background: none;
+    border: none;
+    color: #e53e3e;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+}
+
+.sora-active-task__cancel:hover {
+    background: #fed7d7;
+    color: #c53030;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sora-active-task {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .sora-active-task__info {
+        order: 1;
+    }
+    
+    .sora-active-task__progress {
+        order: 2;
+        min-width: auto;
+    }
+    
+    .sora-active-task__cancel {
+        order: 3;
+        align-self: flex-end;
+    }
+    
+    .sora-active-task__prompt {
+        max-width: none;
+    }
+}
+
+/* AI Rewrite Modal Styles */
+.sora-ai-rewrite-modal .sora-modal__content {
+    width: 90vw;
+}
+
+.sora-ai-rewrite-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sora-form-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s ease;
+}
+
+.sora-form-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.sora-form-select[multiple] {
+    height: auto;
+    min-height: 120px;
+    padding: 8px;
+}
+
+.sora-form-select[multiple] option {
+    padding: 6px 8px;
+    margin: 2px 0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.sora-form-select[multiple] option:checked {
+    background: #667eea;
+    color: white;
+}
+
+.sora-form-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #718096;
+    line-height: 1.4;
+}
+
+.sora-prompt-preview {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 60px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #4a5568;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.sora-prompt-preview:empty:before {
+    content: "Current prompt is empty";
+    color: #a0aec0;
+    font-style: italic;
+}
+
+/* AI Rewrite Loading States */
+.sora-ai-rewrite-modal .sora-btn--loading {
+    position: relative;
+    color: transparent;
+}
+
+.sora-ai-rewrite-modal .sora-btn--loading:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -8px 0 0 -8px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive adjustments for AI Rewrite Modal */
+@media (max-width: 768px) {
+    .sora-ai-rewrite-modal .sora-modal__content {
+        max-width: none;
+        width: 95vw;
+        margin: 10px;
+    }
+}
+
+/* AI Rewrite Results Modal Styles */
+.sora-rewrite-results-modal .sora-modal__content {
+    max-width: 800px;
+    width: 90vw;
+    max-height: 80vh;
+}
+
+.sora-rewrite-results-modal .sora-modal__body {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.sora-rewrite-results {
+    margin-bottom: 20px;
+}
+
+.sora-rewrite-failures {
+    margin-top: 20px;
+}
+
+.sora-results-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.sora-results-title--error {
+    color: #e53e3e;
+}
+
+.sora-results-title i {
+    color: #48bb78;
+}
+
+.sora-results-title--error i {
+    color: #e53e3e;
+}
+
+.sora-result-item {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.sora-result-item:hover {
+    border-color: #cbd5e0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sora-result-item--error {
+    background: #fed7d7;
+    border-color: #feb2b2;
+}
+
+.sora-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sora-result-item--error .sora-result-header {
+    background: #fee;
+}
+
+.sora-result-model {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sora-result-apply {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 12px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.sora-result-apply:hover {
+    background: #5a67d8;
+}
+
+.sora-result-error {
+    color: #e53e3e;
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.sora-result-content {
+    padding: 16px;
+    line-height: 1.6;
+    color: #4a5568;
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    /* Remove extra leading spaces */
+    white-space: normal;
+    /* Remove leading and trailing whitespace */
+    text-align: left;
+}
+
+.sora-result-content::before {
+    content: '';
+}
+
+.sora-result-content p:first-child {
+    margin-top: 0;
+}
+
+.sora-result-content p:last-child {
+    margin-bottom: 0;
+}
+
+.sora-result-item--error .sora-result-content {
+    color: #742a2a;
+    font-style: italic;
+}
+
+.sora-no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: #718096;
+    font-style: italic;
+}
+
+.sora-no-results i {
+    font-size: 48px;
+    color: #e2e8f0;
+    margin-bottom: 16px;
+}
+
+/* Responsive adjustments for results modal */
+@media (max-width: 768px) {
+    .sora-rewrite-results-modal .sora-modal__content {
+        max-width: none;
+        width: 95vw;
+        margin: 10px;
+        max-height: 90vh;
+    }
+    
+    .sora-rewrite-results-modal .sora-modal__body {
+        max-height: 70vh;
+    }
+    
+    .sora-result-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .sora-result-apply {
+        align-self: flex-end;
+    }
+}
