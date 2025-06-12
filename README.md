@@ -20,16 +20,16 @@ These learnings will equip you with the skills to build robust, feature-rich cha
 ## 📺 What's new in the current version
 
 - **🎬 NEW: Sora AI Video Generation - Create stunning videos from text descriptions using OpenAI's cutting-edge Sora model! 🎬**
-![Sora Video Generation Screenshot](screenshot_sora.jpeg)
+![Sora Video Generation Screenshot](screenshots/screenshot_sora.jpeg)
 - **🎉Support for GPT-4o Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview-3🎉**
-![GPT4O Realtime Chat Desktop Screenshot](screenshot_realtime_desktop.png)
-![GPT4O Realtime Chat Mobile Screenshot](screenshot_realtime_mobile.png)
+![GPT4O Realtime Chat Desktop Screenshot](screenshots/screenshot_realtime_desktop.png)
+![GPT4O Realtime Chat Mobile Screenshot](screenshots/screenshot_realtime_mobile.png)
 - **🎉Support for o1/o1-mini/o3/o3-mini/o4-mini/GPT-4O/GPT-4O-mini/GPT-4.5-preview/GPT-4.1/GPT-4.1-nano/GPT-4.1-mini🎉**
 - **✨Support PWA (Progressive Web App)✨**
-![Dekstop Screenshot](screenshot_desktop.png)
-![Desktop Screenshot](screenshot_desktop_focus_mode.png)
-![Optimize for mobile](screenshot_mobile.png)
-![Audio file transcription](screenshot_desktop_stt_batch.png)
+![Dekstop Screenshot](screenshots/screenshot_desktop.png)
+![Desktop Screenshot](screenshots/screenshot_desktop_focus_mode.png)
+![Optimize for mobile](screenshots/screenshot_mobile.png)
+![Audio file transcription](screenshots/screenshot_desktop_stt_batch.png)
 - **🎉Support for Bing API - Get the latest news updates through API integration🎉**
 - **🎉Support question generation mode - enhances conversation quality by automatically generating structured options to guide your inquiries, leading to higher quality AI responses. When enabled, each of your questions will include multiple focused options to choose from, helping you get more precise and relevant answers.🎉**
 ![Question generation mode](screenshot_options_generate.png)
@@ -75,7 +75,7 @@ This application now includes powerful video generation capabilities powered by 
 
 
 - **Summarize the current conversation and save it to a markdown file 📝**
-![Export to markdown file](screenshot_markdown.png)
+![Export to markdown file](screenshots/screenshot_markdown.png)
 
 
 - **Support for Azure Text-to-Speech engine 📢**
