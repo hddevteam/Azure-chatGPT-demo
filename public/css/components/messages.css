@@ -887,3 +887,70 @@
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
+
+/* Reasoning Summary block styles - differentiated from regular think blocks */
+.think-block-wrapper.reasoning-summary {
+    background-color: rgba(255, 248, 220, 0.8); /* Warm golden tint */
+    border: 1px solid rgba(218, 165, 32, 0.4);
+}
+
+.think-block-wrapper.reasoning-summary .think-block-header {
+    background: rgba(218, 165, 32, 0.2);
+    border-color: rgba(218, 165, 32, 0.5);
+    color: #8b4513;
+}
+
+.think-block-wrapper.reasoning-summary .think-title::before {
+    content: '\f085'; /* Cog/gear icon for reasoning process */
+    color: #cd853f;
+}
+
+.think-block-wrapper.reasoning-summary .think-title {
+    color: #8b4513;
+}
+
+.think-block-wrapper.reasoning-summary .think-block-copy {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: #cd853f;
+    color: #8b4513;
+}
+
+.think-block-wrapper.reasoning-summary .think-block-copy:hover {
+    background: rgba(218, 165, 32, 0.1);
+    border-color: #8b4513;
+    color: #654321;
+}
+
+/* Dark theme support for reasoning summary */
+@media (prefers-color-scheme: dark) {
+    .think-block-wrapper.reasoning-summary {
+        background-color: rgba(139, 69, 19, 0.15);
+        border-color: rgba(218, 165, 32, 0.3);
+    }
+    
+    .think-block-wrapper.reasoning-summary .think-block-header {
+        background: rgba(139, 69, 19, 0.2);
+        border-color: rgba(218, 165, 32, 0.4);
+        color: #daa520;
+    }
+    
+    .think-block-wrapper.reasoning-summary .think-title {
+        color: #daa520;
+    }
+    
+    .think-block-wrapper.reasoning-summary .think-title::before {
+        color: #f4a460;
+    }
+    
+    .think-block-wrapper.reasoning-summary .think-block-copy {
+        background: rgba(139, 69, 19, 0.3);
+        border-color: #daa520;
+        color: #f4a460;
+    }
+    
+    .think-block-wrapper.reasoning-summary .think-block-copy:hover {
+        background: rgba(218, 165, 32, 0.2);
+        border-color: #f4a460;
+        color: #ffd700;
+    }
+}

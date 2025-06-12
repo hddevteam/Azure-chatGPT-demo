@@ -13,7 +13,7 @@ class SoraVideoModal {
     init() {
         this.createModal();
         this.attachEventListeners();
-        this.loadSoraModule();
+        // Don't load Sora module until the modal is opened
     }
 
     createModal() {
@@ -111,7 +111,7 @@ class SoraVideoModal {
         `;
     }
 
-    open() {
+    async open() {
         if (this.isOpen) return;
 
         this.modal.classList.remove("hidden");
@@ -121,6 +121,11 @@ class SoraVideoModal {
         // Focus the modal for accessibility
         this.modal.setAttribute("tabindex", "-1");
         this.modal.focus();
+
+        // Load Sora module only when modal is opened for the first time
+        if (!this.soraVideoGenerator) {
+            await this.loadSoraModule();
+        }
 
         // Trigger any necessary initialization in the SoraVideoGenerator
         if (this.soraVideoGenerator && typeof this.soraVideoGenerator.onModalOpen === "function") {

@@ -54,21 +54,106 @@ const defaultParams = {
 
 /**
  * Get model supported features
+ * Based on: https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/reasoning
  * @type {Object}
  */
 const modelFeatures = {
-    "gpt-4o": { supportsFunctionCalls: true, supportsSystemMessages: true },
-    "gpt-4o-mini": { supportsFunctionCalls: true, supportsSystemMessages: true },
-    "o1": { supportsFunctionCalls: false, supportsSystemMessages: false },
-    "o1-mini": { supportsFunctionCalls: false, supportsSystemMessages: false },
-    "o3": { supportsFunctionCalls: true, supportsSystemMessages: false }, // Support for o3 model
-    "o3-mini": { supportsFunctionCalls: true, supportsSystemMessages: true },
-    "deepseek-r1": { supportsFunctionCalls: true, supportsSystemMessages: true },
-    "o4-mini": { supportsFunctionCalls: true, supportsSystemMessages: true }, // Support for o4-mini features
-    "gpt-4.5-preview": { supportsFunctionCalls: true, supportsSystemMessages: true }, // Support for gpt-4.5 features
-    "gpt-4.1": { supportsFunctionCalls: true, supportsSystemMessages: true }, // Support for gpt-4.1 features
-    "gpt-4.1-nano": { supportsFunctionCalls: true, supportsSystemMessages: true }, // Support for gpt-4.1-nano features
-    "gpt-4.1-mini": { supportsFunctionCalls: true, supportsSystemMessages: true } // Support for gpt-4.1-mini features
+    "gpt-4o": { 
+        supportsFunctionCalls: true, 
+        supportsSystemMessages: true, 
+        supportsDeveloperMessages: false,
+        supportsReasoningSummary: false,
+        supportsReasoningEffort: false,
+        requiresMaxCompletionTokens: false
+    },
+    "gpt-4o-mini": { 
+        supportsFunctionCalls: true, 
+        supportsSystemMessages: true, 
+        supportsDeveloperMessages: false,
+        supportsReasoningSummary: false,
+        supportsReasoningEffort: false,
+        requiresMaxCompletionTokens: false
+    },
+    "o1": { 
+        supportsFunctionCalls: false, 
+        supportsSystemMessages: false, 
+        supportsDeveloperMessages: true,
+        supportsReasoningSummary: false,
+        supportsReasoningEffort: false, // Temporarily disabled - requires preview access
+        requiresMaxCompletionTokens: true
+    },
+    "o1-mini": { 
+        supportsFunctionCalls: false, 
+        supportsSystemMessages: false, 
+        supportsDeveloperMessages: true,
+        supportsReasoningSummary: false,
+        supportsReasoningEffort: false, // Temporarily disabled - requires preview access
+        requiresMaxCompletionTokens: true
+    },
+    "o3": { 
+        supportsFunctionCalls: true, 
+        supportsSystemMessages: true, 
+        supportsDeveloperMessages: true,
+        supportsReasoningSummary: false, // Temporarily disabled - requires preview access
+        supportsReasoningEffort: false, // Temporarily disabled - requires preview access
+        requiresMaxCompletionTokens: true
+    },
+    "o3-mini": { 
+        supportsFunctionCalls: true, 
+        supportsSystemMessages: true, 
+        supportsDeveloperMessages: true,
+        supportsReasoningSummary: false,
+        supportsReasoningEffort: false, // Temporarily disabled - requires preview access
+        requiresMaxCompletionTokens: true
+    },
+    "o4-mini": { 
+        supportsFunctionCalls: true, 
+        supportsSystemMessages: true, 
+        supportsDeveloperMessages: true,
+        supportsReasoningSummary: false, // Temporarily disabled - requires preview access
+        supportsReasoningEffort: false, // Temporarily disabled - requires preview access
+        requiresMaxCompletionTokens: true
+    },
+    "deepseek-r1": { 
+        supportsFunctionCalls: true, 
+        supportsSystemMessages: true, 
+        supportsDeveloperMessages: false,
+        supportsReasoningSummary: false,
+        supportsReasoningEffort: false,
+        requiresMaxCompletionTokens: false
+    },
+    "gpt-4.5-preview": { 
+        supportsFunctionCalls: true, 
+        supportsSystemMessages: true, 
+        supportsDeveloperMessages: false,
+        supportsReasoningSummary: false,
+        supportsReasoningEffort: false,
+        requiresMaxCompletionTokens: false
+    },
+    "gpt-4.1": { 
+        supportsFunctionCalls: true, 
+        supportsSystemMessages: true, 
+        supportsDeveloperMessages: false,
+        supportsReasoningSummary: false,
+        supportsReasoningEffort: false,
+        requiresMaxCompletionTokens: false
+    },
+    "gpt-4.1-nano": { 
+        supportsFunctionCalls: true, 
+        supportsSystemMessages: true, 
+        supportsDeveloperMessages: false,
+        supportsReasoningSummary: false,
+        supportsReasoningEffort: false,
+        requiresMaxCompletionTokens: false
+    },
+    "gpt-4.1-mini": { 
+        supportsFunctionCalls: true, 
+        supportsSystemMessages: true, 
+        supportsDeveloperMessages: false,
+        supportsReasoningSummary: false,
+        supportsReasoningEffort: false,
+        requiresMaxCompletionTokens: false
+    }
 };
 
 /**

@@ -113,11 +113,14 @@ exports.generateResponse = async (req, res) => {
             frequency_penalty, 
             presence_penalty,
             max_tokens,
-            webSearchEnabled
+            webSearchEnabled,
+            reasoningEffort,
+            reasoningSummary
         } = extractParameters(req);
         
         console.log(`Using model: ${model} with params:`, {
-            temperature, top_p, frequency_penalty, presence_penalty, max_tokens, webSearchEnabled
+            temperature, top_p, frequency_penalty, presence_penalty, max_tokens, 
+            webSearchEnabled, reasoningEffort, reasoningSummary
         });
         
         // Process user parameters
@@ -154,16 +157,27 @@ exports.generateResponse = async (req, res) => {
             model,  // Ensure model parameter is passed
             prompt,
             params,
-            includeFunctionCalls: webSearchEnabled
+            includeFunctionCalls: webSearchEnabled,
+            reasoningEffort: reasoningEffort,
+            reasoningSummary: reasoningSummary
         };
 
         // Initial API request
         let response = await gptService.makeRequest(requestData);
         console.log("Initial API response received");
 
+        // Log reasoning tokens if available
+        if (response.data.usage?.completion_tokens_details?.reasoning_tokens) {
+            console.log("Reasoning tokens used:", response.data.usage.completion_tokens_details.reasoning_tokens);
+        }
+
         // If function calling is enabled, process function calls
         let needsFurtherProcessing = webSearchEnabled;
         let maxIterations = 5;
+        // Increase iterations for O-series models (o1, o3) as they need more reasoning steps
+        if (model && (model.startsWith("o1") || model.startsWith("o3"))) {
+            maxIterations = 8; // Increase to 8 iterations for O-series models
+        }
         let currentIteration = 0;
         let searchResults = null;
 
@@ -225,7 +239,29 @@ exports.generateResponse = async (req, res) => {
         }
 
         if (currentIteration >= maxIterations) {
-            console.warn("Reached maximum number of tool call iterations");
+            console.warn(`Reached maximum number of tool call iterations (${maxIterations}) for model: ${model}`);
+            
+            // For O-series models, if we hit iteration limit, force a final response
+            if (model && (model.startsWith("o1") || model.startsWith("o3"))) {
+                console.log("Forcing final response for O-series model...");
+                
+                // Add a final prompt to get the response based on gathered information
+                prompt.push({
+                    role: "user",
+                    content: "Based on the information gathered above, please provide a comprehensive response to my original question."
+                });
+                
+                // Make one final request without function calls
+                requestData.prompt = prompt;
+                requestData.includeFunctionCalls = false; // Disable function calls for final response
+                
+                try {
+                    response = await gptService.makeRequest(requestData);
+                    console.log("Final forced response completed");
+                } catch (error) {
+                    console.error("Error getting final response:", error.message);
+                }
+            }
         }
 
         // Check if search template should be used to format response

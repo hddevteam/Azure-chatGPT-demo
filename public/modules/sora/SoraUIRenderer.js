@@ -363,7 +363,7 @@ export class SoraUIRenderer {
                  data-video-type="uploaded">
                 <div class="sora-video-card__thumbnail">
                     <div class="sora-video-card__placeholder">
-                        ${videoUrl ? `<video preload="metadata" muted><source src="${videoUrl}" type="video/mp4"></video>` : "<i class=\"fas fa-video\"></i>"}
+                        ${videoUrl ? `<video preload="none" muted><source src="${videoUrl}" type="video/mp4"></video>` : "<i class=\"fas fa-video\"></i>"}
                     </div>
                     <div class="sora-video-card__overlay">
                         <button class="sora-video-card__play-btn" title="Preview Video">
@@ -486,12 +486,64 @@ export class SoraUIRenderer {
     }
 
     /**
-     * Refresh the video gallery with current data
+     * Setup lazy loading for video thumbnails
+     */
+    setupLazyVideoLoading() {
+        const videoCards = this.container.querySelectorAll(".sora-video-card__thumbnail video");
+        
+        const observerOptions = {
+            root: null,
+            rootMargin: "50px",
+            threshold: 0.1
+        };
+
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const video = entry.target;
+                    if (video.dataset.lazyLoaded !== "true") {
+                        // Load video metadata when it comes into view
+                        video.preload = "metadata";
+                        video.dataset.lazyLoaded = "true";
+                        videoObserver.unobserve(video);
+                    }
+                }
+            });
+        }, observerOptions);
+
+        videoCards.forEach(video => {
+            videoObserver.observe(video);
+            
+            // Add hover event to load and preview video
+            const card = video.closest(".sora-video-card");
+            card.addEventListener("mouseenter", () => {
+                if (video.dataset.lazyLoaded === "true" && video.paused) {
+                    video.play().catch(() => {
+                        // Ignore autoplay failures
+                    });
+                }
+            });
+            
+            card.addEventListener("mouseleave", () => {
+                if (!video.paused) {
+                    video.pause();
+                    video.currentTime = 0;
+                }
+            });
+        });
+    }
+
+    /**
+     * Enhanced refresh gallery with lazy loading
      */
     refreshGallery() {
-        if (this.manager) {
-            this.renderVideoGrid(this.manager.getAllVideos());
-        }
+        const videos = this.manager.getAllVideos();
+        this.renderVideoGrid(videos);
+        
+        // Setup lazy loading after rendering
+        setTimeout(() => {
+            this.setupLazyVideoLoading();
+        }, 100);
     }
 
     /**

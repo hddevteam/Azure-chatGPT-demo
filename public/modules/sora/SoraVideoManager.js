@@ -18,6 +18,7 @@ export class SoraVideoManager {
         this.pollInterval = 5000; // 5 seconds
         this.container = null;
         this.isInitialized = false;
+        this.dataLoaded = false; // Track if initial data has been loaded
         this.history = []; // Initialize history array
         this.uploadedVideos = [];
         this.currentView = "grid"; // "grid" or "list"

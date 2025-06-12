@@ -15,12 +15,15 @@ module.exports = {
     config: config,
     defaultParams: config.defaultParams,
     getApiConfig: config.getApiConfig,
+    supportsFeature: config.supportsFeature,
     
     // API Service
     makeRequest: apiService.makeRequest,
     handleRequestError: apiService.handleRequestError,
     processModelParameters: apiService.processModelParameters,
     filterMessagesByModel: apiService.filterMessagesByModel,
+    processMessagesForModel: apiService.processMessagesForModel,
+    processReasoningSummary: apiService.processReasoningSummary,
     
     // Tools
     toolDefinitions: tools.toolDefinitions,

@@ -53,8 +53,8 @@ class SoraVideoGenerator {
             await this.renderInterface();
             this.setupEventListeners();
             
-            // Load initial data
-            await this.loadInitialData();
+            // Don't load initial data until modal is opened
+            // await this.loadInitialData();
             
             this.isInitialized = true;
             console.log("Sora Video Generator initialized successfully");
@@ -189,6 +189,25 @@ class SoraVideoGenerator {
             this.manager.cleanup();
         }
         this.isInitialized = false;
+    }
+
+    /**
+     * Handle modal open event - load data when modal is first opened
+     */
+    async onModalOpen() {
+        if (!this.manager.dataLoaded) {
+            console.log("🔄 Loading video data on modal open...");
+            await this.loadInitialData();
+            this.manager.dataLoaded = true;
+        }
+    }
+
+    /**
+     * Handle modal close event - optional cleanup
+     */
+    onModalClose() {
+        // Optional: Could implement cleanup logic here if needed
+        console.log("📕 Modal closed");
     }
 }
 

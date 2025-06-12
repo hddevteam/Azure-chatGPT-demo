@@ -164,11 +164,16 @@ class ThinkingChainProcessor {
             // Create a unique ID for this think block
             const thinkBlockId = `think-block-${Date.now()}-${thinkBlockCount}`;
             
+            // Detect if this is a reasoning summary (from Azure OpenAI reasoning models)
+            const isReasoningSummary = this.isReasoningSummary(processedContent);
+            const wrapperClass = isReasoningSummary ? "think-block-wrapper reasoning-summary" : "think-block-wrapper";
+            const titleText = isReasoningSummary ? "Reasoning Summary" : "Thinking Process";
+            
             // Create an HTML structure with copy button
             // Store the original think content for copying as URL-encoded data attribute
-            const header = `<div class="think-block-wrapper">
+            const header = `<div class="${wrapperClass}">
   <div class="think-block-header">
-    <span class="think-title">Thinking Process</span>
+    <span class="think-title">${titleText}</span>
     <button class="think-block-copy" data-think-id="${thinkBlockId}">
       <i class="fas fa-copy"></i> Copy
     </button>
@@ -182,6 +187,30 @@ class ThinkingChainProcessor {
             // We'll add a special class to identify it as think content
             return `\n\n${header}\n<div class="think-block-markdown">${marked.parse(processedContent)}</div>\n${footer}\n\n`;
         });
+    }
+    
+    /**
+     * Detect if content is a reasoning summary from Azure OpenAI
+     * @param {string} content - Think block content
+     * @returns {boolean} - True if it's a reasoning summary
+     */
+    isReasoningSummary(content) {
+        // Look for patterns that indicate this is a reasoning summary
+        const reasoningSummaryPatterns = [
+            /\*\*[Ss]ummariz/,                    // **Summariz...
+            /\*\*[Ee]xplain/,                     // **Explain...
+            /\*\*[Aa]nalyz/,                      // **Analyz...
+            /reasoning process/i,                 // reasoning process
+            /chain.of.thought/i,                  // chain of thought
+            /step.by.step/i,                      // step by step
+            /thought process/i,                   // thought process
+            /I need to think about/i,             // Azure reasoning pattern
+            /Let me analyze/i,                    // Azure reasoning pattern
+            /First, I should consider/i,          // Azure reasoning pattern
+            /The user.*(asking|wants|needs)/i     // User intent analysis
+        ];
+        
+        return reasoningSummaryPatterns.some(pattern => pattern.test(content));
     }
 }
 
