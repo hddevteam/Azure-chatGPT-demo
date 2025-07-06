@@ -18,18 +18,23 @@
         margin-left: 2%;
     }
 
-    /* Smaller indicators for mobile */
-    .message::before {
-        width: var(--mobile-message-indicator-size);
-        height: var(--mobile-message-indicator-size);
+    /* Smaller avatars for mobile */
+    .message-avatar {
+        width: 30px;
+        height: 30px;
+        top: 10px;
     }
 
-    .user-message::before {
-        right: -10px;
+    .message-avatar i {
+        font-size: 15px;
     }
 
-    .assistant-message::before {
-        left: -10px;
+    .user-message .user-avatar {
+        right: -38px;
+    }
+
+    .assistant-message .assistant-avatar {
+        left: -38px;
     }
 
     /* Optimize touch targets */

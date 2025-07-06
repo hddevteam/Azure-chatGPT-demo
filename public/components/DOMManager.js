@@ -43,6 +43,31 @@ class DOMManager {
         return speakerElement;
     }
 
+    // Create avatar element for messages
+    createAvatarElement(sender, profile = null) {
+        const avatarElement = document.createElement("div");
+        avatarElement.classList.add("message-avatar");
+        avatarElement.classList.add(`${sender}-avatar`);
+        
+        if (sender === "user") {
+            // User avatar - fixed user icon
+            const userIcon = document.createElement("i");
+            userIcon.className = "fas fa-user-circle";
+            avatarElement.appendChild(userIcon);
+        } else {
+            // AI avatar - use current profile icon
+            const aiIcon = document.createElement("i");
+            if (profile && profile.icon) {
+                aiIcon.className = profile.icon;
+            } else {
+                aiIcon.className = "fas fa-robot"; // fallback icon
+            }
+            avatarElement.appendChild(aiIcon);
+        }
+        
+        return avatarElement;
+    }
+
     // Create a new method for creating the message element
     createMessageElement(sender, messageId, isActive, isError) {
         const messageElement = document.createElement("div");

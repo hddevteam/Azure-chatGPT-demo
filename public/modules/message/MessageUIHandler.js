@@ -50,6 +50,11 @@ class MessageUIHandler {
         messageElement.appendChild(conversationElement);
         this.eventManager.attachToggleActiveMessageEventListener(conversationElement);
 
+        // Add avatar element
+        const currentProfile = this.uiManager.storageManager.getCurrentProfile();
+        const avatarElement = this.domManager.createAvatarElement(sender, currentProfile);
+        messageElement.appendChild(avatarElement);
+
         // Add maximize button
         const maximizeElement = this.domManager.createMaximizeButtonElement();
         messageElement.appendChild(maximizeElement);

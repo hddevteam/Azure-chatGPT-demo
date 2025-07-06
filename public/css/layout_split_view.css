@@ -10,6 +10,7 @@
 
 #messages.split-view {
     flex: 1; 
+    padding: 10px 40px;
 }
 
 #app-outer-wrapper.split-view #horizontal-resize-handle {

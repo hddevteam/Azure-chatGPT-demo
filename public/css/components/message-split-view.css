@@ -15,18 +15,23 @@
     margin-left: 2%;
 }
 
-/* Adjust indicators position */
-.split-view .message::before {
-    width: 6px;
-    height: 6px;
+/* Adjust avatars for split view */
+.split-view .message-avatar {
+    width: 28px;
+    height: 28px;
+    top: 8px;
 }
 
-.split-view .user-message::before {
-    right: -12px;
+.split-view .message-avatar i {
+    font-size: 14px;
 }
 
-.split-view .assistant-message::before {
-    left: -12px;
+.split-view .user-message .user-avatar {
+    right: -36px;
+}
+
+.split-view .assistant-message .assistant-avatar {
+    left: -36px;
 }
 
 /* Custom scrollbar for split view */
