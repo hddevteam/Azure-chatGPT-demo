@@ -23,18 +23,23 @@
         padding-bottom:100px;
     }
 
-    /* Adjust position and style of toggle-chat-topic button on mobile */
-    #toggle-chat-topic {
-        bottom: 100px;
-        top: unset;
-        left: 0px;
-        width: 32px;
-        height: 32px;
-        background-color: rgba(51, 51, 51, 0.8);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    /* Adjust header layout on mobile */
+    #header-left {
+        margin-left: 8px; /* Slightly less margin on mobile */
     }
     
-    #toggle-chat-topic i {
+    #header-left #toggle-chat-topic {
+        padding: 6px 8px;
+        font-size: 14px;
+        outline: none; /* Ensure no outline on mobile */
+    }
+    
+    #header-left #toggle-chat-topic:focus {
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3); /* Smaller focus indicator on mobile */
+    }
+    
+    #header-left #toggle-chat-topic i {
         font-size: 14px;
     }
 

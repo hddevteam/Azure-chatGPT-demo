@@ -1,6 +1,40 @@
 /* Header elements */
+#header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 10px; /* Add left margin to move away from edge */
+}
+
+#header-left #toggle-chat-topic {
+    background: transparent; /* No background by default */
+    border: none;
+    border-radius: 4px;
+    color: #e6f2ff;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease; /* Include all properties in transition */
+    font-size: 16px;
+    outline: none; /* Remove focus outline */
+}
+
+#header-left #toggle-chat-topic:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px); /* Subtle lift effect on hover */
+}
+
+#header-left #toggle-chat-topic:focus {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4); /* More visible focus indicator */
+}
+
+#header-left #toggle-chat-topic:active {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(0px); /* Return to normal position when pressed */
+}
+
 #app-name {
-    margin-left: 10px;
+    margin-left: 0;
     font-size: 24px;
     font-family: 'Roboto';
     font-weight: 500;

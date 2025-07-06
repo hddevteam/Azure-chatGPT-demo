@@ -63,7 +63,7 @@ html {
     display: flex;
     flex-direction: column;
     transition: height 0.2s ease-out;
-    position: relative; /* Keep relative positioning for toggle-chat-topic button */
+    position: relative;
 }
 
 #profile-content {
@@ -95,7 +95,7 @@ html {
     display: none;
 }
 
-/* Remove old toggle-chat-topic styles, now using styles from drawer-toggle.css */
+/* toggle-chat-topic button is now in header-left, styles managed in header.css */
 
 #header #header-buttons {
     display: flex;
