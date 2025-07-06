@@ -6,7 +6,7 @@ import DocumentManager from "./DocumentManager.js";
 import MessageUIHandler from "../modules/message/MessageUIHandler.js";
 import FollowUpQuestionHandler from "../modules/message/FollowUpQuestionHandler.js";
 import MessageProcessorFactory from "../modules/message/MessageProcessorFactory.js";
-import { getFollowUpQuestions } from "../utils/apiClient.js";
+import { generateTitle } from "../utils/apiClient.js";
 
 class MessageManager {
     constructor(uiManager) {
@@ -354,6 +354,146 @@ class MessageManager {
 
         // Scroll to bottom
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Move message and all subsequent messages to a new topic
+    async moveToNewTopic(messageId) {
+        try {
+            const currentChatId = this.uiManager.currentChatId;
+            const currentProfile = this.uiManager.storageManager.getCurrentProfile();
+            
+            if (!currentProfile) {
+                swal("Error", "No active profile found", "error");
+                return;
+            }
+
+            // Get all messages from current chat
+            const allMessages = this.uiManager.storageManager.getMessages(currentChatId);
+            
+            // Find the index of the target message
+            const messageIndex = allMessages.findIndex(msg => msg.messageId === messageId);
+            
+            if (messageIndex === -1) {
+                swal("Error", "Message not found", "error");
+                return;
+            }
+
+            // Get messages from the target message onwards
+            const messagesToMove = allMessages.slice(messageIndex);
+            
+            if (messagesToMove.length === 0) {
+                swal("Info", "No messages to move", "info");
+                return;
+            }
+
+            // Show confirmation dialog
+            const result = await swal({
+                title: "Move to new topic?",
+                text: `This will move ${messagesToMove.length} message(s) to a new chat topic. Continue?`,
+                icon: "warning",
+                buttons: {
+                    cancel: "Cancel",
+                    confirm: "Move"
+                }
+            });
+
+            if (!result) return;
+
+            // Generate new chat ID
+            const newChatId = this.uiManager.chatHistoryManager.generateChatId(
+                this.uiManager.storageManager.getCurrentUsername(), 
+                currentProfile.name
+            );
+
+            // Create new chat history entry
+            const newChatHistory = {
+                id: newChatId,
+                title: "untitled",
+                profileName: currentProfile.name,
+                timestamp: Date.now(),
+                updatedAt: new Date().toISOString()
+            };
+
+            // Create the new chat history
+            this.uiManager.chatHistoryManager.createChatHistory(newChatHistory);
+
+            // Move messages to new chat
+            for (const message of messagesToMove) {
+                // Update message chat ID
+                const updatedMessage = { ...message, chatId: newChatId };
+                
+                // Save to new chat
+                this.uiManager.storageManager.saveMessage(newChatId, updatedMessage);
+                
+                // Remove from old chat
+                this.uiManager.storageManager.deleteMessage(currentChatId, message.messageId);
+            }
+
+            // Remove moved messages from current chat context
+            for (const message of messagesToMove) {
+                this.uiManager.messageContextManager.removeMessageFromContext(message.messageId);
+            }
+
+            // Update the current chat's updatedAt timestamp
+            const currentChatHistory = this.uiManager.chatHistoryManager.getChatHistory().find(
+                chat => chat.id === currentChatId
+            );
+            if (currentChatHistory) {
+                await this.uiManager.chatHistoryManager.updateChatHistory(currentChatId, false);
+            }
+
+            // Generate title for new chat based on first message
+            const firstMessage = messagesToMove[0];
+            if (firstMessage && firstMessage.content) {
+                try {
+                    const title = await generateTitle(firstMessage.content);
+                    await this.uiManager.chatHistoryManager.updateChatHistory(newChatId, false, title);
+                } catch (error) {
+                    console.error("Error generating title:", error);
+                    // Use first few words as fallback title
+                    const fallbackTitle = firstMessage.content.substring(0, 30) + "...";
+                    await this.uiManager.chatHistoryManager.updateChatHistory(newChatId, false, fallbackTitle);
+                }
+            }
+
+            // Refresh current chat UI to remove moved messages
+            await this.loadMessages(currentChatId);
+
+            // Show success message and offer to switch to new topic
+            const switchResult = await swal({
+                title: "Messages moved successfully!",
+                text: "Would you like to switch to the new topic?",
+                icon: "success",
+                buttons: {
+                    stay: "Stay here",
+                    switch: "Switch to new topic"
+                }
+            });
+
+            if (switchResult === "switch") {
+                // Switch to the new chat topic
+                await this.uiManager.changeChatTopic(newChatId, false);
+            }
+
+            // Refresh chat history UI
+            await this.uiManager.refreshChatHistoryUI();
+
+            // Sync changes to cloud storage
+            try {
+                await this.uiManager.syncManager.syncChatHistoryCreateOrUpdate(newChatHistory);
+                for (const message of messagesToMove) {
+                    const updatedMessage = { ...message, chatId: newChatId };
+                    // Use syncMessageCreate for messages in the new chat
+                    this.uiManager.syncManager.syncMessageCreate(newChatId, updatedMessage);
+                }
+            } catch (error) {
+                console.error("Error syncing to cloud storage:", error);
+            }
+
+        } catch (error) {
+            console.error("Error moving messages to new topic:", error);
+            swal("Error", "Failed to move messages to new topic", "error");
+        }
     }
 }
 

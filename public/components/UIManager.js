@@ -790,6 +790,11 @@ class UIManager {
             return "";
         }
     }
+
+    // Delegate moveToNewTopic to MessageManager
+    async moveToNewTopic(messageId) {
+        return await this.messageManager.moveToNewTopic(messageId);
+    }
 }
 
 export default UIManager;
