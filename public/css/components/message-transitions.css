@@ -89,11 +89,6 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Hover State Transitions */
-.message:hover {
-    transition-duration: 0.2s;
-}
-
 /* Content Height Transitions */
 .message-content {
     transition: max-height 0.3s ease-in-out;

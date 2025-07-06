@@ -107,18 +107,6 @@
     transform: scale(1.1);
 }
 
-/* Hover Effects */
-.message:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--message-hover-shadow);
-    transition: var(--message-hover-transition);
-}
-
-.message.active:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--message-active-shadow);
-}
-
 /* High Contrast Support */
 @media (prefers-contrast: high) {
     .message {
