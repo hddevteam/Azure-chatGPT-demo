@@ -148,7 +148,7 @@ html {
     padding: 8px 8px 48px 8px;
     border: none;
     border-radius: 5px;
-    background-color: transparent;
+    background-color: rgba(255, 255, 255, 0.3);
     transition: all 0.2s ease-in-out;
     overflow: auto;
     scrollbar-width: thin;
@@ -160,7 +160,7 @@ html {
 
 #message-input:focus {
     outline: none;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.8);
 }
 
 .mini-toolbar-container {
