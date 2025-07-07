@@ -1,5 +1,8 @@
 # 🤖 Powerful chatGPT for Azure OpenAI GPT model with Sora Video Generation
 
+> **Language / 语言**: [English](README.md) | [中文](README.zh-CN.md)  
+> **Live Demo / 在线演示**: [English](https://hddevteam.github.io/Azure-chatGPT-demo/) | [中文](https://hddevteam.github.io/Azure-chatGPT-demo/zh-cn/)
+
 Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the Azure OpenAI GPT-4o-realtime/o1/o1-mini/o3/o3-mini/o4-mini/GPT-4O/GPT-4O-mini/GPT-4.5-preview/GPT-4.1/GPT-4.1-nano/GPT-4.1-mini model, enhanced with cutting-edge Sora AI video generation capabilities. This project serves as an excellent starting point for developers interested in developing comprehensive AI applications using JavaScript, the Azure OpenAI API, and advanced video generation features.
 
 ## 📚 Learnings from this Project
