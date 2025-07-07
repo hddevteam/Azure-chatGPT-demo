@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure ChatGPT Demo - Powerful AI Chat with Sora Video Generation</title>
+    <meta name="description" content="Experience the next generation of AI conversation with Azure OpenAI GPT-4o, GPT-o1, Sora video generation, real-time voice chat, and comprehensive AI features. Open source and ready to deploy.">
+    <meta name="keywords" content="Azure OpenAI, ChatGPT, GPT-4o, Sora video generation, AI chat, Node.js, realtime voice, o1 model">
+    <meta name="author" content="HDDevTeam">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="AI007 - Azure ChatGPT Demo with Sora Video Generation">
+    <meta property="og:description" content="Powerful chatGPT web app with Azure OpenAI GPT-4o, Sora AI video generation, and real-time voice capabilities.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hddevteam.github.io/Azure-chatGPT-demo/">
+    <meta property="og:image" content="https://hddevteam.github.io/Azure-chatGPT-demo/assets/images/icons/512.png">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI007 - Azure ChatGPT Demo with Sora Video Generation">
+    <meta name="twitter:description" content="Powerful chatGPT web app with Azure OpenAI GPT-4o, Sora AI video generation, and real-time voice capabilities.">
+    <meta name="twitter:image" content="https://hddevteam.github.io/Azure-chatGPT-demo/assets/images/icons/512.png">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "AI007 - Azure ChatGPT Demo",
+        "description": "Powerful chatGPT web app built with Node.js and leveraging Azure OpenAI GPT-4o, Sora video generation, and real-time voice capabilities.",
+        "url": "https://hddevteam.github.io/Azure-chatGPT-demo/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Cross-platform",
+        "programmingLanguage": "JavaScript",
+        "author": {
+            "@type": "Organization",
+            "name": "HD Dev Team"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+    
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicon and App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/icons/180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/images/icons/152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="assets/images/icons/144.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="assets/images/icons/120.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="assets/images/icons/114.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/images/icons/76.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="assets/images/icons/72.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="assets/images/icons/60.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="assets/images/icons/57.png">
+    
+    <!-- Meta tags for PWA -->
+    <meta name="theme-color" content="#7F8C8D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AI007">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="header__nav">
+            <div class="header__container">
+                <div class="header__logo">
+                    <img src="assets/images/icons/96.png" alt="AI007 Logo" class="header__logo-img">
+                    <span class="header__logo-text">AI007 - Azure ChatGPT Demo</span>
+                </div>
+                <ul class="header__menu">
+                    <li class="header__menu-item">
+                        <a href="#features" class="header__menu-link">Features</a>
+                    </li>
+                    <li class="header__menu-item">
+                        <a href="#demo" class="header__menu-link">Demo</a>
+                    </li>
+                    <li class="header__menu-item">
+                        <a href="#getting-started" class="header__menu-link">Get Started</a>
+                    </li>
+                    <li class="header__menu-item">
+                        <a href="https://github.com/hddevteam/Azure-chatGPT-demo" target="_blank" rel="noopener" class="header__menu-link header__menu-link--github">
+                            <svg class="header__menu-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0C5.374 0 0 5.373 0 12 0 17.302 3.438 21.8 8.207 23.387c.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                            GitHub
+                        </a>
+                    </li>
+                </ul>
+                <button class="header__menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero__container">
+            <div class="hero__content">
+                <h1 class="hero__title">
+                    🤖 Powerful chatGPT for <span class="hero__title-highlight">Azure OpenAI</span>
+                </h1>
+                <p class="hero__subtitle">
+                    Experience the next generation of AI conversation with Azure OpenAI GPT-4o-realtime/o1/o1-mini/o3/o3-mini/o4-mini/GPT-4O/GPT-4O-mini/GPT-4.5-preview/GPT-4.1/GPT-4.1-nano/GPT-4.1-mini models and future releases, enhanced with Sora video generation and real-time voice capabilities.
+                </p>
+                <div class="hero__features">
+                    <div class="hero__feature">
+                        <span class="hero__feature-icon">🎬</span>
+                        <span class="hero__feature-text">Sora AI Video Generation</span>
+                    </div>
+                    <div class="hero__feature">
+                        <span class="hero__feature-icon">🎙️</span>
+                        <span class="hero__feature-text">Real-time Voice Chat</span>
+                    </div>
+                    <div class="hero__feature">
+                        <span class="hero__feature-icon">🧠</span>
+                        <span class="hero__feature-text">GPT-4o & O Series Models</span>
+                    </div>
+                    <div class="hero__feature">
+                        <span class="hero__feature-icon">📱</span>
+                        <span class="hero__feature-text">PWA Support</span>
+                    </div>
+                </div>
+                <div class="hero__actions">
+                    <a href="#getting-started" class="btn btn--primary">Get Started</a>
+                    <a href="https://github.com/hddevteam/Azure-chatGPT-demo" target="_blank" rel="noopener" class="btn btn--secondary">View on GitHub</a>
+                </div>
+            </div>
+            <div class="hero__media">
+                <div class="hero__demo">
+                    <img src="assets/images/screenshots/screenshot_desktop.png" alt="Azure ChatGPT Demo Desktop Screenshot" class="hero__demo-img hero__demo-img--desktop" onclick="openImageModal(this)">
+                    <img src="assets/images/screenshots/screenshot_mobile.png" alt="Azure ChatGPT Demo Mobile Screenshot" class="hero__demo-img hero__demo-img--mobile" onclick="openImageModal(this)">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="features__container">
+            <h2 class="features__title">🌟 Powerful Features</h2>
+            <div class="features__grid">
+                <!-- Sora Video Generation -->
+                <div class="feature-card feature-card--highlight">
+                    <div class="feature-card__icon">🎬</div>
+                    <h3 class="feature-card__title">Sora AI Video Generation</h3>
+                    <p class="feature-card__description">
+                        Transform text descriptions into stunning videos using OpenAI's cutting-edge Sora model. Create high-quality videos with customizable duration and aspect ratios.
+                    </p>
+                    <ul class="feature-card__list">
+                        <li>Text-to-video generation</li>
+                        <li>AI prompt enhancement</li>
+                        <li>Progress tracking</li>
+                        <li>High-quality output</li>
+                    </ul>
+                </div>
+
+                <!-- Real-time Voice Chat -->
+                <div class="feature-card feature-card--highlight">
+                    <div class="feature-card__icon">🎙️</div>
+                    <h3 class="feature-card__title">GPT-4o Realtime Voice Chat</h3>
+                    <p class="feature-card__description">
+                        Experience natural conversations with real-time voice interaction using GPT-4o-realtime-preview model. Talk naturally and get instant responses.
+                    </p>
+                    <ul class="feature-card__list">
+                        <li>Real-time voice conversations</li>
+                        <li>Natural speech recognition</li>
+                        <li>Instant AI responses</li>
+                        <li>Mobile optimized</li>
+                    </ul>
+                </div>
+
+                <!-- Advanced AI Models -->
+                <div class="feature-card">
+                    <div class="feature-card__icon">🧠</div>
+                    <h3 class="feature-card__title">Latest AI Models</h3>
+                    <p class="feature-card__description">
+                        Support for the most advanced AI models including GPT-4o, GPT-4o-mini, o1, o1-mini, o3, o3-mini, and more.
+                    </p>
+                </div>
+
+                <!-- PWA Support -->
+                <div class="feature-card">
+                    <div class="feature-card__icon">📱</div>
+                    <h3 class="feature-card__title">Progressive Web App</h3>
+                    <p class="feature-card__description">
+                        Install as a native app on any device. Optimized for mobile and tablet with offline capabilities.
+                    </p>
+                </div>
+
+                <!-- Image Generation -->
+                <div class="feature-card">
+                    <div class="feature-card__icon">🖼️</div>
+                    <h3 class="feature-card__title">Image Generation & Editing</h3>
+                    <p class="feature-card__description">
+                        Generate and edit images using DALL-E and GPT-Image-1 APIs. Create visual content from text descriptions.
+                    </p>
+                </div>
+
+                <!-- Speech Services -->
+                <div class="feature-card">
+                    <div class="feature-card__icon">🗣️</div>
+                    <h3 class="feature-card__title">Speech Services</h3>
+                    <p class="feature-card__description">
+                        Azure Text-to-Speech and Speech-to-Text integration with batch transcription support using Whisper model.
+                    </p>
+                </div>
+
+                <!-- Azure AD Authentication -->
+                <div class="feature-card">
+                    <div class="feature-card__icon">🔐</div>
+                    <h3 class="feature-card__title">Azure AD Authentication</h3>
+                    <p class="feature-card__description">
+                        Secure authentication using Azure Active Directory with enterprise-grade security features.
+                    </p>
+                </div>
+
+                <!-- Conversation Management -->
+                <div class="feature-card">
+                    <div class="feature-card__icon">💬</div>
+                    <h3 class="feature-card__title">Advanced Conversation Control</h3>
+                    <p class="feature-card__description">
+                        Full control over messages with delete, hide/unhide capabilities. Export conversations to markdown.
+                    </p>
+                </div>
+
+                <!-- News Integration -->
+                <div class="feature-card">
+                    <div class="feature-card__icon">📰</div>
+                    <h3 class="feature-card__title">Bing News Integration</h3>
+                    <p class="feature-card__description">
+                        Get the latest news updates through Bing API integration directly in your conversations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo">
+        <div class="demo__container">
+            <h2 class="demo__title">🎥 See It In Action</h2>
+            <div class="demo__gallery">
+                <div class="demo__item">
+                    <img src="assets/images/screenshots/screenshot_sora.jpeg" alt="Sora Video Generation" class="demo__img" onclick="openImageModal(this)">
+                    <h3 class="demo__item-title">Sora Video Generation</h3>
+                    <p class="demo__item-description">Create stunning videos from text descriptions</p>
+                </div>
+                <div class="demo__item">
+                    <img src="assets/images/screenshots/screenshot_realtime_desktop.png" alt="Real-time Voice Chat" class="demo__img" onclick="openImageModal(this)">
+                    <h3 class="demo__item-title">Real-time Voice Chat</h3>
+                    <p class="demo__item-description">Natural voice conversations with GPT-4o</p>
+                </div>
+                <div class="demo__item">
+                    <img src="assets/images/screenshots/screenshot_desktop_focus_mode.png" alt="Focus Mode" class="demo__img" onclick="openImageModal(this)">
+                    <h3 class="demo__item-title">Focus Mode</h3>
+                    <p class="demo__item-description">Distraction-free conversation experience</p>
+                </div>
+                <div class="demo__item">
+                    <img src="assets/images/screenshots/screenshot_options_generate.png" alt="Question Generation" class="demo__img" onclick="openImageModal(this)">
+                    <h3 class="demo__item-title">Smart Question Generation</h3>
+                    <p class="demo__item-description">AI-powered conversation guidance</p>
+                </div>
+                <div class="demo__item">
+                    <img src="assets/images/screenshots/screenshot_markdown.png" alt="Export to Markdown" class="demo__img" onclick="openImageModal(this)">
+                    <h3 class="demo__item-title">Export Conversations</h3>
+                    <p class="demo__item-description">Save conversations as markdown files</p>
+                </div>
+                <div class="demo__item">
+                    <img src="assets/images/screenshots/screenshot_desktop_stt_batch.png" alt="Batch Transcription" class="demo__img" onclick="openImageModal(this)">
+                    <h3 class="demo__item-title">Batch Audio Transcription</h3>
+                    <p class="demo__item-description">Process multiple audio files simultaneously</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Getting Started Section -->
+    <section id="getting-started" class="getting-started">
+        <div class="getting-started__container">
+            <h2 class="getting-started__title">🚀 Getting Started</h2>
+            <div class="getting-started__content">
+                <div class="getting-started__steps">
+                    <div class="step">
+                        <div class="step__number">1</div>
+                        <div class="step__content">
+                            <h3 class="step__title">Clone the Repository</h3>
+                            <p class="step__description">Get the source code from GitHub</p>
+                            <div class="code-block">
+                                <code>git clone https://github.com/hddevteam/Azure-chatGPT-demo.git</code>
+                                <button class="code-block__copy" data-clipboard-text="git clone https://github.com/hddevteam/Azure-chatGPT-demo.git" title="Copy to clipboard" aria-label="Copy command to clipboard">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step__number">2</div>
+                        <div class="step__content">
+                            <h3 class="step__title">Configure Environment</h3>
+                            <p class="step__description">Set up your Azure OpenAI API keys and endpoints</p>
+                            <div class="code-block">
+                                <code>cp .envtemplate .env
+# Edit .env with your Azure OpenAI credentials</code>
+                                <button class="code-block__copy" data-clipboard-text="cp .envtemplate .env" title="Copy to clipboard" aria-label="Copy command to clipboard">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step__number">3</div>
+                        <div class="step__content">
+                            <h3 class="step__title">Install Dependencies</h3>
+                            <p class="step__description">Install required Node.js packages</p>
+                            <div class="code-block">
+                                <code>npm install</code>
+                                <button class="code-block__copy" data-clipboard-text="npm install" title="Copy to clipboard" aria-label="Copy command to clipboard">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step__number">4</div>
+                        <div class="step__content">
+                            <h3 class="step__title">Start the Application</h3>
+                            <p class="step__description">Launch the development server</p>
+                            <div class="code-block">
+                                <code>npm start</code>
+                                <button class="code-block__copy" data-clipboard-text="npm start" title="Copy to clipboard" aria-label="Copy command to clipboard">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="getting-started__requirements">
+                    <h3 class="getting-started__requirements-title">Prerequisites</h3>
+                    <ul class="getting-started__requirements-list">
+                        <li>Node.js 16+ installed</li>
+                        <li>Azure OpenAI API access</li>
+                        <li>Azure subscription (for advanced features)</li>
+                        <li>Sora API access (for video generation)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technologies Section -->
+    <section class="technologies">
+        <div class="technologies__container">
+            <h2 class="technologies__title">🛠️ Built With</h2>
+            <div class="technologies__grid">
+                <div class="tech-item">
+                    <div class="tech-item__icon">⚡</div>
+                    <span class="tech-item__name">Node.js</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item__icon">🌐</div>
+                    <span class="tech-item__name">Express.js</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item__icon">🤖</div>
+                    <span class="tech-item__name">Azure OpenAI</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item__icon">🎬</div>
+                    <span class="tech-item__name">Sora API</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item__icon">🔐</div>
+                    <span class="tech-item__name">Azure AD</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item__icon">🗣️</div>
+                    <span class="tech-item__name">Azure Speech</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item__icon">💾</div>
+                    <span class="tech-item__name">Azure Storage</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item__icon">🔧</div>
+                    <span class="tech-item__name">Webpack</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer__container">
+            <div class="footer__content">
+                <div class="footer__section">
+                    <h3 class="footer__title">Azure ChatGPT Demo</h3>
+                    <p class="footer__description">
+                        Open source AI chat application with advanced features powered by Azure OpenAI and Sora video generation.
+                    </p>
+                </div>
+                <div class="footer__section">
+                    <h4 class="footer__subtitle">Links</h4>
+                    <ul class="footer__links">
+                        <li><a href="https://github.com/hddevteam/Azure-chatGPT-demo" target="_blank" rel="noopener">GitHub Repository</a></li>
+                        <li><a href="https://github.com/hddevteam/Azure-chatGPT-demo/issues" target="_blank" rel="noopener">Report Issues</a></li>
+                        <li><a href="https://github.com/hddevteam/Azure-chatGPT-demo/blob/main/LICENSE" target="_blank" rel="noopener">License</a></li>
+                    </ul>
+                </div>
+                <div class="footer__section">
+                    <h4 class="footer__subtitle">Resources</h4>
+                    <ul class="footer__links">
+                        <li><a href="https://azure.microsoft.com/en-us/products/ai-services/openai-service" target="_blank" rel="noopener">Azure OpenAI</a></li>
+                        <li><a href="https://openai.com/sora" target="_blank" rel="noopener">Sora Video Generation</a></li>
+                        <li><a href="https://azure.microsoft.com/en-us/products/cognitive-services/speech-services" target="_blank" rel="noopener">Azure Speech Services</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <p class="footer__copyright">
+                    © 2024 HD Dev Team. Licensed under the <a href="https://github.com/hddevteam/Azure-chatGPT-demo/blob/main/LICENSE" target="_blank" rel="noopener">ISC License</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal__content">
+            <span class="modal__close" onclick="closeImageModal()">&times;</span>
+            <img id="modalImage" class="modal__image" src="" alt="">
+            <div class="modal__caption" id="modalCaption"></div>
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
