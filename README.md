@@ -9,7 +9,7 @@ Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and l
 
 By working on this project, you will gain hands-on experience with several key APIs and services, including:
 
-- **Azure OpenAI API**: Learn how to integrate and utilize various GPT models, such as GPT-4o, GPT-4o-mini, and GPT-4o-realtime, to build intelligent conversational agents.
+- **Azure OpenAI API**: Learn how to integrate and utilize various advanced GPT models, including **GPT-5 series** (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat), **O-series reasoning models** (o3, o3-mini, o4-mini), GPT-4o, GPT-4o-mini, GPT-4o-realtime, and GPT-4.1 series to build intelligent conversational agents with cutting-edge capabilities.
 - **Sora Video Generation API**: Master advanced AI video generation capabilities, including text-to-video conversion, job management, and asynchronous processing workflows.
 
 - **Azure Speech Service**: Understand how to implement both Text-to-Speech and Speech-to-Text functionalities to enhance user interactions with voice capabilities.

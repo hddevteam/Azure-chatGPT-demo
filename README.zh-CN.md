@@ -6,7 +6,7 @@
 
 通过这个项目，您将获得几个关键 API 和服务的实践经验，包括：
 
-- **Azure OpenAI API**：学习如何集成和利用各种 GPT 模型，如 GPT-4o、GPT-4o-mini 和 GPT-4o-realtime，构建智能对话代理。
+- **Azure OpenAI API**：学习如何集成和利用各种先进的 GPT 模型，包括 **GPT-5 系列**（gpt-5、gpt-5-mini、gpt-5-nano、gpt-5-chat）、**O系列推理模型**（o3、o3-mini、o4-mini）、GPT-4o、GPT-4o-mini、GPT-4o-realtime 和 GPT-4.1 系列，构建具有尖端功能的智能对话代理。
 - **Sora 视频生成 API**：掌握高级 AI 视频生成功能，包括文本转视频、作业管理和异步处理工作流。
 
 - **Azure 语音服务**：了解如何实现文本转语音和语音转文本功能，通过语音功能增强用户交互。
