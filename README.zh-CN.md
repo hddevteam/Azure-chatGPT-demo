@@ -1,6 +1,6 @@
 # 🤖 强大的 Azure OpenAI GPT 模型 chatGPT 与 Sora 视频生成
 
-欢迎使用 Azure chatGPT，这是一个基于 Node.js 构建的迷人 chatGPT 网络应用，利用 Azure OpenAI GPT-4o-realtime/o1/o1-mini/o3/o3-mini/o4-mini/GPT-4O/GPT-4O-mini/GPT-4.5-preview/GPT-4.1/GPT-4.1-nano/GPT-4.1-mini 模型，并增强了尖端的 Sora AI 视频生成功能。该项目为对使用 JavaScript、Azure OpenAI API 和高级视频生成功能开发综合 AI 应用程序感兴趣的开发者提供了一个绝佳的起点。
+欢迎使用 Azure chatGPT，这是一个基于 Node.js 构建的迷人 chatGPT 网络应用，利用最新的 Azure OpenAI 模型，包括 **GPT-5 系列**（gpt-5、gpt-5-mini、gpt-5-nano、gpt-5-chat）、**O系列推理模型**（o3、o3-mini、o4-mini）、GPT-4o-realtime/o1/o1-mini/GPT-4O/GPT-4O-mini/GPT-4.1 系列，并增强了尖端的 Sora AI 视频生成功能。该项目为对使用 JavaScript、Azure OpenAI API 和高级视频生成功能开发综合 AI 应用程序感兴趣的开发者提供了一个绝佳的起点。
 
 ## 📚 项目学习收获
 
@@ -21,10 +21,9 @@
 
 - **🎬 新功能：Sora AI 视频生成 - 使用 OpenAI 尖端的 Sora 模型从文本描述创建惊人的视频！🎬**
 ![Sora 视频生成截图](screenshots/screenshot_sora.jpeg)
-- **🎉支持 GPT-4o 实时聊天 - 启用与 gpt-4o-realtime-preview-3 的实时语音对话🎉**
-![GPT4O 实时聊天桌面截图](screenshots/screenshot_realtime_desktop.png)
-![GPT4O 实时聊天移动截图](screenshots/screenshot_realtime_mobile.png)
-- **🎉支持 o1/o1-mini/o3/o3-mini/o4-mini/GPT-4O/GPT-4O-mini/GPT-4.5-preview/GPT-4.1/GPT-4.1-nano/GPT-4.1-mini🎉**
+- **🎉支持 GPT-5 系列 - 最新推理模型，具备增强功能：gpt-5、gpt-5-mini、gpt-5-nano、gpt-5-chat🎉**
+- **🎉支持 O系列模型 - 高级推理能力：o3、o3-mini、o4-mini🎉**
+- **🎉支持 GPT-4o 实时聊天 - 启用与 gpt-4o-realtime-preview 的实时语音对话🎉**
 - **✨支持 PWA（渐进式网络应用程序）✨**
 ![桌面截图](screenshots/screenshot_desktop.png)
 ![桌面截图](screenshots/screenshot_desktop_focus_mode.png)

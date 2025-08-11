@@ -3,7 +3,7 @@
 > **Language / 语言**: [English](README.md) | [中文](README.zh-CN.md)  
 > **Live Demo / 在线演示**: [English](https://hddevteam.github.io/Azure-chatGPT-demo/) | [中文](https://hddevteam.github.io/Azure-chatGPT-demo/zh-cn/)
 
-Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the Azure OpenAI GPT-4o-realtime/o1/o1-mini/o3/o3-mini/o4-mini/GPT-4O/GPT-4O-mini/GPT-4.5-preview/GPT-4.1/GPT-4.1-nano/GPT-4.1-mini model, enhanced with cutting-edge Sora AI video generation capabilities. This project serves as an excellent starting point for developers interested in developing comprehensive AI applications using JavaScript, the Azure OpenAI API, and advanced video generation features.
+Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the latest Azure OpenAI models including **GPT-5 series** (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat), **O-series reasoning models** (o3, o3-mini, o4-mini), GPT-4o-realtime/o1/o1-mini/GPT-4O/GPT-4O-mini/GPT-4.1 series, enhanced with cutting-edge Sora AI video generation capabilities. This project serves as an excellent starting point for developers interested in developing comprehensive AI applications using JavaScript, the Azure OpenAI API, and advanced video generation features.
 
 ## 📚 Learnings from this Project
 
@@ -24,10 +24,9 @@ These learnings will equip you with the skills to build robust, feature-rich cha
 
 - **🎬 NEW: Sora AI Video Generation - Create stunning videos from text descriptions using OpenAI's cutting-edge Sora model! 🎬**
 ![Sora Video Generation Screenshot](screenshots/screenshot_sora.jpeg)
-- **🎉Support for GPT-4o Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview-3🎉**
-![GPT4O Realtime Chat Desktop Screenshot](screenshots/screenshot_realtime_desktop.png)
-![GPT4O Realtime Chat Mobile Screenshot](screenshots/screenshot_realtime_mobile.png)
-- **🎉Support for o1/o1-mini/o3/o3-mini/o4-mini/GPT-4O/GPT-4O-mini/GPT-4.5-preview/GPT-4.1/GPT-4.1-nano/GPT-4.1-mini🎉**
+- **🎉Support for GPT-5 Series - Latest reasoning models with enhanced capabilities: gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat🎉**
+- **🎉Support for O-series Models - Advanced reasoning capabilities: o3, o3-mini, o4-mini🎉**
+- **🎉Support for GPT-4o Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview🎉**
 - **✨Support PWA (Progressive Web App)✨**
 ![Dekstop Screenshot](screenshots/screenshot_desktop.png)
 ![Desktop Screenshot](screenshots/screenshot_desktop_focus_mode.png)
@@ -109,13 +108,35 @@ This application now includes powerful video generation capabilities powered by 
    GPT_4O_API_KEY=your-gpt4o-key
    GPT_4O_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview
    GPT_4O_MINI_API_KEY=your-gpt4o-mini-key
+   
+   # GPT-5 Series Configuration (Latest Reasoning Models)
+   GPT_5_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-5/chat/completions?api-version=2025-01-01-preview
+   GPT_5_API_KEY=your-gpt5-key
+   GPT_5_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-5-mini/chat/completions?api-version=2025-01-01-preview
+   GPT_5_MINI_API_KEY=your-gpt5-mini-key
+   GPT_5_NANO_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-5-nano/chat/completions?api-version=2025-01-01-preview
+   GPT_5_NANO_API_KEY=your-gpt5-nano-key
+   GPT_5_CHAT_API_URL=https://yourserver.openai.azure.com/openai/deployments/gpt-5-chat/chat/completions?api-version=2025-01-01-preview
+   GPT_5_CHAT_API_KEY=your-gpt5-chat-key
+   
+   # O-series Reasoning Models Configuration
+   O3_API_URL=https://yourserver.openai.azure.com/openai/deployments/o3/chat/completions?api-version=2024-12-01-preview
+   O3_API_KEY=your-o3-key
+   O4_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/o4-mini/chat/completions?api-version=2024-12-01-preview
+   O4_MINI_API_KEY=your-o4-mini-key
+   
+   # Traditional O1 Models
    O1_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/o1-mini/chat/completions?api-version=2024-12-01-preview
    O1_MINI_API_KEY=your-o1-mini-key
    O1_API_URL=https://yourserver.openai.azure.com/openai/deployments/o1-preview/chat/completions?api-version=2024-12-01-preview
    O1_API_KEY=your-o1-key
+   
+   # GPT-4 Realtime
    GPT_4O_REALTIME_API_URL=https://yourserver.openai.azure.com/openai/realtime?api-version=2024-10-01-preview&deployment=yourdeployment
    GPT_4O_REALTIME_API_KEY=your-gpt4o-realtime-key
    GPT_4O_REALTIME_DEPLOYMENT=yourdeployment
+   
+   # Azure Storage
    AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
    
    # Sora Video Generation Configuration

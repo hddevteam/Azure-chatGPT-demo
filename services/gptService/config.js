@@ -223,20 +223,6 @@ const modelFeatures = {
             supportsDeveloperMessages: true,
             requiresMaxCompletionTokens: true, // ✅ Reasoning model
             unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'] // ❌ Not supported
-        },
-        'codex-mini': {
-            supportsFunctionCalling: true,
-            supportsSystemMessages: true,
-            supportsVision: true,
-            supportsStructuredOutputs: true,
-            supportsParallelFunctionCalling: true,
-            maxTokens: 200000,
-            outputTokens: 100000,
-            supportsReasoningEffort: true,
-            supportsDeveloperMessages: true,
-            requiresMaxCompletionTokens: true, // ✅ Reasoning model
-            unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'], // ❌ Not supported
-            isFineTuned: true // ✅ Fine-tuned version of o4-mini
         }
     };
 
