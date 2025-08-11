@@ -1,7 +1,7 @@
 {
-  "name": "chatgptdemo",
-  "version": "2.0.0",
-  "description": "This is a awesome chatgpt web app made by chatgpt with copilot.",
+  "name": "azure-chatgpt-demo",
+  "version": "9.2.0",
+  "description": "Advanced Azure OpenAI chat application with GPT-5 series, O-series reasoning models, Sora video generation, and real-time voice chat capabilities.",
   "main": "index.js",
   "scripts": {
     "start": "node ./server.js",
@@ -31,7 +31,23 @@
       "^.+\\.[t|j]sx?$": "babel-jest"
     }
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hddevteam/Azure-chatGPT-demo.git"
+  },
+  "keywords": [
+    "azure",
+    "openai",
+    "chatgpt",
+    "gpt-5",
+    "o-series",
+    "sora",
+    "video-generation",
+    "realtime-voice",
+    "ai",
+    "pwa"
+  ],
+  "author": "HDDevTeam",
   "license": "ISC",
   "dependencies": {
     "@azure/data-tables": "^13.2.2",
