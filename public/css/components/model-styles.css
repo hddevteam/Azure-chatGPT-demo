@@ -6,12 +6,17 @@
     --model-o1-mini: #4cc9f0;
     --model-o3: #5a189a; /* 添加o3模型颜色 - 深紫色区分于o3-mini */
     --model-o3-mini: #7209b7;
+    --model-o3-pro: #2d0651; /* O3-PRO - 更深的紫色，代表高级版本 */
     --model-deepseek: #d81b60; /* 改为玫红色，与紫色明显区分 */
     --model-o4-mini: #ff6b6b; /* 鲜红色 */
     --model-gpt45: #ff9f1c; /* 橙色 */
     --model-gpt41: #8338ec; /* 紫色 */
     --model-gpt41-nano: #118ab2; /* 深青色 */
     --model-gpt41-mini: #06d6a0; /* 薄荷绿 */
+    --model-gpt5: #e63946; /* GPT-5 - 鲜艳红色，代表最新一代 */
+    --model-gpt5-mini: #f77f00; /* GPT-5 Mini - 亮橙色 */
+    --model-gpt5-nano: #fcbf49; /* GPT-5 Nano - 金黄色 */
+    --model-gpt5-chat: #a53860; /* GPT-5 Chat - 深玫红色，适合聊天场景 */
 }
 
 /* Model button & indicator styles */
@@ -45,12 +50,17 @@
 .btn.o1-mini, .message-header .model-indicator.o1-mini { background-color: var(--model-o1-mini); }
 .btn.o3, .message-header .model-indicator.o3 { background-color: var(--model-o3); } /* 添加o3样式 */
 .btn.o3-mini, .message-header .model-indicator.o3-mini { background-color: var(--model-o3-mini); }
+.btn.o3-pro, .message-header .model-indicator.o3-pro { background-color: var(--model-o3-pro); }
 .btn.deepseek-r1, .message-header .model-indicator.deepseek-r1 { background-color: var(--model-deepseek); }
 .btn.o4-mini, .message-header .model-indicator.o4-mini { background-color: var(--model-o4-mini); }
 .btn.gpt-4\.5-preview, .message-header .model-indicator.gpt-4\.5-preview { background-color: var(--model-gpt45); }
 .btn.gpt-4\.1, .message-header .model-indicator.gpt-4\.1 { background-color: var(--model-gpt41); }
 .btn.gpt-4\.1-nano, .message-header .model-indicator.gpt-4\.1-nano { background-color: var(--model-gpt41-nano); }
 .btn.gpt-4\.1-mini, .message-header .model-indicator.gpt-4\.1-mini { background-color: var(--model-gpt41-mini); }
+.btn.gpt-5, .message-header .model-indicator.gpt-5 { background-color: var(--model-gpt5); }
+.btn.gpt-5-mini, .message-header .model-indicator.gpt-5-mini { background-color: var(--model-gpt5-mini); }
+.btn.gpt-5-nano, .message-header .model-indicator.gpt-5-nano { background-color: var(--model-gpt5-nano); }
+.btn.gpt-5-chat, .message-header .model-indicator.gpt-5-chat { background-color: var(--model-gpt5-chat); }
 
 /* 模型选择器的微调 */
 #model-switch {
@@ -104,10 +114,41 @@
     margin-right: 5px;
 }
 
+.model-dropdown .dropdown-item[data-model="o3-pro"]::before {
+    content: "●";
+    color: var(--model-o3-pro);
+    margin-right: 5px;
+}
+
 /* 在模型下拉菜单样式中添加DeepSeek模型的指示器 */
 .model-dropdown .dropdown-item[data-model="deepseek-r1"]::before {
     content: "●";
     color: var(--model-deepseek);
+    margin-right: 5px;
+}
+
+/* GPT-5系列模型的下拉菜单样式 */
+.model-dropdown .dropdown-item[data-model="gpt-5"]::before {
+    content: "●";
+    color: var(--model-gpt5);
+    margin-right: 5px;
+}
+
+.model-dropdown .dropdown-item[data-model="gpt-5-mini"]::before {
+    content: "●";
+    color: var(--model-gpt5-mini);
+    margin-right: 5px;
+}
+
+.model-dropdown .dropdown-item[data-model="gpt-5-nano"]::before {
+    content: "●";
+    color: var(--model-gpt5-nano);
+    margin-right: 5px;
+}
+
+.model-dropdown .dropdown-item[data-model="gpt-5-chat"]::before {
+    content: "●";
+    color: var(--model-gpt5-chat);
     margin-right: 5px;
 }
 
@@ -230,6 +271,11 @@
 #model-select-modal .model-option[data-model="gpt-4.1"]::before { color: var(--model-gpt41); }
 #model-select-modal .model-option[data-model="gpt-4.1-nano"]::before { color: var(--model-gpt41-nano); }
 #model-select-modal .model-option[data-model="gpt-4.1-mini"]::before { color: var(--model-gpt41-mini); }
+#model-select-modal .model-option[data-model="o3-pro"]::before { color: var(--model-o3-pro); }
+#model-select-modal .model-option[data-model="gpt-5"]::before { color: var(--model-gpt5); }
+#model-select-modal .model-option[data-model="gpt-5-mini"]::before { color: var(--model-gpt5-mini); }
+#model-select-modal .model-option[data-model="gpt-5-nano"]::before { color: var(--model-gpt5-nano); }
+#model-select-modal .model-option[data-model="gpt-5-chat"]::before { color: var(--model-gpt5-chat); }
 
 /* 暗色主题适配 */
 .split-view #model-select-modal .modal-inner {

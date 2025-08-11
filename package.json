@@ -11,7 +11,12 @@
     "build": "webpack",
     "test:mocha": "mocha --timeout 5000 ./tests/profile.test.js",
     "test:jest": "Jest",
-    "test": "npm run test:mocha && npm run test:jest"
+    "test:new-models": "mocha --timeout 30000 ./tests/newModels.test.js",
+    "test:integration": "mocha --timeout 60000 ./tests/newModelsIntegration.test.js",
+    "test:performance": "mocha --timeout 120000 ./tests/newModelsPerformance.test.js",
+    "test:e2e": "mocha --timeout 90000 ./tests/newModelsE2E.test.js",
+    "test:all-new": "npm run test:new-models && npm run test:integration && npm run test:performance && npm run test:e2e",
+    "test": "npm run test:mocha && npm run test:jest && npm run test:all-new"
   },
   "jest": {
     "testEnvironment": "node",

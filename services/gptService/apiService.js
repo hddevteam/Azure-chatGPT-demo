@@ -119,37 +119,16 @@ const handleRequestError = (error, res) => {
 };
 
 /**
- * Process model parameters based on model type
+ * Process parameters for specific model requirements
+ * Updated to use new config.getModelParameters function for reasoning models
  * 
  * @param {string} model - Model identifier
  * @param {Object} params - User provided parameters
  * @returns {Object} Processed parameters for the specific model
  */
 const processModelParameters = (model, params) => {
-    // models with different parameter requirements for o1, o1-mini, o3, o3-mini, o4-mini... o series model
-    if (model === "o1" || model === "o1-mini" || model === "o3" || model === "o3-mini" || model === "o4-mini") {
-        return {
-            max_completion_tokens: parseInt(params.max_tokens)
-        };
-    } 
-    // DeepSeek-R1 model parameter processing
-    else if (model === "deepseek-r1") {
-        return {
-            temperature: parseFloat(params.temperature),
-            top_p: parseFloat(params.top_p),
-            max_tokens: parseInt(params.max_tokens)
-        };
-    }
-    else {
-        // Standard parameters for OpenAI-compatible models
-        return {
-            temperature: parseFloat(params.temperature),
-            top_p: parseFloat(params.top_p),
-            frequency_penalty: parseFloat(params.frequency_penalty),
-            presence_penalty: parseFloat(params.presence_penalty),
-            max_tokens: parseInt(params.max_tokens)
-        };
-    }
+    // Use the new getModelParameters function from config
+    return config.getModelParameters(model, params);
 };
 
 /**

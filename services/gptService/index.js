@@ -14,8 +14,11 @@ module.exports = {
     // Configuration
     config: config,
     defaultParams: config.defaultParams,
+    reasoningModelParams: config.reasoningModelParams,
     getApiConfig: config.getApiConfig,
     supportsFeature: config.supportsFeature,
+    isReasoningModel: config.isReasoningModel,
+    getModelParameters: config.getModelParameters,
     
     // API Service
     makeRequest: apiService.makeRequest,

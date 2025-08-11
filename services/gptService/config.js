@@ -21,6 +21,10 @@ const apiKeys = {
     gpt41: process.env.GPT_4_1_API_KEY, // API Key for gpt-4.1 model
     gpt41Nano: process.env.GPT_4_1_NANO_API_KEY, // API Key for gpt-4.1-nano model
     gpt41Mini: process.env.GPT_4_1_MINI_API_KEY, // API Key for gpt-4.1-mini model
+    gpt5: process.env.GPT_5_API_KEY, // API Key for gpt-5 model
+    gpt5Mini: process.env.GPT_5_MINI_API_KEY, // API Key for gpt-5-mini model
+    gpt5Nano: process.env.GPT_5_NANO_API_KEY, // API Key for gpt-5-nano model
+    gpt5Chat: process.env.GPT_5_CHAT_API_KEY, // API Key for gpt-5-chat model
     // Default key based on environment
     default: devMode ? process.env.API_KEY_DEV : process.env.GPT_4_1_API_KEY
 };
@@ -39,6 +43,10 @@ const apiUrls = {
     gpt41: process.env.GPT_4_1_API_URL, // URL for gpt-4.1 model
     gpt41Nano: process.env.GPT_4_1_NANO_API_URL, // URL for gpt-4.1-nano model
     gpt41Mini: process.env.GPT_4_1_MINI_API_URL, // URL for gpt-4.1-mini model
+    gpt5: process.env.GPT_5_API_URL, // URL for gpt-5 model
+    gpt5Mini: process.env.GPT_5_MINI_API_URL, // URL for gpt-5-mini model
+    gpt5Nano: process.env.GPT_5_NANO_API_URL, // URL for gpt-5-nano model
+    gpt5Chat: process.env.GPT_5_CHAT_API_URL, // URL for gpt-5-chat model
     // Default URL based on environment
     default: devMode ? process.env.API_URL_DEV : process.env.GPT_4_1_API_URL
 };
@@ -52,109 +60,185 @@ const defaultParams = {
     max_tokens: 2000
 };
 
+// Default parameters for reasoning models (GPT-5 series, O-series)
+// Based on: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/reasoning
+const reasoningModelParams = {
+    max_completion_tokens: 2000,
+    reasoning_effort: "medium" // minimal, low, medium, high
+};
+
 /**
  * Get model supported features
  * Based on: https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/reasoning
  * @type {Object}
  */
 const modelFeatures = {
-    "gpt-4o": { 
-        supportsFunctionCalls: true, 
-        supportsSystemMessages: true, 
-        supportsDeveloperMessages: false,
-        supportsReasoningSummary: false,
-        supportsReasoningEffort: false,
-        requiresMaxCompletionTokens: false
-    },
-    "gpt-4o-mini": { 
-        supportsFunctionCalls: true, 
-        supportsSystemMessages: true, 
-        supportsDeveloperMessages: false,
-        supportsReasoningSummary: false,
-        supportsReasoningEffort: false,
-        requiresMaxCompletionTokens: false
-    },
-    "o1": { 
-        supportsFunctionCalls: false, 
-        supportsSystemMessages: false, 
-        supportsDeveloperMessages: true,
-        supportsReasoningSummary: false,
-        supportsReasoningEffort: false, // Temporarily disabled - requires preview access
-        requiresMaxCompletionTokens: true
-    },
-    "o1-mini": { 
-        supportsFunctionCalls: false, 
-        supportsSystemMessages: false, 
-        supportsDeveloperMessages: true,
-        supportsReasoningSummary: false,
-        supportsReasoningEffort: false, // Temporarily disabled - requires preview access
-        requiresMaxCompletionTokens: true
-    },
-    "o3": { 
-        supportsFunctionCalls: true, 
-        supportsSystemMessages: true, 
-        supportsDeveloperMessages: true,
-        supportsReasoningSummary: false, // Temporarily disabled - requires preview access
-        supportsReasoningEffort: false, // Temporarily disabled - requires preview access
-        requiresMaxCompletionTokens: true
-    },
-    "o3-mini": { 
-        supportsFunctionCalls: true, 
-        supportsSystemMessages: true, 
-        supportsDeveloperMessages: true,
-        supportsReasoningSummary: false,
-        supportsReasoningEffort: false, // Temporarily disabled - requires preview access
-        requiresMaxCompletionTokens: true
-    },
-    "o4-mini": { 
-        supportsFunctionCalls: true, 
-        supportsSystemMessages: true, 
-        supportsDeveloperMessages: true,
-        supportsReasoningSummary: false, // Temporarily disabled - requires preview access
-        supportsReasoningEffort: false, // Temporarily disabled - requires preview access
-        requiresMaxCompletionTokens: true
-    },
-    "deepseek-r1": { 
-        supportsFunctionCalls: true, 
-        supportsSystemMessages: true, 
-        supportsDeveloperMessages: false,
-        supportsReasoningSummary: false,
-        supportsReasoningEffort: false,
-        requiresMaxCompletionTokens: false
-    },
-    "gpt-4.5-preview": { 
-        supportsFunctionCalls: true, 
-        supportsSystemMessages: true, 
-        supportsDeveloperMessages: false,
-        supportsReasoningSummary: false,
-        supportsReasoningEffort: false,
-        requiresMaxCompletionTokens: false
-    },
-    "gpt-4.1": { 
-        supportsFunctionCalls: true, 
-        supportsSystemMessages: true, 
-        supportsDeveloperMessages: false,
-        supportsReasoningSummary: false,
-        supportsReasoningEffort: false,
-        requiresMaxCompletionTokens: false
-    },
-    "gpt-4.1-nano": { 
-        supportsFunctionCalls: true, 
-        supportsSystemMessages: true, 
-        supportsDeveloperMessages: false,
-        supportsReasoningSummary: false,
-        supportsReasoningEffort: false,
-        requiresMaxCompletionTokens: false
-    },
-    "gpt-4.1-mini": { 
-        supportsFunctionCalls: true, 
-        supportsSystemMessages: true, 
-        supportsDeveloperMessages: false,
-        supportsReasoningSummary: false,
-        supportsReasoningEffort: false,
-        requiresMaxCompletionTokens: false
-    }
-};
+        'gpt-4o': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true,
+            supportsVision: true,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 128000,
+            outputTokens: 16384
+        },
+        'gpt-4o-mini': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true,
+            supportsVision: true,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 128000,
+            outputTokens: 16384
+        },
+        'o1': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true, // ✅ Latest reasoning models support system messages
+            supportsVision: true,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 200000,
+            outputTokens: 100000,
+            supportsReasoningEffort: true,
+            supportsDeveloperMessages: true
+        },
+        'o1-mini': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true, // ✅ Latest reasoning models support system messages
+            supportsVision: false,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 128000,
+            outputTokens: 65536,
+            supportsReasoningEffort: true, // ✅ Supports low, medium, high (not minimal)
+            supportsDeveloperMessages: true
+        },
+        // ✅ GPT-5 Series - All support reasoning, function calling, and parallel tool calling
+        'gpt-5': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true,
+            supportsVision: true,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 272000,
+            outputTokens: 128000,
+            supportsReasoningEffort: true,
+            supportsReasoningSummary: true,
+            supportsVerbosity: true, // ✅ New GPT-5 feature
+            supportsPreamble: true, // ✅ New GPT-5 feature
+            supportsMinimalReasoningEffort: true, // ✅ GPT-5 supports "minimal"
+            supportsCustomToolType: true, // ✅ Raw text outputs
+            supportsLarkTool: true, // ✅ Python lark capabilities
+            supportsDeveloperMessages: true,
+            requiresMaxCompletionTokens: true, // ✅ Must use max_completion_tokens
+            unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'] // ❌ Not supported
+        },
+        'gpt-5-mini': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true,
+            supportsVision: true,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 272000,
+            outputTokens: 128000,
+            supportsReasoningEffort: true,
+            supportsVerbosity: true, // ✅ New GPT-5 feature
+            supportsPreamble: true, // ✅ New GPT-5 feature
+            supportsMinimalReasoningEffort: true, // ✅ GPT-5 supports "minimal"
+            supportsCustomToolType: true, // ✅ Raw text outputs
+            supportsLarkTool: true, // ✅ Python lark capabilities
+            supportsDeveloperMessages: true,
+            requiresMaxCompletionTokens: true, // ✅ Must use max_completion_tokens
+            unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'] // ❌ Not supported
+        },
+        'gpt-5-nano': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true,
+            supportsVision: true,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 272000,
+            outputTokens: 128000,
+            supportsReasoningEffort: true,
+            supportsVerbosity: true, // ✅ New GPT-5 feature
+            supportsPreamble: true, // ✅ New GPT-5 feature
+            supportsMinimalReasoningEffort: true, // ✅ GPT-5 supports "minimal"
+            supportsCustomToolType: true, // ✅ Raw text outputs
+            supportsLarkTool: true, // ✅ Python lark capabilities
+            supportsDeveloperMessages: true,
+            requiresMaxCompletionTokens: true, // ✅ Must use max_completion_tokens
+            unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'] // ❌ Not supported
+        },
+        'gpt-5-chat': {
+            supportsFunctionCalling: false, // ❌ Preview model - text only
+            supportsSystemMessages: true,
+            supportsVision: false, // ❌ Text only processing
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: false,
+            maxTokens: 128000,
+            outputTokens: 16384,
+            supportsReasoningEffort: false,
+            supportsDeveloperMessages: true,
+            requiresMaxCompletionTokens: true, // ✅ Still a reasoning model variant
+            unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'] // ❌ Not supported
+        },
+        // ✅ New O-series models
+        'o4-mini': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true,
+            supportsVision: true,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 200000,
+            outputTokens: 100000,
+            supportsReasoningEffort: true,
+            supportsReasoningSummary: true, // ✅ Limited access feature
+            supportsDeveloperMessages: true,
+            requiresMaxCompletionTokens: true, // ✅ Reasoning model
+            unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'] // ❌ Not supported
+        },
+        'o3': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true,
+            supportsVision: true,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 200000,
+            outputTokens: 100000,
+            supportsReasoningEffort: true,
+            supportsReasoningSummary: true, // ✅ Limited access feature
+            supportsDeveloperMessages: true,
+            requiresMaxCompletionTokens: true, // ✅ Reasoning model
+            unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'] // ❌ Not supported
+        },
+        'o3-mini': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true,
+            supportsVision: false, // ❌ Text-only processing
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 200000,
+            outputTokens: 100000,
+            supportsReasoningEffort: true,
+            supportsDeveloperMessages: true,
+            requiresMaxCompletionTokens: true, // ✅ Reasoning model
+            unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'] // ❌ Not supported
+        },
+        'codex-mini': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true,
+            supportsVision: true,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 200000,
+            outputTokens: 100000,
+            supportsReasoningEffort: true,
+            supportsDeveloperMessages: true,
+            requiresMaxCompletionTokens: true, // ✅ Reasoning model
+            unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'], // ❌ Not supported
+            isFineTuned: true // ✅ Fine-tuned version of o4-mini
+        }
+    };
 
 /**
  * Get API configuration based on model name
@@ -213,6 +297,22 @@ const getApiConfig = (model) => {
         apiKey = apiKeys.gpt41Mini;
         apiUrl = apiUrls.gpt41Mini;
         break;
+    case "gpt-5":  // Add gpt-5 configuration
+        apiKey = apiKeys.gpt5;
+        apiUrl = apiUrls.gpt5;
+        break;
+    case "gpt-5-mini":  // Add gpt-5-mini configuration
+        apiKey = apiKeys.gpt5Mini;
+        apiUrl = apiUrls.gpt5Mini;
+        break;
+    case "gpt-5-nano":  // Add gpt-5-nano configuration
+        apiKey = apiKeys.gpt5Nano;
+        apiUrl = apiUrls.gpt5Nano;
+        break;
+    case "gpt-5-chat":  // Add gpt-5-chat configuration
+        apiKey = apiKeys.gpt5Chat;
+        apiUrl = apiUrls.gpt5Chat;
+        break;
     default:
         // Default to GPT-4O if model not specified
         apiKey = apiKeys.gpt41;
@@ -234,12 +334,73 @@ const supportsFeature = (model, feature) => {
     return !!features[feature];
 };
 
+/**
+ * Check if model is a reasoning model (requires different parameter handling)
+ * @param {string} model - Model name
+ * @returns {boolean} Whether the model is a reasoning model
+ */
+const isReasoningModel = (model) => {
+    return supportsFeature(model, 'requiresMaxCompletionTokens');
+};
+
+/**
+ * Get appropriate parameters for a model
+ * @param {string} model - Model name
+ * @param {object} userParams - User-provided parameters
+ * @returns {object} Processed parameters for the model
+ */
+const getModelParameters = (model, userParams = {}) => {
+    const features = modelFeatures[model] || modelFeatures["gpt-4o"];
+    
+    if (isReasoningModel(model)) {
+        // For reasoning models, use only supported parameters
+        const params = {};
+        
+        // Always use max_completion_tokens for reasoning models
+        if (userParams.max_tokens) {
+            params.max_completion_tokens = userParams.max_tokens;
+        } else if (userParams.max_completion_tokens) {
+            params.max_completion_tokens = userParams.max_completion_tokens;
+        } else {
+            params.max_completion_tokens = reasoningModelParams.max_completion_tokens;
+        }
+        
+        // Add reasoning-specific parameters only if model supports them
+        if (supportsFeature(model, 'supportsReasoningEffort')) {
+            if (userParams.reasoning_effort) {
+                params.reasoning_effort = userParams.reasoning_effort;
+            } else {
+                params.reasoning_effort = reasoningModelParams.reasoning_effort;
+            }
+        }
+        
+        // GPT-5 specific parameters
+        if (supportsFeature(model, 'supportsVerbosity') && userParams.verbosity) {
+            params.verbosity = userParams.verbosity;
+        }
+        
+        return params;
+    } else {
+        // For non-reasoning models, use standard parameters
+        return {
+            temperature: userParams.temperature || defaultParams.temperature,
+            top_p: userParams.top_p || defaultParams.top_p,
+            frequency_penalty: userParams.frequency_penalty || defaultParams.frequency_penalty,
+            presence_penalty: userParams.presence_penalty || defaultParams.presence_penalty,
+            max_tokens: userParams.max_tokens || defaultParams.max_tokens
+        };
+    }
+};
+
 module.exports = {
     devMode,
     apiKeys,
     apiUrls,
     defaultParams,
+    reasoningModelParams,
     modelFeatures,
     getApiConfig,
-    supportsFeature
+    supportsFeature,
+    isReasoningModel,
+    getModelParameters
 };
