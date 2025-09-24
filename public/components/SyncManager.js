@@ -380,19 +380,19 @@ class SyncManager {
         
         // Ensure search results are included in sync data
         const syncItem = {
+            type: "message",
             action: "update",
-            chatId,
             data: {
-                ...message,
-                searchResults: message.searchResults || null,
-                timestamp: message.timestamp || new Date().toISOString()
+                chatId,
+                message: {
+                    ...message,
+                    searchResults: message.searchResults || null,
+                    timestamp: message.timestamp || new Date().toISOString()
+                }
             }
         };
         
-        // Add delay to ensure local storage is completed
-        setTimeout(() => {
-            this.webWorker.postMessage(syncItem);
-        }, 100);
+        this.enqueueSyncItem(syncItem);
     }
 
     async syncMessageDelete(chatId, messageId) {
