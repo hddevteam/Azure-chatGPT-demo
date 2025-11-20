@@ -23,7 +23,7 @@
 ![Sora 视频生成截图](screenshots/screenshot_sora.jpeg)
 - **🎉支持 GPT-5 系列 - 最新推理模型，具备增强功能：gpt-5、gpt-5-mini、gpt-5-nano、gpt-5-chat🎉**
 - **🎉支持 O系列模型 - 高级推理能力：o3、o3-mini、o4-mini🎉**
-- **🎉支持 GPT-4o 实时聊天 - 启用与 gpt-4o-realtime-preview 的实时语音对话🎉**
+- **🎙️增强版实时语音聊天 - 提供 gpt-realtime 与 gpt-realtime-mini 双模型、即时切换、8 种语音以及扬声器静音控制🎙️**
 - **✨支持 PWA（渐进式网络应用程序）✨**
 ![桌面截图](screenshots/screenshot_desktop.png)
 ![桌面截图](screenshots/screenshot_desktop_focus_mode.png)
@@ -76,6 +76,7 @@
 ![导出为 markdown 文件](screenshots/screenshot_markdown.png)
 
 - **支持 Azure 文本转语音引擎 📢**
+- **增强版实时语音聊天：双 GPT Realtime 模型、八种语音选择、会话级扬声器静音控制 🔊**
 - **使用 DALL-E API 从文本生成图像 🖼️**
 - **使用 GPT-Image-1 API 生成和编辑图像 ✏️🖼️**
 - **支持使用 Azure 语音转文本引擎的语音转文本 🎙️**
@@ -107,9 +108,11 @@
    O1_MINI_API_KEY=your-o1-mini-key
    O1_API_URL=https://yourserver.openai.azure.com/openai/deployments/o1-preview/chat/completions?api-version=2024-12-01-preview
    O1_API_KEY=your-o1-key
-   GPT_4O_REALTIME_API_URL=https://yourserver.openai.azure.com/openai/realtime?api-version=2024-10-01-preview&deployment=yourdeployment
-   GPT_4O_REALTIME_API_KEY=your-gpt4o-realtime-key
-   GPT_4O_REALTIME_DEPLOYMENT=yourdeployment
+   # GPT Realtime（双模型支持）
+   GPT_REALTIME_API_URL=wss://yourserver.openai.azure.com/openai/realtime?api-version=2024-10-01-preview&deployment=gpt-realtime
+   GPT_REALTIME_API_KEY=your-gpt-realtime-key
+   GPT_REALTIME_MINI_API_URL=wss://yourserver.openai.azure.com/openai/realtime?api-version=2024-10-01-preview&deployment=gpt-realtime-mini
+   GPT_REALTIME_MINI_API_KEY=your-gpt-realtime-mini-key
    AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
    
    # Sora 视频生成配置

@@ -287,6 +287,16 @@ export default class IntercomModal {
         clearBtn.addEventListener("click", () => {
             const container = document.getElementById("received-text-container");
             container.innerHTML = WELCOME_MESSAGE_TEMPLATE;
+
+            const summaryContainer = document.getElementById("summary-container");
+            if (summaryContainer) {
+                summaryContainer.innerHTML = "";
+            }
+            this.currentSummary = null;
+
+            if (this.realtimeClient) {
+                this.realtimeClient.resetSummary?.();
+            }
         });
 
         // settings section toggle

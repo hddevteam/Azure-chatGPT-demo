@@ -26,7 +26,7 @@ These learnings will equip you with the skills to build robust, feature-rich cha
 ![Sora Video Generation Screenshot](screenshots/screenshot_sora.jpeg)
 - **🎉Support for GPT-5 Series - Latest reasoning models with enhanced capabilities: gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat🎉**
 - **🎉Support for O-series Models - Advanced reasoning capabilities: o3, o3-mini, o4-mini🎉**
-- **🎉Support for GPT-4o Realtime Chat - enabling real-time voice conversations with gpt-4o-realtime-preview🎉**
+- **🎙️Enhanced Realtime Voice Chat - dual GPT Realtime models (gpt-realtime & gpt-realtime-mini), instant model switching, 8 voice options, and speaker mute control🎙️**
 - **✨Support PWA (Progressive Web App)✨**
 ![Dekstop Screenshot](screenshots/screenshot_desktop.png)
 ![Desktop Screenshot](screenshots/screenshot_desktop_focus_mode.png)
@@ -81,6 +81,7 @@ This application now includes powerful video generation capabilities powered by 
 
 
 - **Support for Azure Text-to-Speech engine 📢**
+- **Enhanced realtime voice chat with dual GPT Realtime models, 8 voice options, and per-session speaker mute control 🔊**
 - **Generate images from text using the DALL-E API 🖼️**
 - **Generate and edit images with GPT-Image-1 API ✏️🖼️**
 - **Support for Speech-to-Text using the Azure Speech-to-Text engine 🎙️**
@@ -131,10 +132,11 @@ This application now includes powerful video generation capabilities powered by 
    O1_API_URL=https://yourserver.openai.azure.com/openai/deployments/o1-preview/chat/completions?api-version=2024-12-01-preview
    O1_API_KEY=your-o1-key
    
-   # GPT-4 Realtime
-   GPT_4O_REALTIME_API_URL=https://yourserver.openai.azure.com/openai/realtime?api-version=2024-10-01-preview&deployment=yourdeployment
-   GPT_4O_REALTIME_API_KEY=your-gpt4o-realtime-key
-   GPT_4O_REALTIME_DEPLOYMENT=yourdeployment
+  # GPT Realtime (Dual model support)
+  GPT_REALTIME_API_URL=wss://yourserver.openai.azure.com/openai/realtime?api-version=2024-10-01-preview&deployment=gpt-realtime
+  GPT_REALTIME_API_KEY=your-gpt-realtime-key
+  GPT_REALTIME_MINI_API_URL=wss://yourserver.openai.azure.com/openai/realtime?api-version=2024-10-01-preview&deployment=gpt-realtime-mini
+  GPT_REALTIME_MINI_API_KEY=your-gpt-realtime-mini-key
    
    # Azure Storage
    AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string

@@ -804,4 +804,13 @@ Note: Use specific questions to get more focused analysis of the webpage content
             outputTokens: this.outputTokens
         };
     }
+
+    resetSummary() {
+        console.log("Resetting realtime summary state");
+        this.currentSummary = null;
+        this.lastSummaryTime = null;
+        this.lastSummaryTokens = 0;
+        this.lastSummaryIndex = 0;
+        this.messageHistory = [];
+    }
 }
