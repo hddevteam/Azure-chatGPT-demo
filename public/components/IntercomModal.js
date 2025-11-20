@@ -2,6 +2,7 @@ import { RealtimeClient } from "../utils/realtime/realtimeClient.js";
 import { fetchRealtimeConfig, generateSystemPrompt } from "../utils/apiClient.js";
 import { ConversationSummaryHelper } from "../utils/ConversationSummaryHelper.js";
 import MarkdownRenderer from "../utils/MarkdownRenderer.js";
+import { REALTIME_VOICES, DEFAULT_VOICE } from "../config/realtimeVoices.js";
 
 const WELCOME_MESSAGE_TEMPLATE = `
     <div class="welcome-message">
@@ -29,6 +30,7 @@ export default class IntercomModal {
         this.noSleep = null; 
         this.messageLimit = 10;  
         this.pttEnabled = false; // ptt mode disabled by default
+        this.audioEnabled = true; // audio output enabled by default
         this.uiManager = null; // Add UIManager reference
         this.init();
     }
@@ -129,13 +131,26 @@ export default class IntercomModal {
               </div>
 
               <div class="im-input-group">
+                <label for="model-select" class="im-label">Model</label>
+                <select id="model-select" class="im-select">
+                  <option value="">Loading models...</option>
+                </select>
+              </div>
+
+              <div class="im-input-group">
                 <label for="voice" class="im-label">Voice</label>
                 <select id="voice" class="im-select">
-                  <option value="">Default</option>
-                  <option value="alloy">Alloy</option>
-                  <option value="echo">Echo</option>
-                  <option value="shimmer">Shimmer</option>
+                  <!-- Will be populated dynamically -->
                 </select>
+              </div>
+
+              <div class="im-input-group">
+                <label class="im-label">Audio Output</label>
+                <div class="im-audio-toggle-group">
+                  <button id="audio-toggle-btn" class="im-button im-button-secondary" data-enabled="true">
+                    <i class="fas fa-volume-up"></i> <span>Audio Enabled</span>
+                  </button>
+                </div>
               </div>
 
               <div class="im-input-group">
@@ -248,6 +263,12 @@ export default class IntercomModal {
         // get realtime config
         this.config = await fetchRealtimeConfig();
         
+        // Initialize model selector
+        this.initModelSelector();
+        
+        // Initialize voice selector
+        this.initVoiceSelector();
+        
         closeBtn.addEventListener("click", () => this.hideModal());
         
         // New record button event handler
@@ -336,6 +357,34 @@ export default class IntercomModal {
             this.pttEnabled = e.target.checked;
             if (this.realtimeClient) {
                 this.realtimeClient.pttMode = this.pttEnabled;
+            }
+        });
+
+        // Audio toggle button event
+        const audioToggleBtn = document.getElementById("audio-toggle-btn");
+        
+        // Sync initial state
+        audioToggleBtn.dataset.enabled = this.audioEnabled;
+        audioToggleBtn.innerHTML = this.audioEnabled 
+            ? "<i class=\"fas fa-volume-up\"></i> <span>Speaker On</span>"
+            : "<i class=\"fas fa-volume-mute\"></i> <span>Speaker Off</span>";
+        audioToggleBtn.classList.toggle("muted", !this.audioEnabled);
+        
+        audioToggleBtn.addEventListener("click", () => {
+            const isEnabled = audioToggleBtn.dataset.enabled === "true";
+            const newState = !isEnabled;
+            
+            // Update local state immediately
+            this.audioEnabled = newState;
+            audioToggleBtn.dataset.enabled = newState;
+            audioToggleBtn.innerHTML = newState 
+                ? "<i class=\"fas fa-volume-up\"></i> <span>Speaker On</span>"
+                : "<i class=\"fas fa-volume-mute\"></i> <span>Speaker Off</span>";
+            audioToggleBtn.classList.toggle("muted", !newState);
+            
+            // If realtime is already running, update mute state
+            if (this.realtimeClient) {
+                this.realtimeClient.toggleAudioOutput(newState);
             }
         });
     }
@@ -448,12 +497,20 @@ export default class IntercomModal {
             // Get current prompt from textarea
             const currentPrompt = document.getElementById("session-instructions").value;
 
-            // Initialize RealtimeClient with all necessary parameters
+            // Get selected model configuration
+            const selectedModel = this.currentModel || config.defaultModel;
+            const modelConfig = config.models[selectedModel];
+            
+            if (!modelConfig) {
+                throw new Error(`Model configuration not found for: ${selectedModel}`);
+            }
+
+            // Initialize RealtimeClient with selected model
             this.realtimeClient = new RealtimeClient();
             await this.realtimeClient.initialize(
-                config.endpoint,
-                config.apiKey, 
-                config.deployment,
+                modelConfig.endpoint,
+                modelConfig.apiKey, 
+                selectedModel,  // Use model key as deployment name
                 true,
                 this.currentSummary,  // Pass in previously saved summary
                 currentPrompt        // Pass in current prompt
@@ -462,6 +519,10 @@ export default class IntercomModal {
             // Set additional configs
             this.realtimeClient.pttMode = this.pttEnabled;
             this.realtimeClient.setMessageLimit(this.messageLimit);
+            
+            // Set initial audio mute state before starting
+            this.realtimeClient.audioMuted = !this.audioEnabled;
+            this.realtimeClient.audioEnabled = this.audioEnabled;
             
             // Update chat title
             document.getElementById("chat-title").textContent = this.realtimeClient.getModelName();
@@ -479,6 +540,7 @@ export default class IntercomModal {
             };
 
             console.log("Starting Realtime chat with config:", sessionConfig);
+            console.log("Initial audio mute state:", !this.audioEnabled);
 
             await this.realtimeClient.start(sessionConfig);
 
@@ -732,9 +794,16 @@ export default class IntercomModal {
     extractTextContent(item) {
         if (!item.content) return null;
         
+        // Extract text from both audio (with transcript) and text content types
         return item.content
-            .filter(c => c.type === "audio" && c.transcript)
-            .map(c => c.transcript)
+            .filter(c => {
+                // Support audio with transcript OR text content
+                return (c.type === "audio" && c.transcript) || (c.type === "text" && c.text);
+            })
+            .map(c => {
+                // Get transcript from audio or text from text content
+                return c.transcript || c.text || "";
+            })
             .join(" ")
             .trim();
     }
@@ -789,6 +858,103 @@ export default class IntercomModal {
         } else {
             this.makeNewTextBlock(text, "assistant");
         }
+    }
+
+    initModelSelector() {
+        const modelSelect = document.getElementById("model-select");
+        
+        if (!this.config || !this.config.models) {
+            modelSelect.innerHTML = "<option value=\"\">No models available</option>";
+            return;
+        }
+
+        // Populate model options
+        modelSelect.innerHTML = "";
+        Object.keys(this.config.models).forEach(modelKey => {
+            const model = this.config.models[modelKey];
+            const option = document.createElement("option");
+            option.value = modelKey;
+            option.textContent = `${model.name} - ${model.description}`;
+            if (modelKey === this.config.defaultModel) {
+                option.selected = true;
+            }
+            modelSelect.appendChild(option);
+        });
+
+        // Store current model
+        this.currentModel = this.config.defaultModel;
+
+        // Handle model change
+        modelSelect.addEventListener("change", async (e) => {
+            const newModel = e.target.value;
+            if (newModel === this.currentModel) return;
+
+            // If recording is active, need to restart connection
+            if (this.recordingActive) {
+                const result = await swal({
+                    title: "Switch Model",
+                    text: "Switching models requires restarting the conversation. Continue?",
+                    icon: "warning",
+                    buttons: ["Cancel", "Continue"],
+                    dangerMode: true,
+                });
+
+                if (!result) {
+                    modelSelect.value = this.currentModel;
+                    return;
+                }
+
+                // Stop current connection
+                this.stopRealtime();
+                const recordBtn = document.getElementById("record-button");
+                recordBtn.classList.remove("recording");
+                this.recordingActive = false;
+
+                // Update current model
+                this.currentModel = newModel;
+
+                // Restart connection with new model
+                await this.startRealtime(this.config);
+                recordBtn.classList.add("recording");
+                this.recordingActive = true;
+            } else {
+                this.currentModel = newModel;
+            }
+        });
+    }
+
+    initVoiceSelector() {
+        const voiceSelect = document.getElementById("voice");
+        
+        // Populate voice options
+        voiceSelect.innerHTML = "";
+        REALTIME_VOICES.forEach(voice => {
+            const option = document.createElement("option");
+            option.value = voice.value;
+            option.textContent = voice.label;
+            if (voice.isNew) {
+                option.textContent += " 🆕";
+            }
+            if (voice.value === DEFAULT_VOICE) {
+                option.selected = true;
+            }
+            voiceSelect.appendChild(option);
+        });
+
+        // Handle voice change
+        voiceSelect.addEventListener("change", async (e) => {
+            const newVoice = e.target.value;
+            
+            if (this.realtimeClient) {
+                try {
+                    await this.realtimeClient.updateVoice(newVoice);
+                    console.log(`Voice updated to: ${newVoice}`);
+                } catch (error) {
+                    console.error("Failed to update voice:", error);
+                    swal("Error", "Failed to update voice. Please try again.", "error");
+                }
+            }
+        });
     }
 
     displaySummary(summary) {

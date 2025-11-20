@@ -27,6 +27,8 @@ export class RealtimeClient {
         this.aiSpeaking = false; // AI speaking status flag
         this.audioBufferQueue = []; // Audio buffer queue
         this.originalPrompt = null; // Original prompt storage
+        this.audioMuted = false; // Speaker mute state (false = speaker on)
+        this.audioEnabled = true; // Audio enabled state (for compatibility)
         this.tools = [
             {
                 type: "function",
@@ -170,6 +172,11 @@ Note: Use specific questions to get more focused analysis of the webpage content
         this.audioPlayer = new Player();
         await this.audioPlayer.init(24000);
         
+        // Apply initial mute state to audio player
+        if (this.audioMuted) {
+            this.audioPlayer.setMuted(true);
+        }
+        
         if (startRecording) {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             this.audioRecorder.start(stream);
@@ -202,6 +209,59 @@ Note: Use specific questions to get more focused analysis of the webpage content
         }
     }
 
+    /**
+     * Update voice dynamically during the session
+     * @param {string} voice - Voice name (alloy, ash, ballad, coral, echo, sage, shimmer, verse)
+     * @returns {Promise<boolean>} Success status
+     */
+    async updateVoice(voice) {
+        if (!this.client) {
+            console.error("Client not initialized");
+            return false;
+        }
+
+        try {
+            await this.client.send({
+                type: "session.update",
+                session: {
+                    voice: voice
+                }
+            });
+            console.log(`Voice updated to: ${voice}`);
+            return true;
+        } catch (error) {
+            console.error("Failed to update voice:", error);
+            return false;
+        }
+    }
+
+    /**
+     * Toggle audio output (mute/unmute)
+     * @param {boolean} enabled - Enable audio output
+     * @returns {Promise<boolean>} Success status
+     */
+    toggleAudioOutput(enabled) {
+        // Store the mute state
+        this.audioMuted = !enabled;
+        this.audioEnabled = enabled;
+        
+        // Apply mute state to audio player if initialized
+        if (this.audioPlayer) {
+            this.audioPlayer.setMuted(!enabled);
+        }
+        
+        console.log(`Audio output ${enabled ? "enabled" : "muted (speaker off)"}`);
+        return true;
+    }
+
+    /**
+     * Check if audio output is enabled
+     * @returns {boolean} Audio enabled status
+     */
+    isAudioEnabled() {
+        return this.audioEnabled !== false; // Default to true
+    }
+
     async start(config) {
         try {
             // Use the originalPrompt passed in instead of config instructions
@@ -218,6 +278,9 @@ Note: Use specific questions to get more focused analysis of the webpage content
                 tool_choice: "auto",
                 tools: this.tools // Use instance tools configuration
             };
+            
+            // Initialize audio enabled state
+            this.audioEnabled = true;
             console.log("Base config:", baseConfig);
             console.log("config:", config);
                 
@@ -413,6 +476,7 @@ Note: Use specific questions to get more focused analysis of the webpage content
 
                 // Handle audio message
                 if (message.type === "audio") {
+                    // Always play audio - mute is controlled by gain node
                     this.audioPlayer.play(message.audio.buffer);
                 }
 

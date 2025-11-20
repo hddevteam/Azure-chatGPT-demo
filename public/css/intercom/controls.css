@@ -357,3 +357,43 @@
     font-size: var(--mobile-font-size-md);
   }
 }
+
+/* Audio toggle button styles */
+.im-audio-toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.im-audio-toggle-group .im-button {
+  flex: 1;
+  justify-content: center;
+}
+
+.im-audio-toggle-group .im-button i {
+  font-size: 16px;
+}
+
+.im-audio-toggle-group .im-button.muted {
+  background-color: rgba(237, 106, 95, 0.2);
+  border: 1px solid rgba(237, 106, 95, 0.5);
+  color: #ED6A5F;
+}
+
+.im-audio-toggle-group .im-button.muted:hover {
+  background-color: rgba(237, 106, 95, 0.3);
+}
+
+/* Voice option with "New" badge support */
+#voice option {
+  padding: 8px;
+}
+
+/* Model select styles */
+#model-select {
+  font-weight: 500;
+}
+
+#model-select option {
+  padding: 8px;
+}
