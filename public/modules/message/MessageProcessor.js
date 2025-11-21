@@ -54,9 +54,42 @@ class MessageProcessor {
     // Process AI response and display
     async handleAIResponse(data, timestamp) {
         const responseTimestamp = new Date().toISOString(); // New timestamp representing actual response time
+        
+        // Extract content from various response formats
+        let content = "";
+        if (data.message) {
+            content = data.message;
+        } else if (data.content) {
+            content = data.content;
+        } else if (data.choices && data.choices[0]) {
+            // Handle direct API response format (for GPT-5, O-series, etc.)
+            const choice = data.choices[0];
+            if (choice.message && choice.message.content) {
+                content = choice.message.content;
+            } else if (choice.text) {
+                content = choice.text;
+            }
+        }
+        
+        if (!content) {
+            console.error("Unable to extract content from response:", data);
+            throw new Error("Invalid response format: no content found");
+        }
+        
+        // Check for warnings from backend (e.g., finish_reason issues)
+        if (data.warning) {
+            console.warn("⚠️  Backend warning:", data.warning);
+            // Prepend warning to content so user is aware
+            if (data.finishReason === "length") {
+                content = `⚠️ **注意**: 响应因 token 限制被截断。建议增加 max_completion_tokens 参数。\n\n${content}`;
+            } else if (data.finishReason === "content_filter") {
+                content = `⚠️ **注意**: 部分内容因内容策略被过滤。\n\n${content}`;
+            }
+        }
+        
         const newMessage = {
             role: "assistant",
-            content: data.message || data.content,
+            content: content,
             messageId: data.messageId || this.uiManager.generateId(),
             isActive: true,
             searchResults: data.searchResults,

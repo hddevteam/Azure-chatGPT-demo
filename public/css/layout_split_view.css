@@ -287,9 +287,13 @@
 }
 
 #message-input-container.split-view .button-row #web-search-toggle.active {
-    color: #2E7D32;
-    border-color: rgba(46, 125, 50, 0.3);
-    background: rgba(46, 125, 50, 0.1); /* Add light green background */
+    color: var(--surface);
+    border-color: var(--on-surface);
+    background: var(--on-surface);
+}
+
+#message-input-container.split-view .button-row #web-search-toggle.active i {
+    color: var(--surface);
 }
 
 #message-input-container.split-view .button-row #web-search-toggle:hover {
@@ -301,8 +305,8 @@
 
 #message-input-container.split-view .button-row #web-search-toggle.active:hover {
     filter: brightness(95%);
-    background: rgba(46, 125, 50, 0.15); /* Deepen light green background */
-    border-color: rgba(46, 125, 50, 0.4); /* Deepen border color */
+    background: var(--on-surface);
+    border-color: var(--on-surface);
 }
 
 #message-input-container.split-view .button-row #web-search-toggle:active {

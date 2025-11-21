@@ -43,13 +43,25 @@ class ProfileMessageProcessor extends MessageProcessor {
             } else {
                 externalSystemPrompt = `You are an experienced ${profileDisplayName}.`;
             }
+
+            // Extract configuration parameters from current profile
+            const currentProfile = this.uiManager.storageManager.getCurrentProfile();
+            const params = {
+                temperature: parseFloat(currentProfile.temperature) || 0.8,
+                top_p: parseFloat(currentProfile.top_p) || 0.95,
+                frequency_penalty: parseFloat(currentProfile.frequency_penalty) || 0,
+                presence_penalty: parseFloat(currentProfile.presence_penalty) || 0,
+                max_tokens: parseInt(currentProfile.max_tokens) || 2000,
+                webSearchEnabled: this.messageManager.webSearchEnabled
+            };
     
-            const promptText = this.uiManager.app.prompts.getPromptTextWithReplacement(
+            // Use getPromptTextWithProfileOverride to keep context but override system prompt
+            const promptText = this.uiManager.app.prompts.getPromptTextWithProfileOverride(
                 externalSystemPrompt, 
                 messageContent
             );
     
-            return await getGpt(promptText, this.uiManager.app.model);
+            return await getGpt(promptText, this.uiManager.app.model, params);
         }
         
         throw new Error("Invalid profile message format");

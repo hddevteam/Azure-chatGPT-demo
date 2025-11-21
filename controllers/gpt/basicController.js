@@ -280,16 +280,41 @@ exports.generateResponse = async (req, res) => {
         }
 
         // Return final response
-        const finalMessage = response.data.choices[0].message.content;
+        const choice = response.data.choices[0];
+        const finalMessage = choice.message.content;
         const totalTokens = response.data.usage?.total_tokens || 0;
+        const finishReason = choice.finish_reason;
+        
+        // Check finish_reason for potential issues (Microsoft best practice)
+        // Reference: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/concepts/content-filter
+        let warning = null;
+        if (finishReason === "length") {
+            warning = "Response was truncated due to token limit. Consider increasing max_completion_tokens.";
+            console.warn(`⚠️  ${warning}`);
+            console.warn(`Token usage - Total: ${totalTokens}, Max allowed: ${params.max_completion_tokens || 'default'}`);
+        } else if (finishReason === "content_filter") {
+            warning = "Response was filtered due to content policy.";
+            console.warn(`⚠️  ${warning}`);
+        } else if (finishReason !== "stop") {
+            console.warn(`⚠️  Unexpected finish_reason: ${finishReason}`);
+        }
+        
+        // Log reasoning tokens if available (for reasoning models)
+        if (response.data.usage?.completion_tokens_details?.reasoning_tokens) {
+            const reasoningTokens = response.data.usage.completion_tokens_details.reasoning_tokens;
+            console.log(`📊 Reasoning tokens used: ${reasoningTokens}`);
+        }
         
         console.log("Final response message:", finalMessage);
         console.log("Token usage:", totalTokens);
+        console.log("Finish reason:", finishReason);
         
         const responseData = { 
             message: finalMessage, 
             totalTokens,
-            searchResults: searchResults || [] 
+            searchResults: searchResults || [],
+            finishReason,
+            warning
         };
         
         console.log("Data returned to frontend:", JSON.stringify(responseData, null, 2));

@@ -1,13 +1,13 @@
 /* for the mobile devices */
 @media screen and (max-width: 768px) {
     #main-container {
-        background-color: #7F8C8D;
+        background-color: var(--surface-container-low);
     }
 
     #app-outer-wrapper {
         flex: 100;
         height: 100%;
-        background-color: #CCC;
+        background-color: var(--surface-container);
     }
 
     #ai-actor-wrapper {
@@ -35,8 +35,8 @@
     }
     
     #header-left #toggle-chat-topic:focus {
-        background: rgba(255, 255, 255, 0.15);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3); /* Smaller focus indicator on mobile */
+        background: rgba(0, 0, 0, 0.05);
+        box-shadow: none; /* Smaller focus indicator on mobile */
     }
     
     #header-left #toggle-chat-topic i {
@@ -95,7 +95,7 @@
         top: 8px;
         padding: 5px;
         background-color: unset;
-        color: #666;
+        color: var(--on-surface-variant);
         border-radius: 5px;
         bottom: unset;
         width: fit-content;
@@ -111,9 +111,9 @@
     }
 
     #message-input {
-        border-radius: 5px 5px 0 0;
+        border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
         padding: 5px;
-        border: 2px solid #eee;
+        border: 1px solid var(--outline-variant);
         padding: 5px 10px 5px 5px;
     }
 
@@ -144,8 +144,8 @@
         flex-direction: row;
         width: 100%;
         gap: 1px;
-        background: #333;
-        border-radius: 0 0 5px 5px;
+        background: var(--outline-variant);
+        border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
         padding: 1px;
         position: static;
     }
@@ -159,9 +159,10 @@
         width: 100%;
         margin: 0;
         border-radius: 0 !important;
-        background: linear-gradient(to bottom, #505050, #404040);
+        background: var(--surface-container-low);
         border: none;
-        border-right: 1px solid #333;
+        border-right: 1px solid var(--outline-variant);
+        color: var(--on-surface);
     }
 
     .button-row button:last-child {
@@ -188,27 +189,30 @@
     }
 
     #submitButton {
-        background: linear-gradient(to bottom, #4CAF50, #45a049) !important;
+        background: var(--surface-container-highest) !important;
+        color: var(--on-surface);
     }
 
     #submitButton:active {
-        background: linear-gradient(to bottom, #3d8b40, #357a38) !important;
+        background: var(--surface-container-high) !important;
     }
 
     #voice-input-button {
-        background: linear-gradient(to bottom, #E53935, #D32F2F) !important;
+        background: var(--surface-container-highest) !important;
+        color: var(--on-surface);
     }
 
     #voice-input-button:active {
-        background: linear-gradient(to bottom, #C62828, #B71C1C) !important;
+        background: var(--surface-container-high) !important;
     }
 
     #new-chat-button {
-        background: linear-gradient(to bottom, #6495ED, #5689E5) !important;
+        background: var(--surface-container-highest) !important;
+        color: var(--on-surface);
     }
 
     #new-chat-button:active {
-        background: linear-gradient(to bottom, #487CDD, #3A6FD5) !important;
+        background: var(--surface-container-high) !important;
     }
 
     #new-chat-container,
@@ -295,24 +299,30 @@
         font-size: 20px;
         border-radius: 0 !important;
         height: fit-content;
-        background: linear-gradient(to bottom, #4A90E2, #357ABD) !important;
+        background: var(--surface-container-highest) !important;
+        color: var(--on-surface);
         transition: all 0.2s ease, transform 0.1s ease, filter 0.1s ease;
     }
 
     #web-search-toggle:active {
-        background: linear-gradient(to bottom, #357ABD, #2E6DA4) !important;
+        background: var(--surface-container-high) !important;
         transform: scale(0.98);
         filter: brightness(90%);
-        box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.2);
+        box-shadow: none;
     }
 
     #web-search-toggle.active {
-        background: linear-gradient(to bottom, #2E7D32, #1B5E20) !important;
+        background: var(--on-surface) !important;
+        color: var(--surface);
+    }
+
+    #web-search-toggle.active i {
+        color: var(--surface) !important;
     }
 
     #web-search-toggle.active:active {
-        background: linear-gradient(to bottom, #1B5E20, #0D3F10) !important;
-        box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.3);
+        background: var(--on-surface) !important;
+        box-shadow: none;
     }
 
     /* Hide toggle-layout button on mobile devices */

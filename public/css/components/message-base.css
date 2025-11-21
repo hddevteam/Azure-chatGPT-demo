@@ -40,13 +40,13 @@
     background-color: var(--user-message-active-bg);
     border-color: var(--user-message-active-border);
     color: white;
-    box-shadow: var(--message-active-shadow);
+    box-shadow: none;
 }
 
 .assistant-message.active {
     background-color: var(--assistant-message-active-bg);
     border-color: var(--assistant-message-active-border);
-    box-shadow: var(--message-active-shadow);
+    box-shadow: none;
 }
 
 /* Inactive States */

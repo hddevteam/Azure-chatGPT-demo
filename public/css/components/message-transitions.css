@@ -1,60 +1,16 @@
 /* Message State Transitions */
-@keyframes messageAppear {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes messageActivate {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.02);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-@keyframes messageInactivate {
-    0% {
-        transform: scale(1);
-    }
-    100% {
-        transform: scale(0.98);
-        opacity: 0.8;
-    }
-}
-
-/* Apply Animations */
-.message {
-    animation: messageAppear 0.3s ease-out forwards;
-}
-
-.message.active {
-    animation: messageActivate 0.3s ease-out;
-}
-
-.message.inactive {
-    animation: messageInactivate 0.2s ease-out forwards;
-}
+/* Animations removed for cleaner UI */
 
 /* Transition Properties */
 .message {
-    transition-property: transform, box-shadow, background-color, border-color, opacity;
-    transition-duration: 0.3s;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-property: background-color, border-color, opacity;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out;
 }
 
 /* Content Height Transitions */
 .message-content {
-    transition: max-height 0.3s ease-in-out;
+    transition: max-height 0.2s ease-in-out;
 }
 
 /* Reduced Motion Preferences */
@@ -64,7 +20,6 @@
     .message.inactive,
     .message:hover,
     .message-content {
-        animation: none;
         transition: none;
     }
 }
@@ -78,28 +33,5 @@
 @media (max-width: 768px) {
     .message {
         transition-duration: 0.2s;
-    }
-    
-    @keyframes messageAppear {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    @keyframes messageActivate {
-        0% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.01);
-        }
-        100% {
-            transform: scale(1);
-        }
     }
 }

@@ -321,12 +321,28 @@ const supportsFeature = (model, feature) => {
 };
 
 /**
- * Check if model is a reasoning model (requires different parameter handling)
- * @param {string} model - Model name
- * @returns {boolean} Whether the model is a reasoning model
+ * Check if a model is a reasoning model that requires special parameter handling
+ * All reasoning models require max_completion_tokens and don't support:
+ * temperature, top_p, presence_penalty, frequency_penalty, max_tokens
+ * @param {string} model - Model identifier
+ * @returns {boolean} True if model is a reasoning model
  */
 const isReasoningModel = (model) => {
-    return supportsFeature(model, 'requiresMaxCompletionTokens');
+    return [
+        // O-series models
+        "o1",
+        "o1-mini",
+        "o3",
+        "o3-mini",
+        "o4-mini",
+        // GPT-5 series models
+        "gpt-5",
+        "gpt-5-mini",
+        "gpt-5-nano",
+        "gpt-5-chat",
+        // Legacy
+        "gpt-4.5-preview"
+    ].includes(model);
 };
 
 /**

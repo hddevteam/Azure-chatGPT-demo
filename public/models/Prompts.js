@@ -86,6 +86,32 @@ class Prompts {
         return JSON.stringify(prompts.map(p => this.formatPrompt(p)));
     }
 
+    // NEW: Used when @ mentioning profiles - keeps all context but overrides system prompt
+    getPromptTextWithProfileOverride(externalSystemPrompt, newUserMessage) {
+        const systemPrompt = {
+            role: "system",
+            content: [{ type: "text", text: externalSystemPrompt }]
+        };
+
+        // Create a copy of all conversation history
+        let modifiedData = [...this.data];
+
+        // Get the last message (which is the @ mention message we want to replace)
+        const lastPrompt = modifiedData.pop();
+        const attachmentUrls = lastPrompt ? lastPrompt.attachmentUrls : "";
+
+        // Replace only the last user message content (strip the @profile: part)
+        modifiedData.push({
+            role: "user",
+            content: newUserMessage,
+            attachmentUrls: attachmentUrls
+        });
+
+        // Return all messages with the new system prompt
+        const prompts = [systemPrompt, ...modifiedData];
+        return JSON.stringify(prompts.map(p => this.formatPrompt(p)));
+    }
+
     formatPrompt(p) {
         const attachmentContent = p.attachmentUrls ?
             p.attachmentUrls.split(";")
