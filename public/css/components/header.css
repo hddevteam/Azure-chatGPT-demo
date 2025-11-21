@@ -10,7 +10,7 @@
     background: transparent; /* No background by default */
     border: none;
     border-radius: var(--border-radius-sm);
-    color: #333;
+    color: var(--text-color);
     padding: 8px 10px;
     cursor: pointer;
     transition: all 0.2s ease; /* Include all properties in transition */
@@ -19,17 +19,17 @@
 }
 
 #header-left #toggle-chat-topic:hover {
-    background: #f0f0f0;
+    background: var(--primary-hover-bg);
     transform: none; /* Subtle lift effect on hover */
 }
 
 #header-left #toggle-chat-topic:focus {
-    background: #f0f0f0;
+    background: var(--primary-hover-bg);
     box-shadow: none; /* More visible focus indicator */
 }
 
 #header-left #toggle-chat-topic:active {
-    background: #e0e0e0;
+    background: var(--primary-hover-bg);
     transform: none; /* Return to normal position when pressed */
 }
 
@@ -38,7 +38,7 @@
     font-size: 24px;
     font-family: 'Roboto';
     font-weight: 500;
-    color: #333;
+    color: var(--text-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

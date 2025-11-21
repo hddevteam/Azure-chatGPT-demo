@@ -4,7 +4,7 @@
     font-family: 'Roboto';
     font-weight: 500;
     margin-bottom: 10px;
-    color: #333;
+    color: var(--text-color);
     position: relative; 
 }
 
@@ -20,7 +20,7 @@
 #topic-button-container button {
     background: none;
     border: none;
-    color: #333;
+    color: var(--text-color);
     cursor: pointer;
     padding: 4px 8px;
     border-radius: var(--border-radius-sm);
@@ -28,7 +28,7 @@
 }
 
 #topic-button-container button:hover {
-    background-color: #f0f0f0;
+    background-color: var(--hover-bg);
 }
 
 #topic-button-container button:active {
@@ -89,25 +89,22 @@
 
 #chat-history-list li {
     padding: 10px;
-    background-color: #fff;
-    color: #333;
+    background-color: var(--card-bg);
+    color: var(--text-color);
     border-radius: var(--border-radius-sm);
     margin-bottom: 10px;
-    border: 1px solid #eee;
     box-shadow: none;
     word-wrap: break-word;
 }
 
 #chat-history-list li:hover {
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
+    background-color: var(--hover-bg);
     cursor: pointer;
 }
 
 #chat-history-list li.active {
-    background-color: #e0e0e0;
-    color: #000;
-    border: 1px solid #999;
+    background-color: var(--primary-hover-bg);
+    color: var(--text-color);
 }
 
 #chat-history-list li i {
@@ -123,7 +120,7 @@
 }
 
 #chat-history-list li small {
-    color: #666;
+    color: var(--secondary-text-color);
     margin-left: 5px;
 }
 
@@ -149,10 +146,10 @@
 #chat-profile-list-menu {
     position: absolute;
     top: 30px;
-    background-color: #ffffff;
+    background-color: var(--card-bg);
     width: fit-content;
     overflow-y: auto;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     box-shadow: none;
     z-index: 1;
     transition: all 0.2s;
@@ -170,7 +167,7 @@
 }
 
 #chat-profile-list-menu ul li:hover {
-    background-color: #f1f1f1;
+    background-color: var(--hover-bg);
 }
 
 /* Popup menu */
@@ -181,8 +178,8 @@ ul.popup-menu {
     right: 0.5em;
     margin: 0;
     padding: 0.5em 0;
-    background-color: #fff;
-    border: 1px solid #ccc;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius-sm);
     box-shadow: none;
     z-index: 9999;
@@ -208,7 +205,7 @@ li.menu-item {
     margin: 0;
     font-size: 12px;
     transition: background-color 0.3s ease-in-out;
-    color: #333;
+    color: var(--text-color);
     display: flex;
     align-items: center;
 }
@@ -220,6 +217,6 @@ li.menu-item i {
 }
 
 li.menu-item:hover {
-    background-color: #f0f0f0;
-    color: #000;
+    background-color: var(--hover-bg);
+    color: var(--text-color);
 }

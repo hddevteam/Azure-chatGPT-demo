@@ -16,8 +16,8 @@ html {
     flex: 0 0 40px;
     justify-content: space-between;
     align-items: center;
-    background: #fff;
-    border-bottom: 1px solid #ccc;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
     padding: 0;
 }
 
@@ -36,7 +36,7 @@ html {
 
 #chat-history-resize-handle {
     width: 1px;
-    background: #ccc;
+    background: var(--border-color);
     cursor: ew-resize;
     flex-shrink: 0;
     display: none; /* Hidden by default */
@@ -48,7 +48,7 @@ html {
 
 #chat-history-resize-handle:hover {
     width: 5px;
-    background-color: #ccc;
+    background-color: var(--secondary-text-color);
 }
 
 #app-outer-wrapper {
@@ -77,8 +77,8 @@ html {
 
 
 #chat-history-container {
-    background: #fff;
-    border-right: 1px solid #ccc;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
     box-shadow: none;
     padding: 10px;
     margin: 0px auto 0px;
@@ -133,11 +133,12 @@ html {
     box-sizing: border-box;
     align-items: center;
     width: 100%;
+    background-color: var(--bg-color);
 }
 
 #resize-handle {
-    height: 1px; /* Set height for the handle */
-    background: #ccc; /* Handle background color */
+    height: 2px; /* Set height for the handle */
+    background: var(--border-color); /* Handle background color */
     cursor: ns-resize; /* Cursor changes to north-south resize shape, indicating vertical adjustment */
 }
 
@@ -156,7 +157,7 @@ html {
     scrollbar-color: #bbb transparent;
     line-height: 120%;
     font-size: 16px;
-    color: #333;
+    color: var(--text-color);
 }
 
 #message-input:focus {
@@ -176,8 +177,7 @@ html {
 
 #message-form {
     height: 100%;
-    background: #fff;
-    border-top: 1px solid #ccc;
+    background: var(--bg-color);
     padding: 5px;
     display: flex;
     flex-direction: column; /* Changed to column to encourage stacking */
@@ -190,8 +190,8 @@ html {
     width: 100%; /* Ensure it spans the full width */
     position: relative;
     flex: 1 1 auto; /* Take available space, but allow shrinking/growing */
-    background-color: var(--background-primary);
-    border: 1px solid #ccc;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
     margin: 0;
     padding: 0;
@@ -200,9 +200,9 @@ html {
 }
 
 #input-container:focus-within {
-    background-color: #fff;
+    background-color: var(--bg-color);
     box-shadow: none;
-    border-color: #000;
+    border-color: var(--text-color);
 }
 
 /* Basic button layout - non-split screen mode */
@@ -223,5 +223,5 @@ html {
 #resize-handle:hover,
 #resize-handle.resizing {
     height: 5px;
-    background-color: #ccc;
+    background-color: var(--secondary-text-color);
 }

@@ -5,9 +5,9 @@
     justify-content: center;
     text-align: center;
     padding: 2em;
-    color: #333;
-    background: #fff;
-    border: 1px solid #e0e0e0;
+    color: var(--text-color);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     box-shadow: none;
     margin: 20px auto;
@@ -17,7 +17,7 @@
 }
 
 #welcome-message h2 {
-    color: #000;
+    color: var(--text-color);
     margin-bottom: 0.5em;
     font-size: 1.8em;
     font-weight: 600;
@@ -27,7 +27,7 @@
 #welcome-message p {
     margin: 0.5em 0;
     line-height: 1.5;
-    color: #666;
+    color: var(--secondary-text-color);
 }
 
 .model-list {
@@ -41,31 +41,31 @@
 
 .model-item {
     padding: 8px 16px;
-    background: #fff;
-    border: 1px solid #e0e0e0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 0.95em;
-    color: #333;
+    color: var(--text-color);
     transition: all 0.2s ease;
 }
 
 .model-item:hover {
-    border-color: #000;
+    border-color: var(--text-color);
     transform: translateY(-1px);
 }
 
 #welcome-message .welcome-sub {
-    color: #444;
+    color: var(--secondary-text-color);
     font-size: 1.05em;
     margin-bottom: 1.5em;
 }
 
 #welcome-message .tip {
     margin-top: 1em;
-    color: #666;
+    color: var(--secondary-text-color);
     font-style: normal;
-    background: #f8f9fa;
-    border: 1px solid #e0e0e0;
+    background: var(--background-tertiary);
+    border: 1px solid var(--border-color);
     padding: 1em;
     border-radius: 8px;
     width: 100%;
@@ -75,37 +75,37 @@
 
 /* Dark mode / Split view styles */
 .split-view #welcome-message {
-    background: #fff;
-    border-color: #888;
-    color: #333;
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
 }
 
 .split-view #welcome-message h2 {
-    color: #000;
+    color: var(--text-color);
 }
 
 .split-view .model-item {
-    background: #fff;
-    border-color: #888;
-    color: #333;
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
 }
 
 .split-view .model-item:hover {
-    border-color: #555;
+    border-color: var(--secondary-text-color);
 }
 
 .split-view #welcome-message p {
-    color: #aaa;
+    color: var(--secondary-text-color);
 }
 
 .split-view #welcome-message .welcome-sub {
-    color: #444;
+    color: var(--secondary-text-color);
 }
 
 .split-view #welcome-message .tip {
-    background: #f8f9fa;
-    border-color: #888;
-    color: #666;
+    background: var(--background-tertiary);
+    border-color: var(--border-color);
+    color: var(--secondary-text-color);
 }
 
 /* Mobile responsive styles */

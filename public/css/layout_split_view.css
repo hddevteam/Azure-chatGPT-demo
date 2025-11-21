@@ -15,7 +15,7 @@
 
 #app-outer-wrapper.split-view #horizontal-resize-handle {
     width: 5px;
-    background: #333;
+    background: var(--border-color);
     cursor: ew-resize;
     flex-shrink: 0;
     transition: background-color 0.2s ease;
@@ -28,19 +28,19 @@
 #app-outer-wrapper.split-view #horizontal-resize-handle:hover,
 #app-outer-wrapper.split-view #horizontal-resize-handle.resizing {
     width: 5px;
-    background-color: #0056b3; 
+    background-color: var(--primary-color); 
 }
 
 #main-container.split-view #chat-history-resize-handle {
     display: block;
-    background: #999;
+    background: var(--border-color);
     width: 5px;
     cursor: ew-resize;
     flex-shrink: 0;
 }
 
 #main-container.split-view #chat-history-resize-handle:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-color);
 }
 
 /* left view */
@@ -54,7 +54,7 @@
     background-color: var(--surface-container-low);
     color: var(--text-color);
     box-shadow: none;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 #messages.split-view td {
@@ -65,7 +65,7 @@
     background-color: transparent;
     color: var(--text-color);
     box-shadow: none;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 #messages.split-view .user-message.active .fa-quote-left,
@@ -193,17 +193,17 @@
 }
 
 #message-input-container.split-view #message-input::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: var(--border-color);
     border-radius: 3px;
     transition: background-color 0.2s ease;
 }
 
 #message-input-container.split-view #message-input::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: var(--secondary-text-color);
 }
 
 #message-input-container.split-view #message-input::-webkit-scrollbar-track {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: transparent;
     border-radius: 3px;
     margin: 6px 0;
     margin-right: 54px;

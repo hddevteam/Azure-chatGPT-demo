@@ -7,7 +7,7 @@
     line-height: var(--line-height-normal);
     overflow-wrap: break-word;
     transition: all 0.2s ease;
-    border: 1px solid rgba(0, 0, 0, 0.1); /* Light outer border */
+    border: 1px solid var(--border-color); /* Light outer border */
     box-shadow: none;
 }
 
@@ -27,27 +27,27 @@
 .user-message.active {
     background-color: var(--surface-container-low);
     box-shadow: none;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 .user-message {
     background-color: var(--surface-container-low);
     color: var(--on-surface);
     margin-left: 10px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 .assistant-message.active {
     background-color: transparent;
     box-shadow: none;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 .assistant-message {
     background-color: transparent;
     color: var(--on-surface);
     text-align: left;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 /* Message content styles */
@@ -161,32 +161,31 @@
 }
 
 /* Quote styles in dark theme - improve contrast */
-@media (prefers-color-scheme: dark) {
-    .message-content blockquote,
-    .message-content > p > blockquote {
-        background-color: #fff;
-        color: #333;
-        box-shadow: none;
-        border-left-color: #333;
-    }
-    
-    .message-content blockquote::before {
-        background: #333;
-    }
-    
-    .message-content blockquote code {
-        background-color: #f0f0f0;
-        color: #333;
-    }
+.theme-dark .message-content blockquote,
+.theme-dark .message-content > p > blockquote {
+    background-color: var(--theme-bg-quote-dark);
+    color: var(--theme-text-quote-dark);
+    box-shadow: none;
+    border-left-color: var(--theme-border-quote-dark);
+}
+
+.theme-dark .message-content blockquote::before {
+    background: var(--theme-border-quote-dark);
+}
+
+.theme-dark .message-content blockquote code {
+    background-color: var(--theme-bg-code-in-quote-dark);
+    color: var(--theme-text-quote-dark);
 }
 
 /* Code block styles in thinking chain */
 .message-content blockquote pre,
 .message-content blockquote code {
-    background-color: #f0f0f0;
+    background-color: var(--code-bg);
     border-radius: 0;
     padding: 0.2em 0.4em;
     margin: 0 0.2em;
+    color: var(--code-color);
 }
 
 /* Code block styles */
@@ -849,48 +848,47 @@
 }
 
 /* Dark theme adjustments */
-@media (prefers-color-scheme: dark) {
-    .think-block-wrapper {
-        background-color: #fff;
-    }
-    
-    .think-block-header {
-        background: #f0f0f0;
-        border-color: #ccc;
-        color: #333;
-    }
-    
-    .think-block-header .think-title::before {
-        color: #333; /* Brighter blue for dark theme */
-    }
-    
-    .think-block-copy {
-        background: #fff;
-        border-color: #ccc;
-        color: #333; /* Lighter text color for dark theme */
-    }
-    
-    .think-block-copy:hover {
-        background: #f0f0f0;
-        border-color: #333;
-        color: #000;
-    }
-    
-    .think-block-copy i {
-        color: #333; /* Lighter blue icon for dark theme */
-    }
-    
-    .think-block-markdown {
-        background-color: #f9f9f9;
-        border-color: #ccc;
-        color: #333;
-    }
-    
-    .think-block-markdown pre,
-    .think-block-markdown code {
-        background-color: #f0f0f0;
-        color: #333;
-    }
+.theme-dark .think-block-wrapper {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.theme-dark .think-block-header {
+    background: var(--background-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.theme-dark .think-block-header .think-title::before {
+    color: var(--text-color); /* Brighter blue for dark theme */
+}
+
+.theme-dark .think-block-copy {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-color); /* Lighter text color for dark theme */
+}
+
+.theme-dark .think-block-copy:hover {
+    background: var(--hover-bg);
+    border-color: var(--text-color);
+    color: var(--text-color);
+}
+
+.theme-dark .think-block-copy i {
+    color: var(--text-color); /* Lighter blue icon for dark theme */
+}
+
+.theme-dark .think-block-markdown {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.theme-dark .think-block-markdown pre,
+.theme-dark .think-block-markdown code {
+    background-color: var(--code-bg);
+    color: var(--code-color);
 }
 
 /* Style adjustments for blockquotes in think blocks */
@@ -934,35 +932,33 @@
 }
 
 /* Dark theme support for reasoning summary */
-@media (prefers-color-scheme: dark) {
-    .think-block-wrapper.reasoning-summary {
-        background-color: #fff;
-        border-color: #ccc;
-    }
-    
-    .think-block-wrapper.reasoning-summary .think-block-header {
-        background: #f0f0f0;
-        border-color: #ccc;
-        color: #333;
-    }
-    
-    .think-block-wrapper.reasoning-summary .think-title {
-        color: #333;
-    }
-    
-    .think-block-wrapper.reasoning-summary .think-title::before {
-        color: #333;
-    }
-    
-    .think-block-wrapper.reasoning-summary .think-block-copy {
-        background: #fff;
-        border-color: #ccc;
-        color: #333;
-    }
-    
-    .think-block-wrapper.reasoning-summary .think-block-copy:hover {
-        background: #f0f0f0;
-        border-color: #333;
-        color: #000;
-    }
+.theme-dark .think-block-wrapper.reasoning-summary {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.theme-dark .think-block-wrapper.reasoning-summary .think-block-header {
+    background: var(--background-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.theme-dark .think-block-wrapper.reasoning-summary .think-title {
+    color: var(--text-color);
+}
+
+.theme-dark .think-block-wrapper.reasoning-summary .think-title::before {
+    color: var(--text-color);
+}
+
+.theme-dark .think-block-wrapper.reasoning-summary .think-block-copy {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.theme-dark .think-block-wrapper.reasoning-summary .think-block-copy:hover {
+    background: var(--hover-bg);
+    border-color: var(--text-color);
+    color: var(--text-color);
 }

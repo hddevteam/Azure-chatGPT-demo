@@ -11,6 +11,7 @@ import UIEventHandler from "./UIEventHandler.js";
 import TtsAudioManager from "./TtsAudioManager.js";
 import UIStateManager from "./UIStateManager.js";
 import AIProfileManager from "./AIProfileManager.js";
+import ThemeManager from "./ThemeManager.js";
 import MessageContextManager from "../modules/chat/MessageContextManager.js";
 import { getPromptRepo, uploadAttachment } from "../utils/apiClient.js";
 import fileUploader from "../utils/fileUploader.js";
@@ -57,6 +58,7 @@ class UIManager {
         this.audioManager = new TtsAudioManager(this);
         this.uiStateManager = new UIStateManager(this);
         this.aiProfileManager = new AIProfileManager(this);
+        this.themeManager = new ThemeManager(this);
         this.messageContextManager = new MessageContextManager(this);
     }
 

@@ -1,8 +1,8 @@
 /* Base button styles */
 button {
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #ccc;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius-sm);
     padding: 5px;
     cursor: pointer;
@@ -10,13 +10,13 @@ button {
 }
 
 button.active {
-    background-color: #f0f0f0;
-    border-color: #333;
+    background-color: var(--primary-hover-bg);
+    border-color: var(--text-color);
 }
 
 button:not(.active):hover {
-    background-color: #f0f0f0;
-    border-color: #999;
+    background-color: var(--primary-hover-bg);
+    border-color: var(--secondary-text-color);
 }
 
 /* Action buttons */
@@ -24,11 +24,11 @@ button.action-button {
     margin: 0 3px;
     padding: 3px;
     font-size: 1em;
-    color: #333;
+    color: var(--text-color);
     opacity: 0.8;
     border-radius: var(--border-radius-sm);
-    background: #fff;
-    border: 1px solid #ccc;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
 }
 
 button.action-button:hover {
@@ -37,9 +37,9 @@ button.action-button:hover {
     padding: 3px;
     font-size: 1em;
     border-radius: var(--border-radius-sm);
-    color: #000;
-    background-color: #f0f0f0;
-    border-color: #999;
+    color: var(--text-color);
+    background-color: var(--primary-hover-bg);
+    border-color: var(--secondary-text-color);
 }
 
 button.action-button.invisible {
@@ -48,9 +48,9 @@ button.action-button.invisible {
 
 /* Follow-up question buttons */
 .follow-up-questions button {
-    background-color: white;
-    color: black;
-    border: 1px solid #ccc;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -63,33 +63,33 @@ button.action-button.invisible {
 }
 
 .follow-up-questions button:hover {
-    background-color: #f0f0f0;
-    color: black;
-    border: 1px solid #999;
+    background-color: var(--primary-hover-bg);
+    color: var(--text-color);
+    border: 1px solid var(--secondary-text-color);
     box-shadow: none;
 }
 
 .follow-up-questions button:active {
-    background-color: #e0e0e0;
+    background-color: var(--primary-hover-bg);
     box-shadow: none;
     transform: translateY(1px);
 }
 
 /* Web search toggle button */
 #web-search-toggle {
-    color: #333;
-    background-color: #fff;
+    color: var(--text-color);
+    background-color: var(--bg-color);
     cursor: pointer;
     transition: all 0.2s ease, transform 0.1s ease, background-color 0.15s ease;
     position: relative;
     transform: translateY(0);
     will-change: transform;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
 }
 
 #web-search-toggle:hover {
-    background-color: #f0f0f0;
-    border-color: #999;
+    background-color: var(--primary-hover-bg);
+    border-color: var(--secondary-text-color);
 }
 
 #web-search-toggle.active {
@@ -119,32 +119,32 @@ button.action-button.invisible {
 }
 
 #web-search-toggle.active:active {
-    background-color: #e0e0e0;
+    background-color: var(--primary-hover-bg);
     transform: translateY(1px);
 }
 
 /* Voice input button */
 #voice-input-button {
-    color: #333;
-    background-color: #fff;
+    color: var(--text-color);
+    background-color: var(--bg-color);
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
     box-shadow: none;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
 }
 
 #voice-input-button:hover {
-    background-color: #f0f0f0;
+    background-color: var(--primary-hover-bg);
     box-shadow: none;
-    border-color: #999;
+    border-color: var(--secondary-text-color);
 }
 
 #voice-input-button.voice-input-active {
     animation: buttonChange 1s infinite;
     box-shadow: none;
-    background-color: #fff;
-    color: #000;
-    border-color: #333;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border-color: var(--text-color);
 }
 
 @keyframes buttonChange {
@@ -161,16 +161,16 @@ button.action-button.invisible {
 
 /* New chat button */
 #new-chat-button {
-    color: #333;
-    background-color: #fff;
+    color: var(--text-color);
+    background-color: var(--bg-color);
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
     box-shadow: none;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
 }
 
 #new-chat-button:hover {
-    background-color: #f0f0f0;
+    background-color: var(--primary-hover-bg);
     box-shadow: none;
-    border-color: #999;
+    border-color: var(--secondary-text-color);
 }

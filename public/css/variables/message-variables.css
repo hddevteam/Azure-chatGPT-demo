@@ -61,6 +61,23 @@
     --mobile-message-indicator-size: 6px;
 }
 
+/* Dark Theme Mapping */
+.theme-dark {
+    --user-message-bg: var(--user-message-dark-bg);
+    --user-message-border: var(--user-message-dark-border);
+    --user-message-active-bg: var(--user-message-dark-active-bg);
+    --user-message-active-border: var(--user-message-dark-active-border);
+    --user-message-inactive-bg: var(--user-message-dark-inactive-bg);
+    --user-message-inactive-border: var(--user-message-dark-inactive-border);
+    
+    --assistant-message-bg: var(--assistant-message-dark-bg);
+    --assistant-message-border: var(--assistant-message-dark-border);
+    --assistant-message-active-bg: var(--assistant-message-dark-active-bg);
+    --assistant-message-active-border: var(--assistant-message-dark-active-border);
+    --assistant-message-inactive-bg: var(--assistant-message-dark-inactive-bg);
+    --assistant-message-inactive-border: var(--assistant-message-dark-inactive-border);
+}
+
 /* High Contrast Mode */
 @media (prefers-contrast: high) {
     :root {
