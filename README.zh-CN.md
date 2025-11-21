@@ -12,7 +12,7 @@
 - **Azure 语音服务**：了解如何实现文本转语音和语音转文本功能，通过语音功能增强用户交互。
 - **Azure 表存储**：探索如何跨设备同步和存储对话数据，确保无缝的用户体验。
 - **Bing API**：探索如何在聊天机器人应用程序中获取和显示最新新闻更新。
-- **DALL-E 和 GPT-Image-1 API**：学习从文本输入生成和编辑图像，为聊天机器人的响应添加视觉维度。
+- **GPT-Image API**：学习使用最新的 GPT-Image 模型从文本输入生成和编辑图像，为聊天机器人的响应添加视觉维度。
 - **Azure AD 身份验证**：深入了解使用 Azure Active Directory 保护您的网络应用程序，管理用户身份验证和保护敏感数据。
 
 这些学习将使您具备构建强大、功能丰富的聊天机器人应用程序的技能，充分利用 Azure 的 AI 和云服务的力量。
@@ -77,8 +77,7 @@
 
 - **支持 Azure 文本转语音引擎 📢**
 - **增强版实时语音聊天：双 GPT Realtime 模型、八种语音选择、会话级扬声器静音控制 🔊**
-- **使用 DALL-E API 从文本生成图像 🖼️**
-- **使用 GPT-Image-1 API 生成和编辑图像 ✏️🖼️**
+- **使用 GPT-Image API 从文本生成和编辑图像 🖼️✏️**
 - **支持使用 Azure 语音转文本引擎的语音转文本 🎙️**
 - **在选择时在标题中显示角色头像和姓名**
 - **支持从远程 URL 加载系统提示**
@@ -128,12 +127,11 @@
      AZURE_TTS={"subscriptionKey":"your subscription key","endpoint":"your endpoint"}
      ```
    
-   - `API_DALLE_URL` 和 `API_DALLE_KEY` 用于 DALL-E API 服务：
-   - `GPT_IMAGE_1_API_URL` 和 `GPT_IMAGE_1_API_KEY` 用于 GPT-Image-1 API 服务：
+   - `GPT_IMAGE_1_API_URL` 和 `GPT_IMAGE_1_API_KEY` 用于 GPT-Image API 服务：
    
      ```
-     API_DALLE_URL=yourdalleapiurl
-     API_DALLE_KEY=yourdalleapikey
+     GPT_IMAGE_1_API_URL=https://yourserver.cognitiveservices.azure.com/openai/deployments/gpt-image-1/images/generations?api-version=2025-04-01-preview
+     GPT_IMAGE_1_API_KEY=your-gpt-image-1-key
      ```
 
    - **Sora 视频生成配置**：要启用高级视频生成功能，请添加您的 Sora API 凭据：

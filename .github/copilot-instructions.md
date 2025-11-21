@@ -270,7 +270,7 @@ CSS naming examples:
 - Provide user feedback during generation process
 
 ### Real-time Voice Chat
-- Utilize GPT-4o-realtime-preview model for voice interactions
+- Utilize GPT Realtime models (gpt-realtime & gpt-realtime-mini) for voice interactions
 - Implement WebRTC for real-time audio streaming
 - Handle audio buffering and quality optimization
 - Provide visual feedback for recording and processing states
