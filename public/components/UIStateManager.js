@@ -135,15 +135,14 @@ class UIStateManager {
             <div id="welcome-message">
             <h2>Welcome to Azure ChatGPT!</h2>
             <p>Your advanced AI assistant powered by:</p>
-            <ul>
-                <li>🚀 GPT-4o Realtime</li>
-                <li>🌟 GPT-4o</li>
-                <li>✨ GPT-4o Mini</li>
-                <li>🌈 o1</li>
-                <li>💫 o1 Mini</li>
-                <li>🎨 DALL·E 3</li>
-            </ul>
-            <p>Start chatting now to experience the power of these cutting-edge AI models!</p>
+            <div class="model-list">
+                <div class="model-item">🚀 GPT-5 Series</div>
+                <div class="model-item">🧠 O-Series Reasoning</div>
+                <div class="model-item">🎬 Sora Video Generation</div>
+                <div class="model-item">🎙️ GPT Realtime</div>
+                <div class="model-item">🎨 GPT-Image</div>
+            </div>
+            <p class="welcome-sub">Start chatting now to experience the power of these cutting-edge AI models!</p>
             <p class="tip">💡 Tip: When searching with keywords, it will use Bing to find the latest information online.</p>
             </div>
         `;
