@@ -3,16 +3,20 @@
     position: relative;
     padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
     margin-bottom: var(--spacing-md);
-    border-radius: 8px;
+    border-radius: var(--border-radius-lg);
     line-height: var(--line-height-normal);
     overflow-wrap: break-word;
     transition: all 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.1); /* Light outer border */
+    box-shadow: none;
 }
 
 .message-content {
     overflow-y: auto;
     max-height: 70vh;
     padding-right: var(--spacing-sm);
+    border: none; /* Ensure no inner border */
+    background: transparent;
 }
 
 .message-content.maximized {
@@ -21,49 +25,57 @@
 
 /* Message types */
 .user-message.active {
-    background-color: var(--background-secondary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background-color: var(--surface-container-low);
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .user-message {
-    background-color: #f2f2f2;
-    color: #333333;
+    background-color: var(--surface-container-low);
+    color: var(--on-surface);
     margin-left: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .assistant-message.active {
-    background-color: var(--background-primary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background-color: transparent;
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .assistant-message {
-    background-color: #e6f2ff;
-    color: #333333;
+    background-color: transparent;
+    color: var(--on-surface);
     text-align: left;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 /* Message content styles */
 .message pre {
     white-space: pre-wrap;
-    padding: 1em;
-    border-radius: 4px;
+    padding: 0;
+    border-radius: 0;
     overflow-x: auto;
-    margin: 10px 0;
+    margin: 0;
+    border: none;
+    background-color: transparent;
 }
 
 .message pre code {
     color: inherit;
     padding: 0;
     background-color: transparent;
+    border: none;
 }
 
 .message code:not(pre code) {
-    background-color: var(--background-tertiary);
+    background-color: var(--surface-container);
     padding: 2px 4px;
-    border-radius: 3px;
+    border-radius: 4px;
     color: var(--text-color);
     font-family: 'Fira Code', monospace;
     font-size: 0.9em;
+    border: none; /* Remove inner border */
 }
 
 .message ol,
@@ -104,34 +116,36 @@
 .user-message.active .fa-quote-left,
 .assistant-message.active .fa-quote-left {
     opacity: 0.9;
-    color: #ffffff;
+    color: #333;
 }
 
 .user-message.inactive .fa-quote-left,
 .assistant-message.inactive .fa-quote-left {
     opacity: 0.6;
-    color: #cccccc;
+    color: #ccc;
 }
 
 .message .fa-volume-up {
-    color: #4CAF50;
+    color: #333;
 }
 
 /* Blockquote styles for thinking chain - moved from model-styles.css with improved contrast */
 .message-content blockquote,
 .message-content > p > blockquote {
-    border-left: 4px solid #4a90e2;
+    border-left: 4px solid #333;
     margin: 1em 0;
     padding: 1em;
     color: #333333;
-    background-color: rgba(74, 144, 226, 0.1);
-    border-radius: 8px;
+    background-color: #f9f9f9;
+    border-radius: 0;
     font-size: 0.95em;
     line-height: 1.7;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: none;
     overflow-x: auto;
     position: relative;
     white-space: pre-wrap; /* Preserve line breaks */
+    border: 1px solid #eee;
+    border-left: 4px solid #333;
 }
 
 /* Add left decorative line */
@@ -142,35 +156,35 @@
     top: 0;
     bottom: 0;
     width: 4px;
-    background: linear-gradient(to bottom, #4a90e2, rgba(74, 144, 226, 0.4));
-    border-radius: 4px 0 0 4px;
+    background: #333;
+    border-radius: 0;
 }
 
 /* Quote styles in dark theme - improve contrast */
 @media (prefers-color-scheme: dark) {
     .message-content blockquote,
     .message-content > p > blockquote {
-        background-color: rgba(30, 41, 59, 0.8);
-        color: #e2e8f0;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        border-left-color: #60a5fa;
+        background-color: #fff;
+        color: #333;
+        box-shadow: none;
+        border-left-color: #333;
     }
     
     .message-content blockquote::before {
-        background: linear-gradient(to bottom, #60a5fa, rgba(96, 165, 250, 0.4));
+        background: #333;
     }
     
     .message-content blockquote code {
-        background-color: rgba(15, 23, 42, 0.6);
-        color: #93c5fd;
+        background-color: #f0f0f0;
+        color: #333;
     }
 }
 
 /* Code block styles in thinking chain */
 .message-content blockquote pre,
 .message-content blockquote code {
-    background-color: rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
+    background-color: #f0f0f0;
+    border-radius: 0;
     padding: 0.2em 0.4em;
     margin: 0 0.2em;
 }
@@ -194,7 +208,7 @@
     border: 1px solid var(--border-color);
     color: var(--secondary-text-color);
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 0;
     font-size: var(--font-size-xs);
     transition: all 0.2s ease;
     display: flex;
@@ -230,9 +244,10 @@
 
 .code-block-wrapper {
     background: var(--background-secondary);
-    border-radius: 6px;
+    border-radius: 0;
     margin: 8px 0;
     position: relative;
+    border: 1px solid #ccc;
 }
 
 .code-block-wrapper pre {
@@ -258,8 +273,8 @@
     align-items: center;
     padding: 8px 12px;
     background: var(--background-tertiary);
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -274,7 +289,7 @@
     border: 1px solid var(--border-color);
     color: var(--secondary-text-color);
     padding: 4px 8px;
-    border-radius: 4px;
+    border-radius: 0;
     font-size: var(--font-size-xs);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -309,7 +324,7 @@
     z-index: 1000;
     background: var(--tooltip-bg-color);
     border: 1px solid var(--tooltip-border-color);
-    border-radius: 6px;
+    border-radius: 0;
     padding: 8px;
     max-width: 300px;
     -webkit-backdrop-filter: blur(5px);
@@ -330,7 +345,7 @@
 
 .message .search-sources {
     background: var(--background-secondary);
-    border-radius: 4px;
+    border-radius: 0;
     padding: var(--spacing-md);
     margin-top: var(--spacing-md);
     border: 1px solid var(--border-color);
@@ -353,7 +368,7 @@
     gap: var(--spacing-sm);
     color: var(--text-color);
     text-decoration: none;
-    border-radius: 4px;
+    border-radius: 0;
     transition: all 0.2s ease;
 }
 
@@ -454,7 +469,7 @@
     top: 0em;
     left: 0em;
     font-size: 1em;
-    color: #c9d1d9;
+    color: #ccc;
 }
 
 /* Link popup menu styles */
@@ -462,8 +477,8 @@
     position: fixed;
     background: var(--background-primary);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 0;
+    box-shadow: none;
     padding: 4px 0;
     min-width: 160px;
     z-index: 1000;
@@ -485,16 +500,16 @@
 
 /* Split view specific styles */
 .split-view .link-popup {
-    background: #2d333b;
-    border-color: #444c56;
+    background: #fff;
+    border-color: #ccc;
 }
 
 .split-view .link-popup-item {
-    color: #c9d1d9;
+    color: #333;
 }
 
 .split-view .link-popup-item:hover {
-    background-color: #444c56;
+    background-color: #f0f0f0;
 }
 
 /* Mobile responsive styles */
@@ -520,7 +535,7 @@
     color: var(--link-color);
     text-decoration: none;
     transition: all 0.2s ease;
-    border-bottom: 1px solid rgba(74, 144, 226, 0.3);
+    border-bottom: 1px solid #333;
     padding-bottom: 1px;
 }
 
@@ -547,7 +562,7 @@
 .message pre::-webkit-scrollbar-thumb,
 .message .sources-list::-webkit-scrollbar-thumb {
     background-color: var(--secondary-text-color);
-    border-radius: 3px;
+    border-radius: 0;
     transition: background-color 0.2s ease;
 }
 
@@ -559,7 +574,7 @@
 .message pre::-webkit-scrollbar-track,
 .message .sources-list::-webkit-scrollbar-track {
     background-color: var(--background-secondary);
-    border-radius: 3px;
+    border-radius: 0;
 }
 
 /* Heading style optimization */
@@ -628,14 +643,10 @@
 
 /* Primary separator line */
 .message-content hr.section-divider {
-    height: 2px;
-    background: linear-gradient(to right, 
-        transparent,
-        var(--accent-color),
-        transparent
-    );
+    height: 1px;
+    background: #ccc;
     margin: var(--spacing-xl) 0;
-    opacity: 0.8;
+    opacity: 1;
 }
 
 /* Secondary separator line */
@@ -714,9 +725,10 @@
 .think-block-wrapper {
     position: relative;
     margin: 1.5em 0;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    background-color: rgba(245, 248, 255, 0.6); /* Light blue tint for better contrast */
+    border-radius: 0;
+    box-shadow: none;
+    background-color: #f9f9f9; /* Light blue tint for better contrast */
+    border: 1px solid #ccc;
 }
 
 .think-block-header {
@@ -724,10 +736,10 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.7em 1em;
-    background: rgba(74, 144, 226, 0.15);
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    border: 1px solid rgba(74, 144, 226, 0.3);
+    background: #f0f0f0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border: 1px solid #ccc;
     border-bottom: none;
     font-size: 0.9em;
     color: var(--text-color);
@@ -745,16 +757,16 @@
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     font-size: 14px;
-    color: #3273dc; /* Improved icon color for better visibility */
+    color: #333; /* Improved icon color for better visibility */
 }
 
 .think-block-copy {
     padding: 0.4em 0.6em;
-    background: rgba(255, 255, 255, 0.7); /* Improved background for better contrast */
-    border: 1px solid #4a7abe; /* Improved border color */
-    color: #2c4b7c; /* Darker text color for better contrast */
+    background: #fff; /* Improved background for better contrast */
+    border: 1px solid #ccc; /* Improved border color */
+    color: #333; /* Darker text color for better contrast */
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 0;
     font-size: var(--font-size-xs);
     transition: all 0.2s ease;
     display: flex;
@@ -763,9 +775,9 @@
 }
 
 .think-block-copy:hover {
-    background: #e6f0ff; /* Lighter background on hover */
-    border-color: #3273dc;
-    color: #2c3e50; /* Even darker text on hover for better visibility */
+    background: #f0f0f0; /* Lighter background on hover */
+    border-color: #333;
+    color: #000; /* Even darker text on hover for better visibility */
 }
 
 .think-block-copy:active {
@@ -774,7 +786,7 @@
 
 .think-block-copy i {
     font-size: 14px;
-    color: #3273dc; /* Icon color to match the theme */
+    color: #333; /* Icon color to match the theme */
 }
 
 .think-block-copy.copied {
@@ -786,10 +798,10 @@
 /* Improved markdown content in think blocks */
 .think-block-markdown {
     padding: 1.2em;
-    background-color: rgba(245, 248, 255, 0.6);
-    border: 1px solid rgba(74, 144, 226, 0.3);
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
     color: #444444;
     font-size: 0.92em;
     line-height: 1.5;
@@ -811,8 +823,8 @@
 /* Style code blocks within think blocks */
 .think-block-markdown pre,
 .think-block-markdown code {
-    background-color: rgba(0, 0, 0, 0.04);
-    border-radius: 4px;
+    background-color: #f0f0f0;
+    border-radius: 0;
     padding: 0.2em 0.4em;
     margin: 0 0.2em;
     font-family: 'Fira Code', monospace;
@@ -839,45 +851,45 @@
 /* Dark theme adjustments */
 @media (prefers-color-scheme: dark) {
     .think-block-wrapper {
-        background-color: rgba(30, 41, 59, 0.4);
+        background-color: #fff;
     }
     
     .think-block-header {
-        background: rgba(74, 144, 226, 0.15);
-        border-color: rgba(74, 144, 226, 0.2);
-        color: #e2e8f0;
+        background: #f0f0f0;
+        border-color: #ccc;
+        color: #333;
     }
     
     .think-block-header .think-title::before {
-        color: #92c5fd; /* Brighter blue for dark theme */
+        color: #333; /* Brighter blue for dark theme */
     }
     
     .think-block-copy {
-        background: rgba(30, 41, 59, 0.6);
-        border-color: #60a5fa;
-        color: #e2e8f0; /* Lighter text color for dark theme */
+        background: #fff;
+        border-color: #ccc;
+        color: #333; /* Lighter text color for dark theme */
     }
     
     .think-block-copy:hover {
-        background: rgba(44, 82, 130, 0.8);
-        border-color: #93c5fd;
-        color: #ffffff;
+        background: #f0f0f0;
+        border-color: #333;
+        color: #000;
     }
     
     .think-block-copy i {
-        color: #93c5fd; /* Lighter blue icon for dark theme */
+        color: #333; /* Lighter blue icon for dark theme */
     }
     
     .think-block-markdown {
-        background-color: rgba(30, 41, 59, 0.4);
-        border-color: rgba(74, 144, 226, 0.2);
-        color: #e2e8f0;
+        background-color: #f9f9f9;
+        border-color: #ccc;
+        color: #333;
     }
     
     .think-block-markdown pre,
     .think-block-markdown code {
-        background-color: rgba(15, 23, 42, 0.6);
-        color: #93c5fd;
+        background-color: #f0f0f0;
+        color: #333;
     }
 }
 
@@ -890,67 +902,67 @@
 
 /* Reasoning Summary block styles - differentiated from regular think blocks */
 .think-block-wrapper.reasoning-summary {
-    background-color: rgba(255, 248, 220, 0.8); /* Warm golden tint */
-    border: 1px solid rgba(218, 165, 32, 0.4);
+    background-color: #fff; /* Warm golden tint */
+    border: 1px solid #ccc;
 }
 
 .think-block-wrapper.reasoning-summary .think-block-header {
-    background: rgba(218, 165, 32, 0.2);
-    border-color: rgba(218, 165, 32, 0.5);
-    color: #8b4513;
+    background: #f0f0f0;
+    border-color: #ccc;
+    color: #333;
 }
 
 .think-block-wrapper.reasoning-summary .think-title::before {
     content: '\f085'; /* Cog/gear icon for reasoning process */
-    color: #cd853f;
+    color: #333;
 }
 
 .think-block-wrapper.reasoning-summary .think-title {
-    color: #8b4513;
+    color: #333;
 }
 
 .think-block-wrapper.reasoning-summary .think-block-copy {
-    background: rgba(255, 255, 255, 0.9);
-    border-color: #cd853f;
-    color: #8b4513;
+    background: #fff;
+    border-color: #ccc;
+    color: #333;
 }
 
 .think-block-wrapper.reasoning-summary .think-block-copy:hover {
-    background: rgba(218, 165, 32, 0.1);
-    border-color: #8b4513;
-    color: #654321;
+    background: #f0f0f0;
+    border-color: #333;
+    color: #000;
 }
 
 /* Dark theme support for reasoning summary */
 @media (prefers-color-scheme: dark) {
     .think-block-wrapper.reasoning-summary {
-        background-color: rgba(139, 69, 19, 0.15);
-        border-color: rgba(218, 165, 32, 0.3);
+        background-color: #fff;
+        border-color: #ccc;
     }
     
     .think-block-wrapper.reasoning-summary .think-block-header {
-        background: rgba(139, 69, 19, 0.2);
-        border-color: rgba(218, 165, 32, 0.4);
-        color: #daa520;
+        background: #f0f0f0;
+        border-color: #ccc;
+        color: #333;
     }
     
     .think-block-wrapper.reasoning-summary .think-title {
-        color: #daa520;
+        color: #333;
     }
     
     .think-block-wrapper.reasoning-summary .think-title::before {
-        color: #f4a460;
+        color: #333;
     }
     
     .think-block-wrapper.reasoning-summary .think-block-copy {
-        background: rgba(139, 69, 19, 0.3);
-        border-color: #daa520;
-        color: #f4a460;
+        background: #fff;
+        border-color: #ccc;
+        color: #333;
     }
     
     .think-block-wrapper.reasoning-summary .think-block-copy:hover {
-        background: rgba(218, 165, 32, 0.2);
-        border-color: #f4a460;
-        color: #ffd700;
+        background: #f0f0f0;
+        border-color: #333;
+        color: #000;
     }
 }

@@ -9,8 +9,8 @@
 #header-left #toggle-chat-topic {
     background: transparent; /* No background by default */
     border: none;
-    border-radius: 4px;
-    color: #e6f2ff;
+    border-radius: var(--border-radius-sm);
+    color: #333;
     padding: 8px 10px;
     cursor: pointer;
     transition: all 0.2s ease; /* Include all properties in transition */
@@ -19,18 +19,18 @@
 }
 
 #header-left #toggle-chat-topic:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-1px); /* Subtle lift effect on hover */
+    background: #f0f0f0;
+    transform: none; /* Subtle lift effect on hover */
 }
 
 #header-left #toggle-chat-topic:focus {
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4); /* More visible focus indicator */
+    background: #f0f0f0;
+    box-shadow: none; /* More visible focus indicator */
 }
 
 #header-left #toggle-chat-topic:active {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(0px); /* Return to normal position when pressed */
+    background: #e0e0e0;
+    transform: none; /* Return to normal position when pressed */
 }
 
 #app-name {
@@ -38,7 +38,7 @@
     font-size: 24px;
     font-family: 'Roboto';
     font-weight: 500;
-    color: #e6f2ff;
+    color: #333;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -1,20 +1,22 @@
 /* Base button styles */
 button {
-    background-color: #4CAF50;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius-sm);
     padding: 5px;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
 }
 
 button.active {
-    background-color: #2E7D32;
+    background-color: #f0f0f0;
+    border-color: #333;
 }
 
 button:not(.active):hover {
-    background-color: #3e8e41;
+    background-color: #f0f0f0;
+    border-color: #999;
 }
 
 /* Action buttons */
@@ -22,20 +24,22 @@ button.action-button {
     margin: 0 3px;
     padding: 3px;
     font-size: 1em;
-    color: #ffffff;
-    opacity: 0.5;
-    border-radius: 5px;
-    background: #333;
+    color: #333;
+    opacity: 0.8;
+    border-radius: var(--border-radius-sm);
+    background: #fff;
+    border: 1px solid #ccc;
 }
 
 button.action-button:hover {
-    opacity: 0.5;
+    opacity: 1;
     margin: 0 3px;
     padding: 3px;
     font-size: 1em;
-    border-radius: 5px;
-    color: #666;
-    background-color: #fff;
+    border-radius: var(--border-radius-sm);
+    color: #000;
+    background-color: #f0f0f0;
+    border-color: #999;
 }
 
 button.action-button.invisible {
@@ -46,51 +50,56 @@ button.action-button.invisible {
 .follow-up-questions button {
     background-color: white;
     color: black;
-    border: none;
+    border: 1px solid #ccc;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 1em;
     margin: 4px 2px;
     padding: 10px 24px;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.19), 0 2px 10px rgba(0, 0, 0, 0.23);
-    transition-duration: 0.4s;
+    box-shadow: none;
+    transition-duration: 0.2s;
+    border-radius: var(--border-radius-pill);
 }
 
 .follow-up-questions button:hover {
-    background-color: #ddd;
+    background-color: #f0f0f0;
     color: black;
-    border: none;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.22);
+    border: 1px solid #999;
+    box-shadow: none;
 }
 
 .follow-up-questions button:active {
-    background-color: #ccc;
-    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.5), 0 5px 10px rgba(0, 0, 0, 0.22);
-    transform: translateY(4px);
+    background-color: #e0e0e0;
+    box-shadow: none;
+    transform: translateY(1px);
 }
 
 /* Web search toggle button */
 #web-search-toggle {
-    color: #fff;
-    background-color: #4A90E2;
+    color: #333;
+    background-color: #fff;
     cursor: pointer;
     transition: all 0.2s ease, transform 0.1s ease, background-color 0.15s ease;
     position: relative;
     transform: translateY(0);
     will-change: transform;
+    border: 1px solid #ccc;
 }
 
 #web-search-toggle:hover {
-    background-color: #357ABD;
+    background-color: #f0f0f0;
+    border-color: #999;
 }
 
 #web-search-toggle.active {
-    background-color: #2E7D32;
+    background-color: #f0f0f0;
+    border-color: #333;
+    color: #000;
 }
 
 #web-search-toggle.active:hover {
-    background-color: #1B5E20;
+    background-color: #e0e0e0;
 }
 
 #web-search-toggle i {
@@ -102,35 +111,38 @@ button.action-button.invisible {
 }
 
 #web-search-toggle:active {
-    transform: translateY(2px);
-    filter: brightness(95%);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+    transform: translateY(1px);
+    filter: none;
+    box-shadow: none;
 }
 
 #web-search-toggle.active:active {
-    background-color: #1B5E20;
-    transform: translateY(2px);
+    background-color: #e0e0e0;
+    transform: translateY(1px);
 }
 
 /* Voice input button */
 #voice-input-button {
-    color: #fff;
-    background-color: #E53935;
+    color: #333;
+    background-color: #fff;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
+    border: 1px solid #ccc;
 }
 
 #voice-input-button:hover {
-    background-color: #FF7043;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+    background-color: #f0f0f0;
+    box-shadow: none;
+    border-color: #999;
 }
 
 #voice-input-button.voice-input-active {
     animation: buttonChange 1s infinite;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.6);
-    background-color: #ff0000;
-    color: #ffffff;
+    box-shadow: none;
+    background-color: #fff;
+    color: #000;
+    border-color: #333;
 }
 
 @keyframes buttonChange {
@@ -138,7 +150,7 @@ button.action-button.invisible {
         transform: scale(1);
     }
     50% {
-        transform: scale(1.1);
+        transform: scale(1.05);
     }
     100% {
         transform: scale(1);
@@ -147,14 +159,16 @@ button.action-button.invisible {
 
 /* New chat button */
 #new-chat-button {
-    color: #fff;
-    background-color: cornflowerblue;
+    color: #333;
+    background-color: #fff;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
+    border: 1px solid #ccc;
 }
 
 #new-chat-button:hover {
-    background-color: lightblue;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+    background-color: #f0f0f0;
+    box-shadow: none;
+    border-color: #999;
 }

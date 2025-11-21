@@ -4,7 +4,7 @@
     font-family: 'Roboto';
     font-weight: 500;
     margin-bottom: 10px;
-    color: #fff;
+    color: #333;
     position: relative; 
 }
 
@@ -20,15 +20,15 @@
 #topic-button-container button {
     background: none;
     border: none;
-    color: #fff;
+    color: #333;
     cursor: pointer;
     padding: 4px 8px;
-    border-radius: 4px;
+    border-radius: var(--border-radius-sm);
     transition: all 0.2s ease;
 }
 
 #topic-button-container button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #f0f0f0;
 }
 
 #topic-button-container button:active {
@@ -49,7 +49,7 @@
         display: flex !important;
         align-items: center;
         justify-content: center;
-        background-color: rgba(255, 255, 255, 0.1) !important;
+        background-color: #f0f0f0 !important;
         width: 28px;
         height: 28px;
         padding: 0 !important;
@@ -57,14 +57,15 @@
 
     #close-chat-history i {
         font-size: 16px !important;
+        color: #333;
     }
 
     #close-chat-history:hover {
-        background-color: rgba(255, 255, 255, 0.2) !important;
+        background-color: #e0e0e0 !important;
     }
 
     #close-chat-history:active {
-        background-color: rgba(255, 255, 255, 0.15) !important;
+        background-color: #d0d0d0 !important;
     }
 
     #topic-button-container {
@@ -88,25 +89,25 @@
 
 #chat-history-list li {
     padding: 10px;
-    background-color: #333;
-    color: #f5f5f5;
-    border-radius: 3px;
+    background-color: #fff;
+    color: #333;
+    border-radius: var(--border-radius-sm);
     margin-bottom: 10px;
-    border: 1px solid #333;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    border: 1px solid #eee;
+    box-shadow: none;
     word-wrap: break-word;
 }
 
 #chat-history-list li:hover {
-    background-color: #3391FF;
-    border: 1px solid #0056b3;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
     cursor: pointer;
 }
 
 #chat-history-list li.active {
-    background-color: #007BFF;
-    color: white;
-    border: 1px solid #0056b3;
+    background-color: #e0e0e0;
+    color: #000;
+    border: 1px solid #999;
 }
 
 #chat-history-list li i {
@@ -122,7 +123,7 @@
 }
 
 #chat-history-list li small {
-    color: #999;
+    color: #666;
     margin-left: 5px;
 }
 
@@ -151,8 +152,8 @@
     background-color: #ffffff;
     width: fit-content;
     overflow-y: auto;
-    border: 1px solid #ddd;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    border: 1px solid #ccc;
+    box-shadow: none;
     z-index: 1;
     transition: all 0.2s;
 }
@@ -181,9 +182,9 @@ ul.popup-menu {
     margin: 0;
     padding: 0.5em 0;
     background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius-sm);
+    box-shadow: none;
     z-index: 9999;
     min-width: 120px;
     animation: fadeIn 0.3s ease-in-out;
@@ -219,6 +220,6 @@ li.menu-item i {
 }
 
 li.menu-item:hover {
-    background-color: #007BFF;
-    color: white;
+    background-color: #f0f0f0;
+    color: #000;
 }

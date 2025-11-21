@@ -11,10 +11,10 @@
 }
 
 .modal-content {
-    background-color: #fefefe;
+    background-color: #fff;
     padding: 20px;
-    border: 1px solid #888;
-    border-radius: 5px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius-lg);
     max-width: 500px;
     text-align: center;
     position: relative;
@@ -32,18 +32,18 @@
 
 .modal-content input {
     padding: 10px;
-    border-radius: 5px;
+    border-radius: var(--border-radius-sm);
     border: 1px solid #ccc;
     margin-bottom: 10px;
     width: 100%;
 }
 
 .modal-content button {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #fff;
+    color: #333;
     padding: 10px;
-    border: none;
-    border-radius: 5px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius-sm);
     cursor: pointer;
     margin-top: 10px;
     white-space: nowrap;
@@ -51,7 +51,8 @@
 }
 
 .modal-content button:hover {
-    background-color: #45a049;
+    background-color: #f0f0f0;
+    border-color: #999;
 }
 
 .modal-content .close {
@@ -87,7 +88,7 @@
 
 .modal-inner {
     background-color: #fff;
-    border-radius: 8px;
+    border-radius: var(--border-radius-lg);
     padding: 20px;
     position: relative;
     width: 90%;
@@ -97,6 +98,7 @@
     transform: translateY(20px);
     opacity: 0;
     transition: all 0.3s ease;
+    border: 1px solid #ccc;
 }
 
 .modal-wrapper.visible .modal-inner {

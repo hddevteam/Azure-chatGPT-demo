@@ -47,63 +47,63 @@
 #app-container.split-view {
     height: calc(100vh - 40px);
     flex: 1; 
-    background-color: #3a3a3a;
+    background-color: var(--background-primary);
 }
 
 #messages.split-view .user-message.active {
-    background-color: #676767;
-    color: #E6E6E6;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    border-left: 5px solid #f3ba2f;
+    background-color: var(--surface-container-low);
+    color: var(--text-color);
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 #messages.split-view td {
-    color: #000;
+    color: var(--text-color);
 }
 
 #messages.split-view .assistant-message.active {
-    background-color: #526d95;
-    color: #E6E6E6;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    border-left: 5px solid #8198af;
+    background-color: transparent;
+    color: var(--text-color);
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 #messages.split-view .user-message.active .fa-quote-left,
 #messages.split-view .assistant-message.active .fa-quote-left {
-    color: #ffffff;
+    color: var(--text-color);
     opacity: 0.9;
 }
 
 #messages.split-view .user-message {
-    background-color: #505050;
-    color: #999999;
+    background-color: var(--surface-container-low);
+    color: var(--text-color);
 }
 
 #messages.split-view .assistant-message {
-    background-color: #404e69;
-    color: #999999;
+    background-color: transparent;
+    color: var(--text-color);
 }
 
 #messages.split-view .user-message .fa-quote-left,
 #messages.split-view .assistant-message .fa-quote-left {
-    color: #d0d0d0;
+    color: var(--secondary-text-color);
     opacity: 0.7;
 }
 
 #messages.split-view .user-message.inactive .fa-quote-left,
 #messages.split-view .assistant-message.inactive .fa-quote-left {
-    color: #d0d0d0;
+    color: var(--secondary-text-color);
     opacity: 0.6;
 }
 
 #messages.split-view li.menu-item {
-    background-color: #3a3a3a;
-    color: #ffffff;
+    background-color: var(--background-primary);
+    color: var(--text-color);
 }
 
 #messages.split-view li.menu-item:hover {
-    background-color: #676767;
-    color: white;
+    background-color: var(--surface-container);
+    color: var(--text-color);
 }
 
 /* right view */
@@ -117,7 +117,7 @@
     left: auto; 
     width: auto; 
     max-width: unset;
-    background-color: #4E4E4E;
+    background-color: var(--surface-container);
     padding: 5px;
 }
 
@@ -140,9 +140,9 @@
 
 #message-input-container.split-view #message-input {
     padding-right: 46px; 
-    background-color: #626262;
-    color: #E6E6E6;
-    border: 1px solid #484848;
+    background-color: transparent;
+    color: var(--text-color);
+    border: none;
     min-height: 200px;
 }
 
@@ -152,10 +152,11 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    background: linear-gradient(to bottom, #3a3a3a, #4E4E4E); 
+    background: transparent; 
     padding: 8px; 
     margin: 0;
-    border-radius: 4px;
+    border-radius: var(--border-radius-md);
+    border: none;
 }
 
 #message-input-container.split-view #message-form #input-container {
@@ -164,20 +165,21 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    background-color: #3a3a3a; 
-    border-radius: 4px;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    background-color: var(--background-primary); 
+    border-radius: var(--border-radius-md);
+    box-shadow: none;
+    border: 1px solid var(--border-color);
     position: relative; 
 }
 
 #message-input-container.split-view #message-input {
-    background-color: #626262;
-    color: #E6E6E6;
-    border: 1px solid #484848;
+    background-color: transparent;
+    color: var(--text-color);
+    border: none;
     padding: 12px 46px 12px 12px; 
     margin-right: 0; 
-    border-radius: 6px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius-md);
+    box-shadow: none;
     transition: all 0.3s ease;
     line-height: 1.5;
     min-height: 200px;
@@ -210,12 +212,10 @@
 
 /* Button base styles */
 #message-input-container.split-view .button-row button {
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: transparent;
-    box-shadow: 
-        0 1px 3px rgba(0, 0, 0, 0.2),
-        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--background-primary);
+    box-shadow: none;
     transition: all 0.2s ease, transform 0.1s ease, filter 0.1s ease; 
     position: relative;
     overflow: hidden;
@@ -227,8 +227,8 @@
 /* Button icons */
 #message-input-container.split-view .button-row button i {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    color: var(--secondary-text-color);
+    text-shadow: none;
     transition: transform 0.2s ease;
 }
 
@@ -239,13 +239,14 @@
 /* Button hover and active states */
 #message-input-container.split-view .button-row button:hover {
     transform: none;
-    filter: brightness(110%);
+    filter: brightness(95%);
     box-shadow: none;
+    background-color: var(--surface-container);
 }
 
 #message-input-container.split-view .button-row button:active {
     transform: none;
-    filter: brightness(95%);
+    filter: brightness(90%);
     box-shadow: none;
 }
 
@@ -277,11 +278,9 @@
 
 /* Web search toggle button styles for split view */
 #message-input-container.split-view .button-row #web-search-toggle {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 
-        0 1px 3px rgba(0, 0, 0, 0.2),
-        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    background: var(--background-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: none;
     color: #4A90E2;
     will-change: transform; /* Optimize transform performance */
     transform: translateY(0); /* Set initial transform state */
@@ -294,14 +293,14 @@
 }
 
 #message-input-container.split-view .button-row #web-search-toggle:hover {
-    filter: brightness(110%);
-    background: rgba(74, 144, 226, 0.1); /* Add light blue background */
-    border-color: rgba(74, 144, 226, 0.3); /* Deepen border color */
+    filter: brightness(95%);
+    background: var(--surface-container);
+    border-color: var(--border-color);
     transform: translateY(1px); /* Add slight downward movement effect */
 }
 
 #message-input-container.split-view .button-row #web-search-toggle.active:hover {
-    filter: brightness(120%);
+    filter: brightness(95%);
     background: rgba(46, 125, 50, 0.15); /* Deepen light green background */
     border-color: rgba(46, 125, 50, 0.4); /* Deepen border color */
 }
@@ -309,28 +308,28 @@
 #message-input-container.split-view .button-row #web-search-toggle:active {
     transform: translateY(2px); /* Increase downward movement distance when pressed */
     filter: brightness(90%); /* Slightly darken when pressed */
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Add inner shadow */
+    box-shadow: none;
     transition: all 0.1s ease; /* Faster transition effect */
 }
 
 #message-input-container.split-view .mini-toolbar {
     margin-bottom: 5px;
     padding: 5px;
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
-    border: 0px;
-    border-radius: 4px;
+    box-shadow: none;
+    border: none;
+    border-radius: var(--border-radius-sm);
     display: flex;
     gap: 5px;
     justify-content: space-between;
     flex: 0 0 auto;
     width: 100%;
-    background-color: #585858;
-    color: #E6E6E6;
+    background-color: var(--surface-container);
+    color: var(--text-color);
 }
 
 /* Split view specific styles for search results */
 .split-view .message .search-sources {
-    background: rgba(0, 0, 0, 0.5);;
+    background: var(--surface-container);
     border-top: 1px solid var(--border-color);
 }
 
@@ -352,7 +351,7 @@
 
 .split-view .message .source-number {
     min-width: 20px;
-    color: #8198af;
+    color: var(--secondary-text-color);
     font-weight: 500;
     text-align: right;
     padding-right: 8px;
@@ -397,11 +396,11 @@
 }
 
 .split-view .message code {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--surface-container);
     padding: 2px 4px;
     border-radius: 3px;
     font-family: monospace;
-    color: #E6E6E6;
+    color: var(--text-color);
 }
 
 .split-view .message code a {
@@ -416,14 +415,15 @@
 }
 
 .split-view .message .search-sources {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
+    background: var(--surface-container);
+    border-radius: var(--border-radius-sm);
     padding: 8px 12px;
     margin-top: 8px;
 }
 
 .split-view .message .message-content {
-    color: #E6E6E6;
+    color: var(--text-color);
+    background: transparent;
 }
 
 .split-view .message .message-content a {
@@ -448,8 +448,8 @@
 
 /* Code block wrapper styles for split view */
 .split-view .message .code-block-wrapper {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 6px;
+    background: var(--surface-container);
+    border-radius: var(--border-radius-sm);
     margin: 8px 0;
     position: relative;
 }
@@ -459,7 +459,7 @@
     padding: 12px;
     overflow-x: auto;
     background: transparent;
-    color: #E6E6E6;
+    color: var(--text-color);
 }
 
 .split-view .message .code-block-wrapper code {
@@ -476,33 +476,33 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: rgba(0, 0, 0, 0.2);
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--surface-container-high);
+    border-top-left-radius: var(--border-radius-sm);
+    border-top-right-radius: var(--border-radius-sm);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .split-view .message .code-block-wrapper .code-block-header .language {
-    color: #8198af;
+    color: var(--secondary-text-color);
     font-size: 0.85em;
     font-weight: 500;
 }
 
 .split-view .message .code-block-wrapper .code-block-header .copy-button {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #8198af;
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text-color);
     padding: 4px 8px;
-    border-radius: 4px;
+    border-radius: var(--border-radius-sm);
     font-size: 0.85em;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .split-view .message .code-block-wrapper .code-block-header .copy-button:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: #E6E6E6;
+    background: var(--surface-container);
+    border-color: var(--text-color);
+    color: var(--text-color);
 }
 
 .split-view .message .code-block-wrapper .code-block-header .copy-button:active {
@@ -516,23 +516,23 @@
 }
 
 .split-view .message .code-block-wrapper pre::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: var(--border-color);
     border-radius: 3px;
     transition: background-color 0.2s ease;
 }
 
 .split-view .message .code-block-wrapper pre::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: var(--secondary-text-color);
 }
 
 .split-view .message .code-block-wrapper pre::-webkit-scrollbar-track {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: transparent;
     border-radius: 3px;
 }
 
 .split-view .message .code-block-copy {
-    color: #8198af;
-    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--secondary-text-color);
+    border-color: var(--border-color);
     padding: 0.5em;
     opacity: 0;
 }
@@ -542,9 +542,9 @@
 }
 
 .split-view .message .code-block-copy:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: #E6E6E6;
+    background: var(--surface-container);
+    border-color: var(--text-color);
+    color: var(--text-color);
 }
 
 .split-view .message .code-block-copy:active {
@@ -569,18 +569,18 @@
 .split-view .message .message-content h1 {
     color: var(--heading-1-color);
     border-bottom-color: var(--heading-border-1);
-    text-shadow: var(--heading-shadow-1);
+    text-shadow: none;
 }
 
 .split-view .message .message-content h2 {
     color: var(--heading-2-color);
     border-bottom-color: var(--heading-border-2);
-    text-shadow: var(--heading-shadow-2);
+    text-shadow: none;
 }
 
 .split-view .message .message-content h3 {
     color: var(--heading-3-color);
-    text-shadow: var(--heading-shadow-3);
+    text-shadow: none;
 }
 
 .split-view .message .message-content h4 {
@@ -603,25 +603,25 @@
 
 /* Active message heading styles */
 .split-view .message.active .message-content h1 {
-    color: rgba(255, 255, 255, 0.98);
-    border-bottom-color: rgba(255, 255, 255, 0.25);
+    color: var(--text-color);
+    border-bottom-color: var(--border-color);
 }
 
 .split-view .message.active .message-content h2 {
-    color: rgba(255, 255, 255, 0.95);
-    border-bottom-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-color);
+    border-bottom-color: var(--border-color);
 }
 
 .split-view .message.active .message-content h3 {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-color);
 }
 
 .split-view .message.active .message-content h4 {
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--text-color);
 }
 
 .split-view .message.active .message-content h5 {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-color);
 }
 
 /* High Contrast Mode Support */

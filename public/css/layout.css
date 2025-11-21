@@ -16,7 +16,8 @@ html {
     flex: 0 0 40px;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(to bottom right, #7F8C8D, #555F61);
+    background: #fff;
+    border-bottom: 1px solid #ccc;
     padding: 0;
 }
 
@@ -34,8 +35,8 @@ html {
 }
 
 #chat-history-resize-handle {
-    width: 2px;
-    background: #333;
+    width: 1px;
+    background: #ccc;
     cursor: ew-resize;
     flex-shrink: 0;
     display: none; /* Hidden by default */
@@ -47,7 +48,7 @@ html {
 
 #chat-history-resize-handle:hover {
     width: 5px;
-    background-color: #0056b3;
+    background-color: #ccc;
 }
 
 #app-outer-wrapper {
@@ -76,9 +77,9 @@ html {
 
 
 #chat-history-container {
-    background: linear-gradient(to bottom, #4B4E53, #2C2F33);
-    border: none;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    border-right: 1px solid #ccc;
+    box-shadow: none;
     padding: 10px;
     margin: 0px auto 0px;
     overflow: hidden;
@@ -135,8 +136,8 @@ html {
 }
 
 #resize-handle {
-    height: 5px; /* Set height for the handle */
-    background: #333; /* Handle background color */
+    height: 1px; /* Set height for the handle */
+    background: #ccc; /* Handle background color */
     cursor: ns-resize; /* Cursor changes to north-south resize shape, indicating vertical adjustment */
 }
 
@@ -147,8 +148,8 @@ html {
     height: 100%;
     padding: 8px 8px 48px 8px;
     border: none;
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: var(--border-radius-md);
+    background-color: transparent;
     transition: all 0.2s ease-in-out;
     overflow: auto;
     scrollbar-width: thin;
@@ -160,7 +161,7 @@ html {
 
 #message-input:focus {
     outline: none;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: transparent;
 }
 
 .mini-toolbar-container {
@@ -175,30 +176,33 @@ html {
 
 #message-form {
     height: 100%;
-    background: linear-gradient(to bottom, #333, #555);
+    background: #fff;
+    border-top: 1px solid #ccc;
     padding: 5px;
     display: flex;
     flex-direction: column; /* Changed to column to encourage stacking */
     justify-content: flex-start; /* Adjust alignment to start to stack them at the top */
     align-items: stretch; /* Make children stretch to fit the container's width */
-    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
 }
 
 #input-container {
     width: 100%; /* Ensure it spans the full width */
     position: relative;
     flex: 1 1 auto; /* Take available space, but allow shrinking/growing */
-    background-color: #f5f5f5;
-    border-radius: 5px;
+    background-color: var(--background-primary);
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius-md);
     margin: 0;
     padding: 0;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: none;
     transition: all 0.2s ease-in-out;
 }
 
 #input-container:focus-within {
-    background-color: rgba(255, 255, 255, 0.98);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+    background-color: #fff;
+    box-shadow: none;
+    border-color: #000;
 }
 
 /* Basic button layout - non-split screen mode */
@@ -219,5 +223,5 @@ html {
 #resize-handle:hover,
 #resize-handle.resizing {
     height: 5px;
-    background-color: #0056b3;
+    background-color: #ccc;
 }
