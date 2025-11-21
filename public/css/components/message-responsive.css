@@ -135,6 +135,6 @@
 /* Mobile dark theme specific adjustments */
 @media (max-width: 768px) {
     .theme-dark .message-content::-webkit-scrollbar-thumb {
-        background-color: rgba(255, 255, 255, 0.15);
+        background-color: var(--border-color);
     }
 }

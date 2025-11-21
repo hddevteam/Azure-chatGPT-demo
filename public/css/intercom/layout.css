@@ -100,35 +100,35 @@
 
 /* Scrollbars */
 .im-settings-section::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .im-settings-section::-webkit-scrollbar-track {
-  background: var(--border-light);
-  border-radius: 4px;
+  background: transparent;
+  border-radius: 3px;
 }
 
 .im-settings-section::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
+  background: var(--border-color, rgba(255, 255, 255, 0.3));
+  border-radius: 3px;
 }
 
 .im-text-container::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .im-text-container::-webkit-scrollbar-track {
-  background: var(--border-light);
-  border-radius: 4px;
+  background: transparent;
+  border-radius: 3px;
 }
 
 .im-text-container::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
+  background: var(--border-color, rgba(255, 255, 255, 0.3));
+  border-radius: 3px;
 }
 
 .im-text-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--secondary-text-color, rgba(255, 255, 255, 0.4));
 }
 
 /* Clear float */

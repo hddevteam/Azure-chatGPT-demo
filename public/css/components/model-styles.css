@@ -167,18 +167,21 @@
 
 #model-select-modal .modal-inner {
     width: 90%;
-    max-width: 400px;
-    max-height: 90vh;
-    background: white;
-    border-radius: 8px;
+    max-width: 1000px;
+    max-height: 85vh;
+    background: var(--card-bg);
+    border-radius: 16px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
 }
 
 #model-select-modal .modal-header {
-    padding: 16px;
-    border-bottom: 1px solid #eee;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--surface-container-low);
 }
 
 #model-select-modal .modal-title-container {
@@ -189,7 +192,8 @@
 
 #model-select-modal .modal-title {
     font-size: 18px;
-    font-weight: 500;
+    font-weight: 600;
+    color: var(--text-color);
 }
 
 #model-select-modal .modal-close {
@@ -197,16 +201,17 @@
     border: none;
     padding: 8px;
     cursor: pointer;
-    color: #666;
+    color: var(--secondary-text-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    transition: background-color 0.2s;
+    border-radius: 6px;
+    transition: all 0.2s;
 }
 
 #model-select-modal .modal-close:hover {
-    background-color: #f0f0f0;
+    background-color: var(--hover-bg);
+    color: var(--text-color);
 }
 
 #model-select-modal .modal-content {
@@ -220,6 +225,7 @@
     box-sizing: border-box;
     position: relative;
     width: 100%;
+    max-width: none;
     height: auto;
 }
 
@@ -231,31 +237,42 @@
 
 /* Model options in modal */
 #model-select-modal .model-options {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    padding: 8px;
+    justify-items: start;
+    align-content: start;
 }
 
 #model-select-modal .model-option {
     padding: 12px;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
+    border: 1px solid transparent;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 #model-select-modal .model-option:hover {
-    background-color: #f5f5f5;
+    background-color: var(--hover-bg);
+    transform: translateY(-1px);
 }
 
 #model-select-modal .model-option.selected {
-    background-color: #e3f2fd;
+    background-color: var(--surface-container);
+    border-color: var(--border-color);
+    color: var(--text-color);
+    font-weight: 600;
 }
 
 #model-select-modal .model-option::before {
     content: "●";
     margin-right: 8px;
+    font-size: 1.2em;
 }
 
 /* Model option indicators */
@@ -278,37 +295,42 @@
 #model-select-modal .model-option[data-model="gpt-5-chat"]::before { color: var(--model-gpt5-chat); }
 
 /* 暗色主题适配 */
-.split-view #model-select-modal .modal-inner {
-    background-color: #22272e;
-    border: 1px solid #444c56;
+.theme-dark #model-select-modal .modal-inner {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
-.split-view #model-select-modal .modal-header {
-    border-color: #444c56;
+.theme-dark #model-select-modal .modal-header {
+    border-color: var(--border-color);
+    background-color: var(--surface-container-low);
 }
 
-.split-view #model-select-modal .modal-title {
-    color: #adbac7;
+.theme-dark #model-select-modal .modal-title {
+    color: var(--text-color);
 }
 
-.split-view #model-select-modal .modal-close {
-    color: #768390;
+.theme-dark #model-select-modal .modal-close {
+    color: var(--secondary-text-color);
 }
 
-.split-view #model-select-modal .modal-close:hover {
-    background-color: #2d333b;
+.theme-dark #model-select-modal .modal-close:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-color);
 }
 
-.split-view #model-select-modal .model-option {
-    color: #adbac7;
+.theme-dark #model-select-modal .model-option {
+    color: var(--text-color);
+    border-color: transparent;
 }
 
-.split-view #model-select-modal .model-option:hover {
-    background-color: #2d333b;
+.theme-dark #model-select-modal .model-option:hover {
+    background-color: var(--hover-bg);
 }
 
-.split-view #model-select-modal .model-option.selected {
-    background-color: rgba(51, 145, 255, 0.1);
+.theme-dark #model-select-modal .model-option.selected {
+    background-color: var(--surface-container);
+    border-color: var(--border-color);
 }
 
 /* 响应式调整 */

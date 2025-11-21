@@ -121,7 +121,7 @@ html {
     overflow-x: hidden;
     padding: 10px 50px;
     scrollbar-width: thin;
-    scrollbar-color: #bbb transparent;
+    scrollbar-color: var(--border-color) transparent;
 }
 
 
@@ -154,7 +154,7 @@ html {
     transition: all 0.2s ease-in-out;
     overflow: auto;
     scrollbar-width: thin;
-    scrollbar-color: #bbb transparent;
+    scrollbar-color: var(--border-color) transparent;
     line-height: 120%;
     font-size: 16px;
     color: var(--text-color);
