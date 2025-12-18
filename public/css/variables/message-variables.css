@@ -10,8 +10,9 @@
     /* Message Colors - Light Theme */
     --user-message-bg: var(--background-secondary);
     --user-message-border: var(--border-color);
-    --user-message-active-bg: var(--accent-color);
+    --user-message-active-bg: var(--background-secondary);
     --user-message-active-border: var(--accent-color);
+    --user-message-active-text: var(--text-color);
     --user-message-inactive-bg: rgba(248, 249, 250, 0.7);
     --user-message-inactive-border: var(--border-color);
     
@@ -21,6 +22,9 @@
     --assistant-message-active-border: var(--accent-color);
     --assistant-message-inactive-bg: var(--background-tertiary);
     --assistant-message-inactive-border: var(--border-color);
+    
+    --message-quote-color: #ccc;
+    --message-quote-active-color: #333;
     
     /* Message Colors - Dark Theme */
     --user-message-dark-bg: rgba(66, 133, 244, 0.15);
@@ -67,6 +71,7 @@
     --user-message-border: var(--user-message-dark-border);
     --user-message-active-bg: var(--user-message-dark-active-bg);
     --user-message-active-border: var(--user-message-dark-active-border);
+    --user-message-active-text: white;
     --user-message-inactive-bg: var(--user-message-dark-inactive-bg);
     --user-message-inactive-border: var(--user-message-dark-inactive-border);
     
@@ -76,6 +81,9 @@
     --assistant-message-active-border: var(--assistant-message-dark-active-border);
     --assistant-message-inactive-bg: var(--assistant-message-dark-inactive-bg);
     --assistant-message-inactive-border: var(--assistant-message-dark-inactive-border);
+
+    --message-quote-color: var(--secondary-text-color);
+    --message-quote-active-color: var(--text-color);
 }
 
 /* High Contrast Mode */

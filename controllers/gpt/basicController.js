@@ -148,8 +148,6 @@ exports.generateResponse = async (req, res) => {
         // Get API configuration for the requested model
         const { apiKey, apiUrl } = gptService.getApiConfig(model);
 
-        console.log("API config:", { apiKey, apiUrl });
-
         // Initial request data
         let requestData = {
             apiKey,

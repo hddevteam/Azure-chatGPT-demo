@@ -79,7 +79,10 @@ app.get("/redirect", (req, res) => {
     });
 });
 
-const server = app.listen(process.env.PORT || 3000, () => console.log("Server is running"));
+const port = process.env.PORT || 3000;
+const server = app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+});
 
 const { wss } = require("./websocket"); // Import the WebSocket server defined above
 

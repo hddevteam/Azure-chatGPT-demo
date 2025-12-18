@@ -99,7 +99,6 @@ exports.submitTranscriptionJob = async (req, res) => {
 
     console.log("Submitting transcription job with data: ", data);
     console.log("Endpoint: ", endpoint);
-    console.log("Config: ", config);
     
     try {
         const response = await axios.post(endpoint, data, config);

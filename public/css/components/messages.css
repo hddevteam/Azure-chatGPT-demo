@@ -111,18 +111,19 @@
     opacity: 0.6;
     margin-right: 0.5em;
     transition: opacity 0.3s ease, color 0.3s ease;
+    color: var(--message-quote-color);
 }
 
 .user-message.active .fa-quote-left,
 .assistant-message.active .fa-quote-left {
     opacity: 0.9;
-    color: #333;
+    color: var(--message-quote-active-color);
 }
 
 .user-message.inactive .fa-quote-left,
 .assistant-message.inactive .fa-quote-left {
     opacity: 0.6;
-    color: #ccc;
+    color: var(--message-quote-color);
 }
 
 .message .fa-volume-up {
@@ -457,18 +458,18 @@
 }
 
 .user-message.active .fa-quote-left {
-    color: #333;
+    color: var(--message-quote-active-color);
 }
 
 .assistant-message.active .fa-quote-left {
-    color: #333;
+    color: var(--message-quote-active-color);
 }
 
 .fa-quote-left {
     top: 0em;
     left: 0em;
     font-size: 1em;
-    color: #ccc;
+    color: var(--message-quote-color);
 }
 
 /* Link popup menu styles */

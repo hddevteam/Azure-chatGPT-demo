@@ -39,7 +39,7 @@
 .user-message.active {
     background-color: var(--user-message-active-bg);
     border-color: var(--user-message-active-border);
-    color: white;
+    color: var(--user-message-active-text);
     box-shadow: none;
 }
 

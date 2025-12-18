@@ -41,7 +41,6 @@ class SoraApiService {
         console.log("- Generation URL:", this.soraApiUrl);
         console.log("- Base endpoint:", this.baseEndpoint);
         console.log("- Deployment:", this.deployment);
-        console.log("- Using headers:", this.getHeaders());
     }
     
     getHeaders() {

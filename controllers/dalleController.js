@@ -27,7 +27,7 @@ async function textToImageHandler(req, res) {
             style: "vivid"
         };
 
-        console.log("Requesting image from DALL-E API", url, headers, body);
+        console.log("Requesting image from DALL-E API", url, body);
 
         // Use axios to send POST request
         const submission = await axios.post(url, body, { headers });
