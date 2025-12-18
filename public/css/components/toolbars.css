@@ -162,30 +162,6 @@
     }
 }
 
-/* Information display */
-.information {
-    display: flex;
-    justify-content: right;
-    gap: 5px;
-    padding: 2px 5px;
-}
-
-.info-chip {
-    border-radius: var(--border-radius-sm);
-    padding: 2px;
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    font-size: 12px;
-    transition: background-color 0.5s ease-in-out;
-}
-
-.info-chip.updated {
-    background-color: var(--card-bg);
-    border-color: #FF7043;
-    color: #FF7043;
-}
-
 /* Button row */
 .button-row > * {
     height: 34px;
