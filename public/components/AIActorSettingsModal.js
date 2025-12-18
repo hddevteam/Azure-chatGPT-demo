@@ -65,7 +65,7 @@ export default class AIActorSettingsModal {
                         </div>
                         <div class="setting-item">
                             <label for="max_tokens">Max Tokens</label>
-                            <input type="number" id="max_tokens" min="1" step="1" placeholder="2000 (default)">
+                            <input type="number" id="max_tokens" min="1" step="1" placeholder="128000 (default)">
                         </div>
                         <div class="setting-item">
                             <label for="name">Name</label>

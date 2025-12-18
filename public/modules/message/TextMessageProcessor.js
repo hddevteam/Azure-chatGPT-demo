@@ -47,7 +47,7 @@ class TextMessageProcessor extends MessageProcessor {
             top_p: parseFloat(currentProfile.top_p) || 0.95,
             frequency_penalty: parseFloat(currentProfile.frequency_penalty) || 0,
             presence_penalty: parseFloat(currentProfile.presence_penalty) || 0,
-            max_tokens: parseInt(currentProfile.max_tokens) || 2000,
+            max_tokens: parseInt(currentProfile.max_tokens) || 128000,
             webSearchEnabled: this.messageManager.webSearchEnabled
         };
         

@@ -42,7 +42,7 @@ exports.summarizeConversation = async (req, res) => {
                 top_p: gptService.defaultParams.top_p,
                 frequency_penalty: gptService.defaultParams.frequency_penalty,
                 presence_penalty: gptService.defaultParams.presence_penalty,
-                max_tokens: 2000,
+                max_tokens: 128000,
                 response_format: { "type": "json_object" }
             },
         };
@@ -174,7 +174,7 @@ exports.generateRealtimeSummary = async (req, res) => {
             prompt,
             params: {
                 temperature: 0.3,
-                max_tokens: 2000,
+                max_tokens: 128000,
                 frequency_penalty: 0,
                 presence_penalty: 0,
                 response_format: { "type": "json_object" }

@@ -57,13 +57,13 @@ const defaultParams = {
     top_p: 0.95,
     frequency_penalty: 0,
     presence_penalty: 0,
-    max_tokens: 2000
+    max_tokens: 128000
 };
 
 // Default parameters for reasoning models (GPT-5 series, O-series)
 // Based on: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/reasoning
 const reasoningModelParams = {
-    max_completion_tokens: 2000,
+    max_completion_tokens: 128000,
     reasoning_effort: "medium" // minimal, low, medium, high
 };
 

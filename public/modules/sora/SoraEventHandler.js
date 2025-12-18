@@ -1051,7 +1051,7 @@ Please optimize this video prompt according to the rewrite requirements:`;
         try {
             // Dynamically adjust token count based on model type
             const isOSeriesModel = ["o1", "o1-mini", "o3", "o3-mini", "o4-mini"].includes(model);
-            const maxTokens = isOSeriesModel ? 2000 : 500;  // O-series models need more tokens
+            const maxTokens = isOSeriesModel ? 128000 : 500;  // O-series models need more tokens
             
             console.log(`Model ${model} using ${maxTokens} max_tokens${isOSeriesModel ? " (O-series model)" : ""}`);
             
