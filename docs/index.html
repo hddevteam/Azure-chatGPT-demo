@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Azure ChatGPT Demo - Powerful AI & Sora Video Generation</title>
-    <meta name="description" content="Experience the next generation of AI conversation with Azure OpenAI GPT-5, GPT-4o, O-series reasoning models, Sora video generation, real-time voice chat, and comprehensive AI features. Open source and ready to deploy.">
-    <meta name="keywords" content="Azure OpenAI, ChatGPT, GPT-5, GPT-4o, O-series models, Sora video generation, AI chat, Node.js, realtime voice, reasoning models">
+    <meta name="description" content="Experience the next generation of AI conversation with Azure OpenAI GPT-5, Azure AI Foundry models (gpt-5.2, gpt-5.1), GPT-4o, O-series reasoning models, Sora video generation, real-time voice chat, and comprehensive AI features. Open source and ready to deploy.">
+    <meta name="keywords" content="Azure OpenAI, Azure AI Foundry, ChatGPT, GPT-5, gpt-5.2, gpt-5.1, GPT-4o, O-series models, Sora video generation, AI chat, Node.js, realtime voice, reasoning models">
     <meta name="author" content="HDDevTeam">
     
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="AI007 - Azure ChatGPT Demo with GPT-5 & Sora Video Generation">
-    <meta property="og:description" content="Powerful chatGPT web app with Azure OpenAI GPT-5, GPT-4o, O-series reasoning models, Sora AI video generation, and real-time voice capabilities.">
+    <meta property="og:description" content="Powerful chatGPT web app with Azure OpenAI GPT-5, Azure AI Foundry models (gpt-5.2, gpt-5.1), GPT-4o, O-series reasoning models, Sora AI video generation, and real-time voice capabilities.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hddevteam.github.io/Azure-chatGPT-demo/">
     <meta property="og:image" content="https://hddevteam.github.io/Azure-chatGPT-demo/assets/images/icons/512.png">
@@ -18,7 +18,7 @@
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="AI007 - Azure ChatGPT Demo with GPT-5 & Sora Video Generation">
-    <meta name="twitter:description" content="Powerful chatGPT web app with Azure OpenAI GPT-5, GPT-4o, O-series reasoning models, Sora AI video generation, and real-time voice capabilities.">
+    <meta name="twitter:description" content="Powerful chatGPT web app with Azure OpenAI GPT-5, Azure AI Foundry models (gpt-5.2, gpt-5.1), GPT-4o, O-series reasoning models, Sora AI video generation, and real-time voice capabilities.">
     <meta name="twitter:image" content="https://hddevteam.github.io/Azure-chatGPT-demo/assets/images/icons/512.png">
     
     <!-- Structured Data -->
@@ -27,7 +27,7 @@
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "AI007 - Azure ChatGPT Demo",
-        "description": "Powerful chatGPT web app built with Node.js and leveraging Azure OpenAI GPT-5, GPT-4o, O-series reasoning models, Sora video generation, and real-time voice capabilities.",
+        "description": "Powerful chatGPT web app built with Node.js and leveraging Azure OpenAI GPT-5, Azure AI Foundry models (gpt-5.2, gpt-5.1), GPT-4o, O-series reasoning models, Sora video generation, and real-time voice capabilities.",
         "url": "https://hddevteam.github.io/Azure-chatGPT-demo/",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "Cross-platform",
@@ -114,7 +114,7 @@
                     Powerful chatGPT for <span class="hero__title-highlight">Azure OpenAI</span>
                 </h1>
                 <p class="hero__subtitle">
-                    Experience the next generation of AI conversation with Azure OpenAI GPT-5 series (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat), O-series reasoning models (o3, o3-mini, o4-mini), GPT-4o models, and GPT-4.1 series, enhanced with Sora video generation and real-time voice capabilities.
+                    Experience the next generation of AI conversation with Azure OpenAI GPT-5 series (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat), Azure AI Foundry models (gpt-5.2, gpt-5.1), O-series reasoning models (o3, o3-mini, o4-mini), GPT-4o models, and GPT-4.1 series, enhanced with Sora video generation and real-time voice capabilities.
                 </p>
                 <div class="hero__features">
                     <div class="hero__feature">
@@ -188,7 +188,9 @@
                     <div class="feature-card__icon"><svg class="icon" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                     <h3 class="feature-card__title">Latest AI Models</h3>
                     <p class="feature-card__description">
-                        Support for the most advanced AI models including GPT-5 series (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat), O-series reasoning models (o3, o3-mini, o4-mini), GPT-4o series, and GPT-4.1 series.
+                        Support for the most advanced AI models including GPT-5 series (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat), Azure AI Foundry models
+                        (<span class="model-chip model-chip--gpt52">gpt-5.2</span> <span class="model-chip model-chip--gpt51">gpt-5.1</span>),
+                        O-series reasoning models (o3, o3-mini, o4-mini), GPT-4o series, and GPT-4.1 series.
                     </p>
                 </div>
 
@@ -314,10 +316,11 @@
                         <div class="step__number">2</div>
                         <div class="step__content">
                             <h3 class="step__title">Configure Environment</h3>
-                            <p class="step__description">Set up your Azure OpenAI API keys and endpoints</p>
+                            <p class="step__description">Set up your Azure OpenAI credentials (and Azure AI Foundry project endpoint for gpt-5.2 / gpt-5.1)</p>
                             <div class="code-block">
                                 <code>cp .envtemplate .env
-# Edit .env with your Azure OpenAI credentials</code>
+# Edit .env with your Azure OpenAI credentials
+# If using Azure AI Foundry models (gpt-5.2 / gpt-5.1), also set AZURE_AI_FOUNDRY_ENDPOINT and AZURE_AI_FOUNDRY_KEY</code>
                                 <button class="code-block__copy" data-clipboard-text="cp .envtemplate .env" title="Copy to clipboard" aria-label="Copy command to clipboard">
                                     <svg viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
@@ -361,10 +364,11 @@
                         <div class="step__number">2</div>
                         <div class="step__content">
                             <h3 class="step__title">Configure Environment</h3>
-                            <p class="step__description">Set up your Azure OpenAI API keys and endpoints</p>
+                            <p class="step__description">Set up your Azure OpenAI credentials (and Azure AI Foundry project endpoint for gpt-5.2 / gpt-5.1)</p>
                             <div class="code-block">
                                 <code>cp .envtemplate .env
-# Edit .env with your Azure OpenAI credentials</code>
+# Edit .env with your Azure OpenAI credentials
+# If using Azure AI Foundry models (gpt-5.2 / gpt-5.1), also set AZURE_AI_FOUNDRY_ENDPOINT and AZURE_AI_FOUNDRY_KEY</code>
                                 <button class="code-block__copy" data-clipboard-text="cp .envtemplate .env" title="Copy to clipboard" aria-label="Copy command to clipboard">
                                     <svg viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
@@ -412,6 +416,7 @@
                     <ul class="getting-started__requirements-list">
                         <li>Node.js 16+ installed</li>
                         <li>Azure OpenAI API access</li>
+                        <li>(Optional) Azure AI Foundry project access (for gpt-5.2 / gpt-5.1)</li>
                         <li>Azure subscription (for advanced features)</li>
                         <li>Sora API access (for video generation)</li>
                     </ul>

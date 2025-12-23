@@ -1,12 +1,12 @@
 # 🤖 强大的 Azure OpenAI GPT 模型 chatGPT 与 Sora 视频生成
 
-欢迎使用 Azure chatGPT，这是一个基于 Node.js 构建的迷人 chatGPT 网络应用，利用最新的 Azure OpenAI 模型，包括 **GPT-5 系列**（gpt-5、gpt-5-mini、gpt-5-nano、gpt-5-chat）、**O系列推理模型**（o3、o3-mini、o4-mini）、GPT-4o-realtime/o1/o1-mini/GPT-4O/GPT-4O-mini/GPT-4.1 系列，并增强了尖端的 Sora AI 视频生成功能。该项目为对使用 JavaScript、Azure OpenAI API 和高级视频生成功能开发综合 AI 应用程序感兴趣的开发者提供了一个绝佳的起点。
+欢迎使用 Azure chatGPT，这是一个基于 Node.js 构建的迷人 chatGPT 网络应用，利用最新的 Azure OpenAI 模型，包括 **GPT-5 系列**（gpt-5、gpt-5-mini、gpt-5-nano、gpt-5-chat）、**Azure AI Foundry 模型**（gpt-5.2、gpt-5.1）、**O系列推理模型**（o3、o3-mini、o4-mini）、GPT-4o-realtime/o1/o1-mini/GPT-4O/GPT-4O-mini/GPT-4.1 系列，并增强了尖端的 Sora AI 视频生成功能。该项目为对使用 JavaScript、Azure OpenAI API 和高级视频生成功能开发综合 AI 应用程序感兴趣的开发者提供了一个绝佳的起点。
 
 ## 📚 项目学习收获
 
 通过这个项目，您将获得几个关键 API 和服务的实践经验，包括：
 
-- **Azure OpenAI API**：学习如何集成和利用各种先进的 GPT 模型，包括 **GPT-5 系列**（gpt-5、gpt-5-mini、gpt-5-nano、gpt-5-chat）、**O系列推理模型**（o3、o3-mini、o4-mini）、GPT-4o、GPT-4o-mini、GPT-4o-realtime 和 GPT-4.1 系列，构建具有尖端功能的智能对话代理。
+- **Azure OpenAI API**：学习如何集成和利用各种先进的 GPT 模型，包括 **GPT-5 系列**（gpt-5、gpt-5-mini、gpt-5-nano、gpt-5-chat）、**Azure AI Foundry 模型**（gpt-5.2、gpt-5.1）、**O系列推理模型**（o3、o3-mini、o4-mini）、GPT-4o、GPT-4o-mini、GPT-4o-realtime 和 GPT-4.1 系列，构建具有尖端功能的智能对话代理。
 - **Sora 视频生成 API**：掌握高级 AI 视频生成功能，包括文本转视频、作业管理和异步处理工作流。
 
 - **Azure 语音服务**：了解如何实现文本转语音和语音转文本功能，通过语音功能增强用户交互。
@@ -22,6 +22,7 @@
 - **🎬 新功能：Sora AI 视频生成 - 使用 OpenAI 尖端的 Sora 模型从文本描述创建惊人的视频！🎬**
 ![Sora 视频生成截图](screenshots/screenshot_sora.jpeg)
 - **🎉支持 GPT-5 系列 - 最新推理模型，具备增强功能：gpt-5、gpt-5-mini、gpt-5-nano、gpt-5-chat🎉**
+- **🚀支持 Azure AI Foundry 模型 - 通过 Azure AI Foundry 项目端点部署的 GPT-5.2 和 GPT-5.1（前端使用独立颜色便于区分）🚀**
 - **🎉支持 O系列模型 - 高级推理能力：o3、o3-mini、o4-mini🎉**
 - **🎙️增强版实时语音聊天 - 提供 gpt-realtime 与 gpt-realtime-mini 双模型、即时切换、8 种语音以及扬声器静音控制🎙️**
 - **✨支持 PWA（渐进式网络应用程序）✨**

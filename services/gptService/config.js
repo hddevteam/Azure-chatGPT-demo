@@ -25,6 +25,8 @@ const apiKeys = {
     gpt5Mini: process.env.GPT_5_MINI_API_KEY, // API Key for gpt-5-mini model
     gpt5Nano: process.env.GPT_5_NANO_API_KEY, // API Key for gpt-5-nano model
     gpt5Chat: process.env.GPT_5_CHAT_API_KEY, // API Key for gpt-5-chat model
+    gpt52: process.env.AZURE_AI_FOUNDRY_KEY, // API Key for gpt-5.2 model (Azure AI Foundry)
+    gpt51: process.env.AZURE_AI_FOUNDRY_KEY, // API Key for gpt-5.1 model (Azure AI Foundry)
     // Default key based on environment
     default: devMode ? process.env.API_KEY_DEV : process.env.GPT_4_1_API_KEY
 };
@@ -47,6 +49,8 @@ const apiUrls = {
     gpt5Mini: process.env.GPT_5_MINI_API_URL, // URL for gpt-5-mini model
     gpt5Nano: process.env.GPT_5_NANO_API_URL, // URL for gpt-5-nano model
     gpt5Chat: process.env.GPT_5_CHAT_API_URL, // URL for gpt-5-chat model
+    gpt52: process.env.AZURE_AI_FOUNDRY_ENDPOINT, // URL for gpt-5.2 model (Azure AI Foundry)
+    gpt51: process.env.AZURE_AI_FOUNDRY_ENDPOINT, // URL for gpt-5.1 model (Azure AI Foundry)
     // Default URL based on environment
     default: devMode ? process.env.API_URL_DEV : process.env.GPT_4_1_API_URL
 };
@@ -223,6 +227,47 @@ const modelFeatures = {
             supportsDeveloperMessages: true,
             requiresMaxCompletionTokens: true, // ✅ Reasoning model
             unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'] // ❌ Not supported
+        },
+        // ✅ Azure AI Foundry GPT-5 models
+        'gpt-5.2': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true,
+            supportsVision: true,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 272000,
+            outputTokens: 128000,
+            supportsReasoningEffort: true,
+            supportsReasoningSummary: true,
+            supportsVerbosity: true,
+            supportsPreamble: true,
+            supportsMinimalReasoningEffort: true,
+            supportsCustomToolType: true,
+            supportsLarkTool: true,
+            supportsDeveloperMessages: true,
+            requiresMaxCompletionTokens: true,
+            unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'],
+            isFoundryModel: true // ✅ Indicates this uses Azure AI Foundry endpoint
+        },
+        'gpt-5.1': {
+            supportsFunctionCalling: true,
+            supportsSystemMessages: true,
+            supportsVision: true,
+            supportsStructuredOutputs: true,
+            supportsParallelFunctionCalling: true,
+            maxTokens: 272000,
+            outputTokens: 128000,
+            supportsReasoningEffort: true,
+            supportsReasoningSummary: true,
+            supportsVerbosity: true,
+            supportsPreamble: true,
+            supportsMinimalReasoningEffort: true,
+            supportsCustomToolType: true,
+            supportsLarkTool: true,
+            supportsDeveloperMessages: true,
+            requiresMaxCompletionTokens: true,
+            unsupportedParams: ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty', 'max_tokens'],
+            isFoundryModel: true // ✅ Indicates this uses Azure AI Foundry endpoint
         }
     };
 
@@ -299,6 +344,14 @@ const getApiConfig = (model) => {
         apiKey = apiKeys.gpt5Chat;
         apiUrl = apiUrls.gpt5Chat;
         break;
+    case "gpt-5.2":  // Add gpt-5.2 configuration (Azure AI Foundry)
+        apiKey = apiKeys.gpt52;
+        apiUrl = apiUrls.gpt52;
+        break;
+    case "gpt-5.1":  // Add gpt-5.1 configuration (Azure AI Foundry)
+        apiKey = apiKeys.gpt51;
+        apiUrl = apiUrls.gpt51;
+        break;
     default:
         // Default to GPT-4O if model not specified
         apiKey = apiKeys.gpt41;
@@ -340,6 +393,8 @@ const isReasoningModel = (model) => {
         "gpt-5-mini",
         "gpt-5-nano",
         "gpt-5-chat",
+        "gpt-5.2",
+        "gpt-5.1",
         // Legacy
         "gpt-4.5-preview"
     ].includes(model);

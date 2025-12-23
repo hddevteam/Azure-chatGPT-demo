@@ -64,3 +64,8 @@ GPT_4_1_MINI_API_KEY=your-gpt41-mini-key
 
 SORA_API_URL=https://yourserver.openai.azure.com/openai/deployments/sora/video/generations/jobs?api-version=2025-02-15-preview
 SORA_API_KEY=your-sora-api-key
+
+# Azure AI Foundry Project Endpoint Configuration
+# For models deployed through Azure AI Foundry projects (gpt-5.2, gpt-5.1, etc.)
+AZURE_AI_FOUNDRY_ENDPOINT=https://your-project-resource.services.ai.azure.com/api/projects/your-project/chat/completions?api-version=2024-05-01-preview
+AZURE_AI_FOUNDRY_KEY=your-foundry-api-key

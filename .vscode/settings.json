@@ -13,5 +13,6 @@
     "editor.formatOnSave": false,
     // Only format when ESLint configuration is detected
     "editor.formatOnSaveMode": "modificationsIfAvailable",
+    "liveServer.settings.port": 5501,
     
 }

@@ -29,7 +29,9 @@ export default class ModelDropdownManager {
             "gpt-5": "GPT-5",
             "gpt-5-mini": "GPT-5 MINI",
             "gpt-5-nano": "GPT-5 NANO",
-            "gpt-5-chat": "GPT-5 CHAT"
+            "gpt-5-chat": "GPT-5 CHAT",
+            "gpt-5.2": "GPT-5.2",
+            "gpt-5.1": "GPT-5.1"
         };
         
         // Default model

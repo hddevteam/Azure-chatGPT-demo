@@ -17,6 +17,8 @@
     --model-gpt5-mini: #f77f00; /* GPT-5 Mini - 亮橙色 */
     --model-gpt5-nano: #fcbf49; /* GPT-5 Nano - 金黄色 */
     --model-gpt5-chat: #a53860; /* GPT-5 Chat - 深玫红色，适合聊天场景 */
+    --model-gpt52: #00b4d8; /* GPT-5.2 - 天蓝色，代表Azure AI Foundry新一代 */
+    --model-gpt51: #0077b6; /* GPT-5.1 - 深蓝色，代表Azure AI Foundry稳定版 */
 }
 
 /* Model button & indicator styles */
@@ -61,6 +63,8 @@
 .btn.gpt-5-mini, .message-header .model-indicator.gpt-5-mini { background-color: var(--model-gpt5-mini); }
 .btn.gpt-5-nano, .message-header .model-indicator.gpt-5-nano { background-color: var(--model-gpt5-nano); }
 .btn.gpt-5-chat, .message-header .model-indicator.gpt-5-chat { background-color: var(--model-gpt5-chat); }
+.btn.gpt-5\.2, .message-header .model-indicator.gpt-5\.2 { background-color: var(--model-gpt52); }
+.btn.gpt-5\.1, .message-header .model-indicator.gpt-5\.1 { background-color: var(--model-gpt51); }
 
 /* 模型选择器的微调 */
 #model-switch {
@@ -149,6 +153,19 @@
 .model-dropdown .dropdown-item[data-model="gpt-5-chat"]::before {
     content: "●";
     color: var(--model-gpt5-chat);
+    margin-right: 5px;
+}
+
+/* Azure AI Foundry GPT-5.x 模型的下拉菜单样式 */
+.model-dropdown .dropdown-item[data-model="gpt-5.2"]::before {
+    content: "●";
+    color: var(--model-gpt52);
+    margin-right: 5px;
+}
+
+.model-dropdown .dropdown-item[data-model="gpt-5.1"]::before {
+    content: "●";
+    color: var(--model-gpt51);
     margin-right: 5px;
 }
 
@@ -293,6 +310,8 @@
 #model-select-modal .model-option[data-model="gpt-5-mini"]::before { color: var(--model-gpt5-mini); }
 #model-select-modal .model-option[data-model="gpt-5-nano"]::before { color: var(--model-gpt5-nano); }
 #model-select-modal .model-option[data-model="gpt-5-chat"]::before { color: var(--model-gpt5-chat); }
+#model-select-modal .model-option[data-model="gpt-5.2"]::before { color: var(--model-gpt52); }
+#model-select-modal .model-option[data-model="gpt-5.1"]::before { color: var(--model-gpt51); }
 
 /* 暗色主题适配 */
 .theme-dark #model-select-modal .modal-inner {

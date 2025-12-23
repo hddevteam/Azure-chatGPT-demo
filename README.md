@@ -3,13 +3,13 @@
 > **Language / 语言**: [English](README.md) | [中文](README.zh-CN.md)  
 > **Live Demo / 在线演示**: [English](https://hddevteam.github.io/Azure-chatGPT-demo/) | [中文](https://hddevteam.github.io/Azure-chatGPT-demo/zh-cn/)
 
-Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the latest Azure OpenAI models including **GPT-5 series** (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat), **O-series reasoning models** (o3, o3-mini, o4-mini), GPT-4o-realtime/o1/o1-mini/GPT-4O/GPT-4O-mini/GPT-4.1 series, enhanced with cutting-edge Sora AI video generation capabilities. This project serves as an excellent starting point for developers interested in developing comprehensive AI applications using JavaScript, the Azure OpenAI API, and advanced video generation features.
+Welcome to Azure chatGPT, a fascinating chatGPT web app built with Node.js and leveraging the latest Azure OpenAI models including **GPT-5 series** (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat) and **Azure AI Foundry models** (gpt-5.2, gpt-5.1), **O-series reasoning models** (o3, o3-mini, o4-mini), GPT-4o-realtime/o1/o1-mini/GPT-4O/GPT-4O-mini/GPT-4.1 series, enhanced with cutting-edge Sora AI video generation capabilities. This project serves as an excellent starting point for developers interested in developing comprehensive AI applications using JavaScript, the Azure OpenAI API, and advanced video generation features.
 
 ## 📚 Learnings from this Project
 
 By working on this project, you will gain hands-on experience with several key APIs and services, including:
 
-- **Azure OpenAI API**: Learn how to integrate and utilize various advanced GPT models, including **GPT-5 series** (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat), **O-series reasoning models** (o3, o3-mini, o4-mini), GPT-4o, GPT-4o-mini, GPT-4o-realtime, and GPT-4.1 series to build intelligent conversational agents with cutting-edge capabilities.
+- **Azure OpenAI API**: Learn how to integrate and utilize various advanced GPT models, including **GPT-5 series** (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat), **Azure AI Foundry models** (gpt-5.2, gpt-5.1), **O-series reasoning models** (o3, o3-mini, o4-mini), GPT-4o, GPT-4o-mini, GPT-4o-realtime, and GPT-4.1 series to build intelligent conversational agents with cutting-edge capabilities.
 - **Sora Video Generation API**: Master advanced AI video generation capabilities, including text-to-video conversion, job management, and asynchronous processing workflows.
 
 - **Azure Speech Service**: Understand how to implement both Text-to-Speech and Speech-to-Text functionalities to enhance user interactions with voice capabilities.
@@ -25,6 +25,7 @@ These learnings will equip you with the skills to build robust, feature-rich cha
 - **🎬 NEW: Sora AI Video Generation - Create stunning videos from text descriptions using OpenAI's cutting-edge Sora model! 🎬**
 ![Sora Video Generation Screenshot](screenshots/screenshot_sora.jpeg)
 - **🎉Support for GPT-5 Series - Latest reasoning models with enhanced capabilities: gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-chat🎉**
+- **🚀Support for Azure AI Foundry Models - GPT-5.2 and GPT-5.1 deployed through Azure AI Foundry project endpoints (distinct UI colors for quick identification)🚀**
 - **🎉Support for O-series Models - Advanced reasoning capabilities: o3, o3-mini, o4-mini🎉**
 - **🎙️Enhanced Realtime Voice Chat - dual GPT Realtime models (gpt-realtime & gpt-realtime-mini), instant model switching, 8 voice options, and speaker mute control🎙️**
 - **✨Support PWA (Progressive Web App)✨**
@@ -124,6 +125,10 @@ This application now includes powerful video generation capabilities powered by 
    O3_API_KEY=your-o3-key
    O4_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/o4-mini/chat/completions?api-version=2024-12-01-preview
    O4_MINI_API_KEY=your-o4-mini-key
+   
+   # Azure AI Foundry Project Endpoint (for gpt-5.2, gpt-5.1, etc.)
+   AZURE_AI_FOUNDRY_ENDPOINT=https://your-project-resource.services.ai.azure.com/api/projects/your-project/chat/completions?api-version=2024-05-01-preview
+   AZURE_AI_FOUNDRY_KEY=your-foundry-api-key
    
    # Traditional O1 Models
    O1_MINI_API_URL=https://yourserver.openai.azure.com/openai/deployments/o1-mini/chat/completions?api-version=2024-12-01-preview

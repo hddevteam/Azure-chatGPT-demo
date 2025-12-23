@@ -441,6 +441,31 @@ p {
     font-size: 1rem;
 }
 
+/* Model chips (used in GitHub Pages to highlight model support) */
+.model-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #fff;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+
+.model-chip::before {
+    content: "●";
+    font-size: 0.85em;
+    line-height: 1;
+    opacity: 0.9;
+}
+
+.model-chip--gpt52 { background: #00b4d8; }
+.model-chip--gpt51 { background: #0077b6; }
+
 .feature-card__list {
     list-style: none;
     padding: 0;
